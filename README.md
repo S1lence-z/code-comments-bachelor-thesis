@@ -1,9 +1,19 @@
 # Bachelor Thesis
 
-## Overleaf
+---
 
-This is the link for my [bachelor thesis](https://www.overleaf.com/read/cjjpshmmbdyy#12c74b) written in LaTeX.
+## Repo Wiki
+
+For detailed documentation, visit the **[wiki](./wiki/)** section which contains all the sections which are below in a more presentable format.
+
+---
 
 ## Bachelor Thesis Specification
 
-File containing the [specification](./docs/code_comments_specs.md) for my bachelor thesis.
+The full [specification](./docs/code_comments_specs.md) for the thesis is available in the following document:
+
+---
+
+## Overleaf
+
+The [thesis](https://www.overleaf.com/project/679d4155c4e6d540df8ca774) is written in LaTeX and managed on Overleaf.
