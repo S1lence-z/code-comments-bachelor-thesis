@@ -128,3 +128,9 @@ I think that the backend could provide very simple user management, so that the 
     - Vite + Vue + Tailwind CSS
     - Backend: ASP.NET, Flask (as it should be simple, otherwise Django)
     - Code editor: ACE, CodeMirror, highligh.js (static rather not)
+
+### Similar platforms
+
+1. https://www.reviewboard.org/
+    - I need to look more into it but it seems like a platform which enables any uploaded document to add comments in specific places so they are easily visible and identifiable
+    - Not strictly for coding (although it seems well done)
