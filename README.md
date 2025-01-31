@@ -1,18 +1,12 @@
 # Bachelor Thesis
 
----
-
 ## Repo Wiki
 
 For detailed documentation, visit the **[wiki](./wiki/)** section which contains all the sections which are below in a more presentable format.
 
----
-
 ## Bachelor Thesis Specification
 
 The full [specification](./docs/code_comments_specs.md) for the thesis is available in the following document:
-
----
 
 ## Overleaf
 
