@@ -1,17 +1,15 @@
-### New Specification
+# New Specification
 
-## 1. Code Commenting Platform (CodeComments)
-
-### New Specification
+## Code Commenting Platform (CodeComments)
 
 This application should be a client-side only tool designed for code commenting and collaboration, focusing on education use cases. It should work as a standalone tool but could potentially be integrated into other systems as means to provide the said functionality.
 
 The application will not be bound to any backend functionality.
 I think that the backend could provide very simple user management, so that the comments could be authored by users so people would not pretend to be someone else. This functionality could of course be achieved solely on the client-side (with the URL "username" param).
 
-### Features
+## Features
 
-#### Core Features
+### Core Features
 
 1. **Configuration via URL**
 
@@ -58,7 +56,7 @@ I think that the backend could provide very simple user management, so that the 
     - Integrates with Git repositories via configuration (clone/pull/push managed externally)
     - Users handle repository management independently
 
-#### Optional Backend Features
+### Optional Backend Features
 
 1. **User Management**
 
@@ -74,7 +72,7 @@ I think that the backend could provide very simple user management, so that the 
     - Advanced comment storage and retrieval
     - Analytics for teacher feedback and comment patterns
 
-#### Additional Features
+### Additional Features
 
 1. **Tags for Comments**
 
@@ -95,13 +93,13 @@ I think that the backend could provide very simple user management, so that the 
 
 ---
 
-### Workflow Example
+## Workflow Example
 
-#### 1. **Configuration and Setup**
+1.  **Configuration and Setup**
 
 -   The teacher provides a URL containing repository and comment configuration (a repo containing the source code to be commented)
 
-#### 2. **Code Review**
+2. **Code Review**
 
 -   Code is loaded into the client from the specified repository
 -   Users can leave comments directly on code lines
@@ -110,18 +108,16 @@ I think that the backend could provide very simple user management, so that the 
     -   Attachments
     -   Timestamps
 
-#### 3. **Collaboration**
+3.  **Collaboration**
 
 -   Users reply to comments and mark them as resolved (by adding tags)
 -   Using commit messages and their respective #number, they could be closed and updated using webhooks
 
-#### 4. **Feedback and Project Closure**
+4.  **Feedback and Project Closure**
 
 -   Teachers review and consolidate feedback
 -   Students receive a summary of feedback and performance metrics
     -   should be manged by the backend if needed
-
----
 
 ## Tech Stack
 
@@ -129,7 +125,7 @@ I think that the backend could provide very simple user management, so that the 
     - Backend: ASP.NET, Flask (as it should be simple, otherwise Django)
     - Code editor: ACE, CodeMirror, highligh.js (static rather not)
 
-### Similar platforms
+## Similar platforms
 
 1. https://www.reviewboard.org/
     - I need to look more into it but it seems like a platform which enables any uploaded document to add comments in specific places so they are easily visible and identifiable
