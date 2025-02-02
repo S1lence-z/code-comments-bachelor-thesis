@@ -1,7 +1,7 @@
 name: Sync Markdown to Wiki
 on:
     push:
-        branches: [main]
+        branches: [master]
         paths:
             - "docs/code_comments_specs.md"
 concurrency:
@@ -13,9 +13,12 @@ jobs:
     sync-wiki:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v3
-            - uses: Andrew-Chen-Wang/github-wiki-action@v4
+            - name: Checkout repository
+              uses: actions/checkout@v3
+
+            - name: Sync Wiki
+              uses: Andrew-Chen-Wang/github-wiki-action@v4
               with:
                   wiki_token: ${{ secrets.GH_PAT }}
                   repository: ${{ github.repository }}
-                  path: .
+                  path: docs
