@@ -1,32 +1,21 @@
 name: Sync Markdown to Wiki
-
 on:
     push:
-        branches:
-            - main
+        branches: [main]
         paths:
-            - "docs/code_comments_specs.md" # Trigger when this file changes
-
+            - "docs/code_comments_specs.md"
+concurrency:
+    group: sync-wiki
+    cancel-in-progress: true
+permissions:
+    contents: write
 jobs:
     sync-wiki:
         runs-on: ubuntu-latest
         steps:
-            - name: Checkout Repository
-              uses: actions/checkout@v4
-
-            - name: Clone Wiki
-              run: |
-                  git clone https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.wiki.git wiki
-
-            - name: Copy Markdown File to Wiki
-              run: |
-                  cp docs/code_comments_specs.md wiki/Thesis-Specification.md
-
-            - name: Commit & Push Changes
-              run: |
-                  cd wiki
-                  git config user.name "github-actions[bot]"
-                  git config user.email "github-actions[bot]@users.noreply.github.com"
-                  git add Thesis-Specification.md
-                  git commit -m "Auto-update Wiki: Sync code_comments_specs.md"
-                  git push
+            - uses: actions/checkout@v3
+            - uses: Andrew-Chen-Wang/github-wiki-action@v4
+              with:
+                  wiki_token: ${{ secrets.GH_PAT }}
+                  repository: ${{ github.repository }}
+                  path: .
