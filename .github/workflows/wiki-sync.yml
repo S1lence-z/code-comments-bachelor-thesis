@@ -3,7 +3,7 @@ on:
     push:
         branches: [master]
         paths:
-            - "docs/code_comments_specs.md"
+            - "docs/Specification.md"
 concurrency:
     group: sync-wiki
     cancel-in-progress: true
