@@ -133,4 +133,4 @@ I think that the backend could provide very simple user management, so that the 
 
 1. https://www.reviewboard.org/
     - I need to look more into it but it seems like a platform which enables any uploaded document to add comments in specific places so they are easily visible and identifiable
-    - Not strictly for coding (although it seems well done)
+    - Not strictly for coding (although it seems very well done)
