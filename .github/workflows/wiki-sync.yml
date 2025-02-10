@@ -21,4 +21,4 @@ jobs:
               with:
                   wiki_token: ${{ secrets.GH_PAT }}
                   repository: ${{ github.repository }}
-                  path: docs
+                  path: wiki
