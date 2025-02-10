@@ -19,6 +19,6 @@ jobs:
             - name: Sync Wiki
               uses: Andrew-Chen-Wang/github-wiki-action@v4
               with:
-                  wiki_token: ${{ secrets.GH_PAT }}
+                  token: ${{ secrets.GH_PAT }}
                   repository: ${{ github.repository }}
                   path: wiki
