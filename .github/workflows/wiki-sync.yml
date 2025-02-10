@@ -3,7 +3,7 @@ on:
     push:
         branches: [master]
         paths:
-            - "docs/**"
+            - "wiki/**"
 concurrency:
     group: sync-wiki
     cancel-in-progress: true
