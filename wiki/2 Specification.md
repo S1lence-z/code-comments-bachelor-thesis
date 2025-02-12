@@ -121,7 +121,8 @@ I think that the backend could provide very simple user management, so that the 
 
     - Vite + Vue + Tailwind CSS
     - Backend: ASP.NET, Flask (as it should be simple, otherwise Django)
-    - Code editor: ACE, CodeMirror, highligh.js (static rather not)
+    - Syntax Highlighting: highlight.js
+    - Code editor: ACE, CodeMirror (the latter option)
 
 # Similar platforms
 
