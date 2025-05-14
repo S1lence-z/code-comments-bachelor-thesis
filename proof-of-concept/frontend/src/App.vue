@@ -1,8 +1,14 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import FileExplorer from './components/FileExplorer.vue';
 import CodeEditor from './components/CodeEditor.vue';
-import type { TreeNode, GitHubTreeItem } from './types/github'; // Assuming types/github.ts
+import type { TreeNode, GitHubTreeItem } from './types/github';
+
+// Define the Comment interface (if not already globally defined or imported)
+interface Comment {
+  lineNumber: number;
+  text: string;
+}
 
 const repoUrl = ref<string>('');
 const branch = ref<string>('main');
@@ -13,6 +19,17 @@ const errorMessage = ref<string>('');
 const isLoadingRepo = ref<boolean>(false);
 const isLoadingFile = ref<boolean>(false);
 const GITHUB_PAT = import.meta.env.VITE_GITHUB_PAT;
+
+// Reactive state for storing comments, keyed by file path
+const allComments = ref<Record<string, Comment[]>>({});
+
+// Computed property to get comments for the currently selected file
+const currentFileComments = computed(() => {
+  if (selectedFile.value) {
+    return allComments.value[selectedFile.value] || [];
+  }
+  return [];
+});
 
 function buildFileTreeFromGitHub(gitHubItems: GitHubTreeItem[]): TreeNode[] {
   const rootNodes: TreeNode[] = [];
@@ -128,6 +145,8 @@ async function handleFileSelected(path: string) {
   fileContent.value = null; // Clear previous content
   isLoadingFile.value = true;
 
+  // Comments for the new file are already handled by currentFileComments computed property
+
   const url = new URL(repoUrl.value);
   const [owner, repo] = url.pathname.split('/').filter(Boolean);
   const contentUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch.value}`;
@@ -176,6 +195,24 @@ function handleToggleExpandInTree(itemToToggle: TreeNode) {
   findAndToggle(fileTreeData.value);
 }
 
+// Handler for when a line is double-clicked in the CodeEditor
+async function handleLineDoubleClicked(payload: { lineNumber: number; filePath: string }) {
+  const { lineNumber, filePath } = payload;
+  const commentText = window.prompt(`Enter comment for line ${lineNumber} in ${filePath.split('/').pop()}:`);
+
+  if (commentText) {
+    const newComment: Comment = { lineNumber, text: commentText };
+    if (!allComments.value[filePath]) {
+      allComments.value[filePath] = [];
+    }
+    // Add the new comment and ensure it's sorted by line number for consistent display
+    const fileComments = allComments.value[filePath];
+    fileComments.push(newComment);
+    fileComments.sort((a, b) => a.lineNumber - b.lineNumber);
+    // Vue's reactivity should handle the update automatically
+  }
+}
+
 onMounted(() => {
 
   if (parseRepoUrlAndBranch()) {
@@ -211,6 +248,8 @@ onMounted(() => {
 				:file-path="selectedFile"
 				:file-content="fileContent"
 				:is-loading-file="isLoadingFile"
+				:comments="currentFileComments"
+				@line-double-clicked="handleLineDoubleClicked"
 			/>
 		</div>
 	</div>
@@ -232,7 +271,7 @@ onMounted(() => {
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: auto;
   border-right: 1px solid #181818;
 }
 
@@ -240,7 +279,7 @@ onMounted(() => {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: auto;
 }
 
 .loading-message {

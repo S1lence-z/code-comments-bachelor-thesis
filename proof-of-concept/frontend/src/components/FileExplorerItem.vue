@@ -21,7 +21,7 @@
 
 			<span class="mr-2 item-icon">
 				<span v-if="item.type === 'folder'">📁</span>
-				<span v-else>{{ getFileIcon(item.name) }}</span>
+				<span v-else>{{ getFileIcon() }}</span>
 			</span>
 			<span
 				class="item-name"
@@ -77,14 +77,7 @@ function toggleExpand() { // Specifically for the folder icon click
   }
 }
 
-function getFileIcon(fileName: string): string {
-  const ext = fileName.split('.').pop()?.toLowerCase();
-  if (ext === 'js' || ext === 'ts') return 'JS';
-  if (ext === 'vue') return 'V';
-  if (ext === 'html') return 'H';
-  if (ext === 'css') return 'C';
-  if (ext === 'json') return 'JSN';
-  if (ext === 'md') return 'MD';
+function getFileIcon(): string {
   return '📄';
 }
 </script>
