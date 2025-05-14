@@ -1,10 +1,10 @@
 <template>
-	<li :style="{ paddingLeft: `${depth * 12}px` }" class="list-none">
+	<li :style="{ paddingLeft: `${depth * 2}px` }" class="list-none">
 		<div
 			@click="itemClicked"
 			:class="{ 'selected-file': item.path === selectedFile && item.type === 'file' }"
 			:title="item.path"
-			style="display: flex; align-items: center; padding: 6px 8px; cursor: pointer; font-size: 13px; color: #e2e8f0; border-radius: 4px; margin-bottom: 2px; transition: background-color 0.2s ease-in-out;"
+			style="display: flex; align-items: center; padding: 2px; cursor: pointer; font-size: 13px; color: #e2e8f0; border-radius: 4px; margin-bottom: 2px; transition: background-color 0.2s ease-in-out;"
 			@mouseover="isHovered = true"
 			@mouseleave="isHovered = false"
 			:style="{backgroundColor: isHovered ? 'rgba(74, 85, 104, 0.6)' : ''}"
