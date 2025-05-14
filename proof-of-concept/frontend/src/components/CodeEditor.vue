@@ -49,11 +49,7 @@ import { sql } from '@codemirror/lang-sql';
 import { EditorView, lineNumbers, Decoration, WidgetType, ViewPlugin } from '@codemirror/view';
 import type { ViewUpdate, DecorationSet } from '@codemirror/view'; // Correctly import DecorationSet
 import { RangeSetBuilder } from '@codemirror/state';
-
-interface Comment {
-  lineNumber: number; // 1-based
-  text: string;
-}
+import type { Comment } from '../types/comment';
 
 interface Props {
   fileContent: string | null;
