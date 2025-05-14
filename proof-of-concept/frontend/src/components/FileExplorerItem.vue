@@ -2,11 +2,12 @@
 	<li :style="{ paddingLeft: `${depth * 15}px` }" class="list-none">
 		<div
 			@click="itemClicked"
-			:class="[
-          'group flex items-center px-2 py-1 cursor-pointer hover:bg-[#2a2d2e] text-sm whitespace-nowrap rounded-sm',
-          { 'bg-[#37373d] !text-white': item.path === selectedFile && item.type === 'file' }
-        ]"
+			:class="{ 'selected-file': item.path === selectedFile && item.type === 'file' }"
 			:title="item.path"
+			style="display: flex; align-items: center; padding: 8px 12px; cursor: pointer; font-size: 14px; color: #a3a3a3; border: 1px solid #4a5568; border-radius: 6px; margin-bottom: 4px; transition: background-color 0.2s ease-in-out; background-color: #2d3748; "
+			@mouseover="isHovered = true"
+			@mouseleave="isHovered = false"
+			:style="{backgroundColor: isHovered ? '#4a5568' : ''}"
 		>
 			<span
 				v-if="item.type === 'folder'"
@@ -23,7 +24,8 @@
 				<span v-else>{{ getFileIcon(item.name) }}</span>
 			</span>
 			<span
-				class="item-name flex-grow overflow-hidden text-ellipsis whitespace-nowrap"
+				class="item-name"
+				style="flex-grow: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
 				>{{ item.name }}</span
 			>
 		</div>
@@ -46,6 +48,7 @@
 
 <script setup lang="ts">
 import type { TreeNode } from '../types/github';
+import { ref } from 'vue';
 
 interface Props {
   item: TreeNode;
@@ -57,19 +60,20 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits(['file-selected', 'toggle-expand-item']);
+const isHovered = ref(false);
 
 function itemClicked() {
   if (props.item.type === 'file') {
-    emit('file-selected', props.item.path);
+	emit('file-selected', props.item.path);
   } else if (props.item.type === 'folder') {
-    // Clicking folder name also toggles
-    emit('toggle-expand-item', props.item);
+	// Clicking folder name also toggles
+	emit('toggle-expand-item', props.item);
   }
 }
 
 function toggleExpand() { // Specifically for the folder icon click
   if (props.item.type === 'folder') {
-    emit('toggle-expand-item', props.item);
+	emit('toggle-expand-item', props.item);
   }
 }
 
@@ -84,3 +88,10 @@ function getFileIcon(fileName: string): string {
   return '📄';
 }
 </script>
+
+<style scoped>
+.selected-file {
+	background-color: #4a5568;
+	color: white;
+}
+</style>

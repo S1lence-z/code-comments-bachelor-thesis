@@ -1,11 +1,7 @@
 <template>
-	<aside class="h-full flex flex-col bg-[#252526] text-gray-300 overflow-y-auto select-none">
-		<div
-			class="explorer-header px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider border-b border-[#333333]"
-		>
-			Explorer
-		</div>
-		<ul class="flex-1 file-tree-list p-1">
+	<aside class="explorer-container">
+		<div class="explorer-header">Explorer</div>
+		<ul class="file-tree-list">
 			<FileExplorerItem
 				v-for="item in treeData"
 				:key="item.path"
@@ -36,11 +32,32 @@ function handleToggleExpand(item: TreeNode) {
 </script>
 
 <style scoped>
-/* Styles can be minimal as FileExplorerItem handles item styling */
-.file-tree-list {
-  list-style: none;
-  padding: 4px; /* Small padding around the list */
+.explorer-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: #252526;
+  color: gray-300;
+  overflow-y: auto;
+  user-select: none;
 }
+
+.explorer-header {
+  padding: 12px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: gray;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  border-bottom: 1px solid #333333;
+}
+
+.file-tree-list {
+  flex: 1;
+  list-style: none;
+  padding: 4px;
+}
+
 .select-none {
   user-select: none;
 }

@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue';
 import FileExplorer from './components/FileExplorer.vue';
 import CodeEditor from './components/CodeEditor.vue';
-import type { TreeNode, GitHubTreeItem } from './types/github';
+import type { TreeNode, GitHubTreeItem } from './types/github'; // Assuming types/github.ts
 
 const repoUrl = ref<string>('');
 const branch = ref<string>('main');
@@ -12,17 +12,16 @@ const fileContent = ref<string | null>(null);
 const errorMessage = ref<string>('');
 const isLoadingRepo = ref<boolean>(false);
 const isLoadingFile = ref<boolean>(false);
+const GITHUB_PAT = import.meta.env.VITE_GITHUB_PAT;
 
 function buildFileTreeFromGitHub(gitHubItems: GitHubTreeItem[]): TreeNode[] {
   const rootNodes: TreeNode[] = [];
   const map: { [path: string]: TreeNode } = {};
 
-  // Sort items by path to help ensure parent directories are processed before children,
-  // though the logic tries to handle out-of-order by looking up parents in the map.
   const sortedItems = [...gitHubItems].sort((a, b) => a.path.localeCompare(b.path));
 
   sortedItems.forEach(item => {
-    if (item.type === 'commit') return; // Skip submodules for this example
+    if (item.type === 'commit') return;
 
     const parts = item.path.split('/');
     const itemName = parts[parts.length - 1];
@@ -33,13 +32,13 @@ function buildFileTreeFromGitHub(gitHubItems: GitHubTreeItem[]): TreeNode[] {
       path: item.path,
       type: item.type === 'blob' ? 'file' : 'folder',
       children: [],
-      isExpanded: item.type === 'tree' && parts.length === 1, // Expand top-level folders only
+      isExpanded: item.type === 'tree' && parts.length === 1,
     };
     map[item.path] = node;
 
     if (parentPath && map[parentPath]) {
       map[parentPath].children.push(node);
-      map[parentPath].children.sort((a, b) => { // Sort children within parent
+      map[parentPath].children.sort((a, b) => {
         if (a.type === 'folder' && b.type === 'file') return -1;
         if (a.type === 'file' && b.type === 'folder') return 1;
         return a.name.localeCompare(b.name);
@@ -49,7 +48,6 @@ function buildFileTreeFromGitHub(gitHubItems: GitHubTreeItem[]): TreeNode[] {
     }
   });
 
-  // Sort root nodes
   rootNodes.sort((a, b) => {
     if (a.type === 'folder' && b.type === 'file') return -1;
     if (a.type === 'file' && b.type === 'folder') return 1;
@@ -57,7 +55,6 @@ function buildFileTreeFromGitHub(gitHubItems: GitHubTreeItem[]): TreeNode[] {
   });
   return rootNodes;
 }
-
 
 function parseRepoUrlAndBranch() {
   try {
@@ -68,12 +65,12 @@ function parseRepoUrlAndBranch() {
       return false;
     }
     if (!urlParam.startsWith('https://github.com/')) {
-        errorMessage.value = 'Invalid GitHub repo URL. Must start with https://github.com/';
-        return false;
+      errorMessage.value = 'Invalid GitHub repo URL. Must start with https://github.com/';
+      return false;
     }
     const tempUrl = new URL(urlParam);
     const pathParts = tempUrl.pathname.split('/').filter(Boolean);
-     if (pathParts.length < 2) {
+    if (pathParts.length < 2) {
       errorMessage.value = 'Invalid GitHub repo URL. Must be in format https://github.com/owner/repo.';
       return false;
     }
@@ -84,6 +81,7 @@ function parseRepoUrlAndBranch() {
     errorMessage.value = 'Invalid repo_url parameter.';
     return false;
   }
+
 }
 
 async function fetchRepoTree() {
@@ -97,15 +95,23 @@ async function fetchRepoTree() {
   const url = new URL(repoUrl.value);
   const [owner, repo] = url.pathname.split('/').filter(Boolean);
   const apiBase = `https://api.github.com/repos/${owner}/${repo}`;
+
+  const headers: HeadersInit = {
+    'Accept': 'application/vnd.github.v3+json', // Good practice to specify API version
+  };
+  if (GITHUB_PAT) {
+    headers['Authorization'] = `Bearer ${GITHUB_PAT}`;
+  }
+
   try {
-    const res = await fetch(`${apiBase}/git/trees/${branch.value}?recursive=1`);
+    const res = await fetch(`${apiBase}/git/trees/${branch.value}?recursive=1`, { headers }); // Pass headers
     if (!res.ok) {
-      const errorData = await res.json().catch(() => ({ message: `Failed to load repo tree: ${res.status}` }));
-      throw new Error(errorData.message || `Failed to load repo tree: ${res.status}`);
+      const errorData = await res.json().catch(() => ({ message: `Failed to load repo tree: ${res.status} ${res.statusText}` }));
+      throw new Error(errorData.message || `Failed to load repo tree: ${res.status} ${res.statusText}`);
     }
     const data = await res.json();
     if (!data.tree || !Array.isArray(data.tree)) {
-        throw new Error('Invalid tree data received from GitHub API.');
+      throw new Error('Invalid tree data received from GitHub API.');
     }
     fileTreeData.value = buildFileTreeFromGitHub(data.tree as GitHubTreeItem[]);
   } catch (e: any) {
@@ -121,33 +127,40 @@ async function handleFileSelected(path: string) {
   selectedFile.value = path;
   fileContent.value = null; // Clear previous content
   isLoadingFile.value = true;
-  // errorMessage.value = ''; // Keep general errors, or clear specific file errors
 
   const url = new URL(repoUrl.value);
   const [owner, repo] = url.pathname.split('/').filter(Boolean);
   const contentUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch.value}`;
 
+  const headers: HeadersInit = {
+    // For raw content, GitHub expects this specific Accept header
+    'Accept': 'application/vnd.github.raw',
+  };
+  if (GITHUB_PAT) {
+    headers['Authorization'] = `Bearer ${GITHUB_PAT}`;
+  }
+
   try {
-    const res = await fetch(contentUrl, { headers: { 'Accept': 'application/vnd.github.raw' } });
+    // Note: The 'Accept: application/vnd.github.raw' header for fetching raw content
+    // should be sent to the /contents API endpoint, not directly to raw.githubusercontent.com
+    // If you were previously using raw.githubusercontent.com, that URL doesn't take auth headers
+    // the same way the API does. The /contents endpoint with the right Accept header is better.
+
+    const res = await fetch(contentUrl, { headers }); // Pass headers
     if (!res.ok) {
-       const errorText = await res.text();
-       throw new Error(`Status ${res.status}: ${errorText || 'Failed to load file content.'}`);
+      const errorText = await res.text(); // Raw endpoint might not return JSON on error
+      throw new Error(`Status ${res.status}: ${errorText || 'Failed to load file content.'}`);
     }
     fileContent.value = await res.text();
   } catch (e: any) {
     fileContent.value = `Error loading file: ${e.message}`;
     console.error("Error fetching file content:", e);
   } finally {
-      isLoadingFile.value = false;
+    isLoadingFile.value = false;
   }
 }
 
 function handleToggleExpandInTree(itemToToggle: TreeNode) {
-  // Find the item in the tree and toggle its isExpanded state
-  // This requires traversing the tree. For simplicity, assuming a direct mutation works
-  // if the 'item' object is reactive and part of the tree.
-  // A more robust way for deeply nested state might involve recreating parts of the tree
-  // or using a normalized state structure if performance becomes an issue with huge trees.
   const findAndToggle = (nodes: TreeNode[]): boolean => {
     for (const node of nodes) {
       if (node.path === itemToToggle.path && node.type === 'folder') {
@@ -163,8 +176,8 @@ function handleToggleExpandInTree(itemToToggle: TreeNode) {
   findAndToggle(fileTreeData.value);
 }
 
-
 onMounted(() => {
+
   if (parseRepoUrlAndBranch()) {
     fetchRepoTree();
   }
@@ -172,29 +185,11 @@ onMounted(() => {
 </script>
 
 <template>
-	<div class="vscode-layout">
-		<!-- Activity Bar -->
-		<div class="activity-bar">
-			<div class="activity-icon active" title="Explorer">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 16 16"
-					fill="currentColor"
-					width="24"
-					height="24"
-				>
-					<path
-						d="M1.5 1.75a.25.25 0 0 0-.25.25v11.5c0 .138.112.25.25.25h13a.25.25 0 0 0 .25-.25V2a.25.25 0 0 0-.25-.25h-13ZM2.75 3h10.5a.75.75 0 0 1 .75.75v7.5a.75.75 0 0 1-.75.75H2.75a.75.75 0 0 1-.75-.75V3.75A.75.75 0 0 1 2.75 3Zm0 9.5V13h10.5v-.75a.75.75 0 0 1-.75-.75H3.5a.75.75 0 0 1-.75.75Z"
-					></path>
-				</svg>
-			</div>
-		</div>
-
-		<!-- Sidebar -->
+	<!-- .vscode-layout equivalent -->
+	<div class="app-container">
+		<!-- .sidebar-container equivalent -->
 		<div class="sidebar-container">
-			<div v-if="isLoadingRepo" class="p-4 text-center text-gray-400 text-sm">
-				Loading repository...
-			</div>
+			<div v-if="isLoadingRepo" class="loading-message">Loading repository...</div>
 			<FileExplorer
 				v-else-if="fileTreeData.length > 0"
 				:treeData="fileTreeData"
@@ -204,13 +199,13 @@ onMounted(() => {
 			/>
 			<div
 				v-if="errorMessage && !isLoadingRepo && fileTreeData.length === 0"
-				class="p-4 text-red-400 text-sm"
+				class="error-message"
 			>
 				{{ errorMessage }}
 			</div>
 		</div>
 
-		<!-- Editor Group -->
+		<!-- .editor-group equivalent -->
 		<div class="editor-group">
 			<CodeEditor
 				:file-path="selectedFile"
@@ -221,58 +216,14 @@ onMounted(() => {
 	</div>
 </template>
 
-<style>
-/* Global styles for VSCode-like appearance */
-html, body, #app { /* Assuming your Vue app mounts to #app */
-  height: 100%;
-  margin: 0;
-  overflow: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-  background-color: #1e1e1e; /* Base background */
-}
-
-.vscode-layout {
+<style scoped>
+.app-container {
   display: flex;
   height: 100vh;
   width: 100vw;
+  background-color: #1e1e1e;
+  font-family: sans-serif;
 }
-
-.activity-bar {
-  width: 48px;
-  background-color: #333333;
-  flex-shrink: 0;
-  padding-top: 8px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.activity-icon {
-  padding: 12px 0; /* Vertical padding */
-  cursor: pointer;
-  color: #858585; /* Inactive icon color */
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  position: relative;
-}
-.activity-icon.active {
-  color: #ffffff;
-}
-.activity-icon.active::before { /* Active indicator line */
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 2px;
-  height: 24px; /* Adjust height as needed */
-  background-color: #ffffff;
-}
-.activity-icon:hover {
-  color: #ffffff;
-}
-
 
 .sidebar-container {
   width: 280px;
@@ -281,8 +232,8 @@ html, body, #app { /* Assuming your Vue app mounts to #app */
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* Important for internal scrolling */
-  border-right: 1px solid #181818; /* Slightly darker separator */
+  overflow: hidden;
+  border-right: 1px solid #181818;
 }
 
 .editor-group {
@@ -290,5 +241,18 @@ html, body, #app { /* Assuming your Vue app mounts to #app */
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+.loading-message {
+  padding: 16px;
+  text-align: center;
+  color: gray;
+  font-size: 14px;
+}
+
+.error-message {
+  padding: 16px;
+  color: red;
+  font-size: 14px;
 }
 </style>
