@@ -6,6 +6,7 @@ import CommentModal from './components/CommentModal.vue'; // Import CommentModal
 import type { TreeNode } from './types/github';
 import type { Comment } from './types/comment';
 import { fetchRepoTreeAPI, fetchFileContentAPI } from './api/githubApi';
+import { parseRepoAndBranchFromLocation } from './utils/urlUtils'; // Import the utility
 
 const repoUrl = ref<string>('');
 const branch = ref<string>('main');
@@ -34,32 +35,15 @@ const currentFileComments = computed(() => {
   return [];
 });
 
-function parseRepoUrlAndBranch() {
-  try {
-    const params = new URLSearchParams(window.location.search);
-    const urlParam = params.get('repo_url');
-    if (!urlParam) {
-      errorMessage.value = 'Missing repo_url query parameter. Example: ?repo_url=https://github.com/owner/repo&branch=main';
-      return false;
-    }
-    if (!urlParam.startsWith('https://github.com/')) {
-      errorMessage.value = 'Invalid GitHub repo URL. Must start with https://github.com/';
-      return false;
-    }
-    const tempUrl = new URL(urlParam);
-    const pathParts = tempUrl.pathname.split('/').filter(Boolean);
-    if (pathParts.length < 2) {
-      errorMessage.value = 'Invalid GitHub repo URL. Must be in format https://github.com/owner/repo.';
-      return false;
-    }
-    repoUrl.value = urlParam;
-    branch.value = params.get('branch') || 'main';
-    return true;
-  } catch (e) {
-    errorMessage.value = 'Invalid repo_url parameter.';
+function initializeApp() {
+  const parseResult = parseRepoAndBranchFromLocation();
+  if ('error' in parseResult) {
+    errorMessage.value = `${parseResult.error} Example: ?repo_url=https://github.com/owner/repo&branch=main`;
     return false;
   }
-
+  repoUrl.value = parseResult.repoUrl;
+  branch.value = parseResult.branch;
+  return true;
 }
 
 async function fetchRepoTree() {
@@ -162,7 +146,7 @@ function closeCommentModal() {
 }
 
 onMounted(() => {
-  if (parseRepoUrlAndBranch()) {
+  if (initializeApp()) {
     fetchRepoTree();
   }
 });
@@ -200,14 +184,14 @@ onMounted(() => {
 			/>
 		</div>
 
-    <CommentModal
-      :visible="isModalVisible"
-      :lineNumber="modalLineNumber"
-      :filePath="modalFilePath"
-      :initialText="modalInitialText"
-      @submit="handleCommentSubmit"
-      @close="closeCommentModal"
-    />
+		<CommentModal
+			:visible="isModalVisible"
+			:lineNumber="modalLineNumber"
+			:filePath="modalFilePath"
+			:initialText="modalInitialText"
+			@submit="handleCommentSubmit"
+			@close="closeCommentModal"
+		/>
 	</div>
 </template>
 

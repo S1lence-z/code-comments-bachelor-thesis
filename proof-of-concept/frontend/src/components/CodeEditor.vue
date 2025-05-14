@@ -36,29 +36,23 @@
 
 <script setup lang="ts">
 import { ref, watch, shallowRef, computed, withDefaults } from 'vue';
-import { Codemirror } from 'vue-codemirror';
-import { javascript } from '@codemirror/lang-javascript';
-import { html } from '@codemirror/lang-html';
-import { css } from '@codemirror/lang-css';
-import { vue } from '@codemirror/lang-vue';
-import { json } from '@codemirror/lang-json';
-import { markdown } from '@codemirror/lang-markdown';
 import { oneDark } from '@codemirror/theme-one-dark';
-import { python } from '@codemirror/lang-python';
-import { sql } from '@codemirror/lang-sql';
+import { Codemirror } from 'vue-codemirror';
 import { EditorView, lineNumbers, Decoration, WidgetType } from '@codemirror/view';
 import type { DecorationSet } from '@codemirror/view';
 import { RangeSetBuilder, StateField, EditorState } from '@codemirror/state';
 import type { Comment } from '../types/comment';
+import { getLanguageExtension } from '../utils/languageUtils';
 
-interface Props {
-  fileContent: string | null;
-  filePath: string | null;
-  isLoadingFile?: boolean;
-  comments?: Comment[];
+interface CodeEditorProps {
+	fileContent: string | null;
+	filePath: string | null;
+	isLoadingFile?: boolean;
+	comments?: Comment[];
 }
 
-const props = withDefaults(defineProps<Props>(), {
+
+const props = withDefaults(defineProps<CodeEditorProps>(), {
   isLoadingFile: false,
   comments: () => []
 });
@@ -71,22 +65,6 @@ const editorView = shallowRef<EditorView>();
 const editorPlaceholder = computed(() => {
   return props.filePath ? `Content of ${props.filePath}` : 'Code will appear here...';
 });
-
-const getLanguageExtension = (filePath: string | null) => {
-  if (!filePath) return javascript();
-  const extension = filePath.split('.').pop()?.toLowerCase();
-  switch (extension) {
-    case 'js': case 'ts': case 'mjs': case 'cjs': return javascript();
-    case 'html': case 'htm': return html();
-    case 'css': return css();
-    case 'vue': return vue();
-    case 'json': return json();
-    case 'md': return markdown();
-    case 'py': return python();
-    case 'sql': return sql();
-    default: return [];
-  }
-};
 
 class CommentWidget extends WidgetType {
   constructor(readonly text: string) { super(); }
@@ -138,8 +116,9 @@ function commentsDisplayExtension(currentComments: Readonly<Comment[]>) {
 const extensions = computed(() => {
   const langExt = getLanguageExtension(props.filePath);
   const currentFileComments = props.comments || []; // Ensure it's an array
-  console.log('CodeEditor.vue: `extensions` computed property re-evaluated. Comments count:', currentFileComments.length);
+  console.log('CodeEditor.vue: `extensions` computed property re-evaluated. Comments count:', currentFileComments.length); // DEBUG
   if (currentFileComments.length > 0) {
+    // console.log('Current comments in extensions:', JSON.stringify(currentFileComments)); // Can be verbose
   }
 
   return [
