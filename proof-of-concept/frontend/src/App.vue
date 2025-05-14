@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue';
 import FileExplorer from './components/FileExplorer.vue';
 import CodeEditor from './components/CodeEditor.vue';
+import CommentModal from './components/CommentModal.vue'; // Import CommentModal
 import type { TreeNode } from './types/github';
 import type { Comment } from './types/comment';
 import { fetchRepoTreeAPI, fetchFileContentAPI } from './api/githubApi';
@@ -15,6 +16,12 @@ const errorMessage = ref<string>('');
 const isLoadingRepo = ref<boolean>(false);
 const isLoadingFile = ref<boolean>(false);
 const GITHUB_PAT = import.meta.env.VITE_GITHUB_PAT;
+
+// Modal State
+const isModalVisible = ref(false);
+const modalLineNumber = ref<number | null>(null);
+const modalFilePath = ref<string | null>(null);
+const modalInitialText = ref("");
 
 // Reactive state for storing comments, keyed by file path
 const allComments = ref<Record<string, Comment[]>>({});
@@ -110,23 +117,51 @@ function handleToggleExpandInTree(itemToToggle: TreeNode) {
 // Handler for when a line is double-clicked in the CodeEditor
 async function handleLineDoubleClicked(payload: { lineNumber: number; filePath: string }) {
   const { lineNumber, filePath } = payload;
-  const commentText = window.prompt(`Enter comment for line ${lineNumber} in ${filePath.split('/').pop()}:`);
+  if (!filePath) return;
 
-  if (commentText) {
-    const newComment: Comment = { lineNumber, text: commentText };
-    if (!allComments.value[filePath]) {
-      allComments.value[filePath] = [];
-    }
-    // Add the new comment and ensure it's sorted by line number for consistent display
-    const fileComments = allComments.value[filePath];
-    fileComments.push(newComment);
-    fileComments.sort((a, b) => a.lineNumber - b.lineNumber);
-    // Vue's reactivity should handle the update automatically
+  const fileSpecificComments = allComments.value[filePath] || [];
+  const existingComment = fileSpecificComments.find(c => c.lineNumber === lineNumber);
+
+  modalLineNumber.value = lineNumber;
+  modalFilePath.value = filePath;
+  modalInitialText.value = existingComment ? existingComment.text : "";
+  isModalVisible.value = true;
+}
+
+// Handler for when the modal submits a comment
+function handleCommentSubmit(commentText: string) {
+  if (modalFilePath.value === null || modalLineNumber.value === null) return;
+
+  const filePath = modalFilePath.value;
+  const lineNumber = modalLineNumber.value;
+
+  // Logic moved from the old handleLineDoubleClicked after prompt
+  if (!allComments.value[filePath]) {
+    allComments.value[filePath] = [];
   }
+  const commentIndex = allComments.value[filePath].findIndex(c => c.lineNumber === lineNumber);
+
+  if (commentText === "" && commentIndex > -1) {
+    allComments.value[filePath].splice(commentIndex, 1);
+  } else if (commentText !== "") {
+    if (commentIndex > -1) {
+      allComments.value[filePath][commentIndex].text = commentText;
+    } else {
+      allComments.value[filePath].push({ lineNumber, text: commentText });
+    }
+    allComments.value[filePath].sort((a, b) => a.lineNumber - b.lineNumber);
+  }
+  closeCommentModal();
+}
+
+function closeCommentModal() {
+  isModalVisible.value = false;
+  modalLineNumber.value = null;
+  modalFilePath.value = null;
+  modalInitialText.value = "";
 }
 
 onMounted(() => {
-
   if (parseRepoUrlAndBranch()) {
     fetchRepoTree();
   }
@@ -164,6 +199,15 @@ onMounted(() => {
 				@line-double-clicked="handleLineDoubleClicked"
 			/>
 		</div>
+
+    <CommentModal
+      :visible="isModalVisible"
+      :lineNumber="modalLineNumber"
+      :filePath="modalFilePath"
+      :initialText="modalInitialText"
+      @submit="handleCommentSubmit"
+      @close="closeCommentModal"
+    />
 	</div>
 </template>
 

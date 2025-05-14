@@ -46,9 +46,9 @@ import { markdown } from '@codemirror/lang-markdown';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { python } from '@codemirror/lang-python';
 import { sql } from '@codemirror/lang-sql';
-import { EditorView, lineNumbers, Decoration, WidgetType, ViewPlugin } from '@codemirror/view';
-import type { ViewUpdate, DecorationSet } from '@codemirror/view'; // Correctly import DecorationSet
-import { RangeSetBuilder } from '@codemirror/state';
+import { EditorView, lineNumbers, Decoration, WidgetType } from '@codemirror/view';
+import type { DecorationSet } from '@codemirror/view';
+import { RangeSetBuilder, StateField, EditorState } from '@codemirror/state';
 import type { Comment } from '../types/comment';
 
 interface Props {
@@ -101,48 +101,46 @@ class CommentWidget extends WidgetType {
   ignoreEvent() { return false; }
 }
 
+function buildDecorations(state: EditorState, commentsToDisplay: Readonly<Comment[]>): DecorationSet {
+  const builder = new RangeSetBuilder<Decoration>();
+  if (!commentsToDisplay || commentsToDisplay.length === 0) {
+    return builder.finish();
+  }
+
+  for (const comment of commentsToDisplay) {
+    if (comment.lineNumber > 0 && comment.lineNumber <= state.doc.lines) {
+      const line = state.doc.line(comment.lineNumber);
+      builder.add(line.from, line.from, Decoration.widget({
+        widget: new CommentWidget(comment.text),
+        side: -1, // Place widget before the line's actual content start
+        block: true,
+      }));
+    }
+  }
+  return builder.finish();
+}
+
 function commentsDisplayExtension(currentComments: Readonly<Comment[]>) {
-  return ViewPlugin.fromClass(class {
-    decorations: DecorationSet;
-
-    constructor(view: EditorView) {
-      this.decorations = this.buildDecorations(view, currentComments);
-    }
-
-    update(update: ViewUpdate) {
-      // The extension is re-created when `props.comments` changes due to the computed `extensions`.
-      // This update logic primarily handles doc/viewport changes for the current set of comments.
-      if (update.docChanged || update.viewportChanged) {
-        this.decorations = this.buildDecorations(update.view, currentComments);
+  return StateField.define<DecorationSet>({
+    create(state: EditorState) {
+      return buildDecorations(state, currentComments);
+    },
+    update(value: DecorationSet, tr) {
+      if (tr.docChanged) {
+        return buildDecorations(tr.state, currentComments);
       }
-    }
-
-    buildDecorations(view: EditorView, commentsToDisplay: Readonly<Comment[]>): DecorationSet {
-      const builder = new RangeSetBuilder<Decoration>();
-      if (!commentsToDisplay || commentsToDisplay.length === 0) {
-        return builder.finish();
-      }
-
-      for (const comment of commentsToDisplay) {
-        if (comment.lineNumber > 0 && comment.lineNumber <= view.state.doc.lines) {
-          const line = view.state.doc.line(comment.lineNumber);
-          builder.add(line.from, line.from, Decoration.widget({
-            widget: new CommentWidget(comment.text),
-            side: -1, // Place widget before the line's actual content start
-            block: true,
-          }));
-        }
-      }
-      return builder.finish();
-    }
-  }, {
-    decorations: v => v.decorations
+      return value.map(tr.changes);
+    },
+    provide: f => EditorView.decorations.from(f)
   });
 }
 
 const extensions = computed(() => {
   const langExt = getLanguageExtension(props.filePath);
   const currentFileComments = props.comments || []; // Ensure it's an array
+  console.log('CodeEditor.vue: `extensions` computed property re-evaluated. Comments count:', currentFileComments.length);
+  if (currentFileComments.length > 0) {
+  }
 
   return [
     oneDark,
