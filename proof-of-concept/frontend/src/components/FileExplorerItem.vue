@@ -1,25 +1,26 @@
 <template>
-	<li :style="{ paddingLeft: `${depth * 15}px` }" class="list-none">
+	<li :style="{ paddingLeft: `${depth * 12}px` }" class="list-none">
 		<div
 			@click="itemClicked"
 			:class="{ 'selected-file': item.path === selectedFile && item.type === 'file' }"
 			:title="item.path"
-			style="display: flex; align-items: center; padding: 8px 12px; cursor: pointer; font-size: 14px; color: #a3a3a3; border: 1px solid #4a5568; border-radius: 6px; margin-bottom: 4px; transition: background-color 0.2s ease-in-out; background-color: #2d3748; "
+			style="display: flex; align-items: center; padding: 6px 8px; cursor: pointer; font-size: 13px; color: #e2e8f0; border-radius: 4px; margin-bottom: 2px; transition: background-color 0.2s ease-in-out;"
 			@mouseover="isHovered = true"
 			@mouseleave="isHovered = false"
-			:style="{backgroundColor: isHovered ? '#4a5568' : ''}"
+			:style="{backgroundColor: isHovered ? 'rgba(74, 85, 104, 0.6)' : ''}"
 		>
 			<span
 				v-if="item.type === 'folder'"
 				class="mr-1 folder-toggle"
 				@click.stop="toggleExpand"
+				style="font-size: 12px; color: #cbd5e0;"
 			>
 				{{ item.isExpanded ? '▼' : '►' }}
 			</span>
 			<span v-else class="mr-1 icon-placeholder"></span>
 			<!-- Placeholder for alignment -->
 
-			<span class="mr-2 item-icon">
+			<span class="mr-2 item-icon" style="font-size: 14px;">
 				<span v-if="item.type === 'folder'">📁</span>
 				<span v-else>{{ getFileIcon() }}</span>
 			</span>
@@ -84,7 +85,7 @@ function getFileIcon(): string {
 
 <style scoped>
 .selected-file {
-	background-color: #4a5568;
+	background-color: rgba(74, 85, 104, 0.8);
 	color: white;
 }
 </style>
