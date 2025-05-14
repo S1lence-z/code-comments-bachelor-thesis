@@ -1,21 +1,24 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue'; // Added watch
 import FileExplorer from './components/FileExplorer.vue';
 import CodeEditor from './components/CodeEditor.vue';
-import CommentModal from './components/CommentModal.vue'; // Import CommentModal
+import CommentModal from './components/CommentModal.vue';
 import type { TreeNode } from './types/github';
 import type { Comment } from './types/comment';
 import { fetchRepoTreeAPI, fetchFileContentAPI } from './api/githubApi';
-import { parseRepoAndBranchFromLocation } from './utils/urlUtils'; // Import the utility
+import { fetchComments, addComment } from './api/commentsApi'; // Import comments API functions
 
 const repoUrl = ref<string>('');
 const branch = ref<string>('main');
+const commentsApiUrl = ref<string | null>(null); // To store the commentsApiUrl from query params
+
 const fileTreeData = ref<TreeNode[]>([]);
 const selectedFile = ref<string | null>(null);
 const fileContent = ref<string | null>(null);
 const errorMessage = ref<string>('');
 const isLoadingRepo = ref<boolean>(false);
 const isLoadingFile = ref<boolean>(false);
+const isLoadingComments = ref<boolean>(false); // For loading comments
 const GITHUB_PAT = import.meta.env.VITE_GITHUB_PAT;
 
 // Modal State
@@ -24,29 +27,70 @@ const modalLineNumber = ref<number | null>(null);
 const modalFilePath = ref<string | null>(null);
 const modalInitialText = ref("");
 
-// Reactive state for storing comments, keyed by file path
-const allComments = ref<Record<string, Comment[]>>({});
+// Store all fetched comments from the backend for the current config
+const backendComments = ref<Comment[]>([]);
 
 // Computed property to get comments for the currently selected file
+// Filters backendComments by selectedFile.value
 const currentFileComments = computed(() => {
-  if (selectedFile.value) {
-    return allComments.value[selectedFile.value] || [];
+  if (selectedFile.value && backendComments.value.length > 0) {
+    return backendComments.value.filter(comment => comment.filePath === selectedFile.value);
   }
   return [];
 });
 
+// Extended to include commentsApiUrl
 function initializeApp() {
-  const parseResult = parseRepoAndBranchFromLocation();
-  if ('error' in parseResult) {
-    errorMessage.value = `${parseResult.error} Example: ?repo_url=https://github.com/owner/repo&branch=main`;
+  const params = new URLSearchParams(window.location.search);
+  const repoUrlParam = params.get('repoUrl');
+  const commentsApiUrlParam = params.get('commentsApiUrl'); // Get commentsApiUrl
+
+  if (!repoUrlParam) {
+    errorMessage.value = 'Missing repoUrl query parameter. Example: ?repoUrl=https://github.com/owner/repo&branch=main&commentsApiUrl=http://localhost:4000/api/comments/1';
     return false;
   }
-  repoUrl.value = parseResult.repoUrl;
-  branch.value = parseResult.branch;
+  if (!commentsApiUrlParam) {
+    errorMessage.value = 'Missing commentsApiUrl query parameter. Example: ?repoUrl=https://github.com/owner/repo&branch=main&commentsApiUrl=http://localhost:4000/api/comments/1';
+    return false;
+  }
+
+  // Basic validation for GitHub URL
+  if (!repoUrlParam.startsWith('https://github.com/')) {
+      errorMessage.value = 'Invalid GitHub repo URL. Must start with https://github.com/';
+      return false;
+  }
+  try {
+      // Validate commentsApiUrlParam (basic check)
+      new URL(commentsApiUrlParam);
+  } catch (e) {
+      errorMessage.value = 'Invalid commentsApiUrl parameter.';
+      return false;
+  }
+
+
+  repoUrl.value = repoUrlParam;
+  branch.value = params.get('branch') || 'main';
+  commentsApiUrl.value = commentsApiUrlParam; // Store it
+
   return true;
 }
 
+async function loadComments() {
+  if (!commentsApiUrl.value) return;
+  isLoadingComments.value = true;
+  try {
+    backendComments.value = await fetchComments(commentsApiUrl.value);
+  } catch (e: any) {
+    errorMessage.value = `Failed to load comments: ${e.message}`;
+    console.error("Error fetching comments:", e);
+    backendComments.value = []; // Clear comments on error
+  } finally {
+    isLoadingComments.value = false;
+  }
+}
+
 async function fetchRepoTree() {
+  // ...existing code...
   if (!repoUrl.value || errorMessage.value) return;
   isLoadingRepo.value = true;
   errorMessage.value = '';
@@ -55,7 +99,6 @@ async function fetchRepoTree() {
   fileContent.value = null;
 
   try {
-    // Use the new API function
     fileTreeData.value = await fetchRepoTreeAPI(repoUrl.value, branch.value, GITHUB_PAT);
   } catch (e: any) {
     errorMessage.value = e.message;
@@ -66,13 +109,13 @@ async function fetchRepoTree() {
 }
 
 async function handleFileSelected(path: string) {
+  // ...existing code...
   if (!path || path === selectedFile.value) return;
   selectedFile.value = path;
-  fileContent.value = null; // Clear previous content
+  fileContent.value = null;
   isLoadingFile.value = true;
 
   try {
-    // Use the new API function
     fileContent.value = await fetchFileContentAPI(repoUrl.value, branch.value, path, GITHUB_PAT);
   } catch (e: any) {
     fileContent.value = `Error loading file: ${e.message}`;
@@ -82,6 +125,7 @@ async function handleFileSelected(path: string) {
   }
 }
 
+// ... handleToggleExpandInTree (no changes needed) ...
 function handleToggleExpandInTree(itemToToggle: TreeNode) {
   const findAndToggle = (nodes: TreeNode[]): boolean => {
     for (const node of nodes) {
@@ -98,13 +142,20 @@ function handleToggleExpandInTree(itemToToggle: TreeNode) {
   findAndToggle(fileTreeData.value);
 }
 
+
 // Handler for when a line is double-clicked in the CodeEditor
 async function handleLineDoubleClicked(payload: { lineNumber: number; filePath: string }) {
   const { lineNumber, filePath } = payload;
-  if (!filePath) return;
+  if (!filePath || !commentsApiUrl.value) { // Ensure commentsApiUrl is present
+    errorMessage.value = "Cannot add comment: comments API URL is not configured.";
+    return;
+  }
 
-  const fileSpecificComments = allComments.value[filePath] || [];
-  const existingComment = fileSpecificComments.find(c => c.lineNumber === lineNumber);
+  // Use currentFileComments (which is already filtered for the current file)
+  // or search through backendComments directly if preferred.
+  const existingComment = backendComments.value.find(
+    c => c.filePath === filePath && c.lineNumber === lineNumber
+  );
 
   modalLineNumber.value = lineNumber;
   modalFilePath.value = filePath;
@@ -113,31 +164,47 @@ async function handleLineDoubleClicked(payload: { lineNumber: number; filePath: 
 }
 
 // Handler for when the modal submits a comment
-function handleCommentSubmit(commentText: string) {
-  if (modalFilePath.value === null || modalLineNumber.value === null) return;
-
-  const filePath = modalFilePath.value;
-  const lineNumber = modalLineNumber.value;
-
-  // Logic moved from the old handleLineDoubleClicked after prompt
-  if (!allComments.value[filePath]) {
-    allComments.value[filePath] = [];
+async function handleCommentSubmit(commentText: string) {
+  if (modalFilePath.value === null || modalLineNumber.value === null || !commentsApiUrl.value) {
+    errorMessage.value = "Cannot save comment: missing data or API URL.";
+    return;
   }
-  const commentIndex = allComments.value[filePath].findIndex(c => c.lineNumber === lineNumber);
 
-  if (commentText === "" && commentIndex > -1) {
-    allComments.value[filePath].splice(commentIndex, 1);
-  } else if (commentText !== "") {
-    if (commentIndex > -1) {
-      allComments.value[filePath][commentIndex].text = commentText;
-    } else {
-      allComments.value[filePath].push({ lineNumber, text: commentText });
+  const commentData = {
+    filePath: modalFilePath.value,
+    lineNumber: modalLineNumber.value,
+    text: commentText,
+    // tags: [] // Add tag functionality later if needed
+  };
+
+  try {
+    // If commentText is empty, we might want to implement a delete later,
+    // for now, we only add/update. The backend PUT currently only adds.
+    // To "delete", user would submit empty string, and we'd need a DELETE endpoint or logic in PUT.
+    // For now, an empty comment submission will just be an empty comment.
+    // Or, prevent submitting empty comments if text is required by backend (which it is).
+    if (!commentText.trim()) {
+        // Optionally, show a message to the user that comment text cannot be empty.
+        // For now, we just won't submit it if it's only whitespace.
+        // Or, if we want to allow "deleting" by submitting empty, the backend needs to handle that.
+        // The current backend PUT requires text.
+        console.log("Comment text is empty, not submitting.");
+        closeCommentModal();
+        return;
     }
-    allComments.value[filePath].sort((a, b) => a.lineNumber - b.lineNumber);
+
+    await addComment(commentsApiUrl.value, commentData);
+    // Refresh comments from backend after adding a new one
+    await loadComments();
+  } catch (e: any) {
+    errorMessage.value = `Failed to save comment: ${e.message}`;
+    console.error("Error saving comment:", e);
+  } finally {
+    closeCommentModal();
   }
-  closeCommentModal();
 }
 
+// ... closeCommentModal (no changes needed) ...
 function closeCommentModal() {
   isModalVisible.value = false;
   modalLineNumber.value = null;
@@ -145,9 +212,20 @@ function closeCommentModal() {
   modalInitialText.value = "";
 }
 
-onMounted(() => {
+onMounted(async () => { // Make onMounted async
   if (initializeApp()) {
-    fetchRepoTree();
+    await fetchRepoTree(); // Wait for repo tree
+    if (commentsApiUrl.value) {
+      await loadComments(); // Then load comments
+    }
+  }
+});
+
+// Watch for changes in commentsApiUrl to reload comments if it changes (e.g. user manually changes URL)
+// This might be an edge case, but good for robustness.
+watch(commentsApiUrl, async (newUrl, oldUrl) => {
+  if (newUrl && newUrl !== oldUrl) {
+    await loadComments();
   }
 });
 </script>
@@ -175,7 +253,9 @@ onMounted(() => {
 
 		<!-- .editor-group equivalent -->
 		<div class="editor-group">
+			<div v-if="isLoadingComments" class="loading-message">Loading comments...</div>
 			<CodeEditor
+				v-else
 				:file-path="selectedFile"
 				:file-content="fileContent"
 				:is-loading-file="isLoadingFile"
@@ -196,6 +276,7 @@ onMounted(() => {
 </template>
 
 <style scoped>
+/* ...existing styles... */
 .app-container {
   display: flex;
   height: 100vh;
