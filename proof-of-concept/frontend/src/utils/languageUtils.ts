@@ -7,6 +7,7 @@ import { json } from "@codemirror/lang-json";
 import { markdown } from "@codemirror/lang-markdown";
 import { python } from "@codemirror/lang-python";
 import { sql } from "@codemirror/lang-sql";
+import { java } from "@codemirror/lang-java";
 import type { LanguageSupport } from "@codemirror/language";
 
 export function getLanguageExtension(filePath: string | null): LanguageSupport | LanguageSupport[] {
@@ -33,7 +34,9 @@ export function getLanguageExtension(filePath: string | null): LanguageSupport |
 			return python();
 		case "sql":
 			return sql();
+		case "java":
+			return java();
 		default:
-			return []; // Return empty array for unknown extensions
+			return [];
 	}
 }
