@@ -1,0 +1,31 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"title": "Record",
+	"description": "Schema defining the structure of a single record.",
+	"type": "object",
+	"properties": {
+		"id": {
+			"type": "number",
+			"description": "Unique identifier for the record."
+		},
+		"repoUrl": {
+			"type": "string",
+			"format": "url",
+			"description": "URL of the associated repository."
+		},
+		"commentsApiUrl": {
+			"type": "string",
+			"format": "url",
+			"description": "API endpoint to fetch or manage comments for this record."
+		},
+		"comments": {
+			"type": "array",
+			"description": "An array of comments associated with this record.",
+			"items": {
+				"$ref": "comment-schema.json"
+			}
+		}
+	},
+	"required": ["id", "repoUrl", "commentsApiUrl", "comments"],
+	"additionalProperties": false
+}
