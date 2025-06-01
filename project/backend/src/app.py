@@ -24,10 +24,9 @@ app = FastAPI(
 BACKEND_API_PORT = int(os.getenv("BACKEND_API_PORT", "3500"))
 BACKEND_HOSTNAME = os.getenv("BACKEND_HOSTNAME", "http://localhost")
 BACKEND_BASE_URL = f"{BACKEND_HOSTNAME}:{BACKEND_API_PORT}"
-FRONTEND_BASE_URL = os.getenv("FRONTEND_BASE_URL", "fe_base_url_not_set") # Placeholder
+FRONTEND_BASE_URL = os.getenv("FRONTEND_BASE_URL", "fe_base_url_not_set")
 
 # --- CORS Middleware ---
-# Allows all origins for development, should be restricted in production.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[FRONTEND_BASE_URL],
@@ -122,7 +121,6 @@ async def get_comments_for_configuration(config_id: str):
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Configuration with ID '{config_id}' not found.",
         )
-    # Comments are already sorted upon addition
     return db[config_id].comments
 
 @app.put(
@@ -147,7 +145,6 @@ async def add_comment_to_configuration(config_id: str, comment_data: AddCommentR
     )
 
     db[config_id].comments.append(new_comment)
-    # Sort comments by file path, then by line number
     db[config_id].comments.sort(key=lambda c: (c.filePath, c.lineNumber))
 
     return AddCommentResponse(config=db[config_id])
@@ -161,7 +158,6 @@ async def add_comment_to_configuration(config_id: str, comment_data: AddCommentR
 async def root():
     return {"message": "Backend for Code Commenting PoC is running with FastAPI!"}
 
-# --- Main Block for Uvicorn ---
 if __name__ == "__main__":
     import uvicorn
 
