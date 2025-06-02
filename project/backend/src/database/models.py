@@ -1,15 +1,9 @@
-import json
-from typing import List, Optional
-from pydantic import HttpUrl
-from sqlalchemy import Column, String, Integer, ForeignKey, Text
-from sqlalchemy.orm import relationship, declarative_base, Session
-from sqlalchemy.ext.hybrid import hybrid_property
-from dtos.config import Config
-from dtos.comment import Comment
+from sqlalchemy import Column, String, Integer, ForeignKey
+from sqlalchemy.orm import relationship, declarative_base
+from sqlalchemy.ext.declarative import declared_attr
 
 Base = declarative_base()
 
-# --new code--
 class ProjectModel(Base):
     """ Represents a repository with comments.
 
@@ -17,69 +11,59 @@ class ProjectModel(Base):
         Base (_type_): SQLAlchemy Base class for declarative models.
     """
     __tablename__ = "projects"
-    id = Column(String, primary_key=True, index=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    repository_id = Column(Integer, ForeignKey("repositories.id", ondelete="CASCADE"), nullable=False)
     version = Column(String, nullable=False, default="v1")
     label = Column(String, nullable=False, default="Test Project")
-    readApiUrl = Column(String, nullable=False) # the url to the backend api to read comments
-    writeApiUrl = Column(String, nullable=False) # the url to the backend api to upsert comments
+    read_api_url = Column(String, nullable=False) # the url to the backend api to read comments
+    write_api_url = Column(String, nullable=False) # the url to the backend api to upsert comments
 
-class ConfigModel(Base):
-    __tablename__ = "configs"
-    id = Column(String, primary_key=True, index=True)
-    repoUrl = Column(String, nullable=False)
-    commentsApiUrl = Column(String, nullable=False)
-    backend_base_url = Column(String, nullable=False)
-    comments_rel = relationship("CommentModel", back_populates="config_rel", cascade="all, delete-orphan", lazy="select")
+class RepositoryModel(Base):
+    """ Represents a repository with comments.
 
-# --old code--
-class ConfigurationModel(Base):
-    __tablename__ = "configurations"
-    id = Column(String, primary_key=True, index=True)
-    repoUrl = Column(String, nullable=False)
-    commentsApiUrl = Column(String, nullable=False)
-    backend_base_url = Column(String, nullable=False)
-
-    comments_rel = relationship("CommentModel", back_populates="config_rel", cascade="all, delete-orphan", lazy="select")
-
-    def to_pydantic(self, db_session: Session) -> Config:
-        # Fetch comments separately if not already loaded or if specific ordering is needed by get_comments_for_config_sqla
-        # For simplicity here, we assume comments_rel can be used directly or fetched.
-        # The original get_comments_for_config had specific ordering.
-        comments_pydantic = [comment.to_pydantic() for comment in 
-                             db_session.query(CommentModel).filter(CommentModel.config_id == self.id).order_by(CommentModel.filePath, CommentModel.lineNumber).all()]
-        
-        return Config(
-            id=self.id,
-            repoUrl=HttpUrl(self.repoUrl),
-            commentsApiUrl=HttpUrl(self.commentsApiUrl),
-            backend_base_url=self.backend_base_url,
-            comments=comments_pydantic
-        )
-
+    Args:
+        Base (_type_): SQLAlchemy Base class for declarative models.
+    """
+    __tablename__ = "repositories"
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    project_id = Column(Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False)
+    git_landing_page_url = Column(String, nullable=False)  # the landing page url of the repository
+    git_commit_sha = Column(String, nullable=False)  # the git commit sha of the repository
+    token = Column(String, nullable=True)  # a token for potential future use, e.g., for private repositories
+    
 class CommentModel(Base):
     __tablename__ = "comments"
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
-    config_id = Column(String, ForeignKey("configurations.id", ondelete="CASCADE"), nullable=False)
-    text = Column(Text, nullable=False)
+    project_id = Column(Integer, ForeignKey("projects.id", ondelete="CASCADE"), nullable=False)
+    location_id = Column(Integer, ForeignKey("locations.id", ondelete="CASCADE"), nullable=False)
+    category_ids = Column(String, nullable=True)  # JSON string of category IDs
+    activity_id = Column(String, nullable=True)  # JSON string of activity IDs
+    content = Column(String, nullable=False)  # The content of the comment
+
+class CategoryModel(Base):
+    __tablename__ = "categories"
+    id = Column(Integer, primary_key=True, autoincrement=True, index=True)
+    name = Column(String, nullable=False)  # Name of the category
+    description = Column(String, nullable=True)  # Description of the category
+    comments_rel = relationship("CommentModel", back_populates="category_rel", cascade="all, delete-orphan", lazy="select", uselist=True) # Relationship to comments
+
+class LocationModel(Base):
+    """Abstract base class for different location types."""
+    __abstract__ = True
+    
+    @declared_attr
+    def __tablename__(cls):
+        return cls.__name__.lower()
+    
+    id = Column(Integer, primary_key=True, autoincrement=True, index=True)
     filePath = Column(String, nullable=False)
+    type = Column(String, nullable=False)  # Type of location (e.g., "line", "range")
+
+class LineLocationModel(LocationModel):
+    __tablename__ = "line_locations"
     lineNumber = Column(Integer, nullable=False)
-    _tags = Column("tags", Text)
 
-    config_rel = relationship("ConfigurationModel", back_populates="comments_rel")
-
-    @hybrid_property
-    def tags(self):
-        return json.loads(self._tags) if self._tags else None
-
-    @tags.setter
-    def tags(self, tags_list: Optional[List[str]]):
-        self._tags = json.dumps(tags_list) if tags_list is not None else None
-
-    def to_pydantic(self) -> Comment:
-        return Comment(
-            id=self.id,
-            text=self.text,
-            filePath=self.filePath,
-            lineNumber=self.lineNumber,
-            tags=self.tags
-        )
+class LineRangeLocationModel(LocationModel):
+    __tablename__ = "line_range_locations"
+    startLineNumber = Column(Integer, nullable=False)
+    endLineNumber = Column(Integer, nullable=False)
