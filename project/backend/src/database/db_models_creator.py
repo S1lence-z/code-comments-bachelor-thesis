@@ -1,4 +1,4 @@
-from database.models import Base
+from models.domain_models import Base
 
 class DatabaseModelsCreator:
     @staticmethod
