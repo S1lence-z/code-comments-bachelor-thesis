@@ -1,15 +1,15 @@
 import os
-import urllib.parse
-from typing import List, Optional
 from contextlib import asynccontextmanager
+from typing import Optional
 
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, HttpUrl, Field
-from dtos.config import Config
-from dtos.comment import Comment
 from dotenv import load_dotenv
-from project.backend.src.database.db_manager import DatabaseManager
+from pydantic import BaseModel, Field, HttpUrl
+from database.db_manager import DatabaseManager
+from models.domain_models import CommentModel, ProjectModel
+from models.dtos import CommentDto
+from utils.mappers import comments_to_dtos
 
 # Async context manager for database connection
 @asynccontextmanager
@@ -30,7 +30,7 @@ app: FastAPI = FastAPI(
 # Get absolute paths
 FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 ENV_FILE_PATH = os.path.join(FILE_PATH, "../.env.local")
-DB_FILE_PATH: str = os.path.join(FILE_PATH, "./db/main.db")
+DB_FILE_PATH: str = os.path.join(FILE_PATH, "../db/main.db")
 
 # Load environment variables 
 load_dotenv(dotenv_path=ENV_FILE_PATH)
@@ -48,149 +48,106 @@ db_manager: DatabaseManager = DatabaseManager(db_path=DB_FILE_PATH)
 # CORS Middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[FRONTEND_BASE_URL],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Request/Response Models for Specific Endpoints
-class SetupRequest(BaseModel):
-    repoUrl: HttpUrl = Field(default=..., examples=["https://github.com/user/project.git"])
+# API Endpoints
+class SetupProjectBody(BaseModel):
+    repoUrl: HttpUrl = Field(..., description="Git repository URL")
 
-class SetupResponse(BaseModel):
-    message: str = Field(default="Configuration created")
-    id: str
-    repoUrl: HttpUrl
-    commentsApiUrl: HttpUrl
-    frontend_url: list[str] = Field(default=..., examples=[f"{FRONTEND_BASE_URL}?repoUrl=...&commentsApiUrl=..."])
-
-class AddCommentRequest(BaseModel):
-    text: str
-    filePath: str
-    lineNumber: int
-    tags: Optional[List[str]] = None
-
-class AddCommentResponse(BaseModel):
-    message: str = Field(default="Comment added")
-    config: Config
-
-# - API Endpoints -
-@app.post(
-    "/api/setup",
-    response_model=SetupResponse,
-    status_code=status.HTTP_201_CREATED,
-    tags=["Configuration"],
-    summary="Create a new repository configuration",
-    description="Initializes a new configuration for a given repository URL, returning URLs for accessing comments and the frontend.",
-)
-async def setup_configuration(request: SetupRequest):
-    repo_url = request.repoUrl
-    max_retries = 5
-    last_exception = None
-
-    for attempt in range(max_retries):
-        try:
-            max_id_int = db_manager.get_max_config_id_int()
-            current_id_int = (max_id_int + 1) if max_id_int is not None else 1
-            current_id_str = str(current_id_int)
-
-            comments_api_url_str = f"{BACKEND_BASE_URL}/api/comments/{current_id_str}"
-
-            new_config = Config(
-                id=current_id_str,
-                repoUrl=repo_url,
-                commentsApiUrl=HttpUrl(comments_api_url_str),
-                comments=[], 
-                backend_base_url=BACKEND_BASE_URL
-            )
-            
-            db_manager.add_config(new_config) # This will raise IntegrityError if ID exists
-
-            frontend_redirect_url = [
-                f"{FRONTEND_BASE_URL}?repoUrl={urllib.parse.quote(str(repo_url))}",
-                f"&commentsApiUrl={urllib.parse.quote(comments_api_url_str)}"
-            ]
-
-            return SetupResponse(
-                id=current_id_str,
-                repoUrl=repo_url,
-                commentsApiUrl=HttpUrl(comments_api_url_str),
-                frontend_url=frontend_redirect_url,
-            )
-        except Exception as e:
-            last_exception = e
-            detail_message = f"An unexpected error occurred: {str(e)}"
-            break
-            
-    # If loop finished due to retries or other exceptions caught and broken
-    raise HTTPException(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        detail=detail_message or "Failed to setup configuration after multiple retries.",
-    )
-
-@app.get(
-    "/api/configs",
-    response_model=List[Config],
-    tags=["Configuration"],
-    summary="List all repository configurations",
-    description="Retrieves a list of all currently stored repository configurations along with their comments.",
-)
-async def get_all_configurations():
-    return db_manager.get_all_configs()
-
-@app.get(
-    "/api/comments/{config_id}",
-    response_model=List[Comment], 
-    tags=["Comments"],
-    summary="Get comments for a specific configuration",
-    description="Retrieves all comments associated with a given configuration ID. Comments are sorted by file path and then by line number.",
-)
-async def get_comments_for_configuration(config_id: str):
-    if not db_manager.config_exists(config_id):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Configuration with ID '{config_id}' not found.",
-        )
-    return db_manager.get_comments_for_config(config_id)
-
-@app.put(
-    "/api/comments/{config_id}",
-    response_model=AddCommentResponse,
-    tags=["Comments"],
-    summary="Add a comment to a configuration",
-    description="Adds a new comment to the specified repository configuration. The comment list is kept sorted by file path and line number.",
-)
-async def add_comment_to_configuration(config_id: str, comment_data: AddCommentRequest):
-    if not db_manager.config_exists(config_id):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Configuration with ID '{config_id}' not found.",
-        )
-
-    new_comment_model = Comment(
-        text=comment_data.text,
-        filePath=comment_data.filePath,
-        lineNumber=comment_data.lineNumber,
-        tags=comment_data.tags,
-    )
-
-    db_manager.add_comment(config_id, new_comment_model)
+class SetupProjectResponse(BaseModel):
+    message: str = Field(default="Project setup successfully", description="Response message")
+    project_id: int = Field(..., description="Unique identifier for the project")
+    read_api_url: str = Field(..., description="Read API URL for the project")
+    write_api_url: Optional[str] = Field(None, description="Optional write API URL for the project")
     
-    updated_config = db_manager.get_config(config_id)
-    if not updated_config: 
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to retrieve updated configuration.")
+@app.post("/api/setup", status_code=status.HTTP_201_CREATED, response_model=SetupProjectResponse)
+async def setup_project(setup_body: SetupProjectBody) -> SetupProjectResponse | dict:
+    request_data: dict = {
+        "git_repo_url": str(setup_body.repoUrl), # Ensure HttpUrl is converted to string
+        "frontend_base_url": FRONTEND_BASE_URL,
+        "backend_base_url": BACKEND_BASE_URL
+    }
+    try:
+        new_project: ProjectModel = db_manager.create_project(request_data)
+        
+        # return SetupProjectResponse(
+        #     message="Project setup successfully",
+        #     project_id=int(new_project.identifier),
+        #     read_api_url=str(new_project.read_api_url),
+        #     write_api_url=str(new_project.write_api_url)
+        # )
+        return {
+            "message": "Configuration created",
+            "id": int(new_project.identifier),
+            "repoUrl": str(request_data["git_repo_url"]),
+            "commentsApiUrl": str(new_project.write_api_url),
+            "frontend_url": str(new_project.read_api_url)
+        }
+    except ValueError as ve: # Catch specific validation errors
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(ve)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to setup project: {str(e)}"
+        )
 
-    return AddCommentResponse(config=updated_config)
+# -------------------------------------------------------------------
+class GetCommentsResponse(BaseModel):
+    message: str = Field(default="Comments retrieved successfully", description="Response message")
+    comments: list = Field(..., description="List of comments for the project")
 
-@app.get(
-    "/",
-    tags=["General"],
-    summary="Root path / Health check",
-    description="Provides a basic message indicating the service is running.",
-)
-async def root():
-    return {"message": "Backend for Code Commenting Project is running with FastAPI using SQLite DB!"}
+@app.get("/api/comments/{project_id}")
+async def get_comments(project_id: int) -> GetCommentsResponse | list[CommentDto]: # Adjusted response type hint
+    try:
+        comments: list[CommentModel] = db_manager.get_comments_by_project_id(project_id)
+        comment_dtos: list[CommentDto] = comments_to_dtos(comments)
+        if not comment_dtos:
+            # Return GetCommentsResponse with empty list for consistency, or just empty list
+            # return GetCommentsResponse(comments=[]) 
+            return [] # Current behavior
+        # For consistency, could also use GetCommentsResponse here:
+        # return GetCommentsResponse(comments=comment_dtos)
+        return comment_dtos # Current behavior
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve comments: {str(e)}"
+        )
+
+# -------------------------------------------------------------------
+@app.put("/api/comments/{project_id}")
+async def update_comments(project_id: int, comment_data: CommentDto) -> dict:
+    try:
+        # The update_comments method in db_manager now returns the updated/created comment.
+        # This returned comment from db_manager.update_comments will have its location loaded
+        # if accessed within the same scope or if eager loading is correctly applied.
+        db_manager.update_comments(project_id, comment_data)
+        
+        # Re-fetch all comments for the response as per original logic.
+        # The get_comments_by_project_id now eagerly loads locations.
+        comments = db_manager.get_comments_by_project_id(project_id)
+        comment_dtos = comments_to_dtos(comments) # This should now work
+        return {
+            "message": "Comments updated successfully",
+            "config": comment_dtos # 'config' key might be a legacy name, consider 'comments'
+        }
+    except ValueError as ve: # Catch specific validation errors
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(ve)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update comments: {str(e)}"
+        )
 
 if __name__ == "__main__":
     import uvicorn
@@ -200,9 +157,8 @@ if __name__ == "__main__":
     print(f"Frontend Base URL expected: {FRONTEND_BASE_URL}")
     print("API Endpoints:")
     print(f"POST {BACKEND_BASE_URL}/api/setup")
-    print(f"GET  {BACKEND_BASE_URL}/api/configs")
-    print(f"GET  {BACKEND_BASE_URL}/api/comments/{{config_id}}")
-    print(f"PUT  {BACKEND_BASE_URL}/api/comments/{{config_id}}")
+    print(f"GET  {BACKEND_BASE_URL}/api/comments/{{project_id}}")
+    print(f"PUT  {BACKEND_BASE_URL}/api/comments/{{project_id}}")
     print(f"Swagger UI docs available at: {BACKEND_BASE_URL}/docs")
     print(f"ReDoc docs available at: {BACKEND_BASE_URL}/redoc")
     print("-")
