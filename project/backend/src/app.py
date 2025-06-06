@@ -7,9 +7,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field, HttpUrl
 from database.db_manager import DatabaseManager
-from models.domain_models import CommentModel, ProjectModel
-from models.dtos import CommentDto
-from utils.mappers import comments_to_dtos
+from models.domain_models import ProjectModel
+from models.dtos import CommentDto, ProjectDto, RepositoryDto
+from utils.mappers import project_to_dto
 
 # Async context manager for database connection
 @asynccontextmanager
@@ -57,37 +57,25 @@ app.add_middleware(
 # API Endpoints
 class SetupProjectBody(BaseModel):
     repoUrl: HttpUrl = Field(..., description="Git repository URL")
+    repoType: Optional[str] = Field(default="git", description="Type of the repository")
+    commit: Optional[str] = Field(default="", description="Commit SHA for the repository")
+    token: Optional[str] = Field(default="", description="Access token for the repository")
 
-class SetupProjectResponse(BaseModel):
-    message: str = Field(default="Project setup successfully", description="Response message")
-    project_id: int = Field(..., description="Unique identifier for the project")
-    read_api_url: str = Field(..., description="Read API URL for the project")
-    write_api_url: Optional[str] = Field(None, description="Optional write API URL for the project")
-    
-@app.post("/api/setup", status_code=status.HTTP_201_CREATED, response_model=SetupProjectResponse)
-async def setup_project(setup_body: SetupProjectBody) -> SetupProjectResponse | dict:
+@app.post("/api/setup", status_code=status.HTTP_201_CREATED, response_model=ProjectDto)
+async def setup_project(setup_body: SetupProjectBody) -> ProjectDto:
     request_data: dict = {
-        "git_repo_url": str(setup_body.repoUrl), # Ensure HttpUrl is converted to string
+        "git_repo_url": str(setup_body.repoUrl),
+        "repo_type": setup_body.repoType,
+        "commit": setup_body.commit,
+        "token": setup_body.token,
         "frontend_base_url": FRONTEND_BASE_URL,
         "backend_base_url": BACKEND_BASE_URL
     }
     try:
         new_project: ProjectModel = db_manager.create_project(request_data)
-        
-        # return SetupProjectResponse(
-        #     message="Project setup successfully",
-        #     project_id=int(new_project.identifier),
-        #     read_api_url=str(new_project.read_api_url),
-        #     write_api_url=str(new_project.write_api_url)
-        # )
-        return {
-            "message": "Configuration created",
-            "id": int(new_project.identifier),
-            "repoUrl": str(request_data["git_repo_url"]),
-            "commentsApiUrl": str(new_project.write_api_url),
-            "frontend_url": str(new_project.read_api_url)
-        }
-    except ValueError as ve: # Catch specific validation errors
+        new_project_dto: ProjectDto = project_to_dto(new_project)
+        return new_project_dto
+    except ValueError as ve:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(ve)
@@ -99,55 +87,19 @@ async def setup_project(setup_body: SetupProjectBody) -> SetupProjectResponse | 
         )
 
 # -------------------------------------------------------------------
-class GetCommentsResponse(BaseModel):
-    message: str = Field(default="Comments retrieved successfully", description="Response message")
-    comments: list = Field(..., description="List of comments for the project")
-
-@app.get("/api/comments/{project_id}")
-async def get_comments(project_id: int) -> GetCommentsResponse | list[CommentDto]: # Adjusted response type hint
-    try:
-        comments: list[CommentModel] = db_manager.get_comments_by_project_id(project_id)
-        comment_dtos: list[CommentDto] = comments_to_dtos(comments)
-        if not comment_dtos:
-            # Return GetCommentsResponse with empty list for consistency, or just empty list
-            # return GetCommentsResponse(comments=[]) 
-            return [] # Current behavior
-        # For consistency, could also use GetCommentsResponse here:
-        # return GetCommentsResponse(comments=comment_dtos)
-        return comment_dtos # Current behavior
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve comments: {str(e)}"
-        )
-
-# -------------------------------------------------------------------
 @app.put("/api/comments/{project_id}")
 async def update_comments(project_id: int, comment_data: CommentDto) -> dict:
-    try:
-        # The update_comments method in db_manager now returns the updated/created comment.
-        # This returned comment from db_manager.update_comments will have its location loaded
-        # if accessed within the same scope or if eager loading is correctly applied.
-        db_manager.update_comments(project_id, comment_data)
-        
-        # Re-fetch all comments for the response as per original logic.
-        # The get_comments_by_project_id now eagerly loads locations.
-        comments = db_manager.get_comments_by_project_id(project_id)
-        comment_dtos = comments_to_dtos(comments) # This should now work
-        return {
-            "message": "Comments updated successfully",
-            "config": comment_dtos # 'config' key might be a legacy name, consider 'comments'
-        }
-    except ValueError as ve: # Catch specific validation errors
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(ve)
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to update comments: {str(e)}"
-        )
+    pass
+
+# -------------------------------------------------------------------
+class GetCommentsResponse(BaseModel):
+    message: str = Field(default="Comments retrieved successfully", description="Response message")
+    repository: RepositoryDto = Field(..., description="Repository details for the project")
+    comments: list[CommentDto] = Field(..., description="List of comments for the project")
+
+@app.get("/api/project/{project_id}/comments", response_model=GetCommentsResponse)
+async def get_comments(project_id: int) -> GetCommentsResponse:
+    pass
 
 if __name__ == "__main__":
     import uvicorn
@@ -160,8 +112,6 @@ if __name__ == "__main__":
     print(f"GET  {BACKEND_BASE_URL}/api/comments/{{project_id}}")
     print(f"PUT  {BACKEND_BASE_URL}/api/comments/{{project_id}}")
     print(f"Swagger UI docs available at: {BACKEND_BASE_URL}/docs")
-    print(f"ReDoc docs available at: {BACKEND_BASE_URL}/redoc")
-    print("-")
     
     uvicorn.run(
         "app:app",

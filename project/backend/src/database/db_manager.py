@@ -1,8 +1,7 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, joinedload
+from sqlalchemy.orm import sessionmaker, Session
 from database.db_models_creator import DatabaseModelsCreator
-from models.domain_models import LocationModel, ProjectModel, CommentModel, RepositoryModel, LineLocationModel, LineRangeLocationModel
-from models.dtos import CommentDto
+from models.domain_models import ProjectModel, RepositoryModel
 
 class DatabaseManager:
     def __init__(self, db_path: str):
@@ -10,100 +9,63 @@ class DatabaseManager:
         self.engine = create_engine(f"sqlite:///{self.db_path}")
         self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
         self._create_tables()
+    
+    def _create_read_api_url(self, project_id: int, backend_base_url: str) -> str:
+        """Construct the read API URL for a project."""
+        return f"{backend_base_url}/api/comments/{project_id}"
+    
+    def _create_write_api_url(self, project_id: int, backend_base_url: str) -> str:
+        """Construct the write API URL for a project."""
+        return f"{backend_base_url}/api/comments/{project_id}/write"
 
     def _create_tables(self):
         DatabaseModelsCreator.create_all(self.engine)
     
-    def create_project(self, project_data: dict) -> ProjectModel:
-        """Create a new project in the database."""
-        if not project_data:
-            raise ValueError("Project data cannot be empty.")
-        
-        # Extract required data
-        backend_base_url = project_data.get("backend_base_url")
-        frontend_base_url = project_data.get("frontend_base_url")
-        
+    def create_project(self, request_data: dict) -> ProjectModel:
+        session = self.SessionLocal()
+        backend_base_url = request_data.get("backend_base_url")
         if not backend_base_url:
-            raise ValueError("Backend base URL must be provided.")
-        if not frontend_base_url:
-            raise ValueError("Frontend base URL must be provided.")
-
-        with self.SessionLocal() as session:
-            # Create project with basic data
+            raise ValueError("Backend base URL is required to create project URLs.")
+        
+        try:
+            # Create the project first
             new_project = ProjectModel(
-                version=project_data.get("version", "v1"),
-                label=project_data.get("project_label", "New Project"),
-                read_api_url="",  # Will be set after getting the ID
-                write_api_url=""  # Will be set after getting the ID
+                version=request_data.get("version", "v1"),
+                label=request_data.get("label", "Test Project"),
+                read_api_url="",
+                write_api_url="",
             )
             session.add(new_project)
-            session.flush()  # Get the ID without committing
+            session.flush()  # Get the project ID
             
-            # Update URLs with the actual project ID
-            write_api_url = f"{backend_base_url}/api/comments/{new_project.identifier}"
-            read_api_url = f"{frontend_base_url}?repoUrl={project_data.get('git_repo_url', '')}&commentsApiUrl={write_api_url}"
-            
-            # Update the object attributes directly
-            setattr(new_project, 'write_api_url', write_api_url)
-            setattr(new_project, 'read_api_url', read_api_url)
-
-            session.commit()
-            session.refresh(new_project)
-            return new_project
-    
-    def get_comments_by_project_id(self, project_id: int) -> list[CommentModel]:
-        with self.SessionLocal() as session:
-            return session.query(CommentModel)\
-                .options(joinedload(CommentModel.location))\
-                .filter(CommentModel.project_id == project_id)\
-                .all()
-
-    def update_comments(self, project_id: int, comments_data: CommentDto) -> CommentModel:
-        """Update comments for a specific project."""
-        if not comments_data:
-            raise ValueError("Comments data cannot be empty.")
-        
-        with self.SessionLocal() as session:
-            # Create location inline
-            if not comments_data.file_path or comments_data.line_number is None:
-                raise ValueError("File path and line number must be provided.")
-            
-            location = LineLocationModel(file_path=comments_data.file_path, line_number=comments_data.line_number)
-            session.add(location)
-            session.flush()
-            
-            # Create repository inline
-            repository_url = "placeholder_repo_url"
-            if not repository_url:
-                raise ValueError("Repository URL cannot be empty.")
-            
-            # Check if the repository already exists
-            existing_repo = session.query(RepositoryModel).filter_by(repo_landing_page_url=repository_url).first()
-            if existing_repo:
-                repository_id = int(existing_repo.identifier)
-            else:
-                # Create a new repository entry
-                new_repository = RepositoryModel(
-                    project_id=project_id,
-                    repo_landing_page_url=repository_url,
-                    type="git",
-                    commit="mrdko"
-                )
-                session.add(new_repository)
-                session.flush()  # Get the ID without committing
-                repository_id = int(new_repository.identifier)
-            
-            # Create comment
-            new_comment = CommentModel(
-                project_id=project_id,
-                repository_id=repository_id,
-                content=comments_data.text,
-                location=location
+            new_project.read_api_url = self._create_read_api_url(
+                int(new_project.identifier),
+                backend_base_url
             )
-            session.add(new_comment)
+            new_project.write_api_url = self._create_write_api_url(
+                int(new_project.identifier),
+                backend_base_url
+            )
+            
+            # Create the one repository for this project
+            new_repository = RepositoryModel(
+                project_id=new_project.identifier,
+                type=request_data.get("repo_type", "git"),
+                repo_landing_page_url=str(request_data["git_repo_url"]),
+                commit=request_data.get("commit", "main"),
+                token=request_data.get("token")
+            )
+            session.add(new_repository)
             session.commit()
-            session.refresh(new_comment)
-            return new_comment
+            
+            # Refresh to get the complete object with relationships
+            session.refresh(new_project)
+            
+            return new_project
+            
+        except Exception as e:
+            session.rollback()
+            raise e
 
     def close(self):
         """Close the database engine."""

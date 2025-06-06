@@ -1,23 +1,33 @@
-from models.domain_models import CommentModel, LineLocationModel, LineRangeLocationModel, LocationModel
-from models.dtos import CommentDto
+from models.domain_models import ProjectModel, RepositoryModel
+from models.dtos import ProjectDto, RepositoryDto
 
-# TODO: take into account both location types (line and line range)
-def comment_to_dto(comment: CommentModel) -> CommentDto:
-    # LocationModel
-    location_model = comment.location
-    
-    if isinstance(location_model, LineLocationModel):
-        location_file_path = location_model.file_path
-    elif isinstance(location_model, LineRangeLocationModel):
-        location_file_path = location_model.file_path
-    else:
-        raise ValueError(f"Unsupported location type: {type(location_model)}")
-
-    return CommentDto(
-        file_path=str(location_file_path),
-        line_number=int(location_model.line_number),
-        text=str(comment.content)
+def repository_to_dto(repository_model: RepositoryModel) -> RepositoryDto:
+    return RepositoryDto(
+        identifier=repository_model.identifier,
+        type=repository_model.type,
+        repoLandingPageUrl=repository_model.repo_landing_page_url
     )
 
-def comments_to_dtos(comments: list[CommentModel]) -> list[CommentDto]:
-    return [comment_to_dto(comment) for comment in comments]
+def project_to_dto(project: ProjectModel) -> ProjectDto:
+    repository = project.repository
+
+    if not repository:
+        raise ValueError("Project must have a repository")
+    if not repository.repo_landing_page_url:
+        raise ValueError("Repository must have a landing page URL")
+    
+    repository_dto = RepositoryDto(
+        identifier=repository.identifier,
+        type=repository.type,
+        repoLandingPageUrl=repository.repo_landing_page_url
+    )
+    
+    return ProjectDto(
+        identifier=project.identifier,
+        version=project.version,
+        label=project.label,
+        readApiUrl=str(project.read_api_url),
+        writeApiUrl=str(project.write_api_url),
+        repositoryId=repository.identifier,
+        repository=repository_dto
+    )
