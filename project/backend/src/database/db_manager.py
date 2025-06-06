@@ -12,11 +12,11 @@ class DatabaseManager:
     
     def _create_read_api_url(self, project_id: int, backend_base_url: str) -> str:
         """Construct the read API URL for a project."""
-        return f"{backend_base_url}/api/comments/{project_id}"
-    
+        return f"{backend_base_url}/api/projects/{project_id}/comments"
+
     def _create_write_api_url(self, project_id: int, backend_base_url: str) -> str:
         """Construct the write API URL for a project."""
-        return f"{backend_base_url}/api/comments/{project_id}/write"
+        return f"{backend_base_url}/api/projects/{project_id}/comments"
 
     def _create_tables(self):
         DatabaseModelsCreator.create_all(self.engine)
@@ -33,7 +33,7 @@ class DatabaseManager:
                 version=request_data.get("version", "v1"),
                 label=request_data.get("label", "Test Project"),
                 read_api_url="",
-                write_api_url="",
+                write_api_url=None,
             )
             session.add(new_project)
             session.flush()  # Get the project ID
