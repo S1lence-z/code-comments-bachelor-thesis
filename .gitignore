@@ -2,3 +2,4 @@
 /drafts
 **/other/
 .mypy_cache
+backend_py/

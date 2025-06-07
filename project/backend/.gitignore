@@ -1,13 +1,10 @@
-# Venv
-venv/
-
 # Env and local configuration
 .env
 *.local
 
-# Python cache
-__pycache__/
-
 # Database files
 *.sqlite3
 *.db
+
+# Deno
+deno.lock
