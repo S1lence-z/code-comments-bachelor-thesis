@@ -1,10 +1,17 @@
 {
 	"tasks": {
-		"dev": "deno run --allow-env --allow-net --watch src/server.ts"
+		"dev": "deno run --allow-env --allow-net --allow-read --allow-write --allow-ffi --watch src/server.ts",
+		"test": "deno test --allow-env --allow-read --allow-write --allow-ffi tests/",
+		"start": "deno run --allow-env --allow-net --allow-read --allow-write --allow-ffi src/server.ts"
 	},
 	"imports": {
 		"@std/assert": "jsr:@std/assert@^1.0.13",
 		"@types/express": "npm:@types/express@4.17.15",
-		"express": "npm:express@^5.1.0"
+		"@types/cors": "npm:@types/cors@^2.8.0",
+		"express": "npm:express@^5.1.0",
+		"cors": "npm:cors@^2.8.5",
+		"@db/sqlite": "jsr:@db/sqlite@^0.12",
+		"dotenv": "npm:dotenv@^16.4.5",
+		"zod": "npm:zod@^3.23.8"
 	}
 }
