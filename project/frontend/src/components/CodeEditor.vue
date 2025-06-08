@@ -36,13 +36,11 @@
 
 <script setup lang="ts">
 import { ref, watch, shallowRef, computed, withDefaults } from 'vue';
-import { oneDark } from '@codemirror/theme-one-dark';
 import { Codemirror } from 'vue-codemirror';
-import { EditorView, lineNumbers, Decoration, WidgetType } from '@codemirror/view';
-import type { DecorationSet } from '@codemirror/view';
-import { RangeSetBuilder, StateField, EditorState } from '@codemirror/state';
-import { getLanguageExtension } from '../utils/languageUtils';
+import { EditorView } from '@codemirror/view';
 import type ICommentDto from '../../../shared/dtos/ICommentDto';
+import '../codemirror/styles.css';
+import { createEditorExtensions } from '../codeMirror/editorConfig';
 
 interface CodeEditorProps {
 	fileContent: string | null;
@@ -67,74 +65,11 @@ const editorPlaceholder = computed(() => {
   return props.filePath ? `Content of ${props.filePath}` : 'Code will appear here...';
 });
 
-class CommentWidget extends WidgetType {
-  text: string;
-
-  constructor(text: string) {
-	super();
-	this.text = text;
-  }
-
-  toDOM() {
-    const wrap = document.createElement('div');
-    wrap.className = 'cm-comment-widget';
-    wrap.textContent = this.text;
-    return wrap;
-  }
-
-  ignoreEvent() { return false; }
-}
-
-function buildDecorations(state: EditorState, commentsToDisplay: Readonly<ICommentDto[]>): DecorationSet {
-  const builder = new RangeSetBuilder<Decoration>();
-  if (!commentsToDisplay || commentsToDisplay.length === 0) {
-    return builder.finish();
-  }
-
-  for (const comment of commentsToDisplay) {
-    if (comment.lineNumber > 0 && comment.lineNumber <= state.doc.lines) {
-      const line = state.doc.line(comment.lineNumber);
-      builder.add(line.from, line.from, Decoration.widget({
-        widget: new CommentWidget(comment.content),
-        side: -1, // Place widget before the line's actual content start
-        block: true,
-      }));
-    }
-  }
-  return builder.finish();
-}
-
-function commentsDisplayExtension(currentComments: Readonly<ICommentDto[]>) {
-  return StateField.define<DecorationSet>({
-    create(state: EditorState) {
-      return buildDecorations(state, currentComments);
-    },
-    update(value: DecorationSet, tr) {
-      if (tr.docChanged) {
-        return buildDecorations(tr.state, currentComments);
-      }
-      return value.map(tr.changes);
-    },
-    provide: f => EditorView.decorations.from(f)
-  });
-}
-
 const extensions = computed(() => {
-  const langExt = getLanguageExtension(props.filePath);
-  const currentFileComments = props.comments || []; // Ensure it's an array
-  console.log('CodeEditor.vue: `extensions` computed property re-evaluated. Comments count:', currentFileComments.length); // DEBUG
-  if (currentFileComments.length > 0) {
-    // console.log('Current comments in extensions:', JSON.stringify(currentFileComments)); // Can be verbose
-  }
+  const currentFileComments = props.comments || [];
+  console.log('CodeEditor.vue: extensions computed property re-evaluated. Comments count:', currentFileComments.length);
 
-  return [
-    oneDark,
-    lineNumbers(),
-    EditorView.lineWrapping,
-    ...(Array.isArray(langExt) ? langExt : [langExt]),
-    EditorView.editable.of(false),
-    commentsDisplayExtension(currentFileComments) // Pass the reactive comments array
-  ];
+  return createEditorExtensions(props.filePath, currentFileComments);
 });
 
 watch(() => props.fileContent, (newVal: string | null) => {
@@ -147,11 +82,11 @@ const handleReady = (payload: any): any => {
 
 const handleEditorDoubleClick = (event: MouseEvent) => {
 	if (!editorView.value) return;
-	// Use posAtCoords to get the precise character position from mouse coordinates
+
 	const pos = editorView.value.posAtCoords({ x: event.clientX, y: event.clientY });
 	if (pos !== null && pos !== undefined) {
 		const lineNumber = editorView.value.state.doc.lineAt(pos).number; // lineNumber is 1-based
-		if (props.filePath) { // Ensure filePath is not null
+		if (props.filePath) {
 			emit('line-double-clicked', { lineNumber, filePath: props.filePath });
 		}
 	}
@@ -224,19 +159,5 @@ function getFileName(path: string | null): string {
 .editor-wrapper {
 	flex-grow: 1;
 	overflow: auto; /* Ensures scrolling is enabled */
-}
-
-/* Deep selector for CodeMirror generated comment widget */
-:deep(.cm-comment-widget) {
-	background-color: #2c3e50; /* Darker blue-gray */
-	color: #ecf0f1; /* Light gray/white */
-	padding: 5px 10px;
-	margin-bottom: 4px;
-	font-size: 0.88em;
-	white-space: pre-wrap;
-	border-radius: 4px;
-	border-left: 3px solid #3498db; /* Blue accent line */
-	box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-	line-height: 1.4;
 }
 </style>

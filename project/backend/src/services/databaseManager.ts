@@ -205,7 +205,7 @@ class DatabaseManager {
 				.prepare(
 					`
         SELECT 
-          c.content as text,
+          c.content as content,
           l.file_path as filePath,
           ll.line_number as lineNumber
         FROM comments c

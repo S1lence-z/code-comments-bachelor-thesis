@@ -10,6 +10,7 @@ export default class CommentsController {
 		}
 
 		const comments = dbManager.getCommentsByProjectId(projectId);
+		console.log("CommentsController.getComments: Comments:", comments);
 		return {
 			repository: {
 				identifier: project.repository.identifier,

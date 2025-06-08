@@ -14,6 +14,7 @@
     "npm:@codemirror/state@^6.5.2": "6.5.2",
     "npm:@codemirror/theme-one-dark@^6.1.2": "6.1.2",
     "npm:@codemirror/view@^6.37.1": "6.37.1",
+    "npm:@types/web@^0.0.239": "0.0.239",
     "npm:@vitejs/plugin-vue@^5.2.3": "5.2.4_vite@6.3.5__picomatch@4.0.2_vue@3.5.16__typescript@5.8.3_typescript@5.8.3",
     "npm:@vue/tsconfig@0.7": "0.7.0_typescript@5.8.3_vue@3.5.16__typescript@5.8.3",
     "npm:typescript@~5.8.3": "5.8.3",
@@ -510,6 +511,9 @@
     "@types/estree@1.0.7": {
       "integrity": "sha512-w28IoSUCJpidD/TGviZwwMJckNESJZXFu7NBZ5YJ4mEUnNraUn9Pm8HSZm/jDF1pDWYKspWE7oVphigUPRakIQ=="
     },
+    "@types/web@0.0.239": {
+      "integrity": "sha512-9FuMSe6PPK1JtoouV5YQD3SAn4f76Zlco/GZnTO5SDw8VdlSbvYCMRKr6lcDMdtGkHAduxC5xz8f+HvmBiWvLw=="
+    },
     "@vitejs/plugin-vue@5.2.4_vite@6.3.5__picomatch@4.0.2_vue@3.5.16__typescript@5.8.3_typescript@5.8.3": {
       "integrity": "sha512-7Yx/SXSOcQq5HiiV3orevHUFn+pmMB4cgbEkDYgnkUWb0WfeQ/wa2yFv6D5ICiCQOVpjA7vYDXrC7AGO8yjDHA==",
       "dependencies": [
@@ -884,6 +888,7 @@
         "npm:@codemirror/state@^6.5.2",
         "npm:@codemirror/theme-one-dark@^6.1.2",
         "npm:@codemirror/view@^6.37.1",
+        "npm:@types/web@^0.0.239",
         "npm:@vitejs/plugin-vue@^5.2.3",
         "npm:@vue/tsconfig@0.7",
         "npm:typescript@~5.8.3",

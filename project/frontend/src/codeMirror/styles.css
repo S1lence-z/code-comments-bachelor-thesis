@@ -1,0 +1,13 @@
+/* CodeMirror comment widget styles */
+.cm-comment-widget {
+	background-color: #2c3e50; /* Darker blue-gray */
+	color: #ecf0f1; /* Light gray/white */
+	padding: 5px 10px;
+	margin-bottom: 4px;
+	font-size: 0.88em;
+	white-space: pre-wrap;
+	border-radius: 4px;
+	border-left: 3px solid #3498db; /* Blue accent line */
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	line-height: 1.4;
+}
