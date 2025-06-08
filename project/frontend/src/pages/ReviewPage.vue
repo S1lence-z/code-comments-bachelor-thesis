@@ -3,10 +3,10 @@ import { ref, onMounted, computed, watch } from 'vue';
 import FileExplorer from '../components/FileExplorer.vue';
 import CodeEditor from '../components/CodeEditor.vue';
 import CommentModal from '../components/CommentModal.vue';
-import type { TreeNode } from '../types/github';
-import type { Comment } from '../types/comment';
-import { fetchRepoTreeAPI, fetchFileContentAPI } from '../api/githubApi';
-import { fetchComments, addComment } from '../api/commentsApi';
+import type { TreeNode } from '../types/githubApi.ts';
+import IGetCommentsResponse from '../../../shared/dtos/IGetCommentsResponse';
+import { fetchRepoTreeAPI, fetchFileContentAPI } from '../api/githubApi.ts';
+import { fetchComments, addComment } from '../api/commentsApi.ts';
 
 const props = defineProps<{
   repoUrl: string;
@@ -22,14 +22,14 @@ const errorMessage = ref<string>('');
 const isLoadingRepo = ref<boolean>(false);
 const isLoadingFile = ref<boolean>(false);
 const isLoadingComments = ref<boolean>(false);
-const GITHUB_PAT = import.meta.env.VITE_GITHUB_PAT;
+const GITHUB_PAT = import.meta.env.VITE_GITHUB_PAT || '';
 
 const isModalVisible = ref(false);
 const modalLineNumber = ref<number | null>(null);
 const modalFilePath = ref<string | null>(null);
 const modalInitialText = ref("");
 
-const backendComments = ref<Comment[]>([]);
+const backendComments = ref<IGetCommentsResponse[]>([]);
 
 const currentFileComments = computed(() => {
   if (selectedFile.value && backendComments.value.length > 0) {

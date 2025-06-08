@@ -1,37 +1,28 @@
-import type { Comment } from "../types/comment";
+import type IProjectDto from "../../../shared/dtos/IProjectDto.ts";
+import type ISetupProjectRequest from "../../../shared/api/ISetupProjectRequest.ts";
+import type IGetCommentsResponse from "../../../shared/api/IGetCommentsResponse.ts";
 
-/**
- * Fetches comments for a given configuration.
- * @param commentsApiUrl The URL to fetch comments from (e.g., http://localhost:4000/api/comments/:id)
- * @returns A promise that resolves to an array of comments.
- */
-export async function fetchComments(commentsApiUrl: string): Promise<Comment[]> {
+export async function fetchComments(readApiUrl: string): Promise<IGetCommentsResponse> {
 	try {
-		const response = await fetch(commentsApiUrl);
+		const response = await fetch(readApiUrl);
 		if (!response.ok) {
 			throw new Error(`Failed to fetch comments: ${response.status} ${response.statusText}`);
 		}
-		const comments: Comment[] = await response.json();
-		return comments;
+		const allComments: IGetCommentsResponse = await response.json();
+		return allComments;
 	} catch (error) {
 		console.error("Error in fetchComments:", error);
-		throw error; // Re-throw to be caught by the caller
+		throw error;
 	}
 }
 
-/**
- * Adds a comment to a specific configuration.
- * @param commentsApiUrl The base URL for the comments API of a specific config (e.g., http://localhost:4000/api/comments/:id)
- * @param commentData The comment object to add.
- * @returns A promise that resolves when the comment is successfully added.
- */
 export async function addComment(
-	commentsApiUrl: string,
+	writeApiUrl: string,
 	commentData: { text: string; filePath: string; lineNumber: number; tags?: string[] }
-): Promise<any> {
+): Promise<IGetCommentsResponse> {
 	try {
-		const response = await fetch(commentsApiUrl, {
-			method: "PUT",
+		const response = await fetch(writeApiUrl, {
+			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
 			},
@@ -45,14 +36,16 @@ export async function addComment(
 				`Failed to add comment: ${response.status} ${response.statusText} - ${errorData.message}`
 			);
 		}
-		return await response.json(); // Contains { message: "Comment added", config: db[id] }
+		return await response.json();
 	} catch (error) {
 		console.error("Error in addComment:", error);
-		throw error; // Re-throw to be caught by the caller
+		throw error;
 	}
 }
 
-export async function createConfiguration(githubRepoUrl: string): Promise<any> {
+export async function createConfiguration(
+	setupRequest: ISetupProjectRequest
+): Promise<IProjectDto> {
 	const requestUrl = "http://localhost:4000/api/setup";
 	try {
 		const response = await fetch(requestUrl, {
@@ -61,7 +54,7 @@ export async function createConfiguration(githubRepoUrl: string): Promise<any> {
 				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({
-				repoUrl: githubRepoUrl,
+				repoUrl: setupRequest.repoUrl,
 			}),
 		});
 		if (!response.ok) {
@@ -73,17 +66,9 @@ export async function createConfiguration(githubRepoUrl: string): Promise<any> {
 			);
 		}
 		const data = await response.json();
-		// Example
-		// {
-		//     "message": "Configuration created",
-		//     "id": "2",
-		//     "repoUrl": "https://github.com/S1lence-z/tic-tac-toe",
-		//     "commentsApiUrl": "http://localhost:4000/api/comments/2",
-		//     "frontend_url": "http://localhost:5173?repoUrl=https%3A%2F%2Fgithub.com%2FS1lence-z%2Ftic-tac-toe&commentsApiUrl=http%3A%2F%2Flocalhost%3A4000%2Fapi%2Fcomments%2F2"
-		// }
 		return data;
 	} catch (error) {
 		console.error("Error in createConfiguration:", error);
-		throw error; // Re-throw to be caught by the caller
+		throw error;
 	}
 }

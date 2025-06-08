@@ -29,28 +29,32 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { createConfiguration } from '../api/commentsApi'; // Adjust the import path as necessary
+import { createConfiguration } from '../api/commentsApi.ts'; // Adjust the import path as necessary
 
 const githubRepoUrl = ref('');
 const isLoading = ref(false);
 const errorMessage = ref('');
 const generatedReviewLink = ref('');
 
+const createEditRepoUrl = (writeApiUrl: string, repoLandingPageUrl: string) => {
+  const frontendBaseUrl = globalThis.location.origin;
+  return `${frontendBaseUrl}/?repoUrl=${encodeURIComponent(repoLandingPageUrl)}&commentsApiUrl=${encodeURIComponent(writeApiUrl || "")}`;
+};
+
 const handleCreateConfiguration = async () => {
   isLoading.value = true;
   errorMessage.value = '';
   generatedReviewLink.value = '';
   try {
-    const response = await createConfiguration(githubRepoUrl.value);
-    // Assuming the backend returns a full frontend URL in response.frontendUrl
-    // or repoUrl and commentsApiUrl to construct it.
-    // For this example, let's assume response.frontendUrl is provided.
-    if (response.frontendUrl) {
-      generatedReviewLink.value = response.frontendUrl;
-    } else if (response.repoUrl && response.commentsApiUrl) {
-      // Construct the URL if individual parts are returned
-      const frontendBaseUrl = window.location.origin;
-      generatedReviewLink.value = `${frontendBaseUrl}/?repoUrl=${encodeURIComponent(response.repoUrl)}&commentsApiUrl=${encodeURIComponent(response.commentsApiUrl)}`;
+    const response = await createConfiguration({
+      repoUrl: githubRepoUrl.value.trim(),
+    });
+
+    if (response.writeApiUrl && response.repository) {
+      generatedReviewLink.value = createEditRepoUrl(
+        response.writeApiUrl,
+        response.repository.repoLandingPageUrl
+      );
     } else {
       throw new Error('Invalid response from server for configuration setup.');
     }

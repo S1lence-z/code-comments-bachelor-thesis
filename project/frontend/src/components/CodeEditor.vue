@@ -41,23 +41,24 @@ import { Codemirror } from 'vue-codemirror';
 import { EditorView, lineNumbers, Decoration, WidgetType } from '@codemirror/view';
 import type { DecorationSet } from '@codemirror/view';
 import { RangeSetBuilder, StateField, EditorState } from '@codemirror/state';
-import type { Comment } from '../types/comment';
 import { getLanguageExtension } from '../utils/languageUtils';
+import ICommentDto from '../../../shared/dtos/ICommentDto';
 
 interface CodeEditorProps {
 	fileContent: string | null;
 	filePath: string | null;
 	isLoadingFile?: boolean;
-	comments?: Comment[];
+	comments?: ICommentDto[];
 }
-
 
 const props = withDefaults(defineProps<CodeEditorProps>(), {
   isLoadingFile: false,
   comments: () => []
 });
 
-const emit = defineEmits(['line-double-clicked']);
+const emit = defineEmits<{
+  'line-double-clicked': [{ lineNumber: number, filePath: string }];
+}>();
 
 const currentContent = ref('');
 const editorView = shallowRef<EditorView>();
@@ -79,7 +80,7 @@ class CommentWidget extends WidgetType {
   ignoreEvent() { return false; }
 }
 
-function buildDecorations(state: EditorState, commentsToDisplay: Readonly<Comment[]>): DecorationSet {
+function buildDecorations(state: EditorState, commentsToDisplay: Readonly<ICommentDto[]>): DecorationSet {
   const builder = new RangeSetBuilder<Decoration>();
   if (!commentsToDisplay || commentsToDisplay.length === 0) {
     return builder.finish();
@@ -89,7 +90,7 @@ function buildDecorations(state: EditorState, commentsToDisplay: Readonly<Commen
     if (comment.lineNumber > 0 && comment.lineNumber <= state.doc.lines) {
       const line = state.doc.line(comment.lineNumber);
       builder.add(line.from, line.from, Decoration.widget({
-        widget: new CommentWidget(comment.text),
+        widget: new CommentWidget(comment.content),
         side: -1, // Place widget before the line's actual content start
         block: true,
       }));
@@ -98,7 +99,7 @@ function buildDecorations(state: EditorState, commentsToDisplay: Readonly<Commen
   return builder.finish();
 }
 
-function commentsDisplayExtension(currentComments: Readonly<Comment[]>) {
+function commentsDisplayExtension(currentComments: Readonly<ICommentDto[]>) {
   return StateField.define<DecorationSet>({
     create(state: EditorState) {
       return buildDecorations(state, currentComments);
@@ -135,8 +136,8 @@ watch(() => props.fileContent, (newVal: string | null) => {
   currentContent.value = newVal === null ? '' : newVal;
 }, { immediate: true });
 
-const handleReady = (payload: { view: EditorView }) => {
-  editorView.value = payload.view;
+const handleReady = (payload: { view: EditorView; state: EditorState; container: HTMLDivElement }): void => {
+	editorView.value = payload.view;
 };
 
 const handleEditorDoubleClick = (event: MouseEvent) => {

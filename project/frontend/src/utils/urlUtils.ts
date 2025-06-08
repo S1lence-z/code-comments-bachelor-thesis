@@ -39,7 +39,7 @@ export function parseRepoAndBranchFromLocation():
 	| { repoUrl: string; branch: string }
 	| { error: string } {
 	try {
-		const params = new URLSearchParams(window.location.search);
+		const params = new URLSearchParams(globalThis.location.search);
 		const urlParam = params.get("repo_url");
 		if (!urlParam) {
 			return { error: "repo_url parameter is missing." };
@@ -58,7 +58,7 @@ export function parseRepoAndBranchFromLocation():
 			repoUrl: urlParam,
 			branch: params.get("branch") || "main",
 		};
-	} catch (e) {
+	} catch (_e) {
 		return { error: "Invalid repo_url parameter." };
 	}
 }

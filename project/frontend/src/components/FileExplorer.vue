@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
 import FileExplorerItem from './FileExplorerItem.vue';
-import type { TreeNode } from '../types/github';
+import type { TreeNode } from '../types/githubApi.ts';
 
 interface Props {
   treeData: TreeNode[];
