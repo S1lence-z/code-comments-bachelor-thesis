@@ -1,6 +1,6 @@
 import { assert } from "@std/assert";
-import { DatabaseManager } from "../src/database/db-manager.ts";
-import { CommentDto } from "../src/models/schemas.ts";
+import { DatabaseManager } from "../src/database/databaseManager.ts";
+import { CommentDto } from "../src/types/api.ts";
 
 // Test database manager
 Deno.test("DatabaseManager - Basic Operations", () => {
@@ -40,7 +40,7 @@ Deno.test("DatabaseManager - Basic Operations", () => {
 	assert(comments.length === 1, "Should have one comment");
 	assert(comments[0].filePath === "src/test.ts", "Comment should have correct file path");
 	assert(comments[0].lineNumber === 42, "Comment should have correct line number");
-	assert(comments[0].text === "This is a test comment", "Comment should have correct text");
+	assert(comments[0].content === "This is a test comment", "Comment should have correct text");
 
 	// Test database statistics
 	const stats = dbManager.getStats();

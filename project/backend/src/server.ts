@@ -3,18 +3,16 @@ import cors from "cors";
 import path from "node:path";
 import process from "node:process";
 import { config } from "dotenv";
-import { DatabaseManager } from "./database/db-manager.ts";
+import { DatabaseManager } from "./database/databaseManager.ts";
 import { projectToDto } from "./utils/mappers.ts";
-import { validateEnv, logEnvironment } from "./utils/env-validator.ts";
-import {
-	SetupProjectBodySchema,
-	CommentDtoSchema,
-	type ProjectDto,
-	type GetCommentsResponse,
-} from "./models/schemas.ts";
+import { validateEnv, logEnvironment } from "./utils/envValidator.ts";
+import { SetupProjectBodySchema, type GetCommentsResponse } from "./types/api.ts";
+import { CommentDtoSchema, type ProjectDto } from "./models/dtos.ts";
 
 // Load environment variables
-config();
+config({
+	path: path.resolve(process.cwd(), ".env.local"),
+});
 
 // Validate environment configuration
 const env = validateEnv();
@@ -43,39 +41,6 @@ app.use(
 );
 
 app.use(express.json({ limit: "10mb" }));
-
-// Rate limiting middleware (simple implementation)
-const rateLimit = new Map<string, { count: number; resetTime: number }>();
-const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutes
-const RATE_LIMIT_MAX_REQUESTS = 100; // Max requests per window
-
-app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
-	const clientIp = req.ip || req.socket.remoteAddress || "unknown";
-	const now = Date.now();
-	const clientData = rateLimit.get(clientIp);
-
-	if (!clientData || now > clientData.resetTime) {
-		rateLimit.set(clientIp, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
-		return next();
-	}
-
-	if (clientData.count >= RATE_LIMIT_MAX_REQUESTS) {
-		return res.status(429).json({
-			error: "Too many requests",
-			message: "Rate limit exceeded. Please try again later.",
-			retryAfter: Math.ceil((clientData.resetTime - now) / 1000),
-		});
-	}
-
-	clientData.count++;
-	next();
-});
-
-// Request logging middleware
-app.use((req, _res, next) => {
-	console.log(`${req.method} ${req.url}`);
-	next();
-});
 
 // Routes
 app.get("/", (req: express.Request, res: express.Response) => {
@@ -214,7 +179,7 @@ app.get("/api/project/:project_id/comments", (req: express.Request, res: express
 });
 
 // Add comment to a project
-app.put("/api/comments/:project_id", (req: express.Request, res: express.Response) => {
+app.put("/api/project/:project_id/comments", (req: express.Request, res: express.Response) => {
 	try {
 		const projectId = parseInt(req.params.project_id);
 
@@ -309,6 +274,6 @@ app.listen(BACKEND_API_PORT, () => {
 	console.log("API Endpoints:");
 	console.log(`POST ${BACKEND_BASE_URL}/api/setup`);
 	console.log(`GET  ${BACKEND_BASE_URL}/api/project/{project_id}/comments`);
-	console.log(`PUT  ${BACKEND_BASE_URL}/api/comments/{project_id}`);
+	console.log(`PUT  ${BACKEND_BASE_URL}/api/project/{project_id/comments`);
 	console.log(`Database file: ${DB_FILE_PATH}`);
 });

@@ -3,7 +3,7 @@ import { z } from "zod";
 const EnvSchema = z.object({
 	BACKEND_API_PORT: z
 		.string()
-		.default("4000")
+		.default("3500")
 		.transform(Number)
 		.pipe(z.number().int().min(1).max(65535)),
 	BACKEND_HOSTNAME: z.string().default("http://localhost"),
@@ -17,7 +17,7 @@ export type ValidatedEnv = z.infer<typeof EnvSchema>;
 export function validateEnv(): ValidatedEnv {
 	try {
 		const env = {
-			BACKEND_API_PORT: Deno.env.get("BACKEND_API_PORT") || "4000",
+			BACKEND_API_PORT: Deno.env.get("BACKEND_API_PORT") || "3500",
 			BACKEND_HOSTNAME: Deno.env.get("BACKEND_HOSTNAME") || "http://localhost",
 			FRONTEND_BASE_URL: Deno.env.get("FRONTEND_BASE_URL") || "http://localhost:5173",
 			NODE_ENV: Deno.env.get("NODE_ENV") || "development",

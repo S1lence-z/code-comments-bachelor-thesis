@@ -1,9 +1,10 @@
 import { Database } from "@db/sqlite";
-import { Project, Repository, ProjectRow, RepositoryRow } from "../types/index.ts";
-import { CommentDto } from "../models/schemas.ts";
+import { Project, Repository, ProjectRow, RepositoryRow } from "../models/databaseModels.ts";
+import { CommentDto } from "../models/dtos.ts";
 
 export class DatabaseManager {
 	private db: Database;
+
 	constructor(dbPath: string) {
 		this.db = new Database(dbPath);
 		this.createTables();
@@ -95,7 +96,7 @@ export class DatabaseManager {
 	}
 
 	private createWriteApiUrl(projectId: number, backendBaseUrl: string): string {
-		return `${backendBaseUrl}/api/comments/${projectId}`;
+		return `${backendBaseUrl}/api/project/${projectId}/comments`;
 	}
 	createProject(requestData: {
 		git_repo_url: string;
@@ -195,6 +196,7 @@ export class DatabaseManager {
 			throw error;
 		}
 	}
+
 	getCommentsByProjectId(projectId: number): CommentDto[] {
 		try {
 			const comments = this.db
@@ -211,7 +213,7 @@ export class DatabaseManager {
       `
 				)
 				.all([projectId]) as Array<{
-				text: string;
+				content: string;
 				filePath: string;
 				lineNumber: number;
 			}>;
@@ -219,7 +221,7 @@ export class DatabaseManager {
 			return comments.map((comment) => ({
 				filePath: comment.filePath,
 				lineNumber: comment.lineNumber,
-				text: comment.text,
+				content: comment.content,
 			}));
 		} catch (error) {
 			console.error("Error getting comments:", error);
@@ -255,7 +257,7 @@ export class DatabaseManager {
 					`INSERT INTO comments (project_id, repository_id, location_id, content)
          VALUES (?, ?, ?, ?)`
 				)
-				.run([projectId, repository.identifier, locationId, commentData.text]);
+				.run([projectId, repository.identifier, locationId, commentData.content]);
 		} catch (error) {
 			console.error("Error adding comment:", error);
 			throw error;
