@@ -27,7 +27,7 @@ const BACKEND_BASE_URL = `${BACKEND_HOSTNAME}:${BACKEND_API_PORT}`;
 const FRONTEND_BASE_URL = env.FRONTEND_BASE_URL;
 
 // Database setup
-const DB_FILE_PATH = env.DB_PATH || path.join(import.meta.dirname || ".", "../db/main.db");
+const DB_FILE_PATH = path.join(import.meta.dirname || ".", "../db/main.db");
 const dbManager = new DatabaseManager(DB_FILE_PATH);
 
 // Middleware
@@ -60,47 +60,6 @@ app.get("/health", (_req: express.Request, res: express.Response) => {
 		database: {
 			connected: isDbConnected,
 			statistics: dbStats,
-		},
-	});
-});
-
-// API documentation endpoint
-app.get("/api", (_req: express.Request, res: express.Response) => {
-	res.json({
-		name: "Code Commenting API",
-		version: "1.0.0",
-		description: "Express TypeScript backend for code commenting project with SQLite database",
-		endpoints: {
-			"POST /api/setup": {
-				description: "Create a new project",
-				body: {
-					repoUrl: "string (required)",
-					repoType: "string (optional, default: 'git')",
-					commit: "string (optional)",
-					token: "string (optional)",
-				},
-				response: "ProjectDto",
-			},
-			"GET /api/project/:project_id/comments": {
-				description: "Get all comments for a project",
-				parameters: {
-					project_id: "number (required)",
-				},
-				response: "GetCommentsResponse",
-			},
-			"PUT /api/comments/:project_id": {
-				description: "Add a comment to a project",
-				parameters: {
-					project_id: "number (required)",
-				},
-				body: {
-					filePath: "string (required)",
-					lineNumber: "number (required)",
-					text: "string (required)",
-					tags: "string[] (optional)",
-				},
-				response: "Success message",
-			},
 		},
 	});
 });
