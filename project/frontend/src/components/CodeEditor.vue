@@ -42,7 +42,7 @@ import { EditorView, lineNumbers, Decoration, WidgetType } from '@codemirror/vie
 import type { DecorationSet } from '@codemirror/view';
 import { RangeSetBuilder, StateField, EditorState } from '@codemirror/state';
 import { getLanguageExtension } from '../utils/languageUtils';
-import ICommentDto from '../../../shared/dtos/ICommentDto';
+import type ICommentDto from '../../../shared/dtos/ICommentDto';
 
 interface CodeEditorProps {
 	fileContent: string | null;
@@ -68,7 +68,12 @@ const editorPlaceholder = computed(() => {
 });
 
 class CommentWidget extends WidgetType {
-  constructor(readonly text: string) { super(); }
+  text: string;
+
+  constructor(text: string) {
+	super();
+	this.text = text;
+  }
 
   toDOM() {
     const wrap = document.createElement('div');
@@ -136,7 +141,7 @@ watch(() => props.fileContent, (newVal: string | null) => {
   currentContent.value = newVal === null ? '' : newVal;
 }, { immediate: true });
 
-const handleReady = (payload: { view: EditorView; state: EditorState; container: HTMLDivElement }): void => {
+const handleReady = (payload: any): any => {
 	editorView.value = payload.view;
 };
 

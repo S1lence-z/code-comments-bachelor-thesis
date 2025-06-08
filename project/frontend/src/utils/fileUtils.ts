@@ -1,5 +1,3 @@
-// File utility functions
-
 export function getFileName(path: string | null): string {
 	if (!path) return "";
 	return path.split("/").pop() || path;

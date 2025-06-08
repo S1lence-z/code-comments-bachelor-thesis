@@ -1,5 +1,3 @@
-// URL parsing utilities
-
 export interface RepoUrlInfo {
 	repoUrl: string;
 	branch: string;

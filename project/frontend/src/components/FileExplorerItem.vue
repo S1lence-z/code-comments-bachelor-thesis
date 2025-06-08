@@ -50,7 +50,7 @@
 <script setup lang="ts">
 import { ref, withDefaults } from 'vue';
 import { getFileIcon } from '../utils/fileUtils'
-import { TreeNode } from '../types/githubApi';
+import { type TreeNode } from '../types/githubApi.ts';
 
 interface FileExplorerItemProps {
 	item: TreeNode;

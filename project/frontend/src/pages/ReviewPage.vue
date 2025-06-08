@@ -4,14 +4,14 @@ import FileExplorer from '../components/FileExplorer.vue';
 import CodeEditor from '../components/CodeEditor.vue';
 import CommentModal from '../components/CommentModal.vue';
 import type { TreeNode } from '../types/githubApi.ts';
-import IGetCommentsResponse from '../../../shared/dtos/IGetCommentsResponse';
+import type ICommentDto from '../../../shared/dtos/ICommentDto';
 import { fetchRepoTreeAPI, fetchFileContentAPI } from '../api/githubApi.ts';
 import { fetchComments, addComment } from '../api/commentsApi.ts';
 
 const props = defineProps<{
   repoUrl: string;
   initialBranch: string;
-  commentsApiUrl: string;
+  writeApiUrl: string;
 }>();
 
 const branch = ref(props.initialBranch || 'main');
@@ -29,7 +29,7 @@ const modalLineNumber = ref<number | null>(null);
 const modalFilePath = ref<string | null>(null);
 const modalInitialText = ref("");
 
-const backendComments = ref<IGetCommentsResponse[]>([]);
+const backendComments = ref<ICommentDto[]>([]);
 
 const currentFileComments = computed(() => {
   if (selectedFile.value && backendComments.value.length > 0) {
@@ -39,10 +39,11 @@ const currentFileComments = computed(() => {
 });
 
 async function loadComments() {
-  if (!props.commentsApiUrl) return;
+  if (!props.writeApiUrl) return;
   isLoadingComments.value = true;
   try {
-    backendComments.value = await fetchComments(props.commentsApiUrl);
+    const response = await fetchComments(props.writeApiUrl);
+    backendComments.value = response.comments || [];
   } catch (e: any) {
     errorMessage.value = `Failed to load comments: ${e.message}`;
     console.error("Error fetching comments:", e);
@@ -104,7 +105,7 @@ function handleToggleExpandInTree(itemToToggle: TreeNode) {
 
 async function handleLineDoubleClicked(payload: { lineNumber: number; filePath: string }) {
   const { lineNumber, filePath } = payload;
-  if (!filePath || !props.commentsApiUrl) {
+  if (!filePath || !props.writeApiUrl) {
     errorMessage.value = "Cannot add comment: comments API URL is not configured.";
     return;
   }
@@ -113,19 +114,19 @@ async function handleLineDoubleClicked(payload: { lineNumber: number; filePath: 
   );
   modalLineNumber.value = lineNumber;
   modalFilePath.value = filePath;
-  modalInitialText.value = existingComment ? existingComment.text : "";
+  modalInitialText.value = existingComment ? existingComment.content : "";
   isModalVisible.value = true;
 }
 
 async function handleCommentSubmit(commentText: string) {
-  if (modalFilePath.value === null || modalLineNumber.value === null || !props.commentsApiUrl) {
+  if (modalFilePath.value === null || modalLineNumber.value === null || !props.writeApiUrl) {
     errorMessage.value = "Cannot save comment: missing data or API URL.";
     return;
   }
   const commentData = {
     filePath: modalFilePath.value,
     lineNumber: modalLineNumber.value,
-    text: commentText,
+    content: commentText,
   };
   if (!commentText.trim()) {
     console.log("Comment text is empty, not submitting.");
@@ -133,7 +134,7 @@ async function handleCommentSubmit(commentText: string) {
     return;
   }
   try {
-    await addComment(props.commentsApiUrl, commentData);
+    await addComment(props.writeApiUrl, commentData);
     await loadComments();
   } catch (e: any) {
     errorMessage.value = `Failed to save comment: ${e.message}`;
@@ -151,13 +152,13 @@ function closeCommentModal() {
 }
 
 onMounted(async () => {
-  if (props.repoUrl && props.commentsApiUrl) {
+  if (props.repoUrl && props.writeApiUrl) {
     await localFetchRepoTree();
     await loadComments();
   }
 });
 
-watch(() => props.commentsApiUrl, async (newUrl, oldUrl) => {
+watch(() => props.writeApiUrl, async (newUrl, oldUrl) => {
   if (newUrl && newUrl !== oldUrl) {
     await loadComments();
   }
@@ -167,7 +168,7 @@ watch(() => props.repoUrl, async (newUrl, oldUrl) => {
   if (newUrl && newUrl !== oldUrl) {
     await localFetchRepoTree();
     // Potentially reload comments if the repo changes and comments are repo-specific beyond the ID
-    if (props.commentsApiUrl) await loadComments();
+    if (props.writeApiUrl) await loadComments();
   }
 });
 </script>

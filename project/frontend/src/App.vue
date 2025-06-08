@@ -64,7 +64,7 @@ onMounted(() => {
 		<ReviewPage
 			v-else-if="pageToShow === 'ReviewPage' && reviewPageProps"
 			:repoUrl="reviewPageProps.repoUrl"
-			:commentsApiUrl="reviewPageProps.commentsApiUrl"
+			:writeApiUrl="reviewPageProps.commentsApiUrl"
 			:initialBranch="reviewPageProps.initialBranch"
 		/>
 		<div v-else-if="pageToShow === 'Loading'" class="loading-app-message">

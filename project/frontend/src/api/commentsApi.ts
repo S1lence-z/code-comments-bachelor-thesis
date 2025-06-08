@@ -18,8 +18,8 @@ export async function fetchComments(readApiUrl: string): Promise<IGetCommentsRes
 
 export async function addComment(
 	writeApiUrl: string,
-	commentData: { text: string; filePath: string; lineNumber: number; tags?: string[] }
-): Promise<IGetCommentsResponse> {
+	commentData: { content: string; filePath: string; lineNumber: number; tags?: string[] }
+): Promise<{ success: boolean }> {
 	try {
 		const response = await fetch(writeApiUrl, {
 			method: "POST",
