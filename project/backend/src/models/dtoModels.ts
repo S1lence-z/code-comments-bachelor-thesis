@@ -1,4 +1,7 @@
 import { z } from "zod";
+import ICommentDto from "../../../shared/dtos/ICommentDto.ts";
+import IRepositoryDto from "../../../shared/dtos/IRepositoryDto.ts";
+import IProjectDto from "../../../shared/dtos/IProjectDto.ts";
 
 export const CommentDtoSchema = z.object({
 	filePath: z.string().min(1, "File path is required"),
@@ -22,6 +25,6 @@ export const ProjectDtoSchema = z.object({
 	repository: RepositoryDtoSchema,
 });
 
-export type CommentDto = z.infer<typeof CommentDtoSchema>;
-export type ProjectDto = z.infer<typeof ProjectDtoSchema>;
-export type RepositoryDto = z.infer<typeof RepositoryDtoSchema>;
+export type CommentDto = z.infer<typeof CommentDtoSchema & ICommentDto>;
+export type ProjectDto = z.infer<typeof ProjectDtoSchema & IProjectDto>;
+export type RepositoryDto = z.infer<typeof RepositoryDtoSchema & IRepositoryDto>;

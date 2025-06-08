@@ -3,11 +3,13 @@ import cors from "cors";
 import path from "node:path";
 import process from "node:process";
 import { config } from "dotenv";
-import { DatabaseManager } from "./database/databaseManager.ts";
-import { projectToDto } from "./utils/mappers.ts";
 import { validateEnv, logEnvironment } from "./utils/envValidator.ts";
-import { SetupProjectBodySchema, type GetCommentsResponse } from "./types/api.ts";
-import { CommentDtoSchema, type ProjectDto } from "./models/dtos.ts";
+import DatabaseManager from "./services/databaseManager.ts";
+import ProjectController from "./controllers/projectController.ts";
+import CommentsController from "./controllers/commentsController.ts";
+import { SetupProjectBodySchema } from "./models/requestModels.ts";
+import { CommentDtoSchema, type ProjectDto } from "./models/dtoModels.ts";
+import { GetCommentsResponse } from "./models/responseModels.ts";
 
 // Load environment variables
 config({
@@ -70,17 +72,12 @@ app.post("/api/setup", (req: express.Request, res: express.Response) => {
 		// Validate request body
 		const validatedBody = SetupProjectBodySchema.parse(req.body);
 
-		const requestData = {
-			git_repo_url: validatedBody.repoUrl,
-			repo_type: validatedBody.repoType,
-			commit: validatedBody.commit,
-			token: validatedBody.token,
-			frontend_base_url: FRONTEND_BASE_URL,
-			backend_base_url: BACKEND_BASE_URL,
-		};
-
-		const newProject = dbManager.createProject(requestData);
-		const newProjectDto: ProjectDto = projectToDto(newProject);
+		const newProjectDto: ProjectDto = ProjectController.createProject(
+			dbManager,
+			validatedBody,
+			FRONTEND_BASE_URL,
+			BACKEND_BASE_URL
+		);
 
 		res.status(201).json(newProjectDto);
 	} catch (error) {
@@ -104,30 +101,16 @@ app.post("/api/setup", (req: express.Request, res: express.Response) => {
 app.get("/api/project/:project_id/comments", (req: express.Request, res: express.Response) => {
 	try {
 		const projectId = parseInt(req.params.project_id);
-
 		if (isNaN(projectId)) {
 			return res.status(400).json({ error: "Invalid project ID" });
 		}
 
-		const project = dbManager.getProjectById(projectId);
+		const getCommentsResponse: GetCommentsResponse = CommentsController.getComments(
+			dbManager,
+			projectId
+		);
 
-		if (!project) {
-			return res.status(404).json({ error: "Project not found" });
-		}
-
-		const comments = dbManager.getCommentsByProjectId(projectId);
-
-		const response: GetCommentsResponse = {
-			message: "Comments retrieved successfully",
-			repository: {
-				identifier: project.repository.identifier,
-				type: project.repository.type,
-				repoLandingPageUrl: project.repository.repo_landing_page_url,
-			},
-			comments,
-		};
-
-		res.json(response);
+		res.status(200).json(getCommentsResponse);
 	} catch (error) {
 		console.error("Error in GET /api/project/:project_id/comments:", error);
 		res.status(500).json({
@@ -138,10 +121,9 @@ app.get("/api/project/:project_id/comments", (req: express.Request, res: express
 });
 
 // Add comment to a project
-app.put("/api/project/:project_id/comments", (req: express.Request, res: express.Response) => {
+app.post("/api/project/:project_id/comments", (req: express.Request, res: express.Response) => {
 	try {
 		const projectId = parseInt(req.params.project_id);
-
 		if (isNaN(projectId)) {
 			return res.status(400).json({ error: "Invalid project ID" });
 		}
@@ -149,13 +131,7 @@ app.put("/api/project/:project_id/comments", (req: express.Request, res: express
 		// Validate comment data
 		const validatedComment = CommentDtoSchema.parse(req.body);
 
-		// Check if project exists
-		const project = dbManager.getProjectById(projectId);
-		if (!project) {
-			return res.status(404).json({ error: "Project not found" });
-		}
-
-		dbManager.addComment(projectId, validatedComment);
+		CommentsController.addComment(dbManager, projectId, validatedComment);
 
 		res.json({
 			message: "Comment added successfully",
@@ -233,6 +209,6 @@ app.listen(BACKEND_API_PORT, () => {
 	console.log("API Endpoints:");
 	console.log(`POST ${BACKEND_BASE_URL}/api/setup`);
 	console.log(`GET  ${BACKEND_BASE_URL}/api/project/{project_id}/comments`);
-	console.log(`PUT  ${BACKEND_BASE_URL}/api/project/{project_id/comments`);
+	console.log(`POST  ${BACKEND_BASE_URL}/api/project/{project_id}/comments`);
 	console.log(`Database file: ${DB_FILE_PATH}`);
 });

@@ -1,6 +1,6 @@
 import { assert } from "@std/assert";
-import { DatabaseManager } from "../src/database/databaseManager.ts";
-import { CommentDto } from "../src/types/api.ts";
+import DatabaseManager from "../src/services/databaseManager.ts";
+import { CommentDto } from "../src/models/dtoModels.ts";
 
 // Test database manager
 Deno.test("DatabaseManager - Basic Operations", () => {
@@ -30,7 +30,7 @@ Deno.test("DatabaseManager - Basic Operations", () => {
 	const commentData: CommentDto = {
 		filePath: "src/test.ts",
 		lineNumber: 42,
-		text: "This is a test comment",
+		content: "This is a test comment",
 	};
 
 	dbManager.addComment(project.identifier, commentData);

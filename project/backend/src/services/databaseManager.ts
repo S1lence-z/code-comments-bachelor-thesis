@@ -1,8 +1,8 @@
 import { Database } from "@db/sqlite";
 import { Project, Repository, ProjectRow, RepositoryRow } from "../models/databaseModels.ts";
-import { CommentDto } from "../models/dtos.ts";
+import { CommentDto } from "../models/dtoModels.ts";
 
-export class DatabaseManager {
+class DatabaseManager {
 	private db: Database;
 
 	constructor(dbPath: string) {
@@ -98,6 +98,7 @@ export class DatabaseManager {
 	private createWriteApiUrl(projectId: number, backendBaseUrl: string): string {
 		return `${backendBaseUrl}/api/project/${projectId}/comments`;
 	}
+
 	createProject(requestData: {
 		git_repo_url: string;
 		repo_type?: string;
@@ -197,6 +198,7 @@ export class DatabaseManager {
 		}
 	}
 
+	// TODO: return the comment db model instead of DTO
 	getCommentsByProjectId(projectId: number): CommentDto[] {
 		try {
 			const comments = this.db
@@ -300,3 +302,5 @@ export class DatabaseManager {
 		}
 	}
 }
+
+export default DatabaseManager;
