@@ -132,11 +132,12 @@ app.post("/api/project/:project_id/comments", (req: express.Request, res: expres
 		const validatedComment = CommentDtoSchema.parse(req.body);
 
 		CommentsController.addComment(dbManager, projectId, validatedComment);
+		const allComments: GetCommentsResponse = CommentsController.getComments(
+			dbManager,
+			projectId
+		);
 
-		res.json({
-			message: "Comment added successfully",
-			project_id: projectId,
-		});
+		res.status(201).json(allComments);
 	} catch (error) {
 		console.error("Error in PUT /api/comments/:project_id:", error);
 
