@@ -13,8 +13,7 @@ import MultilineCommentWidget from "../codeMirror/multilineCommentWidget.ts";
  */
 function buildDecorations(
 	state: EditorState,
-	commentsToDisplay: Readonly<ICommentDto[]>,
-	writeApiUrl: string
+	commentsToDisplay: Readonly<ICommentDto[]>
 ): DecorationSet {
 	const builder = new RangeSetBuilder<Decoration>();
 
@@ -28,7 +27,7 @@ function buildDecorations(
 	for (const comment of sortedComments) {
 		switch (comment.type) {
 			case CommentType.SingleLine:
-				addSingleLineCommentDecoration(comment, state, builder, writeApiUrl);
+				addSingleLineCommentDecoration(comment, state, builder);
 				break;
 			case CommentType.MultiLine:
 				addMultiLineCommentDecoration(comment, state, builder);
@@ -70,8 +69,7 @@ function addMultiLineCommentDecoration(
 function addSingleLineCommentDecoration(
 	comment: ICommentDto,
 	state: EditorState,
-	builder: RangeSetBuilder<Decoration>,
-	writeApiUrl: string
+	builder: RangeSetBuilder<Decoration>
 ): void {
 	if (comment.lineNumber! > 0 && comment.lineNumber! <= state.doc.lines) {
 		const line = state.doc.line(comment.lineNumber!);
@@ -79,7 +77,7 @@ function addSingleLineCommentDecoration(
 			line.from,
 			line.from,
 			Decoration.widget({
-				widget: new SinglelineCommentWidget(comment.content, comment.id, writeApiUrl),
+				widget: new SinglelineCommentWidget(comment.content, comment.id),
 				side: -1,
 				block: true,
 			})
@@ -90,17 +88,14 @@ function addSingleLineCommentDecoration(
 /**
  * Creates a CodeMirror extension for displaying comments
  */
-export function commentsDisplayExtension(
-	currentComments: Readonly<ICommentDto[]>,
-	writeApiUrl: string
-) {
+export function commentsDisplayExtension(currentComments: Readonly<ICommentDto[]>) {
 	return StateField.define<DecorationSet>({
 		create(state: EditorState) {
-			return buildDecorations(state, currentComments, writeApiUrl);
+			return buildDecorations(state, currentComments);
 		},
 		update(value: DecorationSet, tr) {
 			if (tr.docChanged) {
-				return buildDecorations(tr.state, currentComments, writeApiUrl);
+				return buildDecorations(tr.state, currentComments);
 			}
 			return value.map(tr.changes);
 		},

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed, watch, provide } from 'vue';
 import FileExplorer from '../components/FileExplorer.vue';
 import CodeEditor from '../components/CodeEditor.vue';
 import SinglelineCommentModal from '../components/SinglelineCommentModal.vue';
@@ -7,7 +7,7 @@ import MultilineCommentModal from '../components/MultilineCommentModal.vue';
 import type { TreeNode } from '../types/githubApi.ts';
 import type ICommentDto from '../../../shared/dtos/ICommentDto';
 import { fetchRepoTreeAPI, fetchFileContentAPI } from '../api/githubApi.ts';
-import { fetchComments, addComment } from '../api/commentsApi.ts';
+import { fetchComments, addComment, deleteComment } from '../api/commentsApi.ts';
 import { CommentType } from '../../../shared/enums/CommentType.ts';
 
 const props = defineProps<{
@@ -48,6 +48,21 @@ const currentFileComments = computed(() => {
   }
   return [];
 });
+
+async function deleteCommentAndReload(commentId: number): Promise<void> {
+  if (!props.writeApiUrl) {
+    errorMessage.value = "Cannot delete comment: comments API URL is not configured.";
+    return;
+  }
+  try {
+    await deleteComment(props.writeApiUrl, commentId);
+    await loadComments();
+  } catch (e: any) {
+    errorMessage.value = `Failed to delete comment: ${e.message}`;
+    console.error("Error deleting comment:", e);
+  }
+}
+provide('deleteCommentAndReload', deleteCommentAndReload);
 
 async function loadComments() {
   if (!props.writeApiUrl) return;
@@ -148,6 +163,7 @@ async function handleSinglelineCommentSubmit(commentText: string) {
   }
 
   const commentData: ICommentDto = {
+    id: 0,
     filePath: modalFilePath.value,
     lineNumber: modalLineNumber.value,
     content: commentText,
@@ -178,6 +194,7 @@ async function handleMultilineCommentSubmit(commentText: string) {
   }
 
   const commentData: ICommentDto = {
+    id: 0,
     filePath: modalFilePath.value,
     content: commentText,
     type: CommentType.MultiLine,
@@ -271,7 +288,6 @@ watch(() => props.repoUrl, async (newUrl, oldUrl) => {
 				:file-content="fileContent"
 				:is-loading-file="isLoadingFile"
 				:comments="currentFileComments"
-				:write-api-url="props.writeApiUrl"
 				@line-double-clicked="handleLineDoubleClicked"
 				@multiline-selected="handleMultilineSelected"
 			/>

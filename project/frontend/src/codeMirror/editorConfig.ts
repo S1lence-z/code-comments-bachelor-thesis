@@ -16,7 +16,6 @@ import {
 export function createEditorExtensions(
 	filePath: string | null,
 	comments: ICommentDto[] = [],
-	writeApiUrl: string,
 	isEditable = false
 ) {
 	const langExt = getLanguageExtension(filePath);
@@ -32,6 +31,6 @@ export function createEditorExtensions(
 		EditorView.lineWrapping,
 		...(Array.isArray(langExt) ? langExt : [langExt]),
 		EditorView.editable.of(isEditable),
-		commentsDisplayExtension(currentFileComments, writeApiUrl),
+		commentsDisplayExtension(currentFileComments),
 	];
 }

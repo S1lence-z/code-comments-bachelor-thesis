@@ -1,5 +1,5 @@
 import { WidgetType } from "@codemirror/view";
-import { deleteComment } from "../api/commentsApi";
+import { inject } from "vue";
 
 /**
  * A CodeMirror widget that displays comments inline with the code
@@ -8,13 +8,15 @@ export default class SingleLineCommentWidget extends WidgetType {
 	private static readonly className = "cm-singleline-comment-widget";
 	private content: string;
 	private commentId: number;
-	private writeApiUrl: string;
+	private handleDelete: (commentId: number) => Promise<void>;
 
-	constructor(content: string, commentId: number, writeApiUrl: string) {
+	constructor(content: string, commentId: number) {
 		super();
 		this.content = content;
 		this.commentId = commentId;
-		this.writeApiUrl = writeApiUrl;
+		this.handleDelete = inject("deleteCommentAndReload") as (
+			commentId: number
+		) => Promise<void>;
 	}
 
 	toDOM() {
@@ -39,9 +41,7 @@ export default class SingleLineCommentWidget extends WidgetType {
 	private createDeleteButton(): HTMLButtonElement {
 		const deleteButton = document.createElement("button");
 		deleteButton.textContent = "Delete";
-		deleteButton.onclick = async () => {
-			await deleteComment(this.writeApiUrl, this.commentId);
-		};
+		deleteButton.onclick = async () => await this.handleDelete(this.commentId);
 		return deleteButton;
 	}
 

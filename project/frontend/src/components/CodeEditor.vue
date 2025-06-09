@@ -11,7 +11,6 @@ interface CodeEditorProps {
 	filePath: string | null;
 	isLoadingFile?: boolean;
 	comments?: ICommentDto[];
-	writeApiUrl: string;
 }
 
 const props = withDefaults(defineProps<CodeEditorProps>(), {
@@ -39,7 +38,7 @@ const editorPlaceholder = computed(() => {
 
 const extensions = computed(() => {
 	const currentFileComments = props.comments || [];
-	return createEditorExtensions(props.filePath, currentFileComments, props.writeApiUrl);
+	return createEditorExtensions(props.filePath, currentFileComments);
 });
 
 watch(() => props.fileContent, (newVal: string | null) => {
