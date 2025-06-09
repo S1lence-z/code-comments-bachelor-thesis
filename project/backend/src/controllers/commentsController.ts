@@ -13,6 +13,7 @@ export default class CommentsController {
 
 		const commentsData: Readonly<
 			Array<{
+				id: number;
 				content: string;
 				filePath: string;
 				lineNumber?: number;
@@ -24,6 +25,7 @@ export default class CommentsController {
 
 		const commentDtos: CommentDto[] = commentsData.map((comment) =>
 			createCommentDto(
+				comment.id,
 				comment.locationType,
 				comment.content,
 				comment.lineNumber ? comment.lineNumber : 0,
@@ -49,5 +51,13 @@ export default class CommentsController {
 		newComment: CommentDto
 	): void {
 		dbManager.addComment(projectId, newComment);
+	}
+
+	public static deleteComment(
+		dbManager: DatabaseManager,
+		projectId: number,
+		commentId: number
+	): void {
+		dbManager.deleteComment(projectId, commentId);
 	}
 }

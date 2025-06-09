@@ -2,6 +2,7 @@ import { CommentDto } from "../models/dtoModels.ts";
 import { CommentType } from "../../../shared/enums/CommentType.ts";
 
 export function createCommentDto(
+	id: number,
 	type: CommentType,
 	content: string,
 	lineNumber: number,
@@ -12,6 +13,7 @@ export function createCommentDto(
 	switch (type) {
 		case CommentType.SingleLine:
 			return {
+				id: id,
 				filePath: filePath,
 				content: content,
 				type: CommentType.SingleLine,
@@ -19,6 +21,7 @@ export function createCommentDto(
 			};
 		case CommentType.MultiLine:
 			return {
+				id: id,
 				filePath: filePath,
 				content: content,
 				type: CommentType.MultiLine,

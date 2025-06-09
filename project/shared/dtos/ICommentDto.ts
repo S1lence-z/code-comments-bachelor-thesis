@@ -1,6 +1,7 @@
 import { CommentType } from "../enums/CommentType.ts";
 
 export default interface ICommentDto {
+	id: number; // Unique identifier for the comment
 	filePath: string; // Path to the file where the comment is located
 	content: string; // The actual content of the comment
 	type: CommentType; // Type of the comment

@@ -151,6 +151,35 @@ app.post("/api/project/:project_id/comments", (req: express.Request, res: expres
 	}
 });
 
+// Delete comment from a project
+app.delete(
+	"/api/project/:project_id/comments/:comment_id",
+	(req: express.Request, res: express.Response) => {
+		try {
+			const projectId = parseInt(req.params.project_id);
+			const commentId = parseInt(req.params.comment_id);
+
+			if (isNaN(projectId)) {
+				return res.status(400).json({ error: "Invalid project ID or comment ID" });
+			}
+
+			if (isNaN(commentId)) {
+				return res.status(400).json({ error: "Invalid comment ID" });
+			}
+
+			CommentsController.deleteComment(dbManager, projectId, commentId);
+
+			res.status(200).send({ success: true });
+		} catch (error) {
+			console.error("Error in DELETE /api/project/:project_id/comments", error);
+			res.status(500).json({
+				error: "Failed to delete comment",
+				details: error instanceof Error ? error.message : "Unknown error",
+			});
+		}
+	}
+);
+
 // 404 handler for undefined routes
 app.use((_req: express.Request, res: express.Response) => {
 	res.status(404).json({
@@ -207,5 +236,6 @@ app.listen(BACKEND_API_PORT, () => {
 	console.log(`POST ${BACKEND_BASE_URL}/api/setup`);
 	console.log(`GET  ${BACKEND_BASE_URL}/api/project/{project_id}/comments`);
 	console.log(`POST  ${BACKEND_BASE_URL}/api/project/{project_id}/comments`);
+	console.log(`DELETE ${BACKEND_BASE_URL}/api/project/{project_id}/comments/{comment_id}`);
 	console.log(`Database file: ${DB_FILE_PATH}`);
 });

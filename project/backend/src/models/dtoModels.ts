@@ -5,6 +5,7 @@ import IProjectDto from "../../../shared/dtos/IProjectDto.ts";
 import { CommentType } from "../../../shared/enums/CommentType.ts";
 
 export const CommentDtoSchema = z.object({
+	id: z.number().int().positive("Comment ID must be a positive integer"),
 	filePath: z.string().min(1, "File path is required"),
 	content: z.string().min(1, "Comment content is required"),
 	type: z.nativeEnum(CommentType, {

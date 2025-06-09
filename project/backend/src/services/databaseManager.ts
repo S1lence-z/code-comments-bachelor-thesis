@@ -117,8 +117,7 @@ class DatabaseManager {
 		try {
 			// Create the project first
 			const projectStmt = this.db.prepare(
-				`INSERT INTO projects (version, label, read_api_url, write_api_url) 
-         VALUES (?, ?, ?, ?)`
+				`INSERT INTO projects (version, label, read_api_url, write_api_url) VALUES (?, ?, ?, ?)`
 			);
 			const _projectResult = projectStmt.run([
 				requestData.version || "v1",
@@ -200,6 +199,7 @@ class DatabaseManager {
 	}
 
 	public getCommentsByProjectId(projectId: number): Array<{
+		id: number;
 		content: string;
 		filePath: string;
 		lineNumber?: number;
@@ -211,6 +211,7 @@ class DatabaseManager {
 			const comments = this.db
 				.prepare(
 					`SELECT 
+						c.identifier as id,
 						c.content as content,
 						l.file_path as filePath,
 						l.location_type as locationType,
@@ -225,6 +226,7 @@ class DatabaseManager {
 					`
 				)
 				.all([projectId]) as Array<{
+				id: number;
 				content: string;
 				filePath: string;
 				lineNumber?: number;
@@ -235,6 +237,49 @@ class DatabaseManager {
 			return comments;
 		} catch (error) {
 			console.error("Error getting comments:", error);
+			throw error;
+		}
+	}
+
+	public deleteComment(projectId: number, commentId: number): void {
+		try {
+			// Check if the project exists
+			const project = this.getProjectById(projectId);
+			if (!project) {
+				throw new Error(`Project with ID ${projectId} does not exist.`);
+			}
+
+			// Get the location_id before deleting the comment
+			const commentRows = this.db
+				.prepare(`SELECT location_id FROM comments WHERE identifier = ? AND project_id = ?`)
+				.all([commentId, projectId]);
+
+			if (commentRows.length === 0) {
+				throw new Error(
+					`Comment with ID ${commentId} does not exist in project ${projectId}.`
+				);
+			}
+
+			const locationId = commentRows[0].location_id;
+
+			// Delete the comment first
+			this.db
+				.prepare(`DELETE FROM comments WHERE identifier = ? AND project_id = ?`)
+				.run([commentId, projectId]);
+
+			// Delete the associated location (this will cascade to line_locations/line_range_locations)
+			this.deleteLocation(locationId);
+		} catch (error) {
+			console.error("Error deleting comment:", error);
+			throw error;
+		}
+	}
+
+	private deleteLocation(locationId: number): void {
+		try {
+			this.db.prepare(`DELETE FROM locations WHERE identifier = ?`).run([locationId]);
+		} catch (error) {
+			console.error("Error deleting location:", error);
 			throw error;
 		}
 	}
