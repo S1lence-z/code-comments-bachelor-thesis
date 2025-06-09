@@ -73,3 +73,26 @@ export async function createConfiguration(
 		throw error;
 	}
 }
+
+export async function deleteComment(
+	writeApiUrl: string,
+	commentId: number
+): Promise<{ success: boolean }> {
+	try {
+		const response = await fetch(`${writeApiUrl}/${commentId}`, {
+			method: "DELETE",
+		});
+		if (!response.ok) {
+			const errorData = await response
+				.json()
+				.catch(() => ({ message: "Failed to delete comment" }));
+			throw new Error(
+				`Failed to delete comment: ${response.status} ${response.statusText} - ${errorData.message}`
+			);
+		}
+		return await response.json();
+	} catch (error) {
+		console.error("Error in deleteComment:", error);
+		throw error;
+	}
+}

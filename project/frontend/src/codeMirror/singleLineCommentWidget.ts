@@ -1,46 +1,48 @@
 import { WidgetType } from "@codemirror/view";
+import { deleteComment } from "../api/commentsApi";
 
 /**
  * A CodeMirror widget that displays comments inline with the code
  */
 export default class SingleLineCommentWidget extends WidgetType {
 	private static readonly className = "cm-singleline-comment-widget";
-	content: string;
+	private content: string;
+	private commentId: number;
+	private writeApiUrl: string;
 
-	constructor(content: string) {
+	constructor(content: string, commentId: number, writeApiUrl: string) {
 		super();
 		this.content = content;
-	}
-
-	private addTools(container: HTMLDivElement) {
-		const tools = document.createElement("div");
-		tools.className = "comment-tools";
-		// Add any tools you want here, e.g., edit, delete buttons
-		const editButton = document.createElement("button");
-		editButton.textContent = "Edit";
-		editButton.onclick = () => {
-			console.log("Edit comment:", this.content);
-			// Implement edit functionality
-		};
-		tools.appendChild(editButton);
-
-		const deleteButton = document.createElement("button");
-		deleteButton.textContent = "Delete";
-		deleteButton.onclick = () => {
-			console.log("Delete comment:", this.content);
-			// Implement delete functionality
-		};
-		tools.appendChild(deleteButton);
-
-		container.appendChild(tools);
+		this.commentId = commentId;
+		this.writeApiUrl = writeApiUrl;
 	}
 
 	toDOM() {
 		const wrap = document.createElement("div");
 		wrap.className = SingleLineCommentWidget.className;
-		wrap.textContent = this.content;
-		this.addTools(wrap);
+
+		const tools = document.createElement("div");
+		tools.className = "comment-tools";
+
+		const deleteButton = this.createDeleteButton();
+		tools.appendChild(deleteButton);
+
+		const contentDiv = document.createElement("div");
+		contentDiv.textContent = this.content;
+
+		wrap.appendChild(tools);
+		wrap.appendChild(contentDiv);
+
 		return wrap;
+	}
+
+	private createDeleteButton(): HTMLButtonElement {
+		const deleteButton = document.createElement("button");
+		deleteButton.textContent = "Delete";
+		deleteButton.onclick = async () => {
+			await deleteComment(this.writeApiUrl, this.commentId);
+		};
+		return deleteButton;
 	}
 
 	override ignoreEvent() {

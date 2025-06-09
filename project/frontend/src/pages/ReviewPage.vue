@@ -271,6 +271,7 @@ watch(() => props.repoUrl, async (newUrl, oldUrl) => {
 				:file-content="fileContent"
 				:is-loading-file="isLoadingFile"
 				:comments="currentFileComments"
+				:write-api-url="props.writeApiUrl"
 				@line-double-clicked="handleLineDoubleClicked"
 				@multiline-selected="handleMultilineSelected"
 			/>

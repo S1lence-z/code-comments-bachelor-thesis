@@ -24,3 +24,22 @@
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 	line-height: 1.4;
 }
+
+.comment-tools {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-top: 4px;
+	margin-bottom: 4px;
+}
+
+.comment-tools button {
+	background-color: #2980b9; /* A different shade of blue */
+	color: #ecf0f1; /* Light gray/white */
+	border: none;
+	padding: 4px 8px;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 0.85em;
+	transition: background-color 0.2s ease;
+}
