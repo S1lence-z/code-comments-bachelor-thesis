@@ -51,10 +51,9 @@ function addMultiLineCommentDecoration(
 	builder: RangeSetBuilder<Decoration>
 ): void {
 	const startLine = state.doc.line(comment.startLineNumber!);
-	const endLine = state.doc.line(comment.endLineNumber!);
 	builder.add(
 		startLine.from,
-		endLine.to,
+		startLine.from,
 		Decoration.widget({
 			widget: new MultilineCommentWidget(
 				comment.content,

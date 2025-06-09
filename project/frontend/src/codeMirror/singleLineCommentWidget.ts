@@ -4,6 +4,7 @@ import { WidgetType } from "@codemirror/view";
  * A CodeMirror widget that displays comments inline with the code
  */
 export default class SingleLineCommentWidget extends WidgetType {
+	private static readonly className = "cm-singleline-comment-widget";
 	content: string;
 
 	constructor(content: string) {
@@ -13,7 +14,7 @@ export default class SingleLineCommentWidget extends WidgetType {
 
 	toDOM() {
 		const wrap = document.createElement("div");
-		wrap.className = "cm-comment-widget";
+		wrap.className = SingleLineCommentWidget.className;
 		wrap.textContent = this.content;
 		return wrap;
 	}
