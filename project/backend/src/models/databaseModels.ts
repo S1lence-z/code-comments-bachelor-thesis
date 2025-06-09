@@ -1,7 +1,3 @@
-// Core types for the application
-
-import { CommentType } from "../../../shared/enums/CommentType.ts";
-
 // Database entity interfaces
 export interface Project {
 	identifier: number;
@@ -60,42 +56,6 @@ export interface Activity {
 	username: string;
 	created_at: Date;
 	updated_at: Date;
-}
-
-// Input/Output DTOs
-export interface CommentDto {
-	filePath: string;
-	lineNumber: number;
-	text: string;
-	tags?: string[];
-}
-
-export interface RepositoryDto {
-	identifier: number;
-	type: CommentType;
-	repoLandingPageUrl: string;
-}
-
-export interface ProjectDto {
-	identifier: number;
-	version: string;
-	label: string;
-	readApiUrl: string;
-	writeApiUrl: string | null;
-	repository: RepositoryDto;
-}
-
-export interface SetupProjectBody {
-	repoUrl: string;
-	repoType?: string;
-	commit?: string;
-	token?: string;
-}
-
-export interface GetCommentsResponse {
-	message: string;
-	repository: RepositoryDto;
-	comments: CommentDto[];
 }
 
 // Database row interfaces (matching actual DB structure)

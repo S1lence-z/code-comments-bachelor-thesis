@@ -10,6 +10,7 @@ import CommentsController from "./controllers/commentsController.ts";
 import { SetupProjectBodySchema } from "./models/requestModels.ts";
 import { CommentDtoSchema, type ProjectDto } from "./models/dtoModels.ts";
 import { GetCommentsResponse } from "./models/responseModels.ts";
+import CategoriesController from "./controllers/categoriesController.ts";
 
 // Load environment variables
 config({
@@ -53,7 +54,6 @@ app.get("/", (req: express.Request, res: express.Response) => {
 // Health check endpoint
 app.get("/health", (_req: express.Request, res: express.Response) => {
 	const isDbConnected = dbManager.isConnected();
-	const dbStats = dbManager.getStats();
 
 	res.json({
 		status: isDbConnected ? "healthy" : "unhealthy",
@@ -61,7 +61,6 @@ app.get("/health", (_req: express.Request, res: express.Response) => {
 		version: "1.0.0",
 		database: {
 			connected: isDbConnected,
-			statistics: dbStats,
 		},
 	});
 });
@@ -180,6 +179,20 @@ app.delete(
 	}
 );
 
+// Get all categories
+app.get("/api/categories", (_req: express.Request, res: express.Response) => {
+	try {
+		const categories = CategoriesController.getCategories(dbManager);
+		res.status(200).json(categories);
+	} catch (error) {
+		console.error("Error in GET /api/categories:", error);
+		res.status(500).json({
+			error: "Failed to retrieve categories",
+			details: error instanceof Error ? error.message : "Unknown error",
+		});
+	}
+});
+
 // 404 handler for undefined routes
 app.use((_req: express.Request, res: express.Response) => {
 	res.status(404).json({
@@ -237,5 +250,6 @@ app.listen(BACKEND_API_PORT, () => {
 	console.log(`GET  ${BACKEND_BASE_URL}/api/project/{project_id}/comments`);
 	console.log(`POST  ${BACKEND_BASE_URL}/api/project/{project_id}/comments`);
 	console.log(`DELETE ${BACKEND_BASE_URL}/api/project/{project_id}/comments/{comment_id}`);
+	console.log(`GET  ${BACKEND_BASE_URL}/api/categories`);
 	console.log(`Database file: ${DB_FILE_PATH}`);
 });

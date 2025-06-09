@@ -1,6 +1,6 @@
 import { Database } from "@db/sqlite";
 import { Project, Repository, ProjectRow, RepositoryRow } from "../models/databaseModels.ts";
-import { CommentDto } from "../models/dtoModels.ts";
+import { CategoryDto, CommentDto } from "../models/dtoModels.ts";
 import { CommentType } from "../../../shared/enums/CommentType.ts";
 
 class DatabaseManager {
@@ -9,78 +9,79 @@ class DatabaseManager {
 	constructor(dbPath: string) {
 		this.db = new Database(dbPath);
 		this.createTables();
+		this.prepopulateCategories();
 	}
 
 	private createTables(): void {
 		const tables = [
 			`CREATE TABLE IF NOT EXISTS projects (
-        identifier INTEGER PRIMARY KEY AUTOINCREMENT,
-        version TEXT NOT NULL DEFAULT 'v1',
-        label TEXT NOT NULL DEFAULT 'Test Project',
-        read_api_url TEXT NOT NULL,
-        write_api_url TEXT
-      )`,
+				identifier INTEGER PRIMARY KEY AUTOINCREMENT,
+				version TEXT NOT NULL DEFAULT 'v1',
+				label TEXT NOT NULL DEFAULT 'Test Project',
+				read_api_url TEXT NOT NULL,
+				write_api_url TEXT
+			)`,
 			`CREATE TABLE IF NOT EXISTS repositories (
-        identifier INTEGER PRIMARY KEY AUTOINCREMENT,
-        project_id INTEGER NOT NULL UNIQUE,
-        type TEXT NOT NULL,
-        repo_landing_page_url TEXT NOT NULL,
-        \`commit\` TEXT NOT NULL,
-        token TEXT,
-        FOREIGN KEY (project_id) REFERENCES projects(identifier) ON DELETE CASCADE
-      )`,
+				identifier INTEGER PRIMARY KEY AUTOINCREMENT,
+				project_id INTEGER NOT NULL UNIQUE,
+				type TEXT NOT NULL,
+				repo_landing_page_url TEXT NOT NULL,
+				\`commit\` TEXT NOT NULL,
+				token TEXT,
+				FOREIGN KEY (project_id) REFERENCES projects(identifier) ON DELETE CASCADE
+			)`,
 
 			`CREATE TABLE IF NOT EXISTS locations (
-        identifier INTEGER PRIMARY KEY AUTOINCREMENT,
-        location_type TEXT NOT NULL,
-        file_path TEXT
-      )`,
+				identifier INTEGER PRIMARY KEY AUTOINCREMENT,
+				location_type TEXT NOT NULL,
+				file_path TEXT
+			)`,
 
 			`CREATE TABLE IF NOT EXISTS line_locations (
-        identifier INTEGER PRIMARY KEY,
-        line_number INTEGER NOT NULL,
-        FOREIGN KEY (identifier) REFERENCES locations(identifier) ON DELETE CASCADE
-      )`,
+				identifier INTEGER PRIMARY KEY,
+				line_number INTEGER NOT NULL,
+				FOREIGN KEY (identifier) REFERENCES locations(identifier) ON DELETE CASCADE
+			)`,
 
 			`CREATE TABLE IF NOT EXISTS line_range_locations (
-        identifier INTEGER PRIMARY KEY,
-        start_line_number INTEGER NOT NULL,
-        end_line_number INTEGER NOT NULL,
-        FOREIGN KEY (identifier) REFERENCES locations(identifier) ON DELETE CASCADE
-      )`,
+				identifier INTEGER PRIMARY KEY,
+				start_line_number INTEGER NOT NULL,
+				end_line_number INTEGER NOT NULL,
+				FOREIGN KEY (identifier) REFERENCES locations(identifier) ON DELETE CASCADE
+			)`,
 
 			`CREATE TABLE IF NOT EXISTS comments (
-        identifier INTEGER PRIMARY KEY AUTOINCREMENT,
-        project_id INTEGER NOT NULL,
-        repository_id INTEGER NOT NULL,
-        location_id INTEGER NOT NULL UNIQUE,
-        content TEXT NOT NULL,
-        activity_id INTEGER,
-        FOREIGN KEY (project_id) REFERENCES projects(identifier) ON DELETE CASCADE,
-        FOREIGN KEY (repository_id) REFERENCES repositories(identifier) ON DELETE CASCADE,
-        FOREIGN KEY (location_id) REFERENCES locations(identifier) ON DELETE CASCADE
-      )`,
+				identifier INTEGER PRIMARY KEY AUTOINCREMENT,
+				project_id INTEGER NOT NULL,
+				repository_id INTEGER NOT NULL,
+				location_id INTEGER NOT NULL UNIQUE,
+				content TEXT NOT NULL,
+				activity_id INTEGER,
+				FOREIGN KEY (project_id) REFERENCES projects(identifier) ON DELETE CASCADE,
+				FOREIGN KEY (repository_id) REFERENCES repositories(identifier) ON DELETE CASCADE,
+				FOREIGN KEY (location_id) REFERENCES locations(identifier) ON DELETE CASCADE
+			)`,
 
 			`CREATE TABLE IF NOT EXISTS categories (
-        identifier INTEGER PRIMARY KEY AUTOINCREMENT,
-        label TEXT NOT NULL UNIQUE,
-        description TEXT
-      )`,
+				identifier INTEGER PRIMARY KEY AUTOINCREMENT,
+				label TEXT NOT NULL UNIQUE,
+				description TEXT
+			)`,
 
 			`CREATE TABLE IF NOT EXISTS comment_categories (
-        comment_id INTEGER,
-        category_id INTEGER,
-        PRIMARY KEY (comment_id, category_id),
-        FOREIGN KEY (comment_id) REFERENCES comments(identifier) ON DELETE CASCADE,
-        FOREIGN KEY (category_id) REFERENCES categories(identifier) ON DELETE CASCADE
-      )`,
+				comment_id INTEGER,
+				category_id INTEGER,
+				PRIMARY KEY (comment_id, category_id),
+				FOREIGN KEY (comment_id) REFERENCES comments(identifier) ON DELETE CASCADE,
+				FOREIGN KEY (category_id) REFERENCES categories(identifier) ON DELETE CASCADE
+			)`,
 
 			`CREATE TABLE IF NOT EXISTS activities (
-        identifier INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      )`,
+				identifier INTEGER PRIMARY KEY AUTOINCREMENT,
+				username TEXT NOT NULL,
+				created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+				updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+			)`,
 		];
 		for (const table of tables) {
 			try {
@@ -89,6 +90,53 @@ class DatabaseManager {
 				console.error(`Error creating table: ${error}`);
 				throw error;
 			}
+		}
+	}
+
+	private prepopulateCategories(): void {
+		const predefinedCategories: CategoryDto[] = [
+			{
+				id: 1,
+				label: "Bug",
+				description: "A bug in the code",
+			},
+			{
+				id: 2,
+				label: "Feature Request",
+				description: "A request for a new feature",
+			},
+			{
+				id: 3,
+				label: "Documentation",
+				description: "Issues related to documentation",
+			},
+			{
+				id: 4,
+				label: "Question",
+				description: "A question about the code or project",
+			},
+			{
+				id: 5,
+				label: "Enhancement",
+				description: "An enhancement to existing functionality",
+			},
+			{
+				id: 6,
+				label: "Performance",
+				description: "Performance-related issues or improvements",
+			},
+			{
+				id: 7,
+				label: "Security",
+				description: "Security vulnerabilities or concerns",
+			},
+		];
+
+		const insertStmt = this.db.prepare(
+			`INSERT OR IGNORE INTO categories (label, description) VALUES (?, ?)`
+		);
+		for (const category of predefinedCategories) {
+			insertStmt.run([category.label, category.description]);
 		}
 	}
 
@@ -142,7 +190,7 @@ class DatabaseManager {
 			this.db
 				.prepare(
 					`INSERT INTO repositories (project_id, type, repo_landing_page_url, \`commit\`, token)
-         VALUES (?, ?, ?, ?, ?)`
+					VALUES (?, ?, ?, ?, ?)`
 				)
 				.run([
 					projectId,
@@ -198,15 +246,7 @@ class DatabaseManager {
 		}
 	}
 
-	public getCommentsByProjectId(projectId: number): Array<{
-		id: number;
-		content: string;
-		filePath: string;
-		lineNumber?: number;
-		startLineNumber?: number;
-		endLineNumber?: number;
-		locationType: CommentType;
-	}> {
+	public getCommentsByProjectId(projectId: number): CommentDto[] {
 		try {
 			const comments = this.db
 				.prepare(
@@ -214,7 +254,7 @@ class DatabaseManager {
 						c.identifier as id,
 						c.content as content,
 						l.file_path as filePath,
-						l.location_type as locationType,
+						l.location_type as type,
 						ll.line_number as lineNumber,
 						lrl.start_line_number as startLineNumber,
 						lrl.end_line_number as endLineNumber
@@ -225,18 +265,46 @@ class DatabaseManager {
 						WHERE c.project_id = ? AND l.location_type IN ('line', 'multiline')
 					`
 				)
-				.all([projectId]) as Array<{
-				id: number;
-				content: string;
-				filePath: string;
-				lineNumber?: number;
-				startLineNumber?: number;
-				endLineNumber?: number;
-				locationType: CommentType;
-			}>;
+				.all([projectId]) as CommentDto[];
+
+			for (const comment of comments) {
+				comment.categories = this.getCommentCategories(comment.id);
+			}
+
 			return comments;
 		} catch (error) {
 			console.error("Error getting comments:", error);
+			throw error;
+		}
+	}
+
+	private getCommentCategories(commentId: number): CategoryDto[] {
+		try {
+			const categoryRows = this.db
+				.prepare(
+					`SELECT c.identifier as id, c.label, c.description 
+					FROM categories c 
+					JOIN comment_categories cc ON c.identifier = cc.category_id 
+					WHERE cc.comment_id = ?`
+				)
+				.all([commentId]) as CategoryDto[];
+
+			return categoryRows;
+		} catch (error) {
+			console.error("Error getting comment categories:", error);
+			throw error;
+		}
+	}
+
+	public getCategories(): CategoryDto[] {
+		try {
+			const categoryRows = this.db
+				.prepare(`SELECT identifier as id, label, description FROM categories`)
+				.all() as CategoryDto[];
+
+			return categoryRows;
+		} catch (error) {
+			console.error("Error getting categories:", error);
 			throw error;
 		}
 	}
@@ -297,7 +365,7 @@ class DatabaseManager {
 
 			const repository = repositoryRows[0]; // Create location
 
-			const locationId = this.insertLocationByType(
+			const locationId = this.createLocationByCommentType(
 				commentData.type,
 				commentData.filePath,
 				commentData.lineNumber,
@@ -311,13 +379,27 @@ class DatabaseManager {
 					`INSERT INTO comments (project_id, repository_id, location_id, content) VALUES (?, ?, ?, ?)`
 				)
 				.run([projectId, repository.identifier, locationId, commentData.content]);
+			const commentId = this.db.lastInsertRowId;
+
+			// Assign categories to the comment
+			if (commentData.categories && commentData.categories.length > 0) {
+				for (const category of commentData.categories) {
+					this.assignCategoryToComment(commentId, category.id);
+				}
+			}
 		} catch (error) {
 			console.error("Error adding comment:", error);
 			throw error;
 		}
 	}
 
-	private insertLocationByType(
+	private assignCategoryToComment(commentId: number, categoryId: number): void {
+		this.db
+			.prepare(`INSERT INTO comment_categories (comment_id, category_id) VALUES (?, ?)`)
+			.run([commentId, categoryId]);
+	}
+
+	private createLocationByCommentType(
 		type: CommentType,
 		filePath: string,
 		lineNumber?: number,
@@ -369,27 +451,6 @@ class DatabaseManager {
 		} catch (error) {
 			console.error("Database health check failed:", error);
 			return false;
-		}
-	}
-
-	// Get database statistics
-	public getStats(): { projectCount: number; commentCount: number; repositoryCount: number } {
-		try {
-			const projectCount =
-				this.db.prepare("SELECT COUNT(*) as count FROM projects").all()[0]?.count || 0;
-			const commentCount =
-				this.db.prepare("SELECT COUNT(*) as count FROM comments").all()[0]?.count || 0;
-			const repositoryCount =
-				this.db.prepare("SELECT COUNT(*) as count FROM repositories").all()[0]?.count || 0;
-
-			return {
-				projectCount: Number(projectCount),
-				commentCount: Number(commentCount),
-				repositoryCount: Number(repositoryCount),
-			};
-		} catch (error) {
-			console.error("Error getting database stats:", error);
-			return { projectCount: 0, commentCount: 0, repositoryCount: 0 };
 		}
 	}
 }

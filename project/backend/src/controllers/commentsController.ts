@@ -1,4 +1,3 @@
-import { CommentType } from "../../../shared/enums/CommentType.ts";
 import { CommentDto } from "../models/dtoModels.ts";
 import { GetCommentsResponse } from "../models/responseModels.ts";
 import DatabaseManager from "../services/databaseManager.ts";
@@ -11,27 +10,18 @@ export default class CommentsController {
 			throw new Error("Project not found");
 		}
 
-		const commentsData: Readonly<
-			Array<{
-				id: number;
-				content: string;
-				filePath: string;
-				lineNumber?: number;
-				startLineNumber?: number;
-				endLineNumber?: number;
-				locationType: CommentType;
-			}>
-		> = dbManager.getCommentsByProjectId(projectId);
+		const commentsData: CommentDto[] = dbManager.getCommentsByProjectId(projectId);
 
 		const commentDtos: CommentDto[] = commentsData.map((comment) =>
 			createCommentDto(
 				comment.id,
-				comment.locationType,
+				comment.type,
 				comment.content,
 				comment.lineNumber ? comment.lineNumber : 0,
 				comment.startLineNumber ? comment.startLineNumber : 0,
 				comment.endLineNumber ? comment.endLineNumber : 0,
-				comment.filePath
+				comment.filePath,
+				comment.categories || []
 			)
 		);
 

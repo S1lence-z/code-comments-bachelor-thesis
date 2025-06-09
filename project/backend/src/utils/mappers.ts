@@ -1,5 +1,5 @@
-import { Project, Repository } from "../models/databaseModels.ts";
-import { ProjectDto, RepositoryDto } from "../models/dtoModels.ts";
+import { CategoryRow, Project, Repository } from "../models/databaseModels.ts";
+import { ProjectDto, RepositoryDto, CategoryDto } from "../models/dtoModels.ts";
 
 export function repositoryToDto(repository: Repository): RepositoryDto {
 	return {
@@ -29,5 +29,13 @@ export function projectToDto(project: Project & { repository: Repository }): Pro
 		readApiUrl: project.read_api_url,
 		writeApiUrl: project.write_api_url,
 		repository: repositoryDto,
+	};
+}
+
+export function categoryToDto(category: CategoryRow): CategoryDto {
+	return {
+		id: category.identifier,
+		label: category.label,
+		description: category.description,
 	};
 }

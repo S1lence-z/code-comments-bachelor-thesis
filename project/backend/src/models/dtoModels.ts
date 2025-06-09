@@ -2,7 +2,14 @@ import { z } from "zod";
 import ICommentDto from "../../../shared/dtos/ICommentDto.ts";
 import IRepositoryDto from "../../../shared/dtos/IRepositoryDto.ts";
 import IProjectDto from "../../../shared/dtos/IProjectDto.ts";
+import ICategoryDto from "../../../shared/dtos/ICategoryDto.ts";
 import { CommentType } from "../../../shared/enums/CommentType.ts";
+
+export const CategoryDtoSchema = z.object({
+	id: z.number().int(),
+	label: z.string(),
+	description: z.string().nullable(),
+});
 
 export const CommentDtoSchema = z.object({
 	id: z.number().int(),
@@ -22,7 +29,7 @@ export const CommentDtoSchema = z.object({
 		.int()
 		.positive("End line number must be a positive integer")
 		.optional(),
-	categories: z.array(z.string()).optional(),
+	categories: z.array(CategoryDtoSchema).optional(),
 });
 
 export const RepositoryDtoSchema = z.object({
@@ -43,3 +50,4 @@ export const ProjectDtoSchema = z.object({
 export type CommentDto = z.infer<typeof CommentDtoSchema & ICommentDto>;
 export type ProjectDto = z.infer<typeof ProjectDtoSchema & IProjectDto>;
 export type RepositoryDto = z.infer<typeof RepositoryDtoSchema & IRepositoryDto>;
+export type CategoryDto = z.infer<typeof CategoryDtoSchema & ICategoryDto>;

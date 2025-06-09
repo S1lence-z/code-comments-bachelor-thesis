@@ -1,4 +1,5 @@
 import { CommentType } from "../enums/CommentType.ts";
+import ICategoryDto from "./ICategoryDto.ts";
 
 export default interface ICommentDto {
 	id: number; // Unique identifier for the comment
@@ -8,5 +9,5 @@ export default interface ICommentDto {
 	lineNumber?: number; // Line number in the file where the comment is placed
 	startLineNumber?: number; // Optional start line number for multi-line comments
 	endLineNumber?: number; // Optional end line number for multi-line comments
-	categories?: string[]; // Optional categories associated with the comment for categorization or filtering
+	categories?: ICategoryDto[]; // Optional categories associated with the comment
 }
