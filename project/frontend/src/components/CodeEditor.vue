@@ -1,6 +1,96 @@
+<script setup lang="ts">
+import { ref, watch, shallowRef, computed, withDefaults } from 'vue';
+import { Codemirror } from 'vue-codemirror';
+import { EditorView } from '@codemirror/view';
+import type ICommentDto from '../../../shared/dtos/ICommentDto';
+import '../codemirror/styles.css';
+import { createEditorExtensions } from '../codeMirror/editorConfig';
+
+interface CodeEditorProps {
+	fileContent: string | null;
+	filePath: string | null;
+	isLoadingFile?: boolean;
+	comments?: ICommentDto[];
+}
+
+const props = withDefaults(defineProps<CodeEditorProps>(), {
+	isLoadingFile: false,
+	comments: () => []
+});
+
+const emit = defineEmits<{
+	'line-double-clicked': [{ lineNumber: number, filePath: string }];
+	'multiline-selected': [{ startLineNumber: number, endLineNumber: number, filePath: string }];
+}>();
+
+const currentContent = ref('');
+const editorView = shallowRef<EditorView>();
+const lastSelectionTimeout = ref<number | null>(null);
+
+function getFileName(path: string | null): string {
+	if (!path) return '';
+	return path.split('/').pop() || path;
+}
+
+const editorPlaceholder = computed(() => {
+	return props.filePath ? `Content of ${props.filePath}` : 'Code will appear here...';
+});
+
+const extensions = computed(() => {
+	const currentFileComments = props.comments || [];
+	return createEditorExtensions(props.filePath, currentFileComments);
+});
+
+watch(() => props.fileContent, (newVal: string | null) => {
+	currentContent.value = newVal === null ? '' : newVal;
+}, { immediate: true });
+
+const handleCodemirrorReady = (payload: any): any => {
+	editorView.value = payload.view;
+
+	// Add event listeners selection change
+	if (editorView.value) {
+		editorView.value.dom.addEventListener('mouseup', handleSelectionChange);
+		editorView.value.dom.addEventListener('keyup', handleSelectionChange);
+	}
+};
+
+const handleEditorDoubleClick = (event: MouseEvent) => {
+	if (!editorView.value) return;
+
+	const pos = editorView.value.posAtCoords({ x: event.clientX, y: event.clientY });
+	if (pos !== null && pos !== undefined) {
+		const lineNumber = editorView.value.state.doc.lineAt(pos).number; // lineNumber is 1-based
+		if (props.filePath) {
+			emit('line-double-clicked', { lineNumber, filePath: props.filePath });
+		}
+	}
+};
+
+// Multiline selection handling
+const handleSelectionChange = () => {
+	if (!editorView.value) return;
+	if (lastSelectionTimeout.value) {
+		clearTimeout(lastSelectionTimeout.value);
+	}
+
+	// Debounce the selection change to avoid too many events
+	lastSelectionTimeout.value = window.setTimeout(() => {
+		const selection = editorView.value!.state.selection.main;
+		if (selection.empty) return;
+
+		const startLineNumber = editorView.value!.state.doc.lineAt(selection.from).number;
+		const endLineNumber = editorView.value!.state.doc.lineAt(selection.to).number;
+
+		if (startLineNumber !== endLineNumber && props.filePath) {
+			emit('multiline-selected', { startLineNumber, endLineNumber, filePath: props.filePath });
+		}
+	}, 300);
+};
+</script>
+
 <template>
 	<section class="code-editor-container">
-		<!-- Tab-like display for the open file -->
 		<div v-if="filePath" class="file-path-display">📄 {{ getFileName(filePath) }}</div>
 		<div
 			v-else-if="!filePath && fileContent === null && !isLoadingFile"
@@ -27,76 +117,12 @@
 				:indent-with-tab="true"
 				:tab-size="2"
 				:extensions="extensions"
-				@ready="handleReady"
+				@ready="handleCodemirrorReady"
 				@dblclick="handleEditorDoubleClick"
 			/>
 		</div>
 	</section>
 </template>
-
-<script setup lang="ts">
-import { ref, watch, shallowRef, computed, withDefaults } from 'vue';
-import { Codemirror } from 'vue-codemirror';
-import { EditorView } from '@codemirror/view';
-import type ICommentDto from '../../../shared/dtos/ICommentDto';
-import '../codemirror/styles.css';
-import { createEditorExtensions } from '../codeMirror/editorConfig';
-
-interface CodeEditorProps {
-	fileContent: string | null;
-	filePath: string | null;
-	isLoadingFile?: boolean;
-	comments?: ICommentDto[];
-}
-
-const props = withDefaults(defineProps<CodeEditorProps>(), {
-  isLoadingFile: false,
-  comments: () => []
-});
-
-const emit = defineEmits<{
-  'line-double-clicked': [{ lineNumber: number, filePath: string }];
-}>();
-
-const currentContent = ref('');
-const editorView = shallowRef<EditorView>();
-
-const editorPlaceholder = computed(() => {
-  return props.filePath ? `Content of ${props.filePath}` : 'Code will appear here...';
-});
-
-const extensions = computed(() => {
-  const currentFileComments = props.comments || [];
-  console.log('CodeEditor.vue: extensions computed property re-evaluated. Comments count:', currentFileComments.length);
-
-  return createEditorExtensions(props.filePath, currentFileComments);
-});
-
-watch(() => props.fileContent, (newVal: string | null) => {
-  currentContent.value = newVal === null ? '' : newVal;
-}, { immediate: true });
-
-const handleReady = (payload: any): any => {
-	editorView.value = payload.view;
-};
-
-const handleEditorDoubleClick = (event: MouseEvent) => {
-	if (!editorView.value) return;
-
-	const pos = editorView.value.posAtCoords({ x: event.clientX, y: event.clientY });
-	if (pos !== null && pos !== undefined) {
-		const lineNumber = editorView.value.state.doc.lineAt(pos).number; // lineNumber is 1-based
-		if (props.filePath) {
-			emit('line-double-clicked', { lineNumber, filePath: props.filePath });
-		}
-	}
-};
-
-function getFileName(path: string | null): string {
-  if (!path) return '';
-  return path.split('/').pop() || path;
-}
-</script>
 
 <style scoped>
 .code-editor-container {

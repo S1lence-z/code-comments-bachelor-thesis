@@ -2,11 +2,13 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import FileExplorer from '../components/FileExplorer.vue';
 import CodeEditor from '../components/CodeEditor.vue';
-import CommentModal from '../components/CommentModal.vue';
+import SinglelineCommentModal from '../components/SinglelineCommentModal.vue';
+import MultilineCommentModal from '../components/MultilineCommentModal.vue';
 import type { TreeNode } from '../types/githubApi.ts';
 import type ICommentDto from '../../../shared/dtos/ICommentDto';
 import { fetchRepoTreeAPI, fetchFileContentAPI } from '../api/githubApi.ts';
 import { fetchComments, addComment } from '../api/commentsApi.ts';
+import { CommentType } from '../../../shared/enums/CommentType.ts';
 
 const props = defineProps<{
   repoUrl: string;
@@ -24,10 +26,19 @@ const isLoadingFile = ref<boolean>(false);
 const isLoadingComments = ref<boolean>(false);
 const GITHUB_PAT = import.meta.env.VITE_GITHUB_PAT || '';
 
-const isModalVisible = ref(false);
-const modalLineNumber = ref<number | null>(null);
+// SHARED modal state
 const modalFilePath = ref<string | null>(null);
+
+// Single line comment modal state
+const isAddingSinglelineComment = ref(false);
+const modalLineNumber = ref<number | null>(null);
 const modalInitialText = ref("");
+
+// Multiline comment modal state
+const isAddingMultilineComment = ref(false);
+const modalStartLineNumber = ref<number | null>(null);
+const modalEndLineNumber = ref<number | null>(null);
+const multilineModalInitialText = ref<string>("");
 
 const backendComments = ref<ICommentDto[]>([]);
 
@@ -103,7 +114,7 @@ function handleToggleExpandInTree(itemToToggle: TreeNode) {
   findAndToggle(fileTreeData.value);
 }
 
-async function handleLineDoubleClicked(payload: { lineNumber: number; filePath: string }) {
+function handleLineDoubleClicked(payload: { lineNumber: number; filePath: string }) {
   const { lineNumber, filePath } = payload;
   if (!filePath || !props.writeApiUrl) {
     errorMessage.value = "Cannot add comment: comments API URL is not configured.";
@@ -115,24 +126,40 @@ async function handleLineDoubleClicked(payload: { lineNumber: number; filePath: 
   modalLineNumber.value = lineNumber;
   modalFilePath.value = filePath;
   modalInitialText.value = existingComment ? existingComment.content : "";
-  isModalVisible.value = true;
+  isAddingSinglelineComment.value = true;
 }
 
-async function handleCommentSubmit(commentText: string) {
+function handleMultilineSelected(payload: { startLineNumber: number; endLineNumber: number; filePath: string }) {
+  const { startLineNumber, endLineNumber, filePath } = payload;
+  if (!filePath || !props.writeApiUrl) {
+    errorMessage.value = "Cannot add comment: comments API URL is not configured.";
+    return;
+  }
+  modalStartLineNumber.value = startLineNumber;
+  modalEndLineNumber.value = endLineNumber;
+  modalFilePath.value = filePath;
+  isAddingMultilineComment.value = true;
+}
+
+async function handleSinglelineCommentSubmit(commentText: string) {
   if (modalFilePath.value === null || modalLineNumber.value === null || !props.writeApiUrl) {
     errorMessage.value = "Cannot save comment: missing data or API URL.";
     return;
   }
-  const commentData = {
+
+  const commentData: ICommentDto = {
     filePath: modalFilePath.value,
     lineNumber: modalLineNumber.value,
     content: commentText,
+    type: CommentType.SingleLine,
   };
-  if (!commentText.trim()) {
+
+  if (!commentData.content.trim()) {
     console.log("Comment text is empty, not submitting.");
-    closeCommentModal();
+    closeSinglelineCommentModal();
     return;
   }
+
   try {
     await addComment(props.writeApiUrl, commentData);
     await loadComments();
@@ -140,15 +167,57 @@ async function handleCommentSubmit(commentText: string) {
     errorMessage.value = `Failed to save comment: ${e.message}`;
     console.error("Error saving comment:", e);
   } finally {
-    closeCommentModal();
+    closeSinglelineCommentModal();
   }
 }
 
-function closeCommentModal() {
-  isModalVisible.value = false;
+async function handleMultilineCommentSubmit(commentText: string) {
+  if (modalFilePath.value === null || modalStartLineNumber.value === null || modalEndLineNumber.value === null || !props.writeApiUrl) {
+    errorMessage.value = "Cannot save comment: missing data or API URL.";
+    return;
+  }
+
+  const commentData: ICommentDto = {
+    filePath: modalFilePath.value,
+    content: commentText,
+    type: CommentType.MultiLine,
+    startLineNumber: modalStartLineNumber.value,
+    endLineNumber: modalEndLineNumber.value,
+  };
+
+  console.log("Submitting multiline comment:", commentData);
+  console.log(typeof commentText, commentText);
+
+  if (!commentData.content.trim()) {
+    console.log("Comment text is empty, not submitting.");
+    closeMultilineCommentModal();
+    return;
+  }
+
+  try {
+    await addComment(props.writeApiUrl, commentData);
+    await loadComments();
+  } catch (e: any) {
+    errorMessage.value = `Failed to save comment: ${e.message}`;
+    console.error("Error saving comment:", e);
+  } finally {
+    closeMultilineCommentModal();
+  }
+}
+
+function closeSinglelineCommentModal() {
+  isAddingSinglelineComment.value = false;
   modalLineNumber.value = null;
   modalFilePath.value = null;
   modalInitialText.value = "";
+}
+
+function closeMultilineCommentModal() {
+  isAddingMultilineComment.value = false;
+  modalStartLineNumber.value = null;
+  modalEndLineNumber.value = null;
+  modalFilePath.value = null;
+  multilineModalInitialText.value = "";
 }
 
 onMounted(async () => {
@@ -203,16 +272,27 @@ watch(() => props.repoUrl, async (newUrl, oldUrl) => {
 				:is-loading-file="isLoadingFile"
 				:comments="currentFileComments"
 				@line-double-clicked="handleLineDoubleClicked"
+				@multiline-selected="handleMultilineSelected"
 			/>
 		</div>
 
-		<CommentModal
-			:visible="isModalVisible"
+		<SinglelineCommentModal
+			:visible="isAddingSinglelineComment"
 			:lineNumber="modalLineNumber"
 			:filePath="modalFilePath"
 			:initialText="modalInitialText"
-			@submit="handleCommentSubmit"
-			@close="closeCommentModal"
+			@submit="handleSinglelineCommentSubmit"
+			@close="closeSinglelineCommentModal"
+		/>
+
+		<MultilineCommentModal
+			:visible="isAddingMultilineComment"
+			:startLineNumber="modalStartLineNumber"
+			:endLineNumber="modalEndLineNumber"
+			:filePath="modalFilePath"
+			:initialText="multilineModalInitialText"
+			@submit="handleMultilineCommentSubmit"
+			@close="closeMultilineCommentModal"
 		/>
 	</div>
 </template>

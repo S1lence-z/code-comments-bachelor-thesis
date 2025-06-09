@@ -1,6 +1,7 @@
 import type IProjectDto from "../../../shared/dtos/IProjectDto.ts";
 import type ISetupProjectRequest from "../../../shared/api/ISetupProjectRequest.ts";
 import type IGetCommentsResponse from "../../../shared/api/IGetCommentsResponse.ts";
+import type ICommentDto from "../../../shared/dtos/ICommentDto.ts";
 
 export async function fetchComments(readApiUrl: string): Promise<IGetCommentsResponse> {
 	try {
@@ -18,7 +19,7 @@ export async function fetchComments(readApiUrl: string): Promise<IGetCommentsRes
 
 export async function addComment(
 	writeApiUrl: string,
-	commentData: { content: string; filePath: string; lineNumber: number; tags?: string[] }
+	commentData: ICommentDto
 ): Promise<{ success: boolean }> {
 	try {
 		const response = await fetch(writeApiUrl, {

@@ -3,37 +3,83 @@ import { RangeSetBuilder, StateField } from "@codemirror/state";
 import { Decoration } from "@codemirror/view";
 import type { DecorationSet } from "@codemirror/view";
 import { EditorView } from "@codemirror/view";
-import { CommentWidget } from "./commentWidget.ts";
 import type ICommentDto from "../../../shared/dtos/ICommentDto.ts";
+import SingleLineCommentWidget from "../codeMirror/singleLineCommentWidget.ts";
+import MultiLineCommentWidget from "../codeMirror/multiLineCommentWidget.ts";
+import { CommentType } from "../../../shared/enums/CommentType.ts";
 
 /**
  * Builds decorations for displaying comments in the editor
  */
-export function buildDecorations(
+function buildDecorations(
 	state: EditorState,
 	commentsToDisplay: Readonly<ICommentDto[]>
 ): DecorationSet {
-	console.log("Building decorations for comments:", commentsToDisplay);
 	const builder = new RangeSetBuilder<Decoration>();
+
 	if (!commentsToDisplay || commentsToDisplay.length === 0) {
 		return builder.finish();
 	}
 
-	for (const comment of commentsToDisplay) {
-		if (comment.lineNumber > 0 && comment.lineNumber <= state.doc.lines) {
-			const line = state.doc.line(comment.lineNumber);
-			builder.add(
-				line.from,
-				line.from,
-				Decoration.widget({
-					widget: new CommentWidget(comment.content),
-					side: -1, // Place widget before the line's actual content start
-					block: true,
-				})
-			);
+	// Sort comments by their start position to ensure proper order
+	const sortedComments = [...commentsToDisplay].sort((a, b) => {
+		const aPos = a.type === CommentType.SingleLine ? a.lineNumber : a.startLineNumber;
+		const bPos = b.type === CommentType.SingleLine ? b.lineNumber : b.startLineNumber;
+		return aPos - bPos;
+	});
+
+	for (const comment of sortedComments) {
+		switch (comment.type) {
+			case CommentType.SingleLine:
+				addSingleLineCommentDecoration(comment, state, builder);
+				break;
+			case CommentType.MultiLine:
+				addMultiLineCommentDecoration(comment, state, builder);
+				break;
 		}
 	}
 	return builder.finish();
+}
+
+function addMultiLineCommentDecoration(
+	comment: ICommentDto,
+	state: EditorState,
+	builder: RangeSetBuilder<Decoration>
+): void {
+	const startLine = state.doc.line(comment.startLineNumber);
+	const endLine = state.doc.line(comment.endLineNumber);
+	builder.add(
+		startLine.from,
+		endLine.to,
+		Decoration.widget({
+			widget: new MultiLineCommentWidget(
+				comment.content,
+				comment.startLineNumber,
+				comment.endLineNumber
+			),
+			side: -1,
+			block: true,
+		})
+	);
+}
+
+function addSingleLineCommentDecoration(
+	comment: ICommentDto,
+	state: EditorState,
+	builder: RangeSetBuilder<Decoration>
+): void {
+	if (comment.lineNumber > 0 && comment.lineNumber <= state.doc.lines) {
+		const line = state.doc.line(comment.lineNumber);
+		builder.add(
+			line.from,
+			line.from,
+			Decoration.widget({
+				widget: new SingleLineCommentWidget(comment.content),
+				side: -1,
+				block: true,
+			})
+		);
+	}
 }
 
 /**

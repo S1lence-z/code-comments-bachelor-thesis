@@ -20,17 +20,3 @@ export function createEditorExtensions(filePath: string | null, comments: IComme
 		commentsDisplayExtension(currentFileComments),
 	];
 }
-
-/**
- * Utility function to get the position and line number from mouse coordinates
- */
-export function getLineNumberFromMouseEvent(
-	editorView: EditorView,
-	event: MouseEvent
-): number | null {
-	const pos = editorView.posAtCoords({ x: event.clientX, y: event.clientY });
-	if (pos !== null && pos !== undefined) {
-		return editorView.state.doc.lineAt(pos).number; // 1-based line number
-	}
-	return null;
-}

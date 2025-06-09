@@ -17,17 +17,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, withDefaults } from 'vue';
+import { ref, watch } from 'vue';
 
-interface CommentModalProps {
+interface SinglelineCommentModalProps {
 	visible: boolean;
 	lineNumber: number | null;
 	filePath: string | null;
 	initialText?: string;
 }
 
-
-const props = withDefaults(defineProps<CommentModalProps>(), {
+const props = withDefaults(defineProps<SinglelineCommentModalProps>(), {
   initialText: ''
 });
 

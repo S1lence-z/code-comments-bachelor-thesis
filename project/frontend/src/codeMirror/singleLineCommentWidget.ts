@@ -3,7 +3,7 @@ import { WidgetType } from "@codemirror/view";
 /**
  * A CodeMirror widget that displays comments inline with the code
  */
-export class CommentWidget extends WidgetType {
+export default class SingleLineCommentWidget extends WidgetType {
 	content: string;
 
 	constructor(content: string) {
