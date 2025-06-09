@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, shallowRef, computed, withDefaults } from 'vue';
+import { ref, watch, shallowRef, computed } from 'vue';
 import { Codemirror } from 'vue-codemirror';
 import { EditorView } from '@codemirror/view';
 import type ICommentDto from '../../../shared/dtos/ICommentDto';
