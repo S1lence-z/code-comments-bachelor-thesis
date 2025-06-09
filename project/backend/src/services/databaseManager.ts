@@ -286,7 +286,6 @@ class DatabaseManager {
 
 	public addComment(projectId: number, commentData: CommentDto): void {
 		try {
-			console.log("Adding comment:", commentData);
 			// Get repository for this project
 			const repositoryRows = this.db
 				.prepare(`SELECT identifier FROM repositories WHERE project_id = ?`)
