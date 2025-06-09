@@ -4,9 +4,9 @@ import { Decoration } from "@codemirror/view";
 import type { DecorationSet } from "@codemirror/view";
 import { EditorView } from "@codemirror/view";
 import type ICommentDto from "../../../shared/dtos/ICommentDto.ts";
-import SingleLineCommentWidget from "../codeMirror/singleLineCommentWidget.ts";
-import MultiLineCommentWidget from "../codeMirror/multiLineCommentWidget.ts";
 import { CommentType } from "../../../shared/enums/CommentType.ts";
+import SinglelineCommentWidget from "../codeMirror/singleLineCommentWidget.ts";
+import MultilineCommentWidget from "../codeMirror/multilineCommentWidget.ts";
 
 /**
  * Builds decorations for displaying comments in the editor
@@ -22,11 +22,7 @@ function buildDecorations(
 	}
 
 	// Sort comments by their start position to ensure proper order
-	const sortedComments = [...commentsToDisplay].sort((a, b) => {
-		const aPos = a.type === CommentType.SingleLine ? a.lineNumber : a.startLineNumber;
-		const bPos = b.type === CommentType.SingleLine ? b.lineNumber : b.startLineNumber;
-		return aPos - bPos;
-	});
+	const sortedComments = sortCommentsByPosition(commentsToDisplay);
 
 	for (const comment of sortedComments) {
 		switch (comment.type) {
@@ -41,21 +37,29 @@ function buildDecorations(
 	return builder.finish();
 }
 
+function sortCommentsByPosition(comments: Readonly<ICommentDto[]>): ICommentDto[] {
+	return [...comments].sort((a, b) => {
+		const aPos = a.type === CommentType.SingleLine ? a.lineNumber : a.startLineNumber;
+		const bPos = b.type === CommentType.SingleLine ? b.lineNumber : b.startLineNumber;
+		return aPos! - bPos!;
+	});
+}
+
 function addMultiLineCommentDecoration(
 	comment: ICommentDto,
 	state: EditorState,
 	builder: RangeSetBuilder<Decoration>
 ): void {
-	const startLine = state.doc.line(comment.startLineNumber);
-	const endLine = state.doc.line(comment.endLineNumber);
+	const startLine = state.doc.line(comment.startLineNumber!);
+	const endLine = state.doc.line(comment.endLineNumber!);
 	builder.add(
 		startLine.from,
 		endLine.to,
 		Decoration.widget({
-			widget: new MultiLineCommentWidget(
+			widget: new MultilineCommentWidget(
 				comment.content,
-				comment.startLineNumber,
-				comment.endLineNumber
+				comment.startLineNumber!,
+				comment.endLineNumber!
 			),
 			side: -1,
 			block: true,
@@ -68,13 +72,13 @@ function addSingleLineCommentDecoration(
 	state: EditorState,
 	builder: RangeSetBuilder<Decoration>
 ): void {
-	if (comment.lineNumber > 0 && comment.lineNumber <= state.doc.lines) {
-		const line = state.doc.line(comment.lineNumber);
+	if (comment.lineNumber! > 0 && comment.lineNumber! <= state.doc.lines) {
+		const line = state.doc.line(comment.lineNumber!);
 		builder.add(
 			line.from,
 			line.from,
 			Decoration.widget({
-				widget: new SingleLineCommentWidget(comment.content),
+				widget: new SinglelineCommentWidget(comment.content),
 				side: -1,
 				block: true,
 			})
