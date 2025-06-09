@@ -1,5 +1,7 @@
 // Core types for the application
 
+import { CommentType } from "../../../shared/enums/CommentType.ts";
+
 // Database entity interfaces
 export interface Project {
 	identifier: number;
@@ -70,7 +72,7 @@ export interface CommentDto {
 
 export interface RepositoryDto {
 	identifier: number;
-	type: string;
+	type: CommentType;
 	repoLandingPageUrl: string;
 }
 

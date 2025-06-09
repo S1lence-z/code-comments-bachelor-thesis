@@ -1,6 +1,7 @@
 import { Database } from "@db/sqlite";
 import { Project, Repository, ProjectRow, RepositoryRow } from "../models/databaseModels.ts";
 import { CommentDto } from "../models/dtoModels.ts";
+import { CommentType } from "../../../shared/enums/CommentType.ts";
 
 class DatabaseManager {
 	private db: Database;
@@ -201,10 +202,10 @@ class DatabaseManager {
 	public getCommentsByProjectId(projectId: number): Array<{
 		content: string;
 		filePath: string;
-		lineNumber: number | null;
-		startLineNumber: number | null;
-		endLineNumber: number | null;
-		locationType: string;
+		lineNumber?: number;
+		startLineNumber?: number;
+		endLineNumber?: number;
+		locationType: CommentType;
 	}> {
 		try {
 			const comments = this.db
@@ -219,17 +220,17 @@ class DatabaseManager {
 						FROM comments c
 						JOIN locations l ON c.location_id = l.identifier
 						LEFT JOIN line_locations ll ON l.identifier = ll.identifier AND l.location_type = 'line'
-						LEFT JOIN line_range_locations lrl ON l.identifier = lrl.identifier AND l.location_type = 'line_range'
-						WHERE c.project_id = ? AND l.location_type IN ('line', 'line_range')
+						LEFT JOIN line_range_locations lrl ON l.identifier = lrl.identifier AND l.location_type = 'multiline'
+						WHERE c.project_id = ? AND l.location_type IN ('line', 'multiline')
 					`
 				)
 				.all([projectId]) as Array<{
 				content: string;
 				filePath: string;
-				lineNumber: number | null;
-				startLineNumber: number | null;
-				endLineNumber: number | null;
-				locationType: string;
+				lineNumber?: number;
+				startLineNumber?: number;
+				endLineNumber?: number;
+				locationType: CommentType;
 			}>;
 			return comments;
 		} catch (error) {
@@ -240,6 +241,7 @@ class DatabaseManager {
 
 	public addComment(projectId: number, commentData: CommentDto): void {
 		try {
+			console.log("Adding comment:", commentData);
 			// Get repository for this project
 			const repositoryRows = this.db
 				.prepare(`SELECT identifier FROM repositories WHERE project_id = ?`)
@@ -250,25 +252,63 @@ class DatabaseManager {
 			}
 
 			const repository = repositoryRows[0]; // Create location
-			const locationStmt = this.db.prepare(
-				`INSERT INTO locations (location_type, file_path) VALUES (?, ?)`
-			);
-			const _locationResult = locationStmt.run(["line", commentData.filePath]);
 
-			const locationId = this.db.lastInsertRowId; // Create line location
-			this.db
-				.prepare(`INSERT INTO line_locations (identifier, line_number) VALUES (?, ?)`)
-				.run([locationId, commentData.lineNumber]);
+			const locationId = this.insertLocationByType(
+				commentData.type,
+				commentData.filePath,
+				commentData.lineNumber,
+				commentData.startLineNumber,
+				commentData.endLineNumber
+			);
 
 			// Create comment
 			this.db
 				.prepare(
-					`INSERT INTO comments (project_id, repository_id, location_id, content)
-         VALUES (?, ?, ?, ?)`
+					`INSERT INTO comments (project_id, repository_id, location_id, content) VALUES (?, ?, ?, ?)`
 				)
 				.run([projectId, repository.identifier, locationId, commentData.content]);
 		} catch (error) {
 			console.error("Error adding comment:", error);
+			throw error;
+		}
+	}
+
+	private insertLocationByType(
+		type: CommentType,
+		filePath: string,
+		lineNumber?: number,
+		startLineNumber?: number,
+		endLineNumber?: number
+	): number {
+		try {
+			const locationStmt = this.db.prepare(
+				`INSERT INTO locations (location_type, file_path) VALUES (?, ?)`
+			);
+			locationStmt.run([type, filePath]);
+
+			// TODO: not concurrent safe, but we don't need it for now
+			const locationId = this.db.lastInsertRowId;
+
+			switch (type) {
+				case CommentType.SingleLine:
+					this.db
+						.prepare(
+							`INSERT INTO line_locations (identifier, line_number) VALUES (?, ?)`
+						)
+						.run([locationId, lineNumber]);
+					break;
+				case CommentType.MultiLine:
+					this.db
+						.prepare(
+							`INSERT INTO line_range_locations (identifier, start_line_number, end_line_number) VALUES (?, ?, ?)`
+						)
+						.run([locationId, startLineNumber, endLineNumber]);
+					break;
+			}
+
+			return locationId;
+		} catch (error) {
+			console.error("Error inserting location:", error);
 			throw error;
 		}
 	}

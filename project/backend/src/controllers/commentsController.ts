@@ -1,3 +1,4 @@
+import { CommentType } from "../../../shared/enums/CommentType.ts";
 import { CommentDto } from "../models/dtoModels.ts";
 import { GetCommentsResponse } from "../models/responseModels.ts";
 import DatabaseManager from "../services/databaseManager.ts";
@@ -14,10 +15,10 @@ export default class CommentsController {
 			Array<{
 				content: string;
 				filePath: string;
-				lineNumber: number | null;
-				startLineNumber: number | null;
-				endLineNumber: number | null;
-				locationType: string;
+				lineNumber?: number;
+				startLineNumber?: number;
+				endLineNumber?: number;
+				locationType: CommentType;
 			}>
 		> = dbManager.getCommentsByProjectId(projectId);
 
@@ -25,9 +26,9 @@ export default class CommentsController {
 			createCommentDto(
 				comment.locationType,
 				comment.content,
-				comment.lineNumber,
-				comment.startLineNumber,
-				comment.endLineNumber,
+				comment.lineNumber ? comment.lineNumber : 0,
+				comment.startLineNumber ? comment.startLineNumber : 0,
+				comment.endLineNumber ? comment.endLineNumber : 0,
 				comment.filePath
 			)
 		);
