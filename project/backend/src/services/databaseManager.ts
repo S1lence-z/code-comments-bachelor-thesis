@@ -99,7 +99,7 @@ class DatabaseManager {
 		return `${backendBaseUrl}/api/project/${projectId}/comments`;
 	}
 
-	createProject(requestData: {
+	public createProject(requestData: {
 		git_repo_url: string;
 		repo_type?: string;
 		commit?: string;
@@ -172,7 +172,7 @@ class DatabaseManager {
 		}
 	}
 
-	getProjectById(projectId: number): (Project & { repository: Repository }) | null {
+	public getProjectById(projectId: number): (Project & { repository: Repository }) | null {
 		try {
 			const projectRows = this.db
 				.prepare(`SELECT * FROM projects WHERE identifier = ?`)
@@ -198,40 +198,47 @@ class DatabaseManager {
 		}
 	}
 
-	// TODO: return the comment db model instead of DTO
-	getCommentsByProjectId(projectId: number): CommentDto[] {
+	public getCommentsByProjectId(projectId: number): Array<{
+		content: string;
+		filePath: string;
+		lineNumber: number | null;
+		startLineNumber: number | null;
+		endLineNumber: number | null;
+		locationType: string;
+	}> {
 		try {
 			const comments = this.db
 				.prepare(
+					`SELECT 
+						c.content as content,
+						l.file_path as filePath,
+						l.location_type as locationType,
+						ll.line_number as lineNumber,
+						lrl.start_line_number as startLineNumber,
+						lrl.end_line_number as endLineNumber
+						FROM comments c
+						JOIN locations l ON c.location_id = l.identifier
+						LEFT JOIN line_locations ll ON l.identifier = ll.identifier AND l.location_type = 'line'
+						LEFT JOIN line_range_locations lrl ON l.identifier = lrl.identifier AND l.location_type = 'line_range'
+						WHERE c.project_id = ? AND l.location_type IN ('line', 'line_range')
 					`
-        SELECT 
-          c.content as content,
-          l.file_path as filePath,
-          ll.line_number as lineNumber
-        FROM comments c
-        JOIN locations l ON c.location_id = l.identifier
-        JOIN line_locations ll ON l.identifier = ll.identifier
-        WHERE c.project_id = ? AND l.location_type = 'line'
-      `
 				)
 				.all([projectId]) as Array<{
 				content: string;
 				filePath: string;
-				lineNumber: number;
+				lineNumber: number | null;
+				startLineNumber: number | null;
+				endLineNumber: number | null;
+				locationType: string;
 			}>;
-
-			return comments.map((comment) => ({
-				filePath: comment.filePath,
-				lineNumber: comment.lineNumber,
-				content: comment.content,
-			}));
+			return comments;
 		} catch (error) {
 			console.error("Error getting comments:", error);
 			throw error;
 		}
 	}
 
-	addComment(projectId: number, commentData: CommentDto): void {
+	public addComment(projectId: number, commentData: CommentDto): void {
 		try {
 			// Get repository for this project
 			const repositoryRows = this.db
@@ -266,12 +273,12 @@ class DatabaseManager {
 		}
 	}
 
-	close(): void {
+	public close(): void {
 		this.db.close();
 	}
 
 	// Health check method
-	isConnected(): boolean {
+	public isConnected(): boolean {
 		try {
 			const result = this.db.prepare("SELECT 1").all();
 			return Array.isArray(result);
@@ -282,7 +289,7 @@ class DatabaseManager {
 	}
 
 	// Get database statistics
-	getStats(): { projectCount: number; commentCount: number; repositoryCount: number } {
+	public getStats(): { projectCount: number; commentCount: number; repositoryCount: number } {
 		try {
 			const projectCount =
 				this.db.prepare("SELECT COUNT(*) as count FROM projects").all()[0]?.count || 0;

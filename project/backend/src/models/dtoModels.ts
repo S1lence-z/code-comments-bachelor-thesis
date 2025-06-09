@@ -2,12 +2,26 @@ import { z } from "zod";
 import ICommentDto from "../../../shared/dtos/ICommentDto.ts";
 import IRepositoryDto from "../../../shared/dtos/IRepositoryDto.ts";
 import IProjectDto from "../../../shared/dtos/IProjectDto.ts";
+import { CommentType } from "../../../shared/enums/CommentType.ts";
 
 export const CommentDtoSchema = z.object({
 	filePath: z.string().min(1, "File path is required"),
-	lineNumber: z.number().int().positive("Line number must be a positive integer"),
 	content: z.string().min(1, "Comment content is required"),
-	tags: z.array(z.string()).optional(),
+	type: z.nativeEnum(CommentType, {
+		message: "Invalid comment type",
+	}),
+	lineNumber: z.number().int().positive("Line number must be a positive integer").optional(),
+	startLineNumber: z
+		.number()
+		.int()
+		.positive("Start line number must be a positive integer")
+		.optional(),
+	endLineNumber: z
+		.number()
+		.int()
+		.positive("End line number must be a positive integer")
+		.optional(),
+	categories: z.array(z.string()).optional(),
 });
 
 export const RepositoryDtoSchema = z.object({
