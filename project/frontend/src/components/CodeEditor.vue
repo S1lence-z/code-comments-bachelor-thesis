@@ -30,6 +30,11 @@ const currentContent = ref('');
 const editorView = shallowRef<EditorView>();
 const lastSelectionTimeout = ref<number | null>(null);
 
+// Callback functions for keyboard shortcuts
+const handleSingleLineComment = (lineNumber: number, filePath: string) => {
+	emit('line-double-clicked', { lineNumber, filePath });
+};
+
 function getFileName(path: string | null): string {
 	if (!path) return '';
 	return path.split('/').pop() || path;
@@ -41,7 +46,13 @@ const editorPlaceholder = computed(() => {
 
 const extensions = computed(() => {
 	const currentFileComments = props.comments || [];
-	return createEditorExtensions(props.filePath, currentFileComments, props.deleteCommentAction, isKeyboardMode.value);
+	return createEditorExtensions(
+		props.filePath,
+		currentFileComments,
+		props.deleteCommentAction,
+		isKeyboardMode.value,
+		handleSingleLineComment
+	);
 });
 
 watch(() => props.fileContent, (newVal: string | null) => {
