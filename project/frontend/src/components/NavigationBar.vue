@@ -97,11 +97,11 @@ const toggleMobileMenu = () => {
 				</li>
 				<li>
 					<router-link
-						:to="{ path: '/project-overview', query: preserveQueryParams }"
+						:to="{ path: '/project-review', query: preserveQueryParams }"
 						class="nav-link"
-						:class="{ 'active': activeTab.includes('/project-overview') }"
+						:class="{ 'active': activeTab.includes('/project-review') }"
 					>
-						Project Overview
+						Project Review
 					</router-link>
 				</li>
 			</ul>

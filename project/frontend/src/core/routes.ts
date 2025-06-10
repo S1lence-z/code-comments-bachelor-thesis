@@ -1,6 +1,6 @@
 import HomePage from "../pages/SetupPage.vue";
 import ReviewPage from "../pages/ReviewPage.vue";
-import ProjectOverviewPage from "../pages/ProjectOverviewPage.vue";
+import ProjectReviewPage from "../pages/ProjectReviewPage.vue";
 
 const routes = [
 	{
@@ -16,8 +16,8 @@ const routes = [
 		component: ReviewPage,
 	},
 	{
-		path: "/project-overview",
-		component: ProjectOverviewPage,
+		path: "/project-review",
+		component: ProjectReviewPage,
 	},
 ];
 
