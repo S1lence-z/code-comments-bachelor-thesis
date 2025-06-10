@@ -1,61 +1,58 @@
 <script setup lang="ts">
 import { ref, onMounted, provide } from 'vue';
-import HomePage from './pages/HomePage.vue';
-import ReviewPage from './pages/ReviewPage.vue';
+import { useRouter } from 'vue-router';
 import NavigationBar from './components/NavigationBar.vue';
 
-const pageToShow = ref<'HomePage' | 'ReviewPage' | 'Loading'>('Loading');
-const reviewPageProps = ref<{
-	repoUrl: string;
-	commentsApiUrl: string;
-	initialBranch: string;
-} | null>(null);
+const router = useRouter();
 const routingErrorMessage = ref<string>('');
 const isKeyboardMode = ref(false);
 provide('isKeyboardMode', isKeyboardMode);
 
 onMounted(() => {
-const params = new URLSearchParams(window.location.search);
-const repoUrlParam = params.get('repoUrl');
-const commentsApiUrlParam = params.get('commentsApiUrl');
+	const params = new URLSearchParams(window.location.search);
+	const repoUrlParam = params.get('repoUrl');
+	const commentsApiUrlParam = params.get('commentsApiUrl');
 
-if (repoUrlParam && commentsApiUrlParam) {
-	let isValid = true;
-	let tempErrorMessage = '';
+	if (repoUrlParam && commentsApiUrlParam) {
+		let isValid = true;
+		let tempErrorMessage = '';
 
-	if (!repoUrlParam.startsWith('https://github.com/')) {
-	tempErrorMessage = 'Invalid GitHub repo URL in query parameters. Must start with https://github.com/. ';
-	isValid = false;
-	}
-	try {
-	// Basic validation for commentsApiUrlParam - ensuring it's a valid URL structure.
-	// More specific validation (e.g. checking if it's reachable) would be out of scope here.
-	new URL(commentsApiUrlParam);
-	} catch (e) {
-		tempErrorMessage += 'Invalid commentsApiUrl in query parameters (must be a valid URL).';
-		isValid = false;
-	}
+		if (!repoUrlParam.startsWith('https://github.com/')) {
+			tempErrorMessage = 'Invalid GitHub repo URL in query parameters. Must start with https://github.com/. ';
+			isValid = false;
+		}
+		try {
+			// Basic validation for commentsApiUrlParam - ensuring it's a valid URL structure.
+			// More specific validation (e.g. checking if it's reachable) would be out of scope here.
+			new URL(commentsApiUrlParam);
+		} catch (e) {
+			tempErrorMessage += 'Invalid commentsApiUrl in query parameters (must be a valid URL).';
+			isValid = false;
+		}
 
-	if (isValid) {
-		reviewPageProps.value = {
-			repoUrl: repoUrlParam,
-			commentsApiUrl: commentsApiUrlParam,
-			// TODO: this is the problem as i do not know if it is master or main
-			initialBranch: params.get('branch') || 'main',
-		};
-		pageToShow.value = 'ReviewPage';
+		if (isValid) {
+			// Navigate to review page with query params
+			router.push({
+				path: '/review',
+				query: {
+					repoUrl: repoUrlParam,
+					commentsApiUrl: commentsApiUrlParam,
+					branch: params.get('branch') || 'main'
+				}
+			});
+		} else {
+			routingErrorMessage.value = tempErrorMessage + ' Displaying Home Page instead.';
+			router.push('/');
+		}
+	} else if (repoUrlParam || commentsApiUrlParam) {
+		// Case where one is present but not the other
+		routingErrorMessage.value = 'Both repoUrl and commentsApiUrl query parameters are required to directly access a review session. One is missing. Displaying Home Page.';
+		router.push('/');
 	} else {
-		routingErrorMessage.value = tempErrorMessage + ' Displaying Home Page instead.';
-		pageToShow.value = 'HomePage';
+		// Neither parameter is present, normal scenario for showing the HomePage
+		router.push('/');
 	}
-} else if (repoUrlParam || commentsApiUrlParam) {
-	// Case where one is present but not the other
-	routingErrorMessage.value = 'Both repoUrl and commentsApiUrl query parameters are required to directly access a review session. One is missing. Displaying Home Page.';
-	pageToShow.value = 'HomePage';
-} else {
-	// Neither parameter is present, normal scenario for showing the HomePage
-	pageToShow.value = 'HomePage';
-}});
+});
 
 const handleKeyboardModeToggle = (value: boolean) => {
 	isKeyboardMode.value = value;
@@ -71,16 +68,7 @@ const handleKeyboardModeToggle = (value: boolean) => {
 		<div v-if="routingErrorMessage" class="routing-error-message">
 			{{ routingErrorMessage }}
 		</div>
-		<HomePage v-if="pageToShow === 'HomePage'" />
-		<ReviewPage
-			v-else-if="pageToShow === 'ReviewPage' && reviewPageProps"
-			:repoUrl="reviewPageProps.repoUrl"
-			:writeApiUrl="reviewPageProps.commentsApiUrl"
-			:initialBranch="reviewPageProps.initialBranch"
-		/>
-		<div v-else-if="pageToShow === 'Loading'" class="loading-app-message">
-			Loading application...
-		</div>
+		<router-view />
 	</div>
 </template>
 

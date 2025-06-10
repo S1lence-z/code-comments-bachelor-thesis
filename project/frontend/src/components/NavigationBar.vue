@@ -1,41 +1,51 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
 
 const props = defineProps<{
-    isKeyboardMode: boolean;
+	isKeyboardMode: boolean;
 }>();
 
 const emit = defineEmits<{
-    (e: 'toggle-keyboard-mode', value: boolean): void;
+	(e: 'toggle-keyboard-mode', value: boolean): void;
 }>();
+
+// Get the current route to determine which tab should be active
+const route = useRoute();
+const activeTab = ref(route.path);
+
+// Watch for route changes to update active tab
+watch(() => route.path, (newPath) => {
+	activeTab.value = newPath;
+});
 
 // Watch for changes in keyboard mode and emit the event
 const isKeyboardMode = ref(props.isKeyboardMode || false);
 watch(isKeyboardMode, (newValue) => {
-    emit('toggle-keyboard-mode', newValue);
+	emit('toggle-keyboard-mode', newValue);
 });
 
 const isMobile = ref(false);
 const isMobileMenuOpen = ref(false);
 
 const updateMobileStatus = () => {
-    isMobile.value = window.innerWidth < 768;
-    if (!isMobile.value) {
-        isMobileMenuOpen.value = false;
-    }
+	isMobile.value = window.innerWidth < 768;
+	if (!isMobile.value) {
+		isMobileMenuOpen.value = false;
+	}
 };
 
 onMounted(() => {
-    updateMobileStatus();
-    window.addEventListener('resize', updateMobileStatus);
+	updateMobileStatus();
+	window.addEventListener('resize', updateMobileStatus);
 });
 
 onUnmounted(() => {
-    window.removeEventListener('resize', updateMobileStatus);
+	window.removeEventListener('resize', updateMobileStatus);
 });
 
 const toggleMobileMenu = () => {
-    isMobileMenuOpen.value = !isMobileMenuOpen.value;
+	isMobileMenuOpen.value = !isMobileMenuOpen.value;
 };
 </script>
 
@@ -50,13 +60,44 @@ const toggleMobileMenu = () => {
 						/>
 					</svg>
 				</div>
-				<a href="/" class="logo">Code Review App</a>
+				<router-link to="/setup" class="logo">Code Review App</router-link>
 			</div>
 
 			<ul class="nav-links" :class="{ 'mobile-open': isMobileMenuOpen }">
-				<li><a href="/" class="nav-link">Setup</a></li>
-				<li><a class="nav-link">Project Overview</a></li>
-				<li><a class="nav-link">Inspect Mode</a></li>
+				<li>
+					<router-link
+						to="/setup"
+						class="nav-link"
+						:class="{ 'active': activeTab.includes('/setup') }"
+						>New Project</router-link
+					>
+				</li>
+				<li>
+					<router-link
+						to="/review"
+						class="nav-link"
+						:class="{ 'active': activeTab.includes('/review') }"
+					>
+						Code Review
+					</router-link>
+				</li>
+				<li>
+					<router-link
+						to="/project-overview"
+						class="nav-link"
+						:class="{ 'active': activeTab.includes('/project-overview') }"
+					>
+						Project Overview
+					</router-link>
+				</li>
+				<li>
+					<router-link
+						to="/inspect-mode"
+						class="nav-link"
+						:class="{ 'active': activeTab.includes('/inspect-mode') }"
+						>Inspect Mode</router-link
+					>
+				</li>
 			</ul>
 
 			<div class="keyboard-mode-toggle">
