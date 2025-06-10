@@ -57,8 +57,8 @@ function addMultiLineCommentDecoration(
 		Decoration.widget({
 			widget: new MultilineCommentWidget(
 				comment.content,
-				comment.startLineNumber!,
-				comment.endLineNumber!
+				comment.id,
+				comment.categories ? comment.categories : []
 			),
 			side: -1,
 			block: true,
@@ -77,7 +77,11 @@ function addSingleLineCommentDecoration(
 			line.from,
 			line.from,
 			Decoration.widget({
-				widget: new SinglelineCommentWidget(comment.content, comment.id),
+				widget: new SinglelineCommentWidget(
+					comment.content,
+					comment.id,
+					comment.categories ? comment.categories : []
+				),
 				side: -1,
 				block: true,
 			})

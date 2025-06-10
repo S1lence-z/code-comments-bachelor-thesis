@@ -62,10 +62,6 @@ function handleSubmit() {
 		alert('Selected category not found.');
 		return;
 	}
-	console.log('Submitting comment:', {
-		text: currentCommentText.value,
-		category: categoryObject,
-	});
 
 	emit('submit', currentCommentText.value, categoryObject);
 }

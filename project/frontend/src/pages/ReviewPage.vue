@@ -204,7 +204,7 @@ async function handleSinglelineCommentSubmit(commentText: string, category: ICat
 	}
 }
 
-async function handleMultilineCommentSubmit(commentText: string) {
+async function handleMultilineCommentSubmit(commentText: string, category: ICategoryDto) {
 	if (modalFilePath.value === null || modalStartLineNumber.value === null || modalEndLineNumber.value === null || !props.writeApiUrl) {
 		errorMessage.value = "Cannot save comment: missing data or API URL.";
 		return;
@@ -217,10 +217,8 @@ async function handleMultilineCommentSubmit(commentText: string) {
 		type: CommentType.MultiLine,
 		startLineNumber: modalStartLineNumber.value,
 		endLineNumber: modalEndLineNumber.value,
+		categories: category ? [category] : [],
 	};
-
-	console.log("Submitting multiline comment:", commentData);
-	console.log(typeof commentText, commentText);
 
 	if (!commentData.content.trim()) {
 		console.log("Comment text is empty, not submitting.");

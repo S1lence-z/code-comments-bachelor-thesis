@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { computed, inject, ref, watch, type Ref } from 'vue';
+import type ICategoryDto from '../../../shared/dtos/ICategoryDto';
 
 interface MultilineCommentModalProps {
     visible: boolean;
@@ -7,17 +8,26 @@ interface MultilineCommentModalProps {
     endLineNumber: number | null;
     filePath: string | null;
     initialText?: string;
+    initialCategory?: string;
 };
 
 const props = withDefaults(defineProps<MultilineCommentModalProps>(), {
-    initialText: ''
+    initialText: '',
+    initialCategory: '',
 });
 
 const emit = defineEmits(['submit', 'close']);
 const currentCommentText = ref('');
+const selectedCategory = ref<string | null>(null);
+const allCategories = inject('allFetchedCategories') as Ref<ICategoryDto[]>;
+const categories = computed(() => allCategories.value);
 
 watch(() => props.initialText, (newVal) => {
     currentCommentText.value = newVal || '';
+}, { immediate: true });
+
+watch(() => props.initialCategory, (newVal) => {
+	selectedCategory.value = newVal || allCategories.value[0]?.label || null;
 }, { immediate: true });
 
 watch(() => props.visible, (newVal) => {
@@ -27,7 +37,30 @@ watch(() => props.visible, (newVal) => {
 });
 
 function handleSubmit() {
-    emit('submit', currentCommentText.value);
+	if (!currentCommentText.value.trim()) {
+		alert('Comment cannot be empty.');
+		return;
+	}
+
+	if (allCategories.value.length === 0) {
+		alert('No categories available. Please create a category first.');
+		return;
+	}
+
+	if (!selectedCategory.value) {
+		alert('Please select a category.');
+		return;
+	}
+
+	console.log((allCategories.value.length > 0) ? [...allCategories.value.entries()] : []);
+	const categoryObject = (allCategories.value.length > 0) ? allCategories.value.find((cat: ICategoryDto) => cat.label === selectedCategory.value) : null;
+
+	if (!categoryObject) {
+		alert('Selected category not found.');
+		return;
+	}
+
+	emit('submit', currentCommentText.value, categoryObject);
 }
 </script>
 
@@ -37,12 +70,28 @@ function handleSubmit() {
 			<h3 class="modal-title">
 				Multiline Comment from line {{ startLineNumber }} to {{ endLineNumber }}
 			</h3>
-			<textarea
-				v-model="currentCommentText"
-				placeholder="Enter your comment here..."
-				class="modal-textarea"
-				rows="6"
-			></textarea>
+			<div class="form-group">
+				<label class="form-label">Category</label>
+				<select v-model="selectedCategory" class="category-select">
+					<option
+						v-for="category in categories"
+						:key="category.id"
+						:value="category.label"
+					>
+						{{ category.label }}
+					</option>
+				</select>
+			</div>
+
+			<div class="form-group">
+				<textarea
+					v-model="currentCommentText"
+					placeholder="Enter your comment here..."
+					class="modal-textarea"
+					rows="6"
+				></textarea>
+			</div>
+
 			<div class="modal-actions">
 				<button @click="handleSubmit" class="modal-button save">Save</button>
 				<button @click="$emit('close')" class="modal-button cancel">Cancel</button>
@@ -134,5 +183,40 @@ function handleSubmit() {
 
 .modal-button.cancel:hover {
     background-color: #2d3748;
+}
+
+.form-group {
+	margin-bottom: 20px;
+}
+
+.form-label {
+	display: block;
+	margin-bottom: 8px;
+	font-size: 0.9rem;
+	color: #a0aec0;
+	font-weight: 500;
+}
+
+.category-select {
+	width: 100%;
+	padding: 10px;
+	border-radius: 4px;
+	border: 1px solid #4a5568;
+	background-color: #1a202c;
+	color: #e2e8f0;
+	font-size: 0.9rem;
+	box-sizing: border-box;
+	appearance: none;
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+	background-position: right 10px center;
+	background-repeat: no-repeat;
+	background-size: 16px;
+	padding-right: 40px;
+}
+
+.category-select:focus {
+	outline: none;
+	border-color: #3182ce;
+	box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.3);
 }
 </style>

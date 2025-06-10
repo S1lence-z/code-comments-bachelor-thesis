@@ -27,10 +27,10 @@
 
 .comment-tools {
 	display: flex;
-	justify-content: space-between;
+	gap: 8px;
 	align-items: center;
 	margin-top: 4px;
-	margin-bottom: 4px;
+	margin-bottom: 8px;
 }
 
 .comment-tools button {
