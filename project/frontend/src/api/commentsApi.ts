@@ -57,6 +57,7 @@ export async function createConfiguration(
 			},
 			body: JSON.stringify({
 				repoUrl: setupRequest.repoUrl,
+				branch: setupRequest.branch,
 			}),
 		});
 		if (!response.ok) {

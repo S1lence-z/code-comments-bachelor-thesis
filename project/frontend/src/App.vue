@@ -12,6 +12,7 @@ onMounted(() => {
 	const params = new URLSearchParams(window.location.search);
 	const repoUrlParam = params.get('repoUrl');
 	const commentsApiUrlParam = params.get('commentsApiUrl');
+	const branchParam = params.get('branch');
 
 	if (repoUrlParam && commentsApiUrlParam) {
 		let isValid = true;
@@ -37,7 +38,7 @@ onMounted(() => {
 				query: {
 					repoUrl: repoUrlParam,
 					commentsApiUrl: commentsApiUrlParam,
-					branch: params.get('branch') || 'main'
+					branch: branchParam || 'main'
 				}
 			});
 		} else {
