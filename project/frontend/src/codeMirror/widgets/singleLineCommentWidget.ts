@@ -1,11 +1,14 @@
-import type ICategoryDto from "../../../shared/dtos/ICategoryDto";
-import BaseCommentWidget from "./baseCommentWidget";
+import type ICategoryDto from "../../../../shared/dtos/ICategoryDto.ts";
+import BaseCommentWidget from "./baseCommentWidget.ts";
 
-export default class MultilineCommentWidget extends BaseCommentWidget {
-	protected static readonly className = "cm-multiline-comment-widget";
+/**
+ * A CodeMirror widget that displays comments inline with the code
+ */
+export default class SingleLineCommentWidget extends BaseCommentWidget {
+	protected static readonly className = "cm-singleline-comment-widget";
 	private content: string;
 	private commentId: number;
-	private category: ICategoryDto;
+	private readonly category: ICategoryDto;
 
 	constructor(
 		content: string,
@@ -21,7 +24,7 @@ export default class MultilineCommentWidget extends BaseCommentWidget {
 
 	toDOM() {
 		const wrap = document.createElement("div");
-		wrap.className = MultilineCommentWidget.className;
+		wrap.className = SingleLineCommentWidget.className;
 
 		const tools = document.createElement("div");
 		tools.className = "comment-tools";
@@ -56,15 +59,15 @@ export default class MultilineCommentWidget extends BaseCommentWidget {
 		label.className = "comment-category comment-category-pill";
 		label.textContent = category.label;
 		label.style.cssText = `
-				display: flex;
-				padding: 2px 8px;
-				border-radius: 12px;
-				background-color: #e0e7ff;
-				color: #3730a3;
-				font-size: 12px;
-				font-weight: 500;
-				border: 1px solid #c7d2fe;
-			`;
+			display: flex;
+			padding: 2px 8px;
+			border-radius: 12px;
+			background-color: #e0e7ff;
+			color: #3730a3;
+			font-size: 12px;
+			font-weight: 500;
+			border: 1px solid #c7d2fe;
+		`;
 		return label;
 	}
 

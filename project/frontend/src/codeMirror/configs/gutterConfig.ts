@@ -1,6 +1,6 @@
 import { EditorView, ViewUpdate, WidgetType, BlockInfo, GutterMarker } from "@codemirror/view";
 import { RangeSet } from "@codemirror/state";
-import type ICommentDto from "../../../shared/dtos/ICommentDto";
+import type ICommentDto from "../../../../shared/dtos/ICommentDto";
 
 export interface GutterConfig {
 	class?: string;

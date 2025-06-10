@@ -5,8 +5,8 @@ import type { DecorationSet } from "@codemirror/view";
 import { EditorView } from "@codemirror/view";
 import type ICommentDto from "../../../shared/dtos/ICommentDto.ts";
 import { CommentType } from "../../../shared/enums/CommentType.ts";
-import SinglelineCommentWidget from "../codeMirror/singleLineCommentWidget.ts";
-import MultilineCommentWidget from "../codeMirror/multilineCommentWidget.ts";
+import SinglelineCommentWidget from "./widgets/singleLineCommentWidget.ts";
+import MultilineCommentWidget from "./widgets/multilineCommentWidget.ts";
 
 /**
  * Builds decorations for displaying comments in the editor
