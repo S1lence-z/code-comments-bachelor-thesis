@@ -10,8 +10,13 @@ export default class SingleLineCommentWidget extends BaseCommentWidget {
 	private commentId: number;
 	private readonly category: ICategoryDto;
 
-	constructor(content: string, commentId: number, category: ICategoryDto[]) {
-		super();
+	constructor(
+		content: string,
+		commentId: number,
+		category: ICategoryDto[],
+		deleteCommentAction: (commentId: number) => Promise<void>
+	) {
+		super(deleteCommentAction);
 		this.content = content;
 		this.commentId = commentId;
 		this.category = category[0] || { id: 0, label: "Uncategorized" };
@@ -45,7 +50,7 @@ export default class SingleLineCommentWidget extends BaseCommentWidget {
 	protected override createDeleteButton(): HTMLButtonElement {
 		const deleteButton = document.createElement("button");
 		deleteButton.textContent = "Delete";
-		deleteButton.onclick = async () => await this.handleDelete(this.commentId);
+		deleteButton.onclick = async () => await this.handleDeleteComment(this.commentId);
 		return deleteButton;
 	}
 

@@ -55,7 +55,6 @@ function handleSubmit() {
 		return;
 	}
 
-	console.log((allCategories.value.length > 0) ? [...allCategories.value.entries()] : []);
 	const categoryObject = (allCategories.value.length > 0) ? allCategories.value.find((cat: ICategoryDto) => cat.label === selectedCategory.value) : null;
 
 	if (!categoryObject) {

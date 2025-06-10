@@ -13,7 +13,8 @@ import MultilineCommentWidget from "../codeMirror/multilineCommentWidget.ts";
  */
 function buildDecorations(
 	state: EditorState,
-	commentsToDisplay: Readonly<ICommentDto[]>
+	commentsToDisplay: Readonly<ICommentDto[]>,
+	deleteCommentAction: (commentId: number) => Promise<void>
 ): DecorationSet {
 	const builder = new RangeSetBuilder<Decoration>();
 
@@ -27,10 +28,10 @@ function buildDecorations(
 	for (const comment of sortedComments) {
 		switch (comment.type) {
 			case CommentType.SingleLine:
-				addSingleLineCommentDecoration(comment, state, builder);
+				addSingleLineCommentDecoration(comment, state, builder, deleteCommentAction);
 				break;
 			case CommentType.MultiLine:
-				addMultiLineCommentDecoration(comment, state, builder);
+				addMultiLineCommentDecoration(comment, state, builder, deleteCommentAction);
 				break;
 		}
 	}
@@ -48,7 +49,8 @@ function sortCommentsByPosition(comments: Readonly<ICommentDto[]>): ICommentDto[
 function addMultiLineCommentDecoration(
 	comment: ICommentDto,
 	state: EditorState,
-	builder: RangeSetBuilder<Decoration>
+	builder: RangeSetBuilder<Decoration>,
+	deleteCommentAction: (commentId: number) => Promise<void>
 ): void {
 	const startLine = state.doc.line(comment.startLineNumber!);
 	builder.add(
@@ -58,7 +60,8 @@ function addMultiLineCommentDecoration(
 			widget: new MultilineCommentWidget(
 				comment.content,
 				comment.id,
-				comment.categories ? comment.categories : []
+				comment.categories ? comment.categories : [],
+				deleteCommentAction
 			),
 			side: -1,
 			block: true,
@@ -69,7 +72,8 @@ function addMultiLineCommentDecoration(
 function addSingleLineCommentDecoration(
 	comment: ICommentDto,
 	state: EditorState,
-	builder: RangeSetBuilder<Decoration>
+	builder: RangeSetBuilder<Decoration>,
+	deleteCommentAction: (commentId: number) => Promise<void>
 ): void {
 	if (comment.lineNumber! > 0 && comment.lineNumber! <= state.doc.lines) {
 		const line = state.doc.line(comment.lineNumber!);
@@ -80,7 +84,8 @@ function addSingleLineCommentDecoration(
 				widget: new SinglelineCommentWidget(
 					comment.content,
 					comment.id,
-					comment.categories ? comment.categories : []
+					comment.categories ? comment.categories : [],
+					deleteCommentAction
 				),
 				side: -1,
 				block: true,
@@ -92,14 +97,17 @@ function addSingleLineCommentDecoration(
 /**
  * Creates a CodeMirror extension for displaying comments
  */
-export function commentsDisplayExtension(currentComments: Readonly<ICommentDto[]>) {
+export function commentsDisplayExtension(
+	currentComments: Readonly<ICommentDto[]>,
+	deleteCommentAction: (commentId: number) => Promise<void>
+) {
 	return StateField.define<DecorationSet>({
 		create(state: EditorState) {
-			return buildDecorations(state, currentComments);
+			return buildDecorations(state, currentComments, deleteCommentAction);
 		},
 		update(value: DecorationSet, tr) {
 			if (tr.docChanged) {
-				return buildDecorations(tr.state, currentComments);
+				return buildDecorations(tr.state, currentComments, deleteCommentAction);
 			}
 			return value.map(tr.changes);
 		},

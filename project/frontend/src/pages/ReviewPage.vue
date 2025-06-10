@@ -66,7 +66,6 @@ async function deleteCommentAndReload(commentId: number): Promise<void> {
 		console.error("Error deleting comment:", e);
 	}
 }
-provide('deleteCommentAndReload', deleteCommentAndReload);
 
 async function loadComments() {
 	if (!props.writeApiUrl) return;
@@ -186,7 +185,6 @@ async function handleSinglelineCommentSubmit(commentText: string, category: ICat
 		categories: category ? [category] : [],
 	};
 
-	console.log("Submitting singleline comment:", commentData);
 	if (!commentData.content.trim()) {
 		console.log("Comment text is empty, not submitting.");
 		closeSinglelineCommentModal();
@@ -304,6 +302,7 @@ watch(() => props.repoUrl, async (newUrl, oldUrl) => {
 				:file-content="fileContent"
 				:is-loading-file="isLoadingFile"
 				:comments="currentFileComments"
+				:delete-comment-action="deleteCommentAndReload"
 				@line-double-clicked="handleLineDoubleClicked"
 				@multiline-selected="handleMultilineSelected"
 			/>

@@ -1,16 +1,13 @@
 import { WidgetType } from "@codemirror/view";
 import type ICategoryDto from "../../../shared/dtos/ICategoryDto";
-import { inject } from "vue";
 
 export default abstract class BaseCommentWidget extends WidgetType {
 	protected static readonly className: string;
-	protected handleDelete: (commentId: number) => Promise<void>;
+	protected handleDeleteComment: (commentId: number) => Promise<void>;
 
-	constructor() {
+	constructor(handleDeleteComment: (commentId: number) => Promise<void>) {
 		super();
-		this.handleDelete = inject("deleteCommentAndReload") as (
-			commentId: number
-		) => Promise<void>;
+		this.handleDeleteComment = handleDeleteComment;
 	}
 
 	protected abstract createCategoryLabel(category: ICategoryDto): HTMLSpanElement;

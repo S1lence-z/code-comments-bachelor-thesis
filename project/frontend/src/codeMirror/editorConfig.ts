@@ -16,13 +16,15 @@ import {
 export function createEditorExtensions(
 	filePath: string | null,
 	comments: ICommentDto[] = [],
-	isEditable = false
+	deleteCommentAction: (commentId: number) => Promise<void>,
+	isKeyboardMode = false
 ) {
 	const langExt = getLanguageExtension(filePath);
 	const currentFileComments = comments || [];
 	const lineNumbersConfig: LineNumberConfig = getLineNumbersConfig(currentFileComments);
 	const guttersConfig: GutterConfig = createGutterConfig(currentFileComments);
-	return [
+
+	const extensions = [
 		oneDark,
 		lineNumbers(lineNumbersConfig),
 		gutter(guttersConfig),
@@ -30,7 +32,26 @@ export function createEditorExtensions(
 		multilineCommentTheme,
 		EditorView.lineWrapping,
 		...(Array.isArray(langExt) ? langExt : [langExt]),
-		EditorView.editable.of(isEditable),
-		commentsDisplayExtension(currentFileComments),
+		EditorView.editable.of(false),
+		commentsDisplayExtension(currentFileComments, deleteCommentAction),
 	];
+
+	// Add keyboard navigation specific extensions
+	if (isKeyboardMode) {
+		extensions.push(
+			// Ensure the editor can receive focus for keyboard navigation
+			EditorView.theme({
+				"&.cm-focused": {
+					outline: "2px solid #007acc",
+					outlineOffset: "1px",
+				},
+				".cm-cursor": {
+					borderLeftColor: "#007acc",
+					borderLeftWidth: "2px",
+				},
+			})
+		);
+	}
+
+	return extensions;
 }

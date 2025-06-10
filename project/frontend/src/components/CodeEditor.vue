@@ -1,16 +1,19 @@
 <script setup lang="ts">
-import { ref, watch, shallowRef, computed } from 'vue';
+import { ref, watch, shallowRef, computed, inject, type Ref } from 'vue';
 import { Codemirror } from 'vue-codemirror';
 import { EditorView } from '@codemirror/view';
 import type ICommentDto from '../../../shared/dtos/ICommentDto';
 import '../codemirror/styles.css';
 import { createEditorExtensions } from '../codeMirror/editorConfig';
 
+const isKeyboardMode = inject('isKeyboardMode') as Ref<boolean>;
+
 interface CodeEditorProps {
 	fileContent: string | null;
 	filePath: string | null;
 	isLoadingFile?: boolean;
 	comments?: ICommentDto[];
+	deleteCommentAction: (commentId: number) => Promise<void>;
 }
 
 const props = withDefaults(defineProps<CodeEditorProps>(), {
@@ -38,7 +41,7 @@ const editorPlaceholder = computed(() => {
 
 const extensions = computed(() => {
 	const currentFileComments = props.comments || [];
-	return createEditorExtensions(props.filePath, currentFileComments);
+	return createEditorExtensions(props.filePath, currentFileComments, props.deleteCommentAction, isKeyboardMode.value);
 });
 
 watch(() => props.fileContent, (newVal: string | null) => {
@@ -108,12 +111,19 @@ const handleSelectionChange = () => {
 		>
 			<p class="error-text">{{ fileContent }}</p>
 		</div>
-		<div v-else-if="filePath && fileContent !== null" class="editor-wrapper">
+		<div
+			v-else-if="filePath && fileContent !== null"
+			class="editor-wrapper"
+			:class="{ 'keyboard-mode': isKeyboardMode }"
+		>
+			<div v-if="isKeyboardMode" class="keyboard-mode-indicator">
+				🎹 Keyboard Navigation Mode
+			</div>
 			<codemirror
 				v-model="currentContent"
 				:placeholder="editorPlaceholder"
 				:style="{ height: '100%', overflow: 'auto' }"
-				:autofocus="true"
+				:autofocus="isKeyboardMode"
 				:indent-with-tab="true"
 				:tab-size="2"
 				:extensions="extensions"
@@ -185,5 +195,25 @@ const handleSelectionChange = () => {
 .editor-wrapper {
 	flex-grow: 1;
 	overflow: auto; /* Ensures scrolling is enabled */
+	position: relative;
+}
+
+.editor-wrapper.keyboard-mode {
+	border: 2px solid #007acc;
+	border-radius: 4px;
+}
+
+.keyboard-mode-indicator {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	background-color: #007acc;
+	color: white;
+	padding: 4px 8px;
+	border-radius: 4px;
+	font-size: 0.75rem;
+	font-weight: 600;
+	z-index: 10;
+	pointer-events: none;
 }
 </style>

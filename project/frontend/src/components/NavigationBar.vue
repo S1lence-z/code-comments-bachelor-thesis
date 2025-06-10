@@ -55,8 +55,8 @@ const toggleMobileMenu = () => {
 
 			<ul class="nav-links" :class="{ 'mobile-open': isMobileMenuOpen }">
 				<li><a href="/" class="nav-link">Setup</a></li>
+				<li><a class="nav-link">Project Overview</a></li>
 				<li><a class="nav-link">Inspect Mode</a></li>
-				<li><a href="/contact" class="nav-link">Contact</a></li>
 			</ul>
 
 			<div class="keyboard-mode-toggle">

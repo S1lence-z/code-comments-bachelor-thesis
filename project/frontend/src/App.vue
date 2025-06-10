@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, provide } from 'vue';
 import HomePage from './pages/HomePage.vue';
 import ReviewPage from './pages/ReviewPage.vue';
 import NavigationBar from './components/NavigationBar.vue';
@@ -12,6 +12,7 @@ const reviewPageProps = ref<{
 } | null>(null);
 const routingErrorMessage = ref<string>('');
 const isKeyboardMode = ref(false);
+provide('isKeyboardMode', isKeyboardMode);
 
 onMounted(() => {
 const params = new URLSearchParams(window.location.search);
