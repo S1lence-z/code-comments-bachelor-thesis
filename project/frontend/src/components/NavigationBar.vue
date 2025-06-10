@@ -106,13 +106,32 @@ const toggleMobileMenu = () => {
 				</li>
 			</ul>
 
-			<div class="keyboard-mode-toggle">
-				<label class="toggle-label">
-					<span class="toggle-text">Keyboard Mode</span>
-					<input type="checkbox" class="toggle-checkbox" v-model="isKeyboardMode" />
-					<span class="toggle-slider"></span>
-				</label>
+			<div v-if="activeTab.includes('/review')">
+				<div class="keyboard-mode-toggle">
+					<label class="toggle-label">
+						<span class="toggle-text">Keyboard Mode</span>
+						<input
+							id="keyboard-mode-toggle"
+							type="checkbox"
+							class="toggle-checkbox"
+							v-model="isKeyboardMode"
+						/>
+						<span class="toggle-slider"></span>
+					</label>
+				</div>
+
+				<button
+					class="menu-toggle"
+					v-if="isMobile"
+					@click="toggleMobileMenu"
+					:class="{ 'active': isMobileMenuOpen }"
+				>
+					<span class="hamburger-line"></span>
+					<span class="hamburger-line"></span>
+					<span class="hamburger-line"></span>
+				</button>
 			</div>
+			<div v-else class="keyboard-mode-hidden"></div>
 
 			<button
 				class="menu-toggle"
@@ -129,6 +148,11 @@ const toggleMobileMenu = () => {
 </template>
 
 <style scoped>
+/* TODO: this is hardcoded for now, change it to be dynamic */
+.keyboard-mode-hidden {
+	width: 166px;
+}
+
 .keyboard-mode-toggle {
     display: flex;
     align-items: center;

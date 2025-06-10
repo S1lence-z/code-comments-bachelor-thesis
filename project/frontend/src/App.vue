@@ -1,58 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted, provide } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, provide } from 'vue';
 import NavigationBar from './components/NavigationBar.vue';
 
-const router = useRouter();
 const routingErrorMessage = ref<string>('');
 const isKeyboardMode = ref(false);
 provide('isKeyboardMode', isKeyboardMode);
-
-onMounted(() => {
-	const params = new URLSearchParams(window.location.search);
-	const repoUrlParam = params.get('repoUrl');
-	const commentsApiUrlParam = params.get('commentsApiUrl');
-	const branchParam = params.get('branch');
-
-	if (repoUrlParam && commentsApiUrlParam && branchParam) {
-		let isValid = true;
-		let tempErrorMessage = '';
-
-		if (!repoUrlParam.includes('github')) {
-			tempErrorMessage = 'Invalid GitHub repo URL in query parameters. Must include with github. ';
-			isValid = false;
-		}
-		try {
-			// Basic validation for commentsApiUrlParam - ensuring it's a valid URL structure.
-			// More specific validation (e.g. checking if it's reachable) would be out of scope here.
-			new URL(decodeURIComponent(commentsApiUrlParam));
-		} catch (e) {
-			tempErrorMessage += 'Invalid commentsApiUrl in query parameters (must be a valid URL).';
-			isValid = false;
-		}
-
-		if (isValid) {
-			// Navigate to review page with query params
-			router.push({
-				path: '/review',
-				query: {
-					repoUrl: encodeURIComponent(repoUrlParam),
-					commentsApiUrl: encodeURIComponent(commentsApiUrlParam),
-					branch: encodeURIComponent(branchParam)
-				}
-			});		} else {
-			routingErrorMessage.value = tempErrorMessage + ' Displaying Home Page instead.';
-			router.push('/setup');
-		}
-	} else if (repoUrlParam || commentsApiUrlParam || branchParam) {
-		// Case where one is present but not the other
-		routingErrorMessage.value = 'None of repoUrl, commentsApiUrl, and branch query parameters are required to directly access a review session. One is missing. Displaying Home Page.';
-		router.push('/setup');
-	} else {
-		// Neither parameter is present, normal scenario for showing the HomePage
-		router.push('/setup');
-	}
-});
 
 const handleKeyboardModeToggle = (value: boolean) => {
 	isKeyboardMode.value = value;

@@ -1,31 +1,33 @@
 <script setup lang="ts">
-import { ref, reactive } from "vue";
+import { ref, reactive, computed, onMounted, watch } from "vue";
+import { fetchRepoTreeAPI } from "../api/githubApi";
+import { type TreeNode } from "../types/githubApi";
 
-// Mock data structure for the template
-const projectStructure = ref([
-  {
-    name: "src",
-    type: "folder",
-    path: "src",
-    children: [
-      { name: "components", type: "folder", path: "src/components" },
-      { name: "pages", type: "folder", path: "src/pages" },
-      { name: "utils", type: "folder", path: "src/utils" },
-      { name: "App.vue", type: "file", path: "src/App.vue" },
-      { name: "main.ts", type: "file", path: "src/main.ts" }
-    ]
-  },
-  {
-    name: "public",
-    type: "folder",
-    path: "public",
-    children: [
-      { name: "index.html", type: "file", path: "public/index.html" }
-    ]
-  },
-  { name: "package.json", type: "file", path: "package.json" },
-  { name: "README.md", type: "file", path: "README.md" }
-]);
+const projectStructure = ref<TreeNode[]>([]);
+const GITHUB_PAT = import.meta.env.VITE_GITHUB_PAT || "";
+const repoUrl = ref<string>("");
+const branchName = ref<string>("");
+
+onMounted(() => {
+  // Get the params from the url
+  const urlParams = new URLSearchParams(window.location.search);
+  repoUrl.value = urlParams.get("repoUrl") || "";
+  if (!repoUrl.value) {
+    console.error("No repoUrl provided in the query parameters.");
+    return;
+  }
+
+  branchName.value = urlParams.get("branch") || "";
+  if (!branchName.value) {
+    console.warn("No branchName provided in the query parameters, defaulting to 'main'.")
+    return;
+  }
+
+  // Fetch the project structure from the GitHub API
+  fetchRepoTreeAPI(decodeURIComponent(repoUrl.value), decodeURIComponent(branchName.value), GITHUB_PAT).then((data) => {
+    projectStructure.value = data;
+  });
+});
 
 const comments = reactive({
   project: "",
@@ -34,6 +36,9 @@ const comments = reactive({
 
 const selectedItem = ref<string | null>(null);
 const expandedFolders = ref<Set<string>>(new Set());
+const searchQuery = ref("");
+const currentFolderPath = ref<string>("");
+const currentFolderContents = ref<TreeNode[]>([]);
 
 const toggleFolder = (path: string) => {
   if (expandedFolders.value.has(path)) {
@@ -47,6 +52,65 @@ const selectItem = (path: string) => {
   selectedItem.value = path;
 };
 
+const findFolder = (items: TreeNode[], targetPath: string): TreeNode | null => {
+  for (const item of items) {
+    if (item.path === targetPath && item.type === "folder") {
+      return item;
+    }
+    if (item.children) {
+      const found = findFolder(item.children, targetPath);
+      if (found) return found;
+    }
+  }
+  return null;
+};
+
+const navigateToFolder = (folderPath: string) => {
+  currentFolderPath.value = folderPath;
+
+  if (folderPath === "") {
+    // Root level
+    currentFolderContents.value = projectStructure.value;
+  } else {
+    const folder = findFolder(projectStructure.value, folderPath);
+    currentFolderContents.value = folder?.children || [];
+  }
+
+  // Clear selection when navigating
+  selectedItem.value = null;
+};
+
+const navigateToParent = () => {
+  if (currentFolderPath.value === "") return; // Already at root
+
+  const pathParts = currentFolderPath.value.split('/');
+  pathParts.pop(); // Remove last part
+  const parentPath = pathParts.join('/');
+
+  navigateToFolder(parentPath);
+};
+
+const handleItemClick = (item: TreeNode) => {
+  selectItem(item.path);
+};
+
+const handleItemDoubleClick = (item: TreeNode) => {
+  if (item.type === "folder") {
+    navigateToFolder(item.path);
+  }
+};
+
+// Initialize navigation when project structure loads
+const initializeNavigation = () => {
+  currentFolderPath.value = "";
+  currentFolderContents.value = projectStructure.value;
+};
+
+// Watch for changes in project structure to initialize navigation
+watch(projectStructure, () => {
+  initializeNavigation();
+}, { immediate: true });
+
 const saveComment = (path: string, comment: string) => {
   comments.files[path] = comment;
 };
@@ -54,6 +118,39 @@ const saveComment = (path: string, comment: string) => {
 const getCommentForPath = (path: string) => {
   return comments.files[path] || "";
 };
+
+// Filter project structure based on search query
+const filterItems = (items: any[], query: string): any[] => {
+  return items.filter(item => {
+    const nameMatches = item.name.toLowerCase().includes(query);
+    const pathMatches = item.path.toLowerCase().includes(query);
+
+    if (item.children) {
+      const filteredChildren = filterItems(item.children, query);
+      return nameMatches || pathMatches || filteredChildren.length > 0;
+    }
+
+    return nameMatches || pathMatches;
+  }).map(item => {
+    if (item.children) {
+      return {
+        ...item,
+        children: filterItems(item.children, query)
+      };
+    }
+    return item;
+  });
+};
+
+const filteredProjectStructure = computed(() => {
+  if (!searchQuery.value.trim()) {
+    return currentFolderContents.value;
+  }
+
+  const query = searchQuery.value.toLowerCase();
+
+  return filterItems(currentFolderContents.value, query);
+});
 </script>
 
 <template>
@@ -64,29 +161,9 @@ const getCommentForPath = (path: string) => {
 				Add comments and feedback for the project structure, folders, and individual files
 			</p>
 		</div>
-
 		<div class="review-content">
-			<!-- Project Overview Section -->
-			<div class="review-section">
-				<div class="section-header">
-					<h2>Project Overview</h2>
-				</div>
-				<div class="project-comment-card">
-					<label for="projectComment" class="comment-label">
-						Overall Project Comments
-					</label>
-					<textarea
-						id="projectComment"
-						v-model="comments.project"
-						placeholder="Add your overall thoughts about the project structure, architecture, or general feedback..."
-						class="comment-textarea"
-						rows="4"
-					></textarea>
-				</div>
-			</div>
-
 			<!-- File Structure Section -->
-			<div class="review-section">
+			<div class="review-section file-structure-section">
 				<div class="section-header">
 					<h2>File Structure Review</h2>
 				</div>
@@ -95,8 +172,31 @@ const getCommentForPath = (path: string) => {
 					<!-- File Explorer Side -->
 					<div class="file-explorer-panel">
 						<h3>Project Structure</h3>
+
+						<!-- Navigation Header -->
+						<div class="navigation-header">
+							<div class="current-path">
+								{{ currentFolderPath || "/" }}
+							</div>
+							<button
+								v-if="currentFolderPath"
+								@click="navigateToParent"
+								class="parent-button"
+							>
+								..
+							</button>
+						</div>
+
+						<div class="search-container">
+							<input
+								v-model="searchQuery"
+								type="text"
+								placeholder="Search files and folders..."
+								class="search-input"
+							/>
+						</div>
 						<div class="file-tree">
-							<template v-for="item in projectStructure" :key="item.path">
+							<template v-for="item in filteredProjectStructure" :key="item.path">
 								<div class="tree-item">
 									<div
 										class="tree-item-header"
@@ -104,7 +204,8 @@ const getCommentForPath = (path: string) => {
                       'selected': selectedItem === item.path,
                       'has-comment': getCommentForPath(item.path)
                     }"
-										@click="selectItem(item.path)"
+										@click="handleItemClick(item)"
+										@dblclick="handleItemDoubleClick(item)"
 									>
 										<button
 											v-if="item.type === 'folder'"
@@ -134,7 +235,8 @@ const getCommentForPath = (path: string) => {
                         'selected': selectedItem === child.path,
                         'has-comment': getCommentForPath(child.path)
                       }"
-											@click="selectItem(child.path)"
+											@click="handleItemClick(child)"
+											@dblclick="handleItemDoubleClick(child)"
 										>
 											<span class="file-icon">
 												{{ child.type === 'folder' ? '📁' : '📄' }}
@@ -167,23 +269,8 @@ const getCommentForPath = (path: string) => {
 									@input="saveComment(selectedItem, ($event.target as HTMLTextAreaElement).value)"
 									placeholder="Enter your comments, suggestions, or feedback for this item..."
 									class="comment-textarea"
-									rows="6"
+									rows="20"
 								></textarea>
-							</div>
-
-							<div class="comment-tips">
-								<h4>Comment Guidelines:</h4>
-								<ul>
-									<li>
-										For <strong>files</strong>: Comment on naming, purpose, or
-										organization
-									</li>
-									<li>
-										For <strong>folders</strong>: Comment on structure,
-										grouping, or hierarchy
-									</li>
-									<li>Be specific and constructive in your feedback</li>
-								</ul>
 							</div>
 						</div>
 
@@ -201,23 +288,47 @@ const getCommentForPath = (path: string) => {
 				</div>
 			</div>
 
-			<!-- Summary Section -->
-			<div class="review-section">
-				<div class="section-header">
-					<h2>Review Summary</h2>
+			<!-- Summary Section with Project Overview -->
+			<div class="review-section summary-section">
+				<!-- Project Overview -->
+				<div class="project-overview-section">
+					<div class="section-header">
+						<h2>Project Overview</h2>
+					</div>
+					<div class="project-comment-card">
+						<label for="projectComment" class="comment-label">
+							Overall Project Comments
+						</label>
+						<textarea
+							id="projectComment"
+							v-model="comments.project"
+							placeholder="Add your overall thoughts about the project structure, architecture, or general feedback..."
+							class="comment-textarea compact"
+							rows="3"
+						></textarea>
+					</div>
 				</div>
-				<div class="summary-cards">
-					<div class="summary-card">
-						<div class="summary-number">{{ Object.keys(comments.files).length }}</div>
-						<div class="summary-label">Files/Folders with Comments</div>
+
+				<!-- Review Summary -->
+				<div class="summary-stats-section">
+					<div class="section-header">
+						<h2>Review Summary</h2>
 					</div>
-					<div class="summary-card">
-						<div class="summary-number">{{ comments.project ? '1' : '0' }}</div>
-						<div class="summary-label">Project Overview Comment</div>
-					</div>
-					<div class="summary-card">
-						<div class="summary-number">{{ projectStructure.length }}</div>
-						<div class="summary-label">Total Items in Structure</div>
+					<div class="summary-cards">
+						<div class="summary-card">
+							<div class="summary-number">
+								{{ Object.keys(comments.files).length }}
+							</div>
+							<div class="summary-label">Files/Folders with Comments</div>
+						</div>
+						<div class="summary-card">
+							<div class="summary-number">{{ comments.project ? '1' : '0' }}</div>
+							<div class="summary-label">Project Overview Comment</div>
+						</div>
+						<div class="summary-card">
+							<div class="summary-number">{{ filteredProjectStructure.length }}</div>
+							<div class="summary-label">Total Items in Structure</div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -258,7 +369,7 @@ const getCommentForPath = (path: string) => {
 
 .review-content {
   display: grid;
-  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-columns: 3fr 1fr;
   gap: 1rem;
   flex: 1;
   min-height: 0;
@@ -288,6 +399,84 @@ const getCommentForPath = (path: string) => {
   flex-direction: column;
 }
 
+.search-container {
+  margin-bottom: 1rem;
+}
+
+.navigation-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  background: #1a202c;
+  border: 1px solid #4a5568;
+  border-radius: 6px;
+}
+
+.current-path {
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  color: #63b3ed;
+  flex: 1;
+}
+
+.parent-button {
+  background: #3182ce;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.parent-button:hover {
+  background: #2b6cb0;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #4a5568;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  background-color: #1a202c;
+  color: #e2e8f0;
+  transition: border-color 0.2s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #3182ce;
+  box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.3);
+}
+
+.search-input::placeholder {
+  color: #718096;
+}
+
+.summary-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.project-overview-section {
+  flex-shrink: 0;
+}
+
+.summary-stats-section {
+  flex: 1;
+}
+
+.comment-textarea.compact {
+  height: 80px;
+  resize: none;
+}
+
 .comment-label {
   display: block;
   font-weight: 500;
@@ -310,7 +499,6 @@ const getCommentForPath = (path: string) => {
 }
 
 .comment-textarea:focus {
-  outline: none;
   border-color: #3182ce;
   box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.3);
 }
@@ -491,7 +679,7 @@ const getCommentForPath = (path: string) => {
 .summary-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
+  gap: 8px;
 }
 
 .summary-card {
