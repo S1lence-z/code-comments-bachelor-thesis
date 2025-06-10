@@ -14,7 +14,7 @@ onMounted(() => {
 	const commentsApiUrlParam = params.get('commentsApiUrl');
 	const branchParam = params.get('branch');
 
-	if (repoUrlParam && commentsApiUrlParam) {
+	if (repoUrlParam && commentsApiUrlParam && branchParam) {
 		let isValid = true;
 		let tempErrorMessage = '';
 
@@ -45,9 +45,9 @@ onMounted(() => {
 			routingErrorMessage.value = tempErrorMessage + ' Displaying Home Page instead.';
 			router.push('/');
 		}
-	} else if (repoUrlParam || commentsApiUrlParam) {
+	} else if (repoUrlParam || commentsApiUrlParam || branchParam) {
 		// Case where one is present but not the other
-		routingErrorMessage.value = 'Both repoUrl and commentsApiUrl query parameters are required to directly access a review session. One is missing. Displaying Home Page.';
+		routingErrorMessage.value = 'None of repoUrl, commentsApiUrl, and branch query parameters are required to directly access a review session. One is missing. Displaying Home Page.';
 		router.push('/');
 	} else {
 		// Neither parameter is present, normal scenario for showing the HomePage
