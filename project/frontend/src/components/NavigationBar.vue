@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
 
 const props = defineProps<{
@@ -14,6 +14,11 @@ const emit = defineEmits<{
 const route = useRoute();
 const activeTab = ref(route.path);
 
+// Computed property to preserve query parameters when navigating
+const preserveQueryParams = computed(() => {
+	return route.query;
+});
+
 // Watch for route changes to update active tab
 watch(() => route.path, (newPath) => {
 	activeTab.value = newPath;
@@ -21,6 +26,13 @@ watch(() => route.path, (newPath) => {
 
 // Watch for changes in keyboard mode and emit the event
 const isKeyboardMode = ref(props.isKeyboardMode || false);
+
+// Watch for prop changes to update local state
+watch(() => props.isKeyboardMode, (newValue) => {
+	isKeyboardMode.value = newValue;
+});
+
+// Watch for local changes to emit to parent
 watch(isKeyboardMode, (newValue) => {
 	emit('toggle-keyboard-mode', newValue);
 });
@@ -60,21 +72,23 @@ const toggleMobileMenu = () => {
 						/>
 					</svg>
 				</div>
-				<router-link to="/setup" class="logo">Code Review App</router-link>
+				<router-link :to="{ path: '/setup', query: preserveQueryParams }" class="logo"
+					>Code Review App</router-link
+				>
 			</div>
 
 			<ul class="nav-links" :class="{ 'mobile-open': isMobileMenuOpen }">
 				<li>
 					<router-link
-						to="/setup"
+						:to="{ path: '/setup', query: preserveQueryParams }"
 						class="nav-link"
-						:class="{ 'active': activeTab.includes('/setup') }"
+						:class="{ 'active': activeTab === '/setup' }"
 						>New Project</router-link
 					>
 				</li>
 				<li>
 					<router-link
-						to="/review"
+						:to="{ path: '/review', query: preserveQueryParams }"
 						class="nav-link"
 						:class="{ 'active': activeTab.includes('/review') }"
 					>
@@ -83,20 +97,12 @@ const toggleMobileMenu = () => {
 				</li>
 				<li>
 					<router-link
-						to="/project-overview"
+						:to="{ path: '/project-overview', query: preserveQueryParams }"
 						class="nav-link"
 						:class="{ 'active': activeTab.includes('/project-overview') }"
 					>
 						Project Overview
 					</router-link>
-				</li>
-				<li>
-					<router-link
-						to="/inspect-mode"
-						class="nav-link"
-						:class="{ 'active': activeTab.includes('/inspect-mode') }"
-						>Inspect Mode</router-link
-					>
 				</li>
 			</ul>
 

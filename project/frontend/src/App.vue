@@ -18,14 +18,14 @@ onMounted(() => {
 		let isValid = true;
 		let tempErrorMessage = '';
 
-		if (!repoUrlParam.startsWith('https://github.com/')) {
-			tempErrorMessage = 'Invalid GitHub repo URL in query parameters. Must start with https://github.com/. ';
+		if (!repoUrlParam.includes('github')) {
+			tempErrorMessage = 'Invalid GitHub repo URL in query parameters. Must include with github. ';
 			isValid = false;
 		}
 		try {
 			// Basic validation for commentsApiUrlParam - ensuring it's a valid URL structure.
 			// More specific validation (e.g. checking if it's reachable) would be out of scope here.
-			new URL(commentsApiUrlParam);
+			new URL(decodeURIComponent(commentsApiUrlParam));
 		} catch (e) {
 			tempErrorMessage += 'Invalid commentsApiUrl in query parameters (must be a valid URL).';
 			isValid = false;
@@ -36,22 +36,21 @@ onMounted(() => {
 			router.push({
 				path: '/review',
 				query: {
-					repoUrl: repoUrlParam,
-					commentsApiUrl: commentsApiUrlParam,
-					branch: branchParam || 'main'
+					repoUrl: encodeURIComponent(repoUrlParam),
+					commentsApiUrl: encodeURIComponent(commentsApiUrlParam),
+					branch: encodeURIComponent(branchParam)
 				}
-			});
-		} else {
+			});		} else {
 			routingErrorMessage.value = tempErrorMessage + ' Displaying Home Page instead.';
-			router.push('/');
+			router.push('/setup');
 		}
 	} else if (repoUrlParam || commentsApiUrlParam || branchParam) {
 		// Case where one is present but not the other
 		routingErrorMessage.value = 'None of repoUrl, commentsApiUrl, and branch query parameters are required to directly access a review session. One is missing. Displaying Home Page.';
-		router.push('/');
+		router.push('/setup');
 	} else {
 		// Neither parameter is present, normal scenario for showing the HomePage
-		router.push('/');
+		router.push('/setup');
 	}
 });
 

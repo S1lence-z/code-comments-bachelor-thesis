@@ -1,5 +1,6 @@
 import HomePage from "../pages/SetupPage.vue";
 import ReviewPage from "../pages/ReviewPage.vue";
+import ProjectOverviewPage from "../pages/ProjectOverviewPage.vue";
 
 const routes = [
 	{
@@ -13,6 +14,10 @@ const routes = [
 	{
 		path: "/review",
 		component: ReviewPage,
+	},
+	{
+		path: "/project-overview",
+		component: ProjectOverviewPage,
 	},
 ];
 

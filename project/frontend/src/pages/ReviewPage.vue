@@ -16,9 +16,9 @@ import { extractBaseUrl } from '../utils/urlUtils.ts';
 const route = useRoute();
 
 // Get props from router query parameters
-const repoUrl = computed(() => route.query.repoUrl as string || '');
-const writeApiUrl = computed(() => route.query.commentsApiUrl as string || '');
-const initialBranch = computed(() => route.query.branch as string || 'main');
+const repoUrl = computed(() => decodeURIComponent(route.query.repoUrl as string || ''));
+const writeApiUrl = computed(() => decodeURIComponent(route.query.commentsApiUrl as string || ''));
+const initialBranch = computed(() => decodeURIComponent(route.query.branch as string || 'main'));
 
 const branch = ref(initialBranch.value);
 const fileTreeData = ref<TreeNode[]>([]);
