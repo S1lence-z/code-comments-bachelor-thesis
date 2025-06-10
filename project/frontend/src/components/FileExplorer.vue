@@ -37,25 +37,66 @@ function handleToggleExpand(item: TreeNode) {
   display: flex;
   flex-direction: column;
   background-color: #252526;
-  color: gray-300;
+  color: #cccccc;
   overflow-y: auto;
   user-select: none;
+  border-right: 1px solid #2d2d30;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-width: 200px;
 }
 
 .explorer-header {
-  padding: 12px 16px;
+  padding: 10px 16px 10px 20px;
   font-size: 12px;
-  font-weight: 600;
-  color: gray;
+  font-weight: 700;
+  color: #cccccc;
   text-transform: uppercase;
-  letter-spacing: .05em;
-  border-bottom: 1px solid #333333;
+  letter-spacing: 0.1em;
+  background-color: #2d2d30;
+  border-bottom: 1px solid #3c3c3c;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  height: 40px;
+  box-sizing: border-box;
+}
+
+.explorer-header::before {
+  content: '';
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23cccccc' d='M14.5 3H7.71l-.85-.85L6.51 2h-5a.5.5 0 0 0-.5.5v11a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-10a.5.5 0 0 0-.5-.5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: contain;
+  flex-shrink: 0;
 }
 
 .file-tree-list {
   flex: 1;
   list-style: none;
-  padding: 4px;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+}
+
+.file-tree-list::-webkit-scrollbar {
+  width: 10px;
+}
+
+.file-tree-list::-webkit-scrollbar-track {
+  background: #2d2d30;
+}
+
+.file-tree-list::-webkit-scrollbar-thumb {
+  background: #424242;
+  border-radius: 5px;
+}
+
+.file-tree-list::-webkit-scrollbar-thumb:hover {
+  background: #4f4f4f;
 }
 
 .select-none {
