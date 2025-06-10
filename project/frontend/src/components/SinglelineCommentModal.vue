@@ -32,10 +32,16 @@ watch(() => props.initialCategory, (newVal) => {
 	selectedCategory.value = newVal || allCategories.value[0]?.label || null;
 }, { immediate: true });
 
+// Watch for when categories become available
+watch(() => allCategories.value, (newCategories) => {
+	if (newCategories && newCategories.length > 0 && !selectedCategory.value) {
+		selectedCategory.value = props.initialCategory || newCategories[0]?.label || null;
+	}
+}, { immediate: true });
+
 watch(() => props.visible, (newVal) => {
 	if (newVal) {
 		currentCommentText.value = props.initialText || '';
-		selectedCategory.value = props.initialCategory || allCategories.value[0]?.label || null;
 	}
 });
 
