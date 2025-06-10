@@ -2,6 +2,7 @@ import type IProjectDto from "../../../shared/dtos/IProjectDto.ts";
 import type ISetupProjectRequest from "../../../shared/api/ISetupProjectRequest.ts";
 import type IGetCommentsResponse from "../../../shared/api/IGetCommentsResponse.ts";
 import type ICommentDto from "../../../shared/dtos/ICommentDto.ts";
+import type ICategoryDto from "../../../shared/dtos/ICategoryDto.ts";
 
 export async function fetchComments(readApiUrl: string): Promise<IGetCommentsResponse> {
 	try {
@@ -93,6 +94,22 @@ export async function deleteComment(
 		return await response.json();
 	} catch (error) {
 		console.error("Error in deleteComment:", error);
+		throw error;
+	}
+}
+
+export async function getAllCategories(backendBaseUrl: string): Promise<ICategoryDto[]> {
+	try {
+		const response = await fetch(`${backendBaseUrl}/api/categories`);
+		if (!response.ok) {
+			throw new Error(
+				`Failed to fetch categories: ${response.status} ${response.statusText}`
+			);
+		}
+		const categories: ICategoryDto[] = await response.json();
+		return categories;
+	} catch (error) {
+		console.error("Error in getAllCategories:", error);
 		throw error;
 	}
 }

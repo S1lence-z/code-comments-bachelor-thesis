@@ -60,3 +60,13 @@ export function parseRepoAndBranchFromLocation():
 		return { error: "Invalid repo_url parameter." };
 	}
 }
+
+export function extractBaseUrl(url: string): string {
+	try {
+		const parsedUrl = new URL(url);
+		return `${parsedUrl.protocol}//${parsedUrl.host}`;
+	} catch (e) {
+		console.error("Error extracting base URL:", e);
+		return "";
+	}
+}
