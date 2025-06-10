@@ -26,6 +26,7 @@ class DatabaseManager {
 				project_id INTEGER NOT NULL UNIQUE,
 				type TEXT NOT NULL,
 				repo_landing_page_url TEXT NOT NULL,
+				branch TEXT NOT NULL,
 				\`commit\` TEXT NOT NULL,
 				token TEXT,
 				FOREIGN KEY (project_id) REFERENCES projects(identifier) ON DELETE CASCADE
@@ -150,6 +151,7 @@ class DatabaseManager {
 
 	public createProject(requestData: {
 		git_repo_url: string;
+		branch: string;
 		repo_type?: string;
 		commit?: string;
 		token?: string;
@@ -189,14 +191,15 @@ class DatabaseManager {
 			// Create the repository
 			this.db
 				.prepare(
-					`INSERT INTO repositories (project_id, type, repo_landing_page_url, \`commit\`, token)
-					VALUES (?, ?, ?, ?, ?)`
+					`INSERT INTO repositories (project_id, type, repo_landing_page_url, branch, \`commit\`, token)
+					VALUES (?, ?, ?, ?, ?, ?)`
 				)
 				.run([
 					projectId,
 					requestData.repo_type || "git",
 					requestData.git_repo_url,
-					requestData.commit || "main",
+					requestData.branch,
+					requestData.commit || "HEAD",
 					requestData.token || null,
 				]);
 

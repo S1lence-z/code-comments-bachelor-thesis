@@ -12,6 +12,7 @@ class ProjectController {
 	): ProjectDto {
 		const requestData = {
 			git_repo_url: validatedBody.repoUrl,
+			branch: validatedBody.branch,
 			repo_type: validatedBody.repoType,
 			commit: validatedBody.commit,
 			token: validatedBody.token,

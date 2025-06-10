@@ -12,6 +12,7 @@ export interface Repository {
 	project_id: number;
 	type: string;
 	repo_landing_page_url: string;
+	branch: string;
 	commit: string;
 	token: string | null;
 }
@@ -72,6 +73,7 @@ export interface RepositoryRow {
 	project_id: number;
 	type: string;
 	repo_landing_page_url: string;
+	branch: string;
 	commit: string;
 	token: string | null;
 }

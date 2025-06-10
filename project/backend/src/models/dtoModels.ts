@@ -36,6 +36,7 @@ export const RepositoryDtoSchema = z.object({
 	identifier: z.number().int(),
 	type: z.string(),
 	repoLandingPageUrl: z.string().url(),
+	branch: z.string(),
 });
 
 export const ProjectDtoSchema = z.object({

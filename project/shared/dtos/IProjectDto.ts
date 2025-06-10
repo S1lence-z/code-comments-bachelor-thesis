@@ -1,4 +1,4 @@
-import IRepositoryDto from "./IRepositoryDto.ts";
+import type IRepositoryDto from "./IRepositoryDto.ts";
 
 export default interface IProjectDto {
 	identifier: number;

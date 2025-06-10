@@ -5,6 +5,7 @@ export function repositoryToDto(repository: Repository): RepositoryDto {
 	return {
 		identifier: repository.identifier,
 		type: repository.type,
+		branch: repository.branch,
 		repoLandingPageUrl: repository.repo_landing_page_url,
 	};
 }

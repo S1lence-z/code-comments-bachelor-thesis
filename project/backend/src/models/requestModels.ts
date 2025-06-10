@@ -3,8 +3,9 @@ import ISetupProjectBody from "../../../shared/api/ISetupProjectRequest.ts";
 
 export const SetupProjectBodySchema = z.object({
 	repoUrl: z.string().url("Invalid repository URL"),
-	repoType: z.string().optional().default("git"),
+	branch: z.string(),
 	commit: z.string().optional().default(""),
+	repoType: z.string().optional().default("git"),
 	token: z.string().optional().default(""),
 });
 
