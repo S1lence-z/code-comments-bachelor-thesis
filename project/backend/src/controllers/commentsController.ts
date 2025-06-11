@@ -1,16 +1,21 @@
 import { CommentDto } from "../models/dtoModels.ts";
 import { GetCommentsResponse } from "../models/responseModels.ts";
-import DatabaseManager from "../services/databaseManager.ts";
+import CommentsService from "../services/commentsService.ts";
+import ProjectService from "../services/projectService.ts";
 import { createCommentDto } from "../utils/comments.ts";
 
 export default class CommentsController {
-	public static getComments(dbManager: DatabaseManager, projectId: number): GetCommentsResponse {
-		const project = dbManager.getProjectById(projectId);
+	public static getComments(
+		commentsService: CommentsService,
+		projectService: ProjectService,
+		projectId: number
+	): GetCommentsResponse {
+		const project = projectService.getProjectById(projectId);
 		if (!project) {
 			throw new Error("Project not found");
 		}
 
-		const commentsData: CommentDto[] = dbManager.getCommentsByProjectId(projectId);
+		const commentsData: CommentDto[] = commentsService.getCommentsByProjectId(projectId);
 
 		const commentDtos: CommentDto[] = commentsData.map((comment) =>
 			createCommentDto(
@@ -24,30 +29,30 @@ export default class CommentsController {
 				comment.categories || []
 			)
 		);
-
 		return {
 			repository: {
 				identifier: project.repository.identifier,
 				type: project.repository.type,
 				repoLandingPageUrl: project.repository.repo_landing_page_url,
+				branch: project.repository.branch,
 			},
 			comments: commentDtos,
 		};
 	}
 
 	public static addComment(
-		dbManager: DatabaseManager,
+		commentsService: CommentsService,
 		projectId: number,
 		newComment: CommentDto
 	): void {
-		dbManager.addComment(projectId, newComment);
+		commentsService.addComment(projectId, newComment);
 	}
 
 	public static deleteComment(
-		dbManager: DatabaseManager,
+		commentsService: CommentsService,
 		projectId: number,
 		commentId: number
 	): void {
-		dbManager.deleteComment(projectId, commentId);
+		commentsService.deleteComment(projectId, commentId);
 	}
 }

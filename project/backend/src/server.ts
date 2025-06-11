@@ -5,12 +5,15 @@ import process from "node:process";
 import { config } from "dotenv";
 import { validateEnv, logEnvironment } from "./utils/envValidator.ts";
 import DatabaseManager from "./services/databaseManager.ts";
+import ProjectService from "./services/projectService.ts";
+import CommentsService from "./services/commentsService.ts";
+import CategoriesService from "./services/categoriesService.ts";
 import ProjectController from "./controllers/projectController.ts";
 import CommentsController from "./controllers/commentsController.ts";
+import CategoriesController from "./controllers/categoriesController.ts";
 import { SetupProjectBodySchema } from "./models/requestModels.ts";
 import { CommentDtoSchema, type ProjectDto } from "./models/dtoModels.ts";
 import { GetCommentsResponse } from "./models/responseModels.ts";
-import CategoriesController from "./controllers/categoriesController.ts";
 
 // Load environment variables
 config({
@@ -32,6 +35,11 @@ const FRONTEND_BASE_URL = env.FRONTEND_BASE_URL;
 // Database setup
 const DB_FILE_PATH = path.join(import.meta.dirname || ".", "../db/main.db");
 const dbManager = new DatabaseManager(DB_FILE_PATH);
+
+// Services setup
+const projectService = new ProjectService(dbManager);
+const commentsService = new CommentsService(dbManager);
+const categoriesService = new CategoriesService(dbManager);
 
 // Middleware
 app.use(
@@ -72,7 +80,7 @@ app.post("/api/setup", (req: express.Request, res: express.Response) => {
 		const validatedBody = SetupProjectBodySchema.parse(req.body);
 
 		const newProjectDto: ProjectDto = ProjectController.createProject(
-			dbManager,
+			projectService,
 			validatedBody,
 			FRONTEND_BASE_URL,
 			BACKEND_BASE_URL
@@ -105,7 +113,8 @@ app.get("/api/project/:project_id/comments", (req: express.Request, res: express
 		}
 
 		const getCommentsResponse: GetCommentsResponse = CommentsController.getComments(
-			dbManager,
+			commentsService,
+			projectService,
 			projectId
 		);
 
@@ -130,7 +139,7 @@ app.post("/api/project/:project_id/comments", (req: express.Request, res: expres
 		// Validate comment data
 		const validatedComment = CommentDtoSchema.parse(req.body);
 
-		CommentsController.addComment(dbManager, projectId, validatedComment);
+		CommentsController.addComment(commentsService, projectId, validatedComment);
 
 		res.status(201).json({ success: true });
 	} catch (error) {
@@ -166,7 +175,7 @@ app.delete(
 				return res.status(400).json({ error: "Invalid comment ID" });
 			}
 
-			CommentsController.deleteComment(dbManager, projectId, commentId);
+			CommentsController.deleteComment(commentsService, projectId, commentId);
 
 			res.status(200).send({ success: true });
 		} catch (error) {
@@ -182,7 +191,7 @@ app.delete(
 // Get all categories
 app.get("/api/categories", (_req: express.Request, res: express.Response) => {
 	try {
-		const categories = CategoriesController.getCategories(dbManager);
+		const categories = CategoriesController.getCategories(categoriesService);
 		res.status(200).json(categories);
 	} catch (error) {
 		console.error("Error in GET /api/categories:", error);

@@ -1,8 +1,8 @@
 import { CategoryDto } from "../models/dtoModels.ts";
-import DatabaseManager from "../services/databaseManager.ts";
+import CategoriesService from "../services/categoriesService.ts";
 
 export default class CategoriesController {
-	public static getCategories(dbManager: DatabaseManager): CategoryDto[] {
-		return dbManager.getCategories();
+	public static getCategories(categoriesService: CategoriesService): CategoryDto[] {
+		return categoriesService.getCategories();
 	}
 }

@@ -1,11 +1,11 @@
 import { SetupProjectBody } from "../models/requestModels.ts";
 import { projectToDto } from "../utils/mappers.ts";
 import { ProjectDto } from "../models/dtoModels.ts";
-import DatabaseManager from "../services/databaseManager.ts";
+import ProjectService from "../services/projectService.ts";
 
 class ProjectController {
 	public static createProject(
-		dbManager: DatabaseManager,
+		projectService: ProjectService,
 		validatedBody: SetupProjectBody,
 		frontendBaseUrl: string,
 		backendBaseUrl: string
@@ -20,7 +20,7 @@ class ProjectController {
 			backend_base_url: backendBaseUrl,
 		};
 
-		const newProject = dbManager.createProject(requestData);
+		const newProject = projectService.createProject(requestData);
 		const newProjectDto: ProjectDto = projectToDto(newProject);
 		return newProjectDto;
 	}
