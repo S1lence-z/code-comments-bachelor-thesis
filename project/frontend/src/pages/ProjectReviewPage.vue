@@ -1,38 +1,139 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, watch } from "vue";
 import { fetchRepoTreeAPI } from "../api/githubApi";
+import { fetchComments, addComment } from "../api/commentsApi";
 import { type TreeNode } from "../types/githubApi";
+import type ICommentDto from "../../../shared/dtos/ICommentDto";
+import type IGetCommentsResponse from "../../../shared/api/IGetCommentsResponse";
+import { CommentType } from "../../../shared/enums/CommentType";
 
 const projectStructure = ref<TreeNode[]>([]);
 const GITHUB_PAT = import.meta.env.VITE_GITHUB_PAT || "";
 const repoUrl = ref<string>("");
 const branchName = ref<string>("");
+const apiUrl = ref<string>("");
+const allComments = ref<ICommentDto[]>([]);
+const containsChangedComments = ref<boolean>(false);
 
-onMounted(() => {
+// Local comments state to hold comments for the current session
+// TODO: use pinia to persist comments across sessions
+const localComments = reactive({
+  fileComments: {} as Record<string, string>,
+  projectOverviewComment: ""
+});
+
+onMounted(async () => {
   // Get the params from the url
   const urlParams = new URLSearchParams(window.location.search);
+
+  // Extract repoUrl and branchName from the query parameters
   repoUrl.value = urlParams.get("repoUrl") || "";
   if (!repoUrl.value) {
     console.error("No repoUrl provided in the query parameters.");
     return;
   }
 
+  // Default to 'main' if branchName is not provided
   branchName.value = urlParams.get("branch") || "";
   if (!branchName.value) {
-    console.warn("No branchName provided in the query parameters, defaulting to 'main'.")
+    console.error("No branchName provided in the query parameters, defaulting to 'main'.")
     return;
   }
 
-  // Fetch the project structure from the GitHub API
-  fetchRepoTreeAPI(decodeURIComponent(repoUrl.value), decodeURIComponent(branchName.value), GITHUB_PAT).then((data) => {
-    projectStructure.value = data;
-  });
+  // Extract commentsApiUrl from the query parameters
+  apiUrl.value = urlParams.get("commentsApiUrl") || "";
+  if (!apiUrl.value) {
+    console.error("No commentsApiUrl provided in the query parameters.");
+    return;
+  }
+
+  // Fetch all necessary data
+  await loadRepoTree();
+  await loadComments();
 });
 
-const comments = reactive({
-  project: "",
-  files: {} as Record<string, string>
-});
+async function loadRepoTree() {
+  if (!repoUrl.value || !branchName.value) {
+    console.error("repoUrl or branchName is not set.");
+    return;
+  }
+
+  try {
+    const tree = await fetchRepoTreeAPI(decodeURIComponent(repoUrl.value), decodeURIComponent(branchName.value), GITHUB_PAT);
+    projectStructure.value = tree;
+  } catch (error) {
+    console.error("Failed to fetch project structure:", error);
+  }
+}
+
+async function loadComments() {
+  if (!repoUrl.value || !branchName.value) {
+    console.error("repoUrl or branchName is not set.");
+    return;
+  }
+
+  try {
+    const commentsResponse: IGetCommentsResponse = await fetchComments(apiUrl.value);
+    allComments.value = commentsResponse.comments || [];
+
+    // Initialize local comments from fetched data
+    localComments.fileComments = {};
+    allComments.value.forEach(comment => {
+      if (comment.type === CommentType.File) {
+        // Only add file comments to local state
+        localComments.fileComments[comment.filePath] = comment.content;
+      } else if (comment.type === CommentType.Project) {
+        localComments.projectOverviewComment = comment.content;
+      }
+    });
+    console.log("Comments loaded successfully:", allComments.value);
+  } catch (error) {
+    allComments.value = [];
+    console.error("Failed to fetch comments:", error);
+  }
+}
+
+async function saveCommentsUsingApi() {
+  try {
+    if (!apiUrl.value || !repoUrl.value || !branchName.value) {
+      console.error("API URL, repoUrl, or branchName is not set.");
+      return;
+    }
+
+    // Prepare the comments from the local state
+    const commentsToSave: ICommentDto[] = Object.entries(localComments.fileComments).map(([localFilePath, content]) => ({
+      id: 0,
+      filePath: localFilePath,
+      content: content,
+      type: CommentType.File
+    }));
+    // Add the project overview comment if it exists
+    commentsToSave.push({
+      id: 0,
+      filePath: repoUrl.value,
+      content: localComments.projectOverviewComment,
+      type: CommentType.Project
+    });
+
+    // Send comments to the API
+    for (const comment of commentsToSave) {
+      if (!comment.filePath || !comment.content) {
+        console.warn("Skipping comment with missing filePath or content:", comment);
+        continue;
+      }
+      const response = await addComment(apiUrl.value, comment);
+      if (!response.success) {
+        throw new Error(`Failed to save comment for ${comment.filePath}`);
+      }
+    }
+
+    console.log("Comments saved successfully");
+  } catch (error) {
+    console.error("Error saving comments:", error);
+  } finally {
+    containsChangedComments.value = false;
+  }
+}
 
 const selectedItem = ref<string | null>(null);
 const expandedFolders = ref<Set<string>>(new Set());
@@ -100,23 +201,34 @@ const handleItemDoubleClick = (item: TreeNode) => {
   }
 };
 
-// Initialize navigation when project structure loads
-const initializeNavigation = () => {
-  currentFolderPath.value = "";
-  currentFolderContents.value = projectStructure.value;
-};
-
 // Watch for changes in project structure to initialize navigation
 watch(projectStructure, () => {
-  initializeNavigation();
+  currentFolderPath.value = "";
+  currentFolderContents.value = projectStructure.value;
 }, { immediate: true });
 
-const saveComment = (path: string, comment: string) => {
-  comments.files[path] = comment;
+const saveFileComment = (path: string, comment: string) => {
+  containsChangedComments.value = true;
+  if (comment.trim() === "") {
+    containsChangedComments.value = false;
+    delete localComments.fileComments[path];
+  } else {
+    localComments.fileComments[path] = comment;
+  }
+};
+
+const saveProjectOverviewComment = (comment: string) => {
+  containsChangedComments.value = true;
+  if (comment.trim() === "") {
+    containsChangedComments.value = false;
+    localComments.projectOverviewComment = "";
+  } else {
+    localComments.projectOverviewComment = comment;
+  }
 };
 
 const getCommentForPath = (path: string) => {
-  return comments.files[path] || "";
+  return localComments.fileComments[path] || "";
 };
 
 // Filter project structure based on search query
@@ -266,7 +378,7 @@ const filteredProjectStructure = computed(() => {
 								<textarea
 									:id="`comment-${selectedItem}`"
 									:value="getCommentForPath(selectedItem)"
-									@input="saveComment(selectedItem, ($event.target as HTMLTextAreaElement).value)"
+									@input="saveFileComment(selectedItem, ($event.target as HTMLTextAreaElement).value)"
 									placeholder="Enter your comments, suggestions, or feedback for this item..."
 									class="comment-textarea"
 									rows="20"
@@ -301,7 +413,8 @@ const filteredProjectStructure = computed(() => {
 						</label>
 						<textarea
 							id="projectComment"
-							v-model="comments.project"
+							:value="localComments.projectOverviewComment"
+							@input="saveProjectOverviewComment(($event.target as HTMLTextAreaElement).value)"
 							placeholder="Add your overall thoughts about the project structure, architecture, or general feedback..."
 							class="comment-textarea compact"
 							rows="3"
@@ -317,12 +430,14 @@ const filteredProjectStructure = computed(() => {
 					<div class="summary-cards">
 						<div class="summary-card">
 							<div class="summary-number">
-								{{ Object.keys(comments.files).length }}
+								{{ Object.keys(localComments.fileComments).length }}
 							</div>
 							<div class="summary-label">Files/Folders with Comments</div>
 						</div>
 						<div class="summary-card">
-							<div class="summary-number">{{ comments.project ? '1' : '0' }}</div>
+							<div class="summary-number">
+								{{ localComments.projectOverviewComment ? '1' : '0' }}
+							</div>
 							<div class="summary-label">Project Overview Comment</div>
 						</div>
 						<div class="summary-card">
@@ -330,6 +445,15 @@ const filteredProjectStructure = computed(() => {
 							<div class="summary-label">Total Items in Structure</div>
 						</div>
 					</div>
+					<button
+						id="save-comments-button"
+						@click="saveCommentsUsingApi"
+						class="parent-button"
+						style="width: 100%;"
+						:disabled="!containsChangedComments"
+					>
+						Save Comments
+					</button>
 				</div>
 			</div>
 		</div>
@@ -464,7 +588,7 @@ const filteredProjectStructure = computed(() => {
   gap: 1.5rem;
 }
 
-.project-overview-section {
+.project-overview_section {
   flex-shrink: 0;
 }
 
@@ -719,5 +843,29 @@ const filteredProjectStructure = computed(() => {
   .summary-cards {
     grid-template-columns: 1fr;
   }
+}
+
+#save-comments-button {
+  background: #3182ce;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 1.5rem 2rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 1rem;
+  width: 100%;
+  min-height: 60px;
+}
+
+#save-comments-button:hover {
+  background: #2b6cb0;
+}
+
+#save-comments-button:disabled {
+  background: #4a5568;
+  cursor: not-allowed;
 }
 </style>
