@@ -1,5 +1,5 @@
 import { CommentType } from "../enums/CommentType.ts";
-import ICategoryDto from "./ICategoryDto.ts";
+import type ICategoryDto from "./ICategoryDto.ts";
 
 export default interface ICommentDto {
 	id: number; // Unique identifier for the comment

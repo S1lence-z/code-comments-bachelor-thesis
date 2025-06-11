@@ -32,5 +32,21 @@ export function createCommentDto(
 				endLineNumber: endLineNumber,
 				categories: categories,
 			};
+		case CommentType.File:
+			return {
+				id: id,
+				filePath: filePath,
+				content: content,
+				type: CommentType.File,
+				categories: categories,
+			};
+		case CommentType.Project:
+			return {
+				id: id,
+				filePath: filePath,
+				content: content,
+				type: CommentType.Project,
+				categories: categories,
+			};
 	}
 }

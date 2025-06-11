@@ -50,6 +50,16 @@ class DatabaseManager {
 				FOREIGN KEY (identifier) REFERENCES locations(identifier) ON DELETE CASCADE
 			)`,
 
+			`CREATE TABLE IF NOT EXISTS file_locations (
+				identifier INTEGER PRIMARY KEY,
+				FOREIGN KEY (identifier) REFERENCES locations(identifier) ON DELETE CASCADE
+			)`,
+
+			`CREATE TABLE IF NOT EXISTS project_locations (
+				identifier INTEGER PRIMARY KEY,
+				FOREIGN KEY (identifier) REFERENCES locations(identifier) ON DELETE CASCADE
+			)`,
+
 			`CREATE TABLE IF NOT EXISTS comments (
 				identifier INTEGER PRIMARY KEY AUTOINCREMENT,
 				project_id INTEGER NOT NULL,

@@ -32,6 +32,16 @@ export interface LineRangeLocation extends Location {
 	end_line_number: number;
 }
 
+export interface FileLocation extends Location {
+	// Currently, it inherits from Location
+	// This interface can be extended with file-specific fields if needed
+}
+
+export interface ProjectLocation extends Location {
+	// Currently, it inherits from Location
+	// This interface can be extended with project-specific fields if needed
+}
+
 export interface Comment {
 	identifier: number;
 	project_id: number;
@@ -82,10 +92,6 @@ export interface LocationRow {
 	identifier: number;
 	location_type: string;
 	file_path: string | null;
-}
-
-export interface LineLocationRow extends LocationRow {
-	line_number: number;
 }
 
 export interface CommentRow {

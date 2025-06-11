@@ -4,60 +4,7 @@ import { CommentType } from "../../../shared/enums/CommentType.ts";
 
 class CommentsService {
 	constructor(private dbManager: DatabaseManager) {}
-	/**
-	 * Get all comments for a specific project
-	 */
-	public getCommentsByProjectId(projectId: number): CommentDto[] {
-		try {
-			const db = this.dbManager.getDb();
-			const comments = db
-				.prepare(
-					`SELECT 
-						c.identifier as id,
-						c.content as content,
-						l.file_path as filePath,
-						l.location_type as type,
-						ll.line_number as lineNumber,
-						lrl.start_line_number as startLineNumber,
-						lrl.end_line_number as endLineNumber
-						FROM comments c
-						JOIN locations l ON c.location_id = l.identifier
-						LEFT JOIN line_locations ll ON l.identifier = ll.identifier AND l.location_type = 'line'
-						LEFT JOIN line_range_locations lrl ON l.identifier = lrl.identifier AND l.location_type = 'multiline'
-						WHERE c.project_id = ? AND l.location_type IN ('line', 'multiline')
-					`
-				)
-				.all([projectId]) as CommentDto[];
 
-			for (const comment of comments) {
-				comment.categories = this.getCommentCategories(comment.id);
-			}
-
-			return comments;
-		} catch (error) {
-			console.error("Error getting comments:", error);
-			throw error;
-		}
-	}
-
-	private getCommentCategories(commentId: number): CategoryDto[] {
-		try {
-			const db = this.dbManager.getDb();
-			const categoryRows = db
-				.prepare(
-					`SELECT c.identifier as id, c.label, c.description 
-					FROM categories c 
-					JOIN comment_categories cc ON c.identifier = cc.category_id 
-					WHERE cc.comment_id = ?`
-				)
-				.all([commentId]) as CategoryDto[];
-
-			return categoryRows;
-		} catch (error) {
-			console.error("Error getting comment categories:", error);
-			throw error;
-		}
-	}
 	/**
 	 * Add a new comment to a project
 	 */
@@ -101,6 +48,62 @@ class CommentsService {
 		}
 	}
 
+	/**
+	 * Get all comments for a specific project
+	 */
+	public getCommentsByProjectId(projectId: number): CommentDto[] {
+		try {
+			const db = this.dbManager.getDb();
+			const comments = db
+				.prepare(
+					`SELECT 
+						c.identifier as id,
+						c.content as content,
+						l.file_path as filePath,
+						l.location_type as type,
+						ll.line_number as lineNumber,
+						lrl.start_line_number as startLineNumber,
+						lrl.end_line_number as endLineNumber
+						FROM comments c
+						JOIN locations l ON c.location_id = l.identifier
+						LEFT JOIN line_locations ll ON l.identifier = ll.identifier AND l.location_type = 'line'
+						LEFT JOIN line_range_locations lrl ON l.identifier = lrl.identifier AND l.location_type = 'multiline'
+						LEFT JOIN file_locations fl ON l.identifier = fl.identifier AND l.location_type = 'file'
+						LEFT JOIN project_locations pl ON l.identifier = pl.identifier AND l.location_type = 'project'
+						WHERE c.project_id = ? AND l.location_type IN ('line', 'multiline', 'file', 'project')`
+				)
+				.all([projectId]) as CommentDto[];
+
+			for (const comment of comments) {
+				comment.categories = this.getCommentCategories(comment.id);
+			}
+
+			return comments;
+		} catch (error) {
+			console.error("Error getting comments:", error);
+			throw error;
+		}
+	}
+
+	private getCommentCategories(commentId: number): CategoryDto[] {
+		try {
+			const db = this.dbManager.getDb();
+			const categoryRows = db
+				.prepare(
+					`SELECT c.identifier as id, c.label, c.description 
+					FROM categories c 
+					JOIN comment_categories cc ON c.identifier = cc.category_id 
+					WHERE cc.comment_id = ?`
+				)
+				.all([commentId]) as CategoryDto[];
+
+			return categoryRows;
+		} catch (error) {
+			console.error("Error getting comment categories:", error);
+			throw error;
+		}
+	}
+
 	private assignCategoryToComment(commentId: number, categoryId: number): void {
 		const db = this.dbManager.getDb();
 		db.prepare(`INSERT INTO comment_categories (comment_id, category_id) VALUES (?, ?)`).run([
@@ -137,6 +140,16 @@ class CommentsService {
 						`INSERT INTO line_range_locations (identifier, start_line_number, end_line_number) VALUES (?, ?, ?)`
 					).run([locationId, startLineNumber, endLineNumber]);
 					break;
+				case CommentType.File:
+					db.prepare(`INSERT INTO file_locations (identifier) VALUES (?)`).run([
+						locationId,
+					]);
+					break;
+				case CommentType.Project:
+					db.prepare(`INSERT INTO project_locations (identifier) VALUES (?)`).run([
+						locationId,
+					]);
+					break;
 			}
 
 			return locationId;
@@ -145,8 +158,10 @@ class CommentsService {
 			throw error;
 		}
 	}
+
 	/**
 	 * Delete a comment from a project
+	 * This will also delete the associated location and any line locations or line range locations
 	 */
 	public deleteComment(projectId: number, commentId: number): void {
 		try {
