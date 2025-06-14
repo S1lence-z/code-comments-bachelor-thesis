@@ -1,89 +1,101 @@
 <script setup lang="ts">
-import { computed, inject, ref, watch, type Ref } from 'vue';
-import type ICategoryDto from '../../../shared/dtos/ICategoryDto';
+import { computed, inject, ref, watch, type Ref } from "vue";
+import type ICategoryDto from "../../../shared/dtos/ICategoryDto";
 
 interface MultilineCommentModalProps {
-    visible: boolean;
-    startLineNumber: number | null;
-    endLineNumber: number | null;
-    filePath: string | null;
-    initialText?: string;
-    initialCategory?: string;
-};
+	visible: boolean;
+	startLineNumber: number | null;
+	endLineNumber: number | null;
+	filePath: string | null;
+	initialText?: string;
+	initialCategory?: string;
+}
 
 const props = withDefaults(defineProps<MultilineCommentModalProps>(), {
-    initialText: '',
-    initialCategory: '',
+	initialText: "",
+	initialCategory: "",
 });
 
-const emit = defineEmits(['submit', 'close']);
-const currentCommentText = ref('');
+const emit = defineEmits(["submit", "close"]);
+const currentCommentText = ref("");
 const selectedCategory = ref<string | null>(null);
-const allCategories = inject('allFetchedCategories') as Ref<ICategoryDto[]>;
+const allCategories = inject("allFetchedCategories") as Ref<ICategoryDto[]>;
 const categories = computed(() => allCategories.value);
 
-watch(() => props.initialText, (newVal) => {
-    currentCommentText.value = newVal || '';
-}, { immediate: true });
+watch(
+	() => props.initialText,
+	(newVal) => {
+		currentCommentText.value = newVal || "";
+	},
+	{ immediate: true }
+);
 
-watch(() => props.initialCategory, (newVal) => {
-	selectedCategory.value = newVal || allCategories.value[0]?.label || null;
-}, { immediate: true });
+watch(
+	() => props.initialCategory,
+	(newVal) => {
+		selectedCategory.value = newVal || allCategories.value[0]?.label || null;
+	},
+	{ immediate: true }
+);
 
 // Watch for when categories become available
-watch(() => allCategories.value, (newCategories) => {
-	if (newCategories && newCategories.length > 0 && !selectedCategory.value) {
-		selectedCategory.value = props.initialCategory || newCategories[0]?.label || null;
-	}
-}, { immediate: true });
+watch(
+	() => allCategories.value,
+	(newCategories) => {
+		if (newCategories && newCategories.length > 0 && !selectedCategory.value) {
+			selectedCategory.value = props.initialCategory || newCategories[0]?.label || null;
+		}
+	},
+	{ immediate: true }
+);
 
-watch(() => props.visible, (newVal) => {
-    if (newVal) {
-        currentCommentText.value = props.initialText || '';
-    }
-});
+watch(
+	() => props.visible,
+	(newVal) => {
+		if (newVal) {
+			currentCommentText.value = props.initialText || "";
+		}
+	}
+);
 
 function handleSubmit() {
 	if (!currentCommentText.value.trim()) {
-		alert('Comment cannot be empty.');
+		alert("Comment cannot be empty.");
 		return;
 	}
 
 	if (allCategories.value.length === 0) {
-		alert('No categories available. Please create a category first.');
+		alert("No categories available. Please create a category first.");
 		return;
 	}
 
 	if (!selectedCategory.value) {
-		alert('Please select a category.');
+		alert("Please select a category.");
 		return;
 	}
 
-	const categoryObject = (allCategories.value.length > 0) ? allCategories.value.find((cat: ICategoryDto) => cat.label === selectedCategory.value) : null;
+	const categoryObject =
+		allCategories.value.length > 0
+			? allCategories.value.find((cat: ICategoryDto) => cat.label === selectedCategory.value)
+			: null;
 
 	if (!categoryObject) {
-		alert('Selected category not found.');
+		alert("Selected category not found.");
 		return;
 	}
 
-	emit('submit', currentCommentText.value, categoryObject);
+	emit("submit", currentCommentText.value, categoryObject);
 }
 </script>
 
 <template>
 	<div v-if="visible" class="modal-overlay" @click.self="$emit('close')">
 		<div class="modal-content">
-			<h3 class="modal-title">
-				Multiline Comment from line {{ startLineNumber }} to {{ endLineNumber }}
-			</h3>
+			<h3 class="modal-title">Multiline Comment from line {{ startLineNumber }} to {{ endLineNumber }}</h3>
 			<div class="form-group">
 				<label class="form-label">Category</label>
 				<select v-model="selectedCategory" class="category-select">
-					<option
-						v-for="category in categories"
-						:key="category.id"
-						:value="category.label"
-					>
+					<option v-for="category in categories" :key="category.id" :value="category.label">
 						{{ category.label }}
 					</option>
 				</select>
@@ -108,87 +120,87 @@ function handleSubmit() {
 
 <style scoped>
 .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.6);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 1000;
 }
 
 .modal-content {
-    background-color: #2d3748; /* Darker background */
-    color: #e2e8f0; /* Light text */
-    padding: 25px;
-    border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    width: 90%;
-    max-width: 500px;
-    display: flex;
-    flex-direction: column;
+	background-color: #2d3748; /* Darker background */
+	color: #e2e8f0; /* Light text */
+	padding: 25px;
+	border-radius: 8px;
+	box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+	width: 90%;
+	max-width: 500px;
+	display: flex;
+	flex-direction: column;
 }
 
 .modal-title {
-    margin-top: 0;
-    margin-bottom: 15px;
-    font-size: 1.25rem;
-    color: #a0aec0; /* Lighter title color */
+	margin-top: 0;
+	margin-bottom: 15px;
+	font-size: 1.25rem;
+	color: #a0aec0; /* Lighter title color */
 }
 
 .modal-textarea {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 20px;
-    border-radius: 4px;
-    border: 1px solid #4a5568; /* Slightly lighter border */
-    background-color: #1a202c; /* Very dark input background */
-    color: #e2e8f0; /* Light text for input */
-    font-size: 0.9rem;
-    resize: vertical;
-    box-sizing: border-box;
+	width: 100%;
+	padding: 10px;
+	margin-bottom: 20px;
+	border-radius: 4px;
+	border: 1px solid #4a5568; /* Slightly lighter border */
+	background-color: #1a202c; /* Very dark input background */
+	color: #e2e8f0; /* Light text for input */
+	font-size: 0.9rem;
+	resize: vertical;
+	box-sizing: border-box;
 }
 
 .modal-textarea:focus {
-    outline: none;
-    border-color: #3182ce; /* Blue border on focus */
-    box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.3);
+	outline: none;
+	border-color: #3182ce; /* Blue border on focus */
+	box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.3);
 }
 
 .modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
 }
 
 .modal-button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.2s ease;
+	padding: 10px 20px;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	font-weight: bold;
+	transition: background-color 0.2s ease;
 }
 
 .modal-button.save {
-    background-color: #3182ce; /* Blue save button */
-    color: white;
+	background-color: #3182ce; /* Blue save button */
+	color: white;
 }
 
 .modal-button.save:hover {
-    background-color: #2b6cb0;
+	background-color: #2b6cb0;
 }
 
 .modal-button.cancel {
-    background-color: #4a5568; /* Gray cancel button */
-    color: #e2e8f0;
+	background-color: #4a5568; /* Gray cancel button */
+	color: #e2e8f0;
 }
 
 .modal-button.cancel:hover {
-    background-color: #2d3748;
+	background-color: #2d3748;
 }
 
 .form-group {

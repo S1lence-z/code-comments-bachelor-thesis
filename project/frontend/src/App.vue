@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref, provide } from 'vue';
-import NavigationBar from './components/NavigationBar.vue';
+import { ref, provide } from "vue";
+import NavigationBar from "./components/NavigationBar.vue";
 
-const routingErrorMessage = ref<string>('');
+const routingErrorMessage = ref<string>("");
 const isKeyboardMode = ref(false);
-provide('isKeyboardMode', isKeyboardMode);
+provide("isKeyboardMode", isKeyboardMode);
 
 const handleKeyboardModeToggle = (value: boolean) => {
 	isKeyboardMode.value = value;
@@ -13,10 +13,7 @@ const handleKeyboardModeToggle = (value: boolean) => {
 
 <template>
 	<div id="app-root">
-		<NavigationBar
-			:isKeyboardMode="isKeyboardMode"
-			@toggle-keyboard-mode="handleKeyboardModeToggle"
-		/>
+		<NavigationBar :isKeyboardMode="isKeyboardMode" @toggle-keyboard-mode="handleKeyboardModeToggle" />
 		<div v-if="routingErrorMessage" class="routing-error-message">
 			{{ routingErrorMessage }}
 		</div>
@@ -43,7 +40,7 @@ const handleKeyboardModeToggle = (value: boolean) => {
 	padding: 12px 20px;
 	text-align: center;
 	font-size: 0.9rem;
-	box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .loading-app-message {

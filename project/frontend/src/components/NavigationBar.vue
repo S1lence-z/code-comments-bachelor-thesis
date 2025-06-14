@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, onMounted, onUnmounted, watch, computed } from "vue";
+import { useRoute } from "vue-router";
 
 const props = defineProps<{
 	isKeyboardMode: boolean;
 }>();
 
 const emit = defineEmits<{
-	(e: 'toggle-keyboard-mode', value: boolean): void;
+	(e: "toggle-keyboard-mode", value: boolean): void;
 }>();
 
 // Get the current route to determine which tab should be active
@@ -20,21 +20,27 @@ const preserveQueryParams = computed(() => {
 });
 
 // Watch for route changes to update active tab
-watch(() => route.path, (newPath) => {
-	activeTab.value = newPath;
-});
+watch(
+	() => route.path,
+	(newPath) => {
+		activeTab.value = newPath;
+	}
+);
 
 // Watch for changes in keyboard mode and emit the event
 const isKeyboardMode = ref(props.isKeyboardMode || false);
 
 // Watch for prop changes to update local state
-watch(() => props.isKeyboardMode, (newValue) => {
-	isKeyboardMode.value = newValue;
-});
+watch(
+	() => props.isKeyboardMode,
+	(newValue) => {
+		isKeyboardMode.value = newValue;
+	}
+);
 
 // Watch for local changes to emit to parent
 watch(isKeyboardMode, (newValue) => {
-	emit('toggle-keyboard-mode', newValue);
+	emit("toggle-keyboard-mode", newValue);
 });
 
 const isMobile = ref(false);
@@ -49,11 +55,11 @@ const updateMobileStatus = () => {
 
 onMounted(() => {
 	updateMobileStatus();
-	window.addEventListener('resize', updateMobileStatus);
+	window.addEventListener("resize", updateMobileStatus);
 });
 
 onUnmounted(() => {
-	window.removeEventListener('resize', updateMobileStatus);
+	window.removeEventListener("resize", updateMobileStatus);
 });
 
 const toggleMobileMenu = () => {
@@ -82,7 +88,7 @@ const toggleMobileMenu = () => {
 					<router-link
 						:to="{ path: '/setup', query: preserveQueryParams }"
 						class="nav-link"
-						:class="{ 'active': activeTab === '/setup' }"
+						:class="{ active: activeTab === '/setup' }"
 						>New Project</router-link
 					>
 				</li>
@@ -90,7 +96,7 @@ const toggleMobileMenu = () => {
 					<router-link
 						:to="{ path: '/code-review', query: preserveQueryParams }"
 						class="nav-link"
-						:class="{ 'active': activeTab.includes('/code-review') }"
+						:class="{ active: activeTab.includes('/code-review') }"
 					>
 						Code Review
 					</router-link>
@@ -99,7 +105,7 @@ const toggleMobileMenu = () => {
 					<router-link
 						:to="{ path: '/project-review', query: preserveQueryParams }"
 						class="nav-link"
-						:class="{ 'active': activeTab.includes('/project-review') }"
+						:class="{ active: activeTab.includes('/project-review') }"
 					>
 						Project Review
 					</router-link>
@@ -124,7 +130,7 @@ const toggleMobileMenu = () => {
 					class="menu-toggle"
 					v-if="isMobile"
 					@click="toggleMobileMenu"
-					:class="{ 'active': isMobileMenuOpen }"
+					:class="{ active: isMobileMenuOpen }"
 				>
 					<span class="hamburger-line"></span>
 					<span class="hamburger-line"></span>
@@ -133,12 +139,7 @@ const toggleMobileMenu = () => {
 			</div>
 			<div v-else class="keyboard-mode-hidden"></div>
 
-			<button
-				class="menu-toggle"
-				v-if="isMobile"
-				@click="toggleMobileMenu"
-				:class="{ 'active': isMobileMenuOpen }"
-			>
+			<button class="menu-toggle" v-if="isMobile" @click="toggleMobileMenu" :class="{ active: isMobileMenuOpen }">
 				<span class="hamburger-line"></span>
 				<span class="hamburger-line"></span>
 				<span class="hamburger-line"></span>
@@ -154,57 +155,57 @@ const toggleMobileMenu = () => {
 }
 
 .keyboard-mode-toggle {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #cccccc;
-    font-size: 14px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	color: #cccccc;
+	font-size: 14px;
 }
 
 .toggle-label {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    user-select: none;
-    font-size: larger;
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+	user-select: none;
+	font-size: larger;
 }
 
 .toggle-checkbox {
-    display: none;
+	display: none;
 }
 
 .toggle-slider {
-    position: relative;
-    width: 40px;
-    height: 20px;
-    background-color: #454545;
-    border-radius: 20px;
-    transition: background-color 0.3s ease;
-    cursor: pointer;
+	position: relative;
+	width: 40px;
+	height: 20px;
+	background-color: #454545;
+	border-radius: 20px;
+	transition: background-color 0.3s ease;
+	cursor: pointer;
 }
 
 .toggle-slider::before {
-    content: '';
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 16px;
-    height: 16px;
-    background-color: #cccccc;
-    border-radius: 50%;
-    transition: transform 0.3s ease;
+	content: "";
+	position: absolute;
+	top: 2px;
+	left: 2px;
+	width: 16px;
+	height: 16px;
+	background-color: #cccccc;
+	border-radius: 50%;
+	transition: transform 0.3s ease;
 }
 
 .toggle-checkbox:checked + .toggle-slider {
-    background-color: #007acc;
+	background-color: #007acc;
 }
 
 .toggle-checkbox:checked + .toggle-slider::before {
-    transform: translateX(20px);
+	transform: translateX(20px);
 }
 
 .toggle-text {
-    margin-right: 8px;
+	margin-right: 8px;
 }
 
 .navigation-bar {

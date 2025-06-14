@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { ref, watch, shallowRef, computed, inject, type Ref } from 'vue';
-import { Codemirror } from 'vue-codemirror';
-import { EditorView } from '@codemirror/view';
-import type ICommentDto from '../../../shared/dtos/ICommentDto';
-import '../codemirror/styles.css';
-import { createEditorExtensions } from '../codeMirror/configs/editorConfig';
+import { ref, watch, shallowRef, computed, inject, type Ref } from "vue";
+import { Codemirror } from "vue-codemirror";
+import { EditorView } from "@codemirror/view";
+import type ICommentDto from "../../../shared/dtos/ICommentDto";
+import "../codemirror/styles.css";
+import { createEditorExtensions } from "../codeMirror/configs/editorConfig";
 
-const isKeyboardMode = inject('isKeyboardMode') as Ref<boolean>;
+const isKeyboardMode = inject("isKeyboardMode") as Ref<boolean>;
 
 interface CodeEditorProps {
 	fileContent: string | null;
@@ -18,30 +18,30 @@ interface CodeEditorProps {
 
 const props = withDefaults(defineProps<CodeEditorProps>(), {
 	isLoadingFile: false,
-	comments: () => []
+	comments: () => [],
 });
 
 const emit = defineEmits<{
-	'line-double-clicked': [{ lineNumber: number, filePath: string }];
-	'multiline-selected': [{ startLineNumber: number, endLineNumber: number, filePath: string }];
+	"line-double-clicked": [{ lineNumber: number; filePath: string }];
+	"multiline-selected": [{ startLineNumber: number; endLineNumber: number; filePath: string }];
 }>();
 
-const currentContent = ref('');
+const currentContent = ref("");
 const editorView = shallowRef<EditorView>();
 const lastSelectionTimeout = ref<number | null>(null);
 
 // Callback functions for keyboard shortcuts
 const handleSingleLineComment = (lineNumber: number, filePath: string) => {
-	emit('line-double-clicked', { lineNumber, filePath });
+	emit("line-double-clicked", { lineNumber, filePath });
 };
 
 function getFileName(path: string | null): string {
-	if (!path) return '';
-	return path.split('/').pop() || path;
+	if (!path) return "";
+	return path.split("/").pop() || path;
 }
 
 const editorPlaceholder = computed(() => {
-	return props.filePath ? `Content of ${props.filePath}` : 'Code will appear here...';
+	return props.filePath ? `Content of ${props.filePath}` : "Code will appear here...";
 });
 
 const extensions = computed(() => {
@@ -55,17 +55,21 @@ const extensions = computed(() => {
 	);
 });
 
-watch(() => props.fileContent, (newVal: string | null) => {
-	currentContent.value = newVal === null ? '' : newVal;
-}, { immediate: true });
+watch(
+	() => props.fileContent,
+	(newVal: string | null) => {
+		currentContent.value = newVal === null ? "" : newVal;
+	},
+	{ immediate: true }
+);
 
 const handleCodemirrorReady = (payload: any): any => {
 	editorView.value = payload.view;
 
 	// Add event listeners selection change
 	if (editorView.value) {
-		editorView.value.dom.addEventListener('mouseup', handleSelectionChange);
-		editorView.value.dom.addEventListener('keyup', handleSelectionChange);
+		editorView.value.dom.addEventListener("mouseup", handleSelectionChange);
+		editorView.value.dom.addEventListener("keyup", handleSelectionChange);
 	}
 };
 
@@ -76,7 +80,7 @@ const handleEditorDoubleClick = (event: MouseEvent) => {
 	if (pos !== null && pos !== undefined) {
 		const lineNumber = editorView.value.state.doc.lineAt(pos).number; // lineNumber is 1-based
 		if (props.filePath) {
-			emit('line-double-clicked', { lineNumber, filePath: props.filePath });
+			emit("line-double-clicked", { lineNumber, filePath: props.filePath });
 		}
 	}
 };
@@ -97,7 +101,7 @@ const handleSelectionChange = () => {
 		const endLineNumber = editorView.value!.state.doc.lineAt(selection.to).number;
 
 		if (startLineNumber !== endLineNumber && props.filePath) {
-			emit('multiline-selected', { startLineNumber, endLineNumber, filePath: props.filePath });
+			emit("multiline-selected", { startLineNumber, endLineNumber, filePath: props.filePath });
 		}
 	}, 300);
 };
@@ -106,20 +110,14 @@ const handleSelectionChange = () => {
 <template>
 	<section class="code-editor-container">
 		<div v-if="filePath" class="file-path-display">📄 {{ getFileName(filePath) }}</div>
-		<div
-			v-else-if="!filePath && fileContent === null && !isLoadingFile"
-			class="no-file-selected-message"
-		>
+		<div v-else-if="!filePath && fileContent === null && !isLoadingFile" class="no-file-selected-message">
 			Select a file to view its content.
 		</div>
 
 		<div v-if="isLoadingFile && filePath" class="loading-message">
 			<p class="loading-text">Loading {{ filePath }}...</p>
 		</div>
-		<div
-			v-else-if="fileContent && fileContent.startsWith('Error loading file:')"
-			class="error-message"
-		>
+		<div v-else-if="fileContent && fileContent.startsWith('Error loading file:')" class="error-message">
 			<p class="error-text">{{ fileContent }}</p>
 		</div>
 		<div
@@ -127,9 +125,7 @@ const handleSelectionChange = () => {
 			class="editor-wrapper"
 			:class="{ 'keyboard-mode': isKeyboardMode }"
 		>
-			<div v-if="isKeyboardMode" class="keyboard-mode-indicator">
-				🎹 Keyboard Navigation Mode
-			</div>
+			<div v-if="isKeyboardMode" class="keyboard-mode-indicator">🎹 Keyboard Navigation Mode</div>
 			<codemirror
 				v-model="currentContent"
 				:placeholder="editorPlaceholder"

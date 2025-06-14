@@ -1,34 +1,34 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, watch, provide } from 'vue';
-import { useRoute } from 'vue-router';
-import FileExplorer from '../components/FileExplorer.vue';
-import CodeEditor from '../components/CodeEditor.vue';
-import SinglelineCommentModal from '../components/SinglelineCommentModal.vue';
-import MultilineCommentModal from '../components/MultilineCommentModal.vue';
-import type { TreeNode } from '../types/githubApi.ts';
-import type ICommentDto from '../../../shared/dtos/ICommentDto';
-import { fetchRepoTreeAPI, fetchFileContentAPI } from '../api/githubApi.ts';
-import { fetchComments, addComment, deleteComment, getAllCategories } from '../api/commentsApi.ts';
-import { CommentType } from '../../../shared/enums/CommentType.ts';
-import type ICategoryDto from '../../../shared/dtos/ICategoryDto.ts';
-import { extractBaseUrl } from '../utils/urlUtils.ts';
+import { ref, onMounted, computed, watch, provide } from "vue";
+import { useRoute } from "vue-router";
+import FileExplorer from "../components/FileExplorer.vue";
+import CodeEditor from "../components/CodeEditor.vue";
+import SinglelineCommentModal from "../components/SinglelineCommentModal.vue";
+import MultilineCommentModal from "../components/MultilineCommentModal.vue";
+import type { TreeNode } from "../types/githubApi.ts";
+import type ICommentDto from "../../../shared/dtos/ICommentDto";
+import { fetchRepoTreeAPI, fetchFileContentAPI } from "../api/githubApi.ts";
+import { fetchComments, addComment, deleteComment, getAllCategories } from "../api/commentsApi.ts";
+import { CommentType } from "../../../shared/enums/CommentType.ts";
+import type ICategoryDto from "../../../shared/dtos/ICategoryDto.ts";
+import { extractBaseUrl } from "../utils/urlUtils.ts";
 
 const route = useRoute();
 
 // Get props from router query parameters
-const repoUrl = computed(() => decodeURIComponent(route.query.repoUrl as string || ''));
-const writeApiUrl = computed(() => decodeURIComponent(route.query.commentsApiUrl as string || ''));
-const initialBranch = computed(() => decodeURIComponent(route.query.branch as string || 'main'));
+const repoUrl = computed(() => decodeURIComponent((route.query.repoUrl as string) || ""));
+const writeApiUrl = computed(() => decodeURIComponent((route.query.commentsApiUrl as string) || ""));
+const initialBranch = computed(() => decodeURIComponent((route.query.branch as string) || "main"));
 
 const branch = ref(initialBranch.value);
 const fileTreeData = ref<TreeNode[]>([]);
 const selectedFile = ref<string | null>(null);
 const fileContent = ref<string | null>(null);
-const errorMessage = ref<string>('');
+const errorMessage = ref<string>("");
 const isLoadingRepo = ref<boolean>(false);
 const isLoadingFile = ref<boolean>(false);
 const isLoadingComments = ref<boolean>(false);
-const GITHUB_PAT = import.meta.env.VITE_GITHUB_PAT || '';
+const GITHUB_PAT = import.meta.env.VITE_GITHUB_PAT || "";
 
 // SHARED modal state
 const modalFilePath = ref<string | null>(null);
@@ -46,11 +46,11 @@ const multilineModalInitialText = ref<string>("");
 
 const backendComments = ref<ICommentDto[]>([]);
 const allFetchedCategories = ref<ICategoryDto[]>([]);
-provide('allFetchedCategories', allFetchedCategories);
+provide("allFetchedCategories", allFetchedCategories);
 
 const currentFileComments = computed(() => {
 	if (selectedFile.value && backendComments.value.length > 0) {
-		return backendComments.value.filter(comment => comment.filePath === selectedFile.value);
+		return backendComments.value.filter((comment) => comment.filePath === selectedFile.value);
 	}
 	return [];
 });
@@ -98,7 +98,7 @@ async function loadCategories() {
 async function localFetchRepoTree() {
 	if (!repoUrl.value) return;
 	isLoadingRepo.value = true;
-	errorMessage.value = '';
+	errorMessage.value = "";
 	fileTreeData.value = [];
 	selectedFile.value = null;
 	fileContent.value = null;
@@ -129,16 +129,16 @@ async function handleFileSelected(path: string) {
 	}
 }
 
-	function handleToggleExpandInTree(itemToToggle: TreeNode) {
+function handleToggleExpandInTree(itemToToggle: TreeNode) {
 	const findAndToggle = (nodes: TreeNode[]): boolean => {
 		for (const node of nodes) {
-		if (node.path === itemToToggle.path && node.type === 'folder') {
-			node.isExpanded = !node.isExpanded;
-			return true;
-		}
-		if (node.children && node.children.length > 0) {
-			if (findAndToggle(node.children)) return true;
-		}
+			if (node.path === itemToToggle.path && node.type === "folder") {
+				node.isExpanded = !node.isExpanded;
+				return true;
+			}
+			if (node.children && node.children.length > 0) {
+				if (findAndToggle(node.children)) return true;
+			}
 		}
 		return false;
 	};
@@ -151,9 +151,7 @@ function handleLineDoubleClicked(payload: { lineNumber: number; filePath: string
 		errorMessage.value = "Cannot add comment: comments API URL is not configured.";
 		return;
 	}
-	const existingComment = backendComments.value.find(
-		c => c.filePath === filePath && c.lineNumber === lineNumber
-	);
+	const existingComment = backendComments.value.find((c) => c.filePath === filePath && c.lineNumber === lineNumber);
 	modalLineNumber.value = lineNumber;
 	modalFilePath.value = filePath;
 	modalInitialText.value = existingComment ? existingComment.content : "";
@@ -205,7 +203,12 @@ async function handleSinglelineCommentSubmit(commentText: string, category: ICat
 }
 
 async function handleMultilineCommentSubmit(commentText: string, category: ICategoryDto) {
-	if (modalFilePath.value === null || modalStartLineNumber.value === null || modalEndLineNumber.value === null || !writeApiUrl.value) {
+	if (
+		modalFilePath.value === null ||
+		modalStartLineNumber.value === null ||
+		modalEndLineNumber.value === null ||
+		!writeApiUrl.value
+	) {
 		errorMessage.value = "Cannot save comment: missing data or API URL.";
 		return;
 	}
@@ -260,19 +263,25 @@ onMounted(async () => {
 	}
 });
 
-watch(() => writeApiUrl.value, async (newUrl, oldUrl) => {
-	if (newUrl && newUrl !== oldUrl) {
-		await loadComments();
+watch(
+	() => writeApiUrl.value,
+	async (newUrl, oldUrl) => {
+		if (newUrl && newUrl !== oldUrl) {
+			await loadComments();
+		}
 	}
-});
+);
 
-watch(() => repoUrl.value, async (newUrl, oldUrl) => {
-	if (newUrl && newUrl !== oldUrl) {
-		await localFetchRepoTree();
-		// Potentially reload comments if the repo changes and comments are repo-specific beyond the ID
-		if (writeApiUrl.value) await loadComments();
+watch(
+	() => repoUrl.value,
+	async (newUrl, oldUrl) => {
+		if (newUrl && newUrl !== oldUrl) {
+			await localFetchRepoTree();
+			// Potentially reload comments if the repo changes and comments are repo-specific beyond the ID
+			if (writeApiUrl.value) await loadComments();
+		}
 	}
-});
+);
 </script>
 
 <template>
@@ -295,9 +304,7 @@ watch(() => repoUrl.value, async (newUrl, oldUrl) => {
 		</div>
 
 		<div class="editor-group">
-			<div v-if="isLoadingComments && !isLoadingFile" class="loading-message">
-				Loading comments...
-			</div>
+			<div v-if="isLoadingComments && !isLoadingFile" class="loading-message">Loading comments...</div>
 			<CodeEditor
 				v-else
 				:file-path="selectedFile"

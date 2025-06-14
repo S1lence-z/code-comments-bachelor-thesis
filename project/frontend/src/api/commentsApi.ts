@@ -18,10 +18,7 @@ export async function fetchComments(readApiUrl: string): Promise<IGetCommentsRes
 	}
 }
 
-export async function addComment(
-	writeApiUrl: string,
-	commentData: ICommentDto
-): Promise<{ success: boolean }> {
+export async function addComment(writeApiUrl: string, commentData: ICommentDto): Promise<{ success: boolean }> {
 	try {
 		const response = await fetch(writeApiUrl, {
 			method: "POST",
@@ -31,12 +28,8 @@ export async function addComment(
 			body: JSON.stringify(commentData),
 		});
 		if (!response.ok) {
-			const errorData = await response
-				.json()
-				.catch(() => ({ message: "Failed to add comment" }));
-			throw new Error(
-				`Failed to add comment: ${response.status} ${response.statusText} - ${errorData.message}`
-			);
+			const errorData = await response.json().catch(() => ({ message: "Failed to add comment" }));
+			throw new Error(`Failed to add comment: ${response.status} ${response.statusText} - ${errorData.message}`);
 		}
 		return await response.json();
 	} catch (error) {
@@ -45,9 +38,7 @@ export async function addComment(
 	}
 }
 
-export async function createConfiguration(
-	setupRequest: ISetupProjectRequest
-): Promise<IProjectDto> {
+export async function createConfiguration(setupRequest: ISetupProjectRequest): Promise<IProjectDto> {
 	const requestUrl = "http://localhost:4000/api/setup";
 	try {
 		const response = await fetch(requestUrl, {
@@ -61,9 +52,7 @@ export async function createConfiguration(
 			}),
 		});
 		if (!response.ok) {
-			const errorData = await response
-				.json()
-				.catch(() => ({ message: "Failed to create configuration" }));
+			const errorData = await response.json().catch(() => ({ message: "Failed to create configuration" }));
 			return Promise.reject(
 				`Failed to create configuration: ${response.status} ${response.statusText} - ${errorData.message}`
 			);
@@ -76,18 +65,13 @@ export async function createConfiguration(
 	}
 }
 
-export async function deleteComment(
-	writeApiUrl: string,
-	commentId: number
-): Promise<{ success: boolean }> {
+export async function deleteComment(writeApiUrl: string, commentId: number): Promise<{ success: boolean }> {
 	try {
 		const response = await fetch(`${writeApiUrl}/${commentId}`, {
 			method: "DELETE",
 		});
 		if (!response.ok) {
-			const errorData = await response
-				.json()
-				.catch(() => ({ message: "Failed to delete comment" }));
+			const errorData = await response.json().catch(() => ({ message: "Failed to delete comment" }));
 			throw new Error(
 				`Failed to delete comment: ${response.status} ${response.statusText} - ${errorData.message}`
 			);
@@ -103,9 +87,7 @@ export async function getAllCategories(backendBaseUrl: string): Promise<ICategor
 	try {
 		const response = await fetch(`${backendBaseUrl}/api/categories`);
 		if (!response.ok) {
-			throw new Error(
-				`Failed to fetch categories: ${response.status} ${response.statusText}`
-			);
+			throw new Error(`Failed to fetch categories: ${response.status} ${response.statusText}`);
 		}
 		const categories: ICategoryDto[] = await response.json();
 		return categories;

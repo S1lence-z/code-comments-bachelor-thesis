@@ -21,140 +21,146 @@ const containsChangedComments = ref<boolean>(false);
 // Local comments state to hold comments for the current session
 // TODO: use pinia to persist comments across sessions
 const localComments = reactive({
-  fileComments: {} as Record<string, string>,
-  projectOverviewComment: ""
+	fileComments: {} as Record<string, string>,
+	projectOverviewComment: "",
 });
 
 onMounted(async () => {
-  // Get the params from the url
-  const urlParams = new URLSearchParams(window.location.search);
+	// Get the params from the url
+	const urlParams = new URLSearchParams(window.location.search);
 
-  // Extract repoUrl and branchName from the query parameters
-  repoUrl.value = urlParams.get("repoUrl") || "";
-  if (!repoUrl.value) {
-    console.error("No repoUrl provided in the query parameters.");
-    return;
-  }
+	// Extract repoUrl and branchName from the query parameters
+	repoUrl.value = urlParams.get("repoUrl") || "";
+	if (!repoUrl.value) {
+		console.error("No repoUrl provided in the query parameters.");
+		return;
+	}
 
-  // Default to 'main' if branchName is not provided
-  branchName.value = urlParams.get("branch") || "";
-  if (!branchName.value) {
-    console.error("No branchName provided in the query parameters, defaulting to 'main'.")
-    return;
-  }
+	// Default to 'main' if branchName is not provided
+	branchName.value = urlParams.get("branch") || "";
+	if (!branchName.value) {
+		console.error("No branchName provided in the query parameters, defaulting to 'main'.");
+		return;
+	}
 
-  // Extract commentsApiUrl from the query parameters
-  apiUrl.value = urlParams.get("commentsApiUrl") || "";
-  if (!apiUrl.value) {
-    console.error("No commentsApiUrl provided in the query parameters.");
-    return;
-  }
+	// Extract commentsApiUrl from the query parameters
+	apiUrl.value = urlParams.get("commentsApiUrl") || "";
+	if (!apiUrl.value) {
+		console.error("No commentsApiUrl provided in the query parameters.");
+		return;
+	}
 
-  // Fetch all necessary data
-  await loadRepoTree();
-  await loadComments();
+	// Fetch all necessary data
+	await loadRepoTree();
+	await loadComments();
 });
 
 async function loadRepoTree() {
-  if (!repoUrl.value || !branchName.value) {
-    console.error("repoUrl or branchName is not set.");
-    return;
-  }
+	if (!repoUrl.value || !branchName.value) {
+		console.error("repoUrl or branchName is not set.");
+		return;
+	}
 
-  try {
-    const tree = await fetchRepoTreeAPI(decodeURIComponent(repoUrl.value), decodeURIComponent(branchName.value), GITHUB_PAT);
-    projectStructure.value = tree;
-  } catch (error) {
-    console.error("Failed to fetch project structure:", error);
-  }
+	try {
+		const tree = await fetchRepoTreeAPI(
+			decodeURIComponent(repoUrl.value),
+			decodeURIComponent(branchName.value),
+			GITHUB_PAT
+		);
+		projectStructure.value = tree;
+	} catch (error) {
+		console.error("Failed to fetch project structure:", error);
+	}
 }
 
 async function loadComments() {
-  if (!repoUrl.value || !branchName.value) {
-    console.error("repoUrl or branchName is not set.");
-    return;
-  }
+	if (!repoUrl.value || !branchName.value) {
+		console.error("repoUrl or branchName is not set.");
+		return;
+	}
 
-  try {
-    const commentsResponse: IGetCommentsResponse = await fetchComments(apiUrl.value);
-    allComments.value = commentsResponse.comments || [];
+	try {
+		const commentsResponse: IGetCommentsResponse = await fetchComments(apiUrl.value);
+		allComments.value = commentsResponse.comments || [];
 
-    // Initialize local comments from fetched data
-    localComments.fileComments = {};
-    allComments.value.forEach(comment => {
-      if (comment.type === CommentType.File) {
-        // Only add file comments to local state
-        localComments.fileComments[comment.filePath] = comment.content;
-      } else if (comment.type === CommentType.Project) {
-        localComments.projectOverviewComment = comment.content;
-      }
-    });
-  } catch (error) {
-    allComments.value = [];
-    console.error("Failed to fetch comments:", error);
-  }
+		// Initialize local comments from fetched data
+		localComments.fileComments = {};
+		allComments.value.forEach((comment) => {
+			if (comment.type === CommentType.File) {
+				// Only add file comments to local state
+				localComments.fileComments[comment.filePath] = comment.content;
+			} else if (comment.type === CommentType.Project) {
+				localComments.projectOverviewComment = comment.content;
+			}
+		});
+	} catch (error) {
+		allComments.value = [];
+		console.error("Failed to fetch comments:", error);
+	}
 }
 
 async function saveCommentsUsingApi() {
-  try {
-    if (!apiUrl.value || !repoUrl.value || !branchName.value) {
-      console.error("API URL, repoUrl, or branchName is not set.");
-      return;
-    }
+	try {
+		if (!apiUrl.value || !repoUrl.value || !branchName.value) {
+			console.error("API URL, repoUrl, or branchName is not set.");
+			return;
+		}
 
-    // Prepare the comments from the local state
-    const commentsToSave: ICommentDto[] = Object.entries(localComments.fileComments).map(([localFilePath, content]) => ({
-      id: 0,
-      filePath: localFilePath,
-      content: content,
-      type: CommentType.File
-    }));
-    // Add the project overview comment if it exists
-    commentsToSave.push({
-      id: 0,
-      filePath: repoUrl.value,
-      content: localComments.projectOverviewComment,
-      type: CommentType.Project
-    });
+		// Prepare the comments from the local state
+		const commentsToSave: ICommentDto[] = Object.entries(localComments.fileComments).map(
+			([localFilePath, content]) => ({
+				id: 0,
+				filePath: localFilePath,
+				content: content,
+				type: CommentType.File,
+			})
+		);
+		// Add the project overview comment if it exists
+		commentsToSave.push({
+			id: 0,
+			filePath: repoUrl.value,
+			content: localComments.projectOverviewComment,
+			type: CommentType.Project,
+		});
 
-    // Send comments to the API
-    for (const comment of commentsToSave) {
-      if (!comment.filePath || !comment.content) {
-        console.warn("Skipping comment with missing filePath or content:", comment);
-        continue;
-      }
-      const response = await addComment(apiUrl.value, comment);
-      if (!response.success) {
-        throw new Error(`Failed to save comment for ${comment.filePath}`);
-      }
-    }
+		// Send comments to the API
+		for (const comment of commentsToSave) {
+			if (!comment.filePath || !comment.content) {
+				console.warn("Skipping comment with missing filePath or content:", comment);
+				continue;
+			}
+			const response = await addComment(apiUrl.value, comment);
+			if (!response.success) {
+				throw new Error(`Failed to save comment for ${comment.filePath}`);
+			}
+		}
 
-    console.log("Comments saved successfully");
-  } catch (error) {
-    console.error("Error saving comments:", error);
-  } finally {
-    containsChangedComments.value = false;
-  }
+		console.log("Comments saved successfully");
+	} catch (error) {
+		console.error("Error saving comments:", error);
+	} finally {
+		containsChangedComments.value = false;
+	}
 }
 
 const saveFileComment = (path: string, comment: string) => {
-  containsChangedComments.value = true;
-  if (comment.trim() === "") {
-    containsChangedComments.value = false;
-    delete localComments.fileComments[path];
-  } else {
-    localComments.fileComments[path] = comment;
-  }
+	containsChangedComments.value = true;
+	if (comment.trim() === "") {
+		containsChangedComments.value = false;
+		delete localComments.fileComments[path];
+	} else {
+		localComments.fileComments[path] = comment;
+	}
 };
 
 const saveProjectOverviewComment = (comment: string) => {
-  containsChangedComments.value = true;
-  if (comment.trim() === "") {
-    containsChangedComments.value = false;
-    localComments.projectOverviewComment = "";
-  } else {
-    localComments.projectOverviewComment = comment;
-  }
+	containsChangedComments.value = true;
+	if (comment.trim() === "") {
+		containsChangedComments.value = false;
+		localComments.projectOverviewComment = "";
+	} else {
+		localComments.projectOverviewComment = comment;
+	}
 };
 </script>
 
@@ -172,8 +178,8 @@ const saveProjectOverviewComment = (comment: string) => {
 				:localComments="localComments"
 				:projectStructure="projectStructure"
 				@saveFileComment="saveFileComment"
-				@updateContainsChangedComments="(status) => containsChangedComments = status"
-				@shownProjectStructure="(structure) => shownProjectStructure = structure"
+				@updateContainsChangedComments="(status) => (containsChangedComments = status)"
+				@shownProjectStructure="(structure) => (shownProjectStructure = structure)"
 			/>
 
 			<!-- Project Summary Components -->
@@ -190,53 +196,53 @@ const saveProjectOverviewComment = (comment: string) => {
 
 <style scoped>
 .project-review-page {
-  height: 100vh;
-  width: 100vw;
-  padding: 1rem;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  background-color: #1a202c;
+	height: 100vh;
+	width: 100vw;
+	padding: 1rem;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	background-color: #1a202c;
 }
 
 .page-header {
-  text-align: center;
-  margin-bottom: 1rem;
-  flex-shrink: 0;
+	text-align: center;
+	margin-bottom: 1rem;
+	flex-shrink: 0;
 }
 
 .page-header h1 {
-  font-size: 2rem;
-  font-weight: 600;
-  color: #e2e8f0;
-  margin-bottom: 0.25rem;
+	font-size: 2rem;
+	font-weight: 600;
+	color: #e2e8f0;
+	margin-bottom: 0.25rem;
 }
 
 .page-description {
-  font-size: 1rem;
-  color: #a0aec0;
-  margin: 0;
+	font-size: 1rem;
+	color: #a0aec0;
+	margin: 0;
 }
 
 .review-content {
-  display: grid;
-  grid-template-columns: 3fr 1fr;
-  gap: 1rem;
-  flex: 1;
-  min-height: 0;
+	display: grid;
+	grid-template-columns: 3fr 1fr;
+	gap: 1rem;
+	flex: 1;
+	min-height: 0;
 }
 
 @media (max-width: 768px) {
-  .project-review-page {
-    padding: 1rem;
-  }
+	.project-review-page {
+		padding: 1rem;
+	}
 
-  .review-content {
-    grid-template-columns: 1fr;
-  }
-  .page-header h1 {
-    font-size: 1.5rem;
-  }
+	.review-content {
+		grid-template-columns: 1fr;
+	}
+	.page-header h1 {
+		font-size: 1.5rem;
+	}
 }
 </style>

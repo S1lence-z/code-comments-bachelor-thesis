@@ -5,10 +5,7 @@ import { getLanguageExtension } from "../../utils/languageUtils.ts";
 import { commentsDisplayExtension } from "../commentsExtension.ts";
 import { getLineNumbersConfig, type LineNumberConfig } from "./lineNumbersConfig.ts";
 import { createGutterConfig, type GutterConfig } from "../configs/gutterConfig.ts";
-import {
-	multilineCommentHighlightExtension,
-	multilineCommentTheme,
-} from "../multilineCommentHighlight.ts";
+import { multilineCommentHighlightExtension, multilineCommentTheme } from "../multilineCommentHighlight.ts";
 import { EditorState, type Extension } from "@codemirror/state";
 
 /**

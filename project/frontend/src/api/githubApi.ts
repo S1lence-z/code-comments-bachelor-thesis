@@ -42,11 +42,7 @@ export function buildFileTreeFromGitHub(gitHubItems: GitHubTreeItem[]): TreeNode
 	return rootNodes;
 }
 
-export async function fetchRepoTreeAPI(
-	repoUrl: string,
-	branch: string,
-	GITHUB_PAT?: string
-): Promise<TreeNode[]> {
+export async function fetchRepoTreeAPI(repoUrl: string, branch: string, GITHUB_PAT?: string): Promise<TreeNode[]> {
 	const url = new URL(repoUrl);
 	const [owner, repo] = url.pathname.split("/").filter(Boolean);
 	if (!owner || !repo) {
@@ -61,14 +57,14 @@ export async function fetchRepoTreeAPI(
 		headers["Authorization"] = `Bearer ${GITHUB_PAT}`;
 	}
 
-	const res = await fetch(`${apiBase}/git/trees/${branch}?recursive=1`, { headers });
+	const res = await fetch(`${apiBase}/git/trees/${branch}?recursive=1`, {
+		headers,
+	});
 	if (!res.ok) {
 		const errorData = await res.json().catch(() => ({
 			message: `Failed to load repo tree: ${res.status} ${res.statusText}`,
 		}));
-		throw new Error(
-			errorData.message || `Failed to load repo tree: ${res.status} ${res.statusText}`
-		);
+		throw new Error(errorData.message || `Failed to load repo tree: ${res.status} ${res.statusText}`);
 	}
 	const data = await res.json();
 	if (!data.tree || !Array.isArray(data.tree)) {

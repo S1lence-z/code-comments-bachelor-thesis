@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import { inject, computed } from 'vue';
-import type { Ref } from 'vue';
-import type ICategoryDto from '../../../shared/dtos/ICategoryDto';
+import { ref, watch } from "vue";
+import { inject, computed } from "vue";
+import type { Ref } from "vue";
+import type ICategoryDto from "../../../shared/dtos/ICategoryDto";
 
 interface SinglelineCommentModalProps {
 	visible: boolean;
@@ -13,62 +13,80 @@ interface SinglelineCommentModalProps {
 }
 
 const props = withDefaults(defineProps<SinglelineCommentModalProps>(), {
-	initialText: '',
-	initialCategory: '',
+	initialText: "",
+	initialCategory: "",
 });
 
-const emit = defineEmits(['submit', 'close']);
+const emit = defineEmits(["submit", "close"]);
 
-const currentCommentText = ref('');
+const currentCommentText = ref("");
 const selectedCategory = ref<string | null>(null);
-const allCategories = inject('allFetchedCategories') as Ref<ICategoryDto[]>;
+const allCategories = inject("allFetchedCategories") as Ref<ICategoryDto[]>;
 const categories = computed(() => allCategories.value);
 
-watch(() => props.initialText, (newVal) => {
-	currentCommentText.value = newVal || '';
-}, { immediate: true });
+watch(
+	() => props.initialText,
+	(newVal) => {
+		currentCommentText.value = newVal || "";
+	},
+	{ immediate: true }
+);
 
-watch(() => props.initialCategory, (newVal) => {
-	selectedCategory.value = newVal || allCategories.value[0]?.label || null;
-}, { immediate: true });
+watch(
+	() => props.initialCategory,
+	(newVal) => {
+		selectedCategory.value = newVal || allCategories.value[0]?.label || null;
+	},
+	{ immediate: true }
+);
 
 // Watch for when categories become available
-watch(() => allCategories.value, (newCategories) => {
-	if (newCategories && newCategories.length > 0 && !selectedCategory.value) {
-		selectedCategory.value = props.initialCategory || newCategories[0]?.label || null;
-	}
-}, { immediate: true });
+watch(
+	() => allCategories.value,
+	(newCategories) => {
+		if (newCategories && newCategories.length > 0 && !selectedCategory.value) {
+			selectedCategory.value = props.initialCategory || newCategories[0]?.label || null;
+		}
+	},
+	{ immediate: true }
+);
 
-watch(() => props.visible, (newVal) => {
-	if (newVal) {
-		currentCommentText.value = props.initialText || '';
+watch(
+	() => props.visible,
+	(newVal) => {
+		if (newVal) {
+			currentCommentText.value = props.initialText || "";
+		}
 	}
-});
+);
 
 function handleSubmit() {
 	if (!currentCommentText.value.trim()) {
-		alert('Comment cannot be empty.');
+		alert("Comment cannot be empty.");
 		return;
 	}
 
 	if (allCategories.value.length === 0) {
-		alert('No categories available. Please create a category first.');
+		alert("No categories available. Please create a category first.");
 		return;
 	}
 
 	if (!selectedCategory.value) {
-		alert('Please select a category.');
+		alert("Please select a category.");
 		return;
 	}
 
-	const categoryObject = (allCategories.value.length > 0) ? allCategories.value.find((cat: ICategoryDto) => cat.label === selectedCategory.value) : null;
+	const categoryObject =
+		allCategories.value.length > 0
+			? allCategories.value.find((cat: ICategoryDto) => cat.label === selectedCategory.value)
+			: null;
 
 	if (!categoryObject) {
-		alert('Selected category not found.');
+		alert("Selected category not found.");
 		return;
 	}
 
-	emit('submit', currentCommentText.value, categoryObject);
+	emit("submit", currentCommentText.value, categoryObject);
 }
 </script>
 
@@ -80,11 +98,7 @@ function handleSubmit() {
 			<div class="form-group">
 				<label class="form-label">Category</label>
 				<select v-model="selectedCategory" class="category-select">
-					<option
-						v-for="category in categories"
-						:key="category.id"
-						:value="category.label"
-					>
+					<option v-for="category in categories" :key="category.id" :value="category.label">
 						{{ category.label }}
 					</option>
 				</select>

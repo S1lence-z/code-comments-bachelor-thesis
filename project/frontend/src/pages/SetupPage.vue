@@ -1,23 +1,25 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { createConfiguration } from '../api/commentsApi.ts';
-import type ISetupProjectRequest from '../../../shared/api/ISetupProjectRequest.ts';
+import { ref } from "vue";
+import { createConfiguration } from "../api/commentsApi.ts";
+import type ISetupProjectRequest from "../../../shared/api/ISetupProjectRequest.ts";
 
-const githubRepoUrl = ref('');
-const branchName = ref('');
+const githubRepoUrl = ref("");
+const branchName = ref("");
 const isLoading = ref(false);
-const errorMessage = ref('');
-const generatedReviewLink = ref('');
+const errorMessage = ref("");
+const generatedReviewLink = ref("");
 
 const createEditRepoUrl = (writeApiUrl: string, repoLandingPageUrl: string, branchName: string) => {
 	const frontendBaseUrl = globalThis.location.origin;
-	return `${frontendBaseUrl}/code-review/?repoUrl=${encodeURIComponent(repoLandingPageUrl || "")}&commentsApiUrl=${encodeURIComponent(writeApiUrl || "")}&branch=${encodeURIComponent(branchName || "")}`;
+	return `${frontendBaseUrl}/code-review/?repoUrl=${encodeURIComponent(
+		repoLandingPageUrl || ""
+	)}&commentsApiUrl=${encodeURIComponent(writeApiUrl || "")}&branch=${encodeURIComponent(branchName || "")}`;
 };
 
 const handleCreateConfiguration = async () => {
 	isLoading.value = true;
-	errorMessage.value = '';
-	generatedReviewLink.value = '';
+	errorMessage.value = "";
+	generatedReviewLink.value = "";
 	try {
 		const setupData: ISetupProjectRequest = {
 			repoUrl: githubRepoUrl.value.trim(),
@@ -27,16 +29,16 @@ const handleCreateConfiguration = async () => {
 		const response = await createConfiguration(setupData);
 
 		if (response.writeApiUrl && response.repository) {
-		generatedReviewLink.value = createEditRepoUrl(
-			response.writeApiUrl,
-			response.repository.repoLandingPageUrl,
-			response.repository.branch
-		);
+			generatedReviewLink.value = createEditRepoUrl(
+				response.writeApiUrl,
+				response.repository.repoLandingPageUrl,
+				response.repository.branch
+			);
 		} else {
-		throw new Error('Invalid response from server for configuration setup.');
+			throw new Error("Invalid response from server for configuration setup.");
 		}
 	} catch (error: any) {
-		errorMessage.value = `Failed to create review session: ${error.message || 'Unknown error'}`;
+		errorMessage.value = `Failed to create review session: ${error.message || "Unknown error"}`;
 	} finally {
 		isLoading.value = false;
 	}
@@ -63,16 +65,10 @@ const handleCreateConfiguration = async () => {
 				<!-- Branch Name -->
 				<div class="form-group">
 					<label for="branchName">Branch Name:</label>
-					<input
-						type="text"
-						id="branchName"
-						v-model="branchName"
-						placeholder="master"
-						required
-					/>
+					<input type="text" id="branchName" v-model="branchName" placeholder="master" required />
 				</div>
 				<button type="submit" :disabled="isLoading">
-					{{ isLoading ? 'Generating Link...' : 'Generate Review Link' }}
+					{{ isLoading ? "Generating Link..." : "Generate Review Link" }}
 				</button>
 			</form>
 			<div v-if="errorMessage" class="error-message-home">{{ errorMessage }}</div>

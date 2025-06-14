@@ -6,11 +6,7 @@ export interface GutterConfig {
 	class?: string;
 	renderEmptyElements?: boolean;
 	markers?: (view: EditorView) => RangeSet<GutterMarker> | readonly RangeSet<GutterMarker>[];
-	lineMarker?: (
-		view: EditorView,
-		line: BlockInfo,
-		otherMarkers: readonly GutterMarker[]
-	) => GutterMarker | null;
+	lineMarker?: (view: EditorView, line: BlockInfo, otherMarkers: readonly GutterMarker[]) => GutterMarker | null;
 	widgetMarker?: (view: EditorView, widget: WidgetType, block: BlockInfo) => GutterMarker | null;
 	lineMarkerChange?: (update: ViewUpdate) => boolean;
 	initialSpacer?: (view: EditorView) => GutterMarker;

@@ -5,10 +5,7 @@ export interface RepoUrlInfo {
 	repoName: string;
 }
 
-export function parseGitHubRepoUrl(
-	url: string,
-	defaultBranch: string = "main"
-): RepoUrlInfo | null {
+export function parseGitHubRepoUrl(url: string, defaultBranch: string = "main"): RepoUrlInfo | null {
 	if (!url || !url.startsWith("https://github.com/")) {
 		return null;
 	}
@@ -33,9 +30,7 @@ export function parseGitHubRepoUrl(
 	}
 }
 
-export function parseRepoAndBranchFromLocation():
-	| { repoUrl: string; branch: string }
-	| { error: string } {
+export function parseRepoAndBranchFromLocation(): { repoUrl: string; branch: string } | { error: string } {
 	try {
 		const params = new URLSearchParams(globalThis.location.search);
 		const urlParam = params.get("repo_url");
