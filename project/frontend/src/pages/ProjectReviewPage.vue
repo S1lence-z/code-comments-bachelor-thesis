@@ -6,6 +6,7 @@ import { type TreeNode } from "../types/githubApi";
 import type ICommentDto from "../../../shared/dtos/ICommentDto";
 import type IGetCommentsResponse from "../../../shared/api/IGetCommentsResponse";
 import { CommentType } from "../../../shared/enums/CommentType";
+import ProjectReviewSummary from "../components/ProjectReviewSummary.vue";
 
 const projectStructure = ref<TreeNode[]>([]);
 const GITHUB_PAT = import.meta.env.VITE_GITHUB_PAT || "";
@@ -399,63 +400,14 @@ const filteredProjectStructure = computed(() => {
 					</div>
 				</div>
 			</div>
-
-			<!-- Summary Section with Project Overview -->
-			<div class="review-section summary-section">
-				<!-- Project Overview -->
-				<div class="project-overview-section">
-					<div class="section-header">
-						<h2>Project Overview</h2>
-					</div>
-					<div class="project-comment-card">
-						<label for="projectComment" class="comment-label">
-							Overall Project Comments
-						</label>
-						<textarea
-							id="projectComment"
-							:value="localComments.projectOverviewComment"
-							@input="saveProjectOverviewComment(($event.target as HTMLTextAreaElement).value)"
-							placeholder="Add your overall thoughts about the project structure, architecture, or general feedback..."
-							class="comment-textarea compact"
-							rows="3"
-						></textarea>
-					</div>
-				</div>
-
-				<!-- Review Summary -->
-				<div class="summary-stats-section">
-					<div class="section-header">
-						<h2>Review Summary</h2>
-					</div>
-					<div class="summary-cards">
-						<div class="summary-card">
-							<div class="summary-number">
-								{{ Object.keys(localComments.fileComments).length }}
-							</div>
-							<div class="summary-label">Files/Folders with Comments</div>
-						</div>
-						<div class="summary-card">
-							<div class="summary-number">
-								{{ localComments.projectOverviewComment ? '1' : '0' }}
-							</div>
-							<div class="summary-label">Project Overview Comment</div>
-						</div>
-						<div class="summary-card">
-							<div class="summary-number">{{ filteredProjectStructure.length }}</div>
-							<div class="summary-label">Total Items in Structure</div>
-						</div>
-					</div>
-					<button
-						id="save-comments-button"
-						@click="saveCommentsUsingApi"
-						class="parent-button"
-						style="width: 100%;"
-						:disabled="!containsChangedComments"
-					>
-						Save Comments
-					</button>
-				</div>
-			</div>
+			<!-- Project Summary Components -->
+			<ProjectReviewSummary
+				:localComments="localComments"
+				:filteredProjectStructure="filteredProjectStructure"
+				:containsChangedComments="containsChangedComments"
+				@saveProjectOverviewComment="saveProjectOverviewComment"
+				@saveCommentsUsingApi="saveCommentsUsingApi"
+			/>
 		</div>
 	</div>
 </template>
@@ -517,12 +469,6 @@ const filteredProjectStructure = computed(() => {
   margin: 0 0 1rem 0;
 }
 
-.project-comment-card {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
 .search-container {
   margin-bottom: 1rem;
 }
@@ -580,51 +526,6 @@ const filteredProjectStructure = computed(() => {
 
 .search-input::placeholder {
   color: #718096;
-}
-
-.summary-section {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.project-overview_section {
-  flex-shrink: 0;
-}
-
-.summary-stats-section {
-  flex: 1;
-}
-
-.comment-textarea.compact {
-  height: 80px;
-  resize: none;
-}
-
-.comment-label {
-  display: block;
-  font-weight: 500;
-  color: #a0aec0;
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
-}
-
-.comment-textarea {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #4a5568;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-family: inherit;
-  resize: vertical;
-  transition: border-color 0.2s;
-  background-color: #1a202c;
-  color: #e2e8f0;
-}
-
-.comment-textarea:focus {
-  border-color: #3182ce;
-  box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.3);
 }
 
 .structure-review-container {
@@ -800,33 +701,6 @@ const filteredProjectStructure = computed(() => {
   font-size: 0.9rem;
 }
 
-.summary-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 8px;
-}
-
-.summary-card {
-  background: #1a202c;
-  border: 1px solid #4a5568;
-  border-radius: 8px;
-  padding: 1.5rem;
-  text-align: center;
-}
-
-.summary-number {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #63b3ed;
-  margin-bottom: 0.5rem;
-}
-
-.summary-label {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #a0aec0;
-}
-
 @media (max-width: 768px) {
   .project-review-page {
     padding: 1rem;
@@ -835,37 +709,8 @@ const filteredProjectStructure = computed(() => {
   .review-content {
     grid-template-columns: 1fr;
   }
-
   .page-header h1 {
     font-size: 1.5rem;
   }
-
-  .summary-cards {
-    grid-template-columns: 1fr;
-  }
-}
-
-#save-comments-button {
-  background: #3182ce;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 1.5rem 2rem;
-  font-size: 1.2rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  margin-top: 1rem;
-  width: 100%;
-  min-height: 60px;
-}
-
-#save-comments-button:hover {
-  background: #2b6cb0;
-}
-
-#save-comments-button:disabled {
-  background: #4a5568;
-  cursor: not-allowed;
 }
 </style>
