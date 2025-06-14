@@ -89,7 +89,7 @@ async function loadCategories() {
 		const response = await getAllCategories(extractBaseUrl(writeApiUrl.value));
 		allFetchedCategories.value = response;
 	} catch (e: any) {
-		errorMessage.value = `Failed to load categories: ${e.message}`;
+		errorMessage.value = `Failed to load categories`;
 		console.error("Error fetching categories:", e);
 		allFetchedCategories.value = [];
 	}
@@ -253,8 +253,8 @@ function closeMultilineCommentModal() {
 }
 
 onMounted(async () => {
-	await loadCategories();
 	if (repoUrl.value && writeApiUrl.value) {
+		await loadCategories();
 		await localFetchRepoTree();
 		await loadComments();
 	}
