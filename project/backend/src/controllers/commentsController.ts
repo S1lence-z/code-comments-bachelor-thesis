@@ -40,19 +40,11 @@ export default class CommentsController {
 		};
 	}
 
-	public static addComment(
-		commentsService: CommentsService,
-		projectId: number,
-		newComment: CommentDto
-	): void {
+	public static addComment(commentsService: CommentsService, projectId: number, newComment: CommentDto): void {
 		commentsService.addComment(projectId, newComment);
 	}
 
-	public static deleteComment(
-		commentsService: CommentsService,
-		projectId: number,
-		commentId: number
-	): void {
+	public static deleteComment(commentsService: CommentsService, projectId: number, commentId: number): void {
 		commentsService.deleteComment(projectId, commentId);
 	}
 }

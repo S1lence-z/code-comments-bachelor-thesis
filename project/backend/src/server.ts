@@ -160,33 +160,30 @@ app.post("/api/project/:project_id/comments", (req: express.Request, res: expres
 });
 
 // Delete comment from a project
-app.delete(
-	"/api/project/:project_id/comments/:comment_id",
-	(req: express.Request, res: express.Response) => {
-		try {
-			const projectId = parseInt(req.params.project_id);
-			const commentId = parseInt(req.params.comment_id);
+app.delete("/api/project/:project_id/comments/:comment_id", (req: express.Request, res: express.Response) => {
+	try {
+		const projectId = parseInt(req.params.project_id);
+		const commentId = parseInt(req.params.comment_id);
 
-			if (isNaN(projectId)) {
-				return res.status(400).json({ error: "Invalid project ID or comment ID" });
-			}
-
-			if (isNaN(commentId)) {
-				return res.status(400).json({ error: "Invalid comment ID" });
-			}
-
-			CommentsController.deleteComment(commentsService, projectId, commentId);
-
-			res.status(200).send({ success: true });
-		} catch (error) {
-			console.error("Error in DELETE /api/project/:project_id/comments", error);
-			res.status(500).json({
-				error: "Failed to delete comment",
-				details: error instanceof Error ? error.message : "Unknown error",
-			});
+		if (isNaN(projectId)) {
+			return res.status(400).json({ error: "Invalid project ID or comment ID" });
 		}
+
+		if (isNaN(commentId)) {
+			return res.status(400).json({ error: "Invalid comment ID" });
+		}
+
+		CommentsController.deleteComment(commentsService, projectId, commentId);
+
+		res.status(200).send({ success: true });
+	} catch (error) {
+		console.error("Error in DELETE /api/project/:project_id/comments", error);
+		res.status(500).json({
+			error: "Failed to delete comment",
+			details: error instanceof Error ? error.message : "Unknown error",
+		});
 	}
-);
+});
 
 // Get all categories
 app.get("/api/categories", (_req: express.Request, res: express.Response) => {
@@ -211,30 +208,28 @@ app.use((_req: express.Request, res: express.Response) => {
 });
 
 // Error handling middleware
-app.use(
-	(error: Error, req: express.Request, res: express.Response, _next: express.NextFunction) => {
-		console.error(`Error in ${req.method} ${req.url}:`, error);
+app.use((error: Error, req: express.Request, res: express.Response, _next: express.NextFunction) => {
+	console.error(`Error in ${req.method} ${req.url}:`, error);
 
-		if (error.name === "ZodError") {
-			return res.status(400).json({
-				error: "Validation error",
-				details: error.message,
-			});
-		}
-
-		if (error.message.includes("SQLITE_")) {
-			return res.status(500).json({
-				error: "Database error",
-				details: "Internal database error occurred",
-			});
-		}
-
-		res.status(500).json({
-			error: "Internal server error",
+	if (error.name === "ZodError") {
+		return res.status(400).json({
+			error: "Validation error",
 			details: error.message,
 		});
 	}
-);
+
+	if (error.message.includes("SQLITE_")) {
+		return res.status(500).json({
+			error: "Database error",
+			details: "Internal database error occurred",
+		});
+	}
+
+	res.status(500).json({
+		error: "Internal server error",
+		details: error.message,
+	});
+});
 
 // Graceful shutdown
 process.on("SIGINT", () => {

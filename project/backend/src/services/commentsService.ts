@@ -121,9 +121,7 @@ class CommentsService {
 	): number {
 		try {
 			const db = this.dbManager.getDb();
-			const locationStmt = db.prepare(
-				`INSERT INTO locations (location_type, file_path) VALUES (?, ?)`
-			);
+			const locationStmt = db.prepare(`INSERT INTO locations (location_type, file_path) VALUES (?, ?)`);
 			locationStmt.run([type, filePath]);
 
 			// TODO: not concurrent safe, but we don't need it for now
@@ -131,9 +129,10 @@ class CommentsService {
 
 			switch (type) {
 				case CommentType.SingleLine:
-					db.prepare(
-						`INSERT INTO line_locations (identifier, line_number) VALUES (?, ?)`
-					).run([locationId, lineNumber]);
+					db.prepare(`INSERT INTO line_locations (identifier, line_number) VALUES (?, ?)`).run([
+						locationId,
+						lineNumber,
+					]);
 					break;
 				case CommentType.MultiLine:
 					db.prepare(
@@ -141,14 +140,10 @@ class CommentsService {
 					).run([locationId, startLineNumber, endLineNumber]);
 					break;
 				case CommentType.File:
-					db.prepare(`INSERT INTO file_locations (identifier) VALUES (?)`).run([
-						locationId,
-					]);
+					db.prepare(`INSERT INTO file_locations (identifier) VALUES (?)`).run([locationId]);
 					break;
 				case CommentType.Project:
-					db.prepare(`INSERT INTO project_locations (identifier) VALUES (?)`).run([
-						locationId,
-					]);
+					db.prepare(`INSERT INTO project_locations (identifier) VALUES (?)`).run([locationId]);
 					break;
 			}
 
@@ -178,18 +173,13 @@ class CommentsService {
 				.all([commentId, projectId]);
 
 			if (commentRows.length === 0) {
-				throw new Error(
-					`Comment with ID ${commentId} does not exist in project ${projectId}.`
-				);
+				throw new Error(`Comment with ID ${commentId} does not exist in project ${projectId}.`);
 			}
 
 			const locationId = commentRows[0].location_id;
 
 			// Delete the comment first
-			db.prepare(`DELETE FROM comments WHERE identifier = ? AND project_id = ?`).run([
-				commentId,
-				projectId,
-			]);
+			db.prepare(`DELETE FROM comments WHERE identifier = ? AND project_id = ?`).run([commentId, projectId]);
 
 			// Delete the associated location (this will cascade to line_locations/line_range_locations)
 			this.deleteLocation(locationId);

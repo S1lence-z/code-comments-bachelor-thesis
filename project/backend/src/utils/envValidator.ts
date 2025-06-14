@@ -1,11 +1,7 @@
 import { z } from "zod";
 
 const EnvSchema = z.object({
-	BACKEND_API_PORT: z
-		.string()
-		.default("3500")
-		.transform(Number)
-		.pipe(z.number().int().min(1).max(65535)),
+	BACKEND_API_PORT: z.string().default("3500").transform(Number).pipe(z.number().int().min(1).max(65535)),
 	BACKEND_HOSTNAME: z.string().default("http://localhost"),
 	FRONTEND_BASE_URL: z.string().url().default("http://localhost:5173"),
 	NODE_ENV: z.enum(["development", "production", "test"]).default("development"),

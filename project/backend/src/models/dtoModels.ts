@@ -19,16 +19,8 @@ export const CommentDtoSchema = z.object({
 		message: "Invalid comment type",
 	}),
 	lineNumber: z.number().int().positive("Line number must be a positive integer").optional(),
-	startLineNumber: z
-		.number()
-		.int()
-		.positive("Start line number must be a positive integer")
-		.optional(),
-	endLineNumber: z
-		.number()
-		.int()
-		.positive("End line number must be a positive integer")
-		.optional(),
+	startLineNumber: z.number().int().positive("Start line number must be a positive integer").optional(),
+	endLineNumber: z.number().int().positive("End line number must be a positive integer").optional(),
 	categories: z.array(CategoryDtoSchema).optional(),
 });
 

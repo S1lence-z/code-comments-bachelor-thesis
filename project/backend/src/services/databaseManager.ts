@@ -142,9 +142,7 @@ class DatabaseManager {
 			},
 		];
 
-		const insertStmt = this.db.prepare(
-			`INSERT OR IGNORE INTO categories (label, description) VALUES (?, ?)`
-		);
+		const insertStmt = this.db.prepare(`INSERT OR IGNORE INTO categories (label, description) VALUES (?, ?)`);
 		for (const category of predefinedCategories) {
 			insertStmt.run([category.label, category.description]);
 		}
@@ -192,9 +190,7 @@ class DatabaseManager {
 			const writeApiUrl = this.createWriteApiUrl(projectId, backend_base_url);
 
 			this.db
-				.prepare(
-					`UPDATE projects SET read_api_url = ?, write_api_url = ? WHERE identifier = ?`
-				)
+				.prepare(`UPDATE projects SET read_api_url = ?, write_api_url = ? WHERE identifier = ?`)
 				.run([readApiUrl, writeApiUrl, projectId]);
 
 			// Create the repository
@@ -213,13 +209,9 @@ class DatabaseManager {
 				]);
 
 			// Fetch the complete project with repository
-			const projectRows = this.db
-				.prepare(`SELECT * FROM projects WHERE identifier = ?`)
-				.all([projectId]);
+			const projectRows = this.db.prepare(`SELECT * FROM projects WHERE identifier = ?`).all([projectId]);
 			const project = projectRows[0] as ProjectRow;
-			const repositoryRows = this.db
-				.prepare(`SELECT * FROM repositories WHERE project_id = ?`)
-				.all([projectId]);
+			const repositoryRows = this.db.prepare(`SELECT * FROM repositories WHERE project_id = ?`).all([projectId]);
 			const repository = repositoryRows[0] as RepositoryRow;
 
 			return {
@@ -234,18 +226,14 @@ class DatabaseManager {
 
 	public getProjectById(projectId: number): (Project & { repository: Repository }) | null {
 		try {
-			const projectRows = this.db
-				.prepare(`SELECT * FROM projects WHERE identifier = ?`)
-				.all([projectId]);
+			const projectRows = this.db.prepare(`SELECT * FROM projects WHERE identifier = ?`).all([projectId]);
 			const project = projectRows[0] as ProjectRow;
 
 			if (!project) {
 				return null;
 			}
 
-			const repositoryRows = this.db
-				.prepare(`SELECT * FROM repositories WHERE project_id = ?`)
-				.all([projectId]);
+			const repositoryRows = this.db.prepare(`SELECT * FROM repositories WHERE project_id = ?`).all([projectId]);
 			const repository = repositoryRows[0] as RepositoryRow;
 
 			return {
