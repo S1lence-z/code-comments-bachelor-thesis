@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import { defineComponent, defineProps, defineEmits, watch } from 'vue';
+import { type TreeNode } from '../types/githubApi';
 
 const props = defineProps<{
     localComments: {
         projectOverviewComment: string;
         fileComments: Record<string, string>;
     };
-    filteredProjectStructure: any[];
+    filteredProjectStructure: TreeNode[];
     containsChangedComments: boolean;
 }>();
 
@@ -14,10 +16,6 @@ const emit = defineEmits<{
     (e: 'saveProjectOverviewComment', comment: string): void;
     (e: 'saveCommentsUsingApi'): void;
 }>();
-
-const saveProjectOverviewComment = (comment: string) => {
-    emit('saveProjectOverviewComment', comment);
-};
 
 const saveCommentsUsingApi = () => {
     emit('saveCommentsUsingApi');
@@ -37,7 +35,7 @@ const saveCommentsUsingApi = () => {
 				<textarea
 					id="projectComment"
 					:value="localComments.projectOverviewComment"
-					@input="saveProjectOverviewComment(($event.target as HTMLTextAreaElement).value)"
+					@input="emit('saveProjectOverviewComment', ($event.target as HTMLTextAreaElement).value)"
 					placeholder="Add your overall thoughts about the project structure, architecture, or general feedback..."
 					class="comment-textarea compact"
 					rows="3"
