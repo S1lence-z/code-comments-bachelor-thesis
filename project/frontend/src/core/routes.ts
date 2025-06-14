@@ -1,5 +1,5 @@
 import HomePage from "../pages/SetupPage.vue";
-import ReviewPage from "../pages/ReviewPage.vue";
+import CodeReviewPage from "../pages/CodeReviewPage.vue";
 import ProjectReviewPage from "../pages/ProjectReviewPage.vue";
 
 const routes = [
@@ -12,8 +12,8 @@ const routes = [
 		component: HomePage,
 	},
 	{
-		path: "/review",
-		component: ReviewPage,
+		path: "/code-review",
+		component: CodeReviewPage,
 	},
 	{
 		path: "/project-review",

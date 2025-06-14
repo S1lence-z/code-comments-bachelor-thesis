@@ -11,7 +11,7 @@ const generatedReviewLink = ref('');
 
 const createEditRepoUrl = (writeApiUrl: string, repoLandingPageUrl: string, branchName: string) => {
 	const frontendBaseUrl = globalThis.location.origin;
-	return `${frontendBaseUrl}/review/?repoUrl=${encodeURIComponent(repoLandingPageUrl || "")}&commentsApiUrl=${encodeURIComponent(writeApiUrl || "")}&branch=${encodeURIComponent(branchName || "")}`;
+	return `${frontendBaseUrl}/code-review/?repoUrl=${encodeURIComponent(repoLandingPageUrl || "")}&commentsApiUrl=${encodeURIComponent(writeApiUrl || "")}&branch=${encodeURIComponent(branchName || "")}`;
 };
 
 const handleCreateConfiguration = async () => {

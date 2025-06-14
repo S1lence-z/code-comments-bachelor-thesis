@@ -88,9 +88,9 @@ const toggleMobileMenu = () => {
 				</li>
 				<li>
 					<router-link
-						:to="{ path: '/review', query: preserveQueryParams }"
+						:to="{ path: '/code-review', query: preserveQueryParams }"
 						class="nav-link"
-						:class="{ 'active': activeTab.includes('/review') }"
+						:class="{ 'active': activeTab.includes('/code-review') }"
 					>
 						Code Review
 					</router-link>
@@ -106,7 +106,7 @@ const toggleMobileMenu = () => {
 				</li>
 			</ul>
 
-			<div v-if="activeTab.includes('/review')">
+			<div v-if="activeTab.includes('/code-review')">
 				<div class="keyboard-mode-toggle">
 					<label class="toggle-label">
 						<span class="toggle-text">Keyboard Mode</span>
