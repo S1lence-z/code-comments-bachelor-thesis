@@ -185,6 +185,30 @@ app.delete("/api/project/:project_id/comments/:comment_id", (req: express.Reques
 	}
 });
 
+app.put("/api/project/:project_id/comments/:comment_id", (req: express.Request, res: express.Response) => {
+	try {
+		const projectId = parseInt(req.params.project_id);
+		const commentId = parseInt(req.params.comment_id);
+
+		if (isNaN(projectId) || isNaN(commentId)) {
+			return res.status(400).json({ error: "Invalid project ID or comment ID" });
+		}
+
+		// Validate updated comment data
+		const validatedComment = CommentDtoSchema.parse(req.body);
+
+		CommentsController.updateComment(commentsService, projectId, commentId, validatedComment);
+
+		res.status(200).json({ success: true });
+	} catch (error) {
+		console.error("Error in PUT /api/project/:project_id/comments/:comment_id:", error);
+		res.status(500).json({
+			error: "Failed to update comment",
+			details: error instanceof Error ? error.message : "Unknown error",
+		});
+	}
+});
+
 // Get all categories
 app.get("/api/categories", (_req: express.Request, res: express.Response) => {
 	try {

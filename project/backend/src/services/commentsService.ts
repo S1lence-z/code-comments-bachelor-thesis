@@ -200,11 +200,35 @@ class CommentsService {
 	}
 
 	/**
-	 * Check if a project exists
+	 * Update an existing comment
 	 */
-	public projectExists(projectId: number): boolean {
+	public updateComment(
+		projectId: number,
+		commentId: number,
+		updatedComment: CommentDto
+	): void {
+		const db = this.dbManager.getDb();
+
+		// Check if the project exists
 		const project = this.dbManager.getProjectById(projectId);
-		return project !== null;
+		if (!project) {
+			throw new Error(`Project with ID ${projectId} does not exist.`);
+		}
+
+		// Check if the comment exists
+		const comment = db
+			.prepare(`SELECT * FROM comments WHERE identifier = ? AND project_id = ?`)
+			.get([commentId, projectId]);
+		if (!comment) {
+			throw new Error(`Comment with ID ${commentId} does not exist in project ${projectId}.`);
+		}
+
+		// Update the comment
+		db.prepare(`UPDATE comments SET content = ? WHERE identifier = ? AND project_id = ?`).run([
+			updatedComment.content,
+			commentId,
+			projectId,
+		]);
 	}
 }
 

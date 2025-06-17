@@ -44,6 +44,15 @@ export default class CommentsController {
 		commentsService.addComment(projectId, newComment);
 	}
 
+	public static updateComment(
+		commentsService: CommentsService,
+		projectId: number,
+		commentId: number,
+		updatedComment: CommentDto
+	): void {
+		commentsService.updateComment(projectId, commentId, updatedComment);
+	}
+
 	public static deleteComment(commentsService: CommentsService, projectId: number, commentId: number): void {
 		commentsService.deleteComment(projectId, commentId);
 	}
