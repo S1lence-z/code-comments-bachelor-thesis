@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, watch } from "vue";
 import { fetchRepoTreeAPI } from "../api/githubApi";
-import { fetchComments, addComment } from "../api/commentsApi";
+import { fetchComments, addComment, updateComment } from "../api/commentsApi";
 import { type TreeNode } from "../types/githubApi";
 import type ICommentDto from "../../../shared/dtos/ICommentDto";
 import type IGetCommentsResponse from "../../../shared/api/IGetCommentsResponse";
@@ -21,8 +21,8 @@ const containsChangedComments = ref<boolean>(false);
 // Local comments state to hold comments for the current session
 // TODO: use pinia to persist comments across sessions
 const localComments = reactive({
-	fileComments: {} as Record<string, string>,
-	projectOverviewComment: "",
+	fileComments: {} as Record<string, ICommentDto>, // Key: path, Value: comment object
+	projectOverviewComment: {} as ICommentDto,
 });
 
 onMounted(async () => {
@@ -83,15 +83,14 @@ async function loadComments() {
 		const commentsResponse: IGetCommentsResponse = await fetchComments(apiUrl.value);
 		allComments.value = commentsResponse.comments || [];
 
-		// TODO: normalize the structure of comments, use the ICommentDto interface
 		// Initialize local comments from fetched data
 		localComments.fileComments = {};
-		allComments.value.forEach((comment) => {
+		allComments.value.forEach((comment: ICommentDto) => {
 			if (comment.type === CommentType.File) {
 				// Only add file comments to local state
-				localComments.fileComments[comment.filePath] = comment.content;
+				localComments.fileComments[comment.filePath] = comment;
 			} else if (comment.type === CommentType.Project) {
-				localComments.projectOverviewComment = comment.content;
+				localComments.projectOverviewComment = comment;
 			}
 		});
 	} catch (error) {
@@ -109,34 +108,38 @@ async function saveCommentsUsingApi() {
 
 		// Prepare the comments from the local state
 		const commentsToSave: ICommentDto[] = Object.entries(localComments.fileComments).map(
-			([localFilePath, content]) => ({
-				id: 0,
-				filePath: localFilePath,
-				content: content,
-				type: CommentType.File,
-			})
+			([localFilePath, comment]) => {
+				comment.filePath = localFilePath;
+				return comment;
+			}
 		);
 		// Add the project overview comment if it exists
-		commentsToSave.push({
-			id: 0,
-			filePath: repoUrl.value,
-			content: localComments.projectOverviewComment,
-			type: CommentType.Project,
-		});
+		commentsToSave.push(localComments.projectOverviewComment);
 
 		// Send comments to the API
 		for (const comment of commentsToSave) {
+			// Skip comments that do not have a filePath or content
 			if (!comment.filePath || !comment.content) {
 				console.warn("Skipping comment with missing filePath or content:", comment);
 				continue;
 			}
+			// If the comment already has an id, update it
+			if (comment.id > 0) {
+				console.log(comment);
+				const response = await updateComment(apiUrl.value, comment.id, comment);
+				if (!response.success) {
+					throw new Error(`Failed to update comment for ${comment.filePath}`);
+				}
+				continue;
+			}
+			// If the comment is new (id is 0), add it
 			const response = await addComment(apiUrl.value, comment);
 			if (!response.success) {
 				throw new Error(`Failed to save comment for ${comment.filePath}`);
 			}
 		}
 
-		console.log("Comments saved successfully");
+		console.log("Comments saved and updated successfully");
 	} catch (error) {
 		console.error("Error saving comments:", error);
 	} finally {
@@ -144,25 +147,31 @@ async function saveCommentsUsingApi() {
 	}
 }
 
-const saveFileComment = (path: string, comment: string) => {
+const saveFileComment = (path: string, comment: ICommentDto) => {
 	containsChangedComments.value = true;
-	if (comment.trim() === "") {
+	if (!comment || comment.content.trim() === "") {
 		containsChangedComments.value = false;
-		delete localComments.fileComments[path];
 	} else {
 		localComments.fileComments[path] = comment;
 	}
 };
 
-const saveProjectOverviewComment = (comment: string) => {
+const saveProjectOverviewComment = (comment: ICommentDto) => {
 	containsChangedComments.value = true;
-	if (comment.trim() === "") {
+	if (comment.content.trim() === "") {
 		containsChangedComments.value = false;
-		localComments.projectOverviewComment = "";
 	} else {
 		localComments.projectOverviewComment = comment;
 	}
 };
+
+watch(
+	() => localComments,
+	() => {
+		console.log(localComments);
+	},
+	{ deep: true }
+);
 </script>
 
 <template>

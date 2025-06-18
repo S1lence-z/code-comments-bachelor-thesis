@@ -1,24 +1,47 @@
 <script setup lang="ts">
 import { defineProps, defineEmits } from "vue";
 import { type TreeNode } from "../types/githubApi";
+import type ICommentDto from "../../../shared/dtos/ICommentDto";
+import { CommentType } from "../../../shared/enums/CommentType";
 
 const props = defineProps<{
 	localComments: {
-		projectOverviewComment: string;
-		fileComments: Record<string, string>;
+		projectOverviewComment: ICommentDto;
+		fileComments: Record<string, ICommentDto>;
 	};
 	filteredProjectStructure: TreeNode[];
 	containsChangedComments: boolean;
 }>();
 
 const emit = defineEmits<{
-	(e: "saveComments", comments: { projectOverviewComment: string; fileComments: Record<string, string> }): void;
-	(e: "saveProjectOverviewComment", comment: string): void;
+	(e: "saveProjectOverviewComment", comment: ICommentDto): void;
 	(e: "saveCommentsUsingApi"): void;
 }>();
 
 const saveCommentsUsingApi = () => {
 	emit("saveCommentsUsingApi");
+};
+
+const saveProjectOverviewComment = (content: string) => {
+	const existingComment = props.localComments.projectOverviewComment;
+	if (existingComment && existingComment.content === content) {
+		return;
+	}
+
+	if (existingComment.id > 0) {
+		// Update existing comment
+		existingComment.content = content;
+		emit("saveProjectOverviewComment", existingComment);
+	} else {
+		// Create new comment if it doesn't exist
+		const newComment: ICommentDto = {
+			id: 0,
+			content: content,
+			type: CommentType.Project,
+			filePath: "<repo_path>",
+		};
+		emit("saveProjectOverviewComment", newComment);
+	}
 };
 </script>
 
@@ -34,8 +57,8 @@ const saveCommentsUsingApi = () => {
 				<label for="projectComment" class="comment-label"> Overall Project Comments </label>
 				<textarea
 					id="projectComment"
-					:value="localComments.projectOverviewComment"
-					@input="emit('saveProjectOverviewComment', ($event.target as HTMLTextAreaElement).value)"
+					:value="props.localComments.projectOverviewComment.content"
+					@input="saveProjectOverviewComment(($event.target as HTMLTextAreaElement).value)"
 					placeholder="Add your overall thoughts about the project structure, architecture, or general feedback..."
 					class="comment-textarea compact"
 					rows="3"
@@ -57,7 +80,7 @@ const saveCommentsUsingApi = () => {
 				</div>
 				<div class="summary-card">
 					<div class="summary-number">
-						{{ localComments.projectOverviewComment ? "1" : "0" }}
+						{{ localComments.projectOverviewComment.content ? "1" : "0" }}
 					</div>
 					<div class="summary-label">Project Overview Comment</div>
 				</div>

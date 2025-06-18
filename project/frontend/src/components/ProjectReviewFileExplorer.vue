@@ -1,18 +1,20 @@
 <script setup lang="ts">
 import { ref, computed, defineProps, watch } from "vue";
 import { type TreeNode } from "../types/githubApi";
+import type ICommentDto from "../../../shared/dtos/ICommentDto";
+import { CommentType } from "../../../shared/enums/CommentType";
 
 const props = defineProps<{
 	localComments: {
-		projectOverviewComment: string;
-		fileComments: Record<string, string>;
+		projectOverviewComment: ICommentDto;
+		fileComments: Record<string, ICommentDto>;
 	};
 	projectStructure: TreeNode[];
 }>();
 
 const emit = defineEmits<{
+	(e: "saveFileComment", path: string, comment: ICommentDto): void;
 	(e: "updateContainsChangedComments", status: boolean): void;
-	(e: "saveFileComment", path: string, comment: string): void;
 	(e: "shownProjectStructure", structure: TreeNode[]): void;
 }>();
 
@@ -96,8 +98,13 @@ const handleItemDoubleClick = (item: TreeNode) => {
 	}
 };
 
-const getCommentForPath = (path: string) => {
-	return props.localComments.fileComments[path] || "";
+const getCommentValueByPath = (path: string) => {
+	if (!props.localComments || !props.localComments.fileComments) {
+		return "";
+	}
+	if (!path) return "";
+	const commentValue = props.localComments.fileComments[path];
+	return commentValue ? commentValue.content : "";
 };
 
 // Filter project structure based on search query
@@ -123,6 +130,24 @@ const filterItems = (items: any[], query: string): any[] => {
 			}
 			return item;
 		});
+};
+
+const saveFileComment = (path: string, commentContent: string) => {
+	const existingComment = Object.keys(props.localComments.fileComments).find((key) => key === path)
+		? props.localComments.fileComments[path]
+		: null;
+	if (existingComment && existingComment.content === commentContent) {
+		return;
+	}
+
+	const newOrUpdatedComment: ICommentDto = {
+		...existingComment,
+		id: existingComment ? existingComment.id : 0, // Use existing ID or set to 0 for new comment
+		filePath: path,
+		type: CommentType.File,
+		content: commentContent,
+	};
+	emit("saveFileComment", path, newOrUpdatedComment);
 };
 
 // Watchers
@@ -171,7 +196,7 @@ watch(
 								class="tree-item-header"
 								:class="{
 									selected: selectedItem === item.path,
-									'has-comment': getCommentForPath(item.path),
+									'has-comment': getCommentValueByPath(item.path),
 								}"
 								@click="handleItemClick(item)"
 								@dblclick="handleItemDoubleClick(item)"
@@ -185,7 +210,7 @@ watch(
 								</button>
 								<span v-else class="file-icon">📄</span>
 								<span class="item-name">{{ item.name }}</span>
-								<span v-if="getCommentForPath(item.path)" class="comment-indicator">💬</span>
+								<span v-if="getCommentValueByPath(item.path)" class="comment-indicator">💬</span>
 							</div>
 
 							<div
@@ -198,7 +223,7 @@ watch(
 									class="tree-item-header child-item"
 									:class="{
 										selected: selectedItem === child.path,
-										'has-comment': getCommentForPath(child.path),
+										'has-comment': getCommentValueByPath(child.path),
 									}"
 									@click="handleItemClick(child)"
 									@dblclick="handleItemDoubleClick(child)"
@@ -207,7 +232,7 @@ watch(
 										{{ child.type === "folder" ? "📁" : "📄" }}
 									</span>
 									<span class="item-name">{{ child.name }}</span>
-									<span v-if="getCommentForPath(child.path)" class="comment-indicator">💬</span>
+									<span v-if="getCommentValueByPath(child.path)" class="comment-indicator">💬</span>
 								</div>
 							</div>
 						</div>
@@ -226,8 +251,8 @@ watch(
 						</label>
 						<textarea
 							:id="`comment-${selectedItem}`"
-							:value="getCommentForPath(selectedItem)"
-							@input="emit('saveFileComment', selectedItem, ($event.target as HTMLTextAreaElement).value)"
+							:value="getCommentValueByPath(selectedItem)"
+							@input="saveFileComment(selectedItem, ($event.target as HTMLTextAreaElement).value)"
 							placeholder="Enter your comments, suggestions, or feedback for this item..."
 							class="comment-textarea"
 							rows="20"
