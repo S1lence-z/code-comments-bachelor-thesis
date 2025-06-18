@@ -56,14 +56,9 @@ export function multilineCommentHighlightExtension(comments: ICommentDto[]) {
 export const multilineCommentTheme = EditorView.theme({
 	".cm-line.multiline-comment-line-number": {
 		"background-color": "#154066",
-		color: "#154066",
-	},
-	".cm-gutterElement.multiline-comment-line-number": {
-		"background-color": "#154066 !important",
-		color: "#154066 !important",
-		"border-radius": "2px",
 	},
 	".multiline-comment-gutter-line": {
 		"background-color": "#154066",
+		"border-radius": "2px",
 	},
 });
