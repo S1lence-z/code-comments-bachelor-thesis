@@ -1,2 +1,5 @@
 .vscode
 /drafts
+**/other/
+.mypy_cache
+package-lock.json
