@@ -38,6 +38,28 @@ export async function addComment(writeApiUrl: string, commentData: ICommentDto):
 	}
 }
 
+export async function updateComment(writeApiUrl: string, commentId: number, commentData: ICommentDto): Promise<{ success: boolean }> {
+	try {
+		const response = await fetch(`${writeApiUrl}/${commentId}`, {
+			method: "PUT",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(commentData),
+		});
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ message: "Failed to update comment" }));
+			throw new Error(
+				`Failed to update comment: ${response.status} ${response.statusText} - ${errorData.message}`
+			);
+		}
+		return await response.json();
+	} catch (error) {
+		console.error("Error in updateComment:", error);
+		throw error;
+	}
+}
+
 export async function createConfiguration(setupRequest: ISetupProjectRequest): Promise<IProjectDto> {
 	const requestUrl = "http://localhost:4000/api/setup";
 	try {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, watch } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import { fetchRepoTreeAPI } from "../api/githubApi";
 import { fetchComments, addComment } from "../api/commentsApi";
 import { type TreeNode } from "../types/githubApi";
@@ -83,6 +83,7 @@ async function loadComments() {
 		const commentsResponse: IGetCommentsResponse = await fetchComments(apiUrl.value);
 		allComments.value = commentsResponse.comments || [];
 
+		// TODO: normalize the structure of comments, use the ICommentDto interface
 		// Initialize local comments from fetched data
 		localComments.fileComments = {};
 		allComments.value.forEach((comment) => {

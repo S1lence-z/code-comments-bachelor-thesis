@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineComponent, defineProps, defineEmits, watch } from "vue";
+import { defineProps, defineEmits } from "vue";
 import { type TreeNode } from "../types/githubApi";
 
 const props = defineProps<{
