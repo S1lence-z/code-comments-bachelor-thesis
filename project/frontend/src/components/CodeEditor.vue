@@ -3,8 +3,8 @@ import { ref, watch, shallowRef, computed, inject, type Ref } from "vue";
 import { Codemirror } from "vue-codemirror";
 import { EditorView } from "@codemirror/view";
 import type ICommentDto from "../../../shared/dtos/ICommentDto";
-import "../codemirror/styles.css";
 import { createEditorExtensions } from "../codeMirror/configs/editorConfig";
+import "../css/codemirror.css";
 
 const isKeyboardMode = inject("isKeyboardMode") as Ref<boolean>;
 
