@@ -6,8 +6,6 @@ Code comments is a platform to help you take any repository and add comments to 
 
 ## Core Features
 
--   **Manager Interface**: A simple interface for teachers to manage their projects and comments. This includes the ability to view, edit, and delete comments.
-
 -   **Commenting**: Teachers can add comments in various ways:
 
     -   **Singleline Comments**: Teachers can leave comments on individual lines of code.
@@ -28,15 +26,16 @@ Code comments is a platform to help you take any repository and add comments to 
 ### Teacher Workflow Example
 
 1. A teacher receives a link to a Github repository from a student.
-2. The teacher opens the repository (providing the repo url and the branch he wants to comment on) in the Code Comments platform.
+2. The teacher opens the app and provides the repository url and the branch he wants to comment on.
 3. The teacher navigates through the codebase, viewing files and folders.
-4. The teacher adds comments on specific lines of code, files, or folders as needed.
-5. The teacher generates a link to share with the student, which includes all the comments made.
+4. The teacher adds comments on specific lines of code, files or folders as needed.
+5. The teacher generates a pair of link and password for the student to access the comments.
 
 ### Student Workflow Example
 
-1. A student receives a link to their commented code from their teacher.
+1. A student receives a link and a password to their commented code from their teacher.
     - The link is a read-only view of the comments made by the teacher.
+    - The password ensures that only the intended student can view them.
 2. The student views the comments on their code, mainly using the summary page where they are provided in a structured format.
 3. The student can navigate to the specific lines of code where the comments were made and see the context of the comments.
 
