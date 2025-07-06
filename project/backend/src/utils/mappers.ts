@@ -1,5 +1,5 @@
-import { CategoryRow, Project, Repository } from "../models/databaseModels.ts";
-import { ProjectDto, RepositoryDto, CategoryDto } from "../models/dtoModels.ts";
+import { CategoryRow, Project, Repository } from "../models/databaseModels";
+import { ProjectDto, RepositoryDto, CategoryDto } from "../models/dtoModels";
 
 export function repositoryToDto(repository: Repository): RepositoryDto {
 	return {

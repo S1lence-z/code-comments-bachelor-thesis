@@ -1,9 +1,9 @@
-import { Database } from "@db/sqlite";
-import { Project, Repository, ProjectRow, RepositoryRow } from "../models/databaseModels.ts";
-import { CategoryDto } from "../models/dtoModels.ts";
+import Database from "better-sqlite3";
+import { Project, Repository, ProjectRow, RepositoryRow } from "../models/databaseModels";
+import { CategoryDto } from "../models/dtoModels";
 
 class DatabaseManager {
-	private db: Database;
+	private db: Database.Database;
 
 	constructor(dbPath: string) {
 		this.db = new Database(dbPath);
@@ -144,7 +144,7 @@ class DatabaseManager {
 
 		const insertStmt = this.db.prepare(`INSERT OR IGNORE INTO categories (label, description) VALUES (?, ?)`);
 		for (const category of predefinedCategories) {
-			insertStmt.run([category.label, category.description]);
+			insertStmt.run(category.label, category.description);
 		}
 	}
 
@@ -176,14 +176,14 @@ class DatabaseManager {
 			const projectStmt = this.db.prepare(
 				`INSERT INTO projects (version, label, read_api_url, write_api_url) VALUES (?, ?, ?, ?)`
 			);
-			const _projectResult = projectStmt.run([
+			const projectResult = projectStmt.run([
 				requestData.version || "v1",
 				requestData.label || "Test Project",
 				"", // Will be updated after we get the ID
 				"", // Will be updated after we get the ID
 			]);
 
-			const projectId = this.db.lastInsertRowId;
+			const projectId = Number(projectResult.lastInsertRowid);
 
 			// Update URLs with the actual project ID
 			const readApiUrl = this.createReadApiUrl(projectId, backend_base_url);
@@ -191,7 +191,7 @@ class DatabaseManager {
 
 			this.db
 				.prepare(`UPDATE projects SET read_api_url = ?, write_api_url = ? WHERE identifier = ?`)
-				.run([readApiUrl, writeApiUrl, projectId]);
+				.run(readApiUrl, writeApiUrl, projectId);
 
 			// Create the repository
 			this.db
@@ -199,19 +199,19 @@ class DatabaseManager {
 					`INSERT INTO repositories (project_id, type, repo_landing_page_url, branch, \`commit\`, token)
 					VALUES (?, ?, ?, ?, ?, ?)`
 				)
-				.run([
+				.run(
 					projectId,
 					requestData.repo_type || "git",
 					requestData.git_repo_url,
 					requestData.branch,
 					requestData.commit || "HEAD",
-					requestData.token || null,
-				]);
+					requestData.token || null
+				);
 
 			// Fetch the complete project with repository
-			const projectRows = this.db.prepare(`SELECT * FROM projects WHERE identifier = ?`).all([projectId]);
+			const projectRows = this.db.prepare(`SELECT * FROM projects WHERE identifier = ?`).all(projectId);
 			const project = projectRows[0] as ProjectRow;
-			const repositoryRows = this.db.prepare(`SELECT * FROM repositories WHERE project_id = ?`).all([projectId]);
+			const repositoryRows = this.db.prepare(`SELECT * FROM repositories WHERE project_id = ?`).all(projectId);
 			const repository = repositoryRows[0] as RepositoryRow;
 
 			return {
@@ -226,14 +226,14 @@ class DatabaseManager {
 
 	public getProjectById(projectId: number): (Project & { repository: Repository }) | null {
 		try {
-			const projectRows = this.db.prepare(`SELECT * FROM projects WHERE identifier = ?`).all([projectId]);
+			const projectRows = this.db.prepare(`SELECT * FROM projects WHERE identifier = ?`).all(projectId);
 			const project = projectRows[0] as ProjectRow;
 
 			if (!project) {
 				return null;
 			}
 
-			const repositoryRows = this.db.prepare(`SELECT * FROM repositories WHERE project_id = ?`).all([projectId]);
+			const repositoryRows = this.db.prepare(`SELECT * FROM repositories WHERE project_id = ?`).all(projectId);
 			const repository = repositoryRows[0] as RepositoryRow;
 
 			return {

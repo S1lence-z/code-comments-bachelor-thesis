@@ -1,9 +1,9 @@
 import { z } from "zod";
-import ICommentDto from "../../../shared/dtos/ICommentDto.ts";
-import IRepositoryDto from "../../../shared/dtos/IRepositoryDto.ts";
-import IProjectDto from "../../../shared/dtos/IProjectDto.ts";
-import ICategoryDto from "../../../shared/dtos/ICategoryDto.ts";
-import { CommentType } from "../../../shared/enums/CommentType.ts";
+import ICommentDto from "../../../shared/dtos/ICommentDto";
+import IRepositoryDto from "../../../shared/dtos/IRepositoryDto";
+import IProjectDto from "../../../shared/dtos/IProjectDto";
+import ICategoryDto from "../../../shared/dtos/ICategoryDto";
+import { CommentType } from "../../../shared/enums/CommentType";
 
 export const CategoryDtoSchema = z.object({
 	id: z.number().int(),

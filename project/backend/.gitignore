@@ -6,5 +6,5 @@
 *.sqlite3
 *.db
 
-# Deno
-deno.lock
+# Node modules
+node_modules/

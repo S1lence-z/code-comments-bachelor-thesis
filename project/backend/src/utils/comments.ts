@@ -1,6 +1,6 @@
-import { CommentDto } from "../models/dtoModels.ts";
-import { CommentType } from "../../../shared/enums/CommentType.ts";
-import { CategoryDto } from "../models/dtoModels.ts";
+import { CommentDto } from "../models/dtoModels";
+import { CommentType } from "../../../shared/enums/CommentType";
+import { CategoryDto } from "../models/dtoModels";
 
 export function createCommentDto(
 	id: number,
