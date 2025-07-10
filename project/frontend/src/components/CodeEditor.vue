@@ -4,7 +4,7 @@ import { Codemirror } from "vue-codemirror";
 import { EditorView } from "@codemirror/view";
 import type ICommentDto from "../../../shared/dtos/ICommentDto";
 import { createEditorExtensions } from "../codeMirror/configs/editorConfig";
-import "../css/codemirror.css";
+import "../../css/codemirror.css";
 
 const isKeyboardMode = inject("isKeyboardMode") as Ref<boolean>;
 
