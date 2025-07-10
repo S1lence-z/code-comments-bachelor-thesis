@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, watch, computed } from "vue";
 import { useRoute } from "vue-router";
-import ToggleButton from "../../lib/ToggleButton.vue";
-import { navigationRoutes } from "../../core/routes";
+import ToggleButton from "./ToggleButton.vue";
+import { navigationRoutes } from "../core/routes";
 
 const props = defineProps<{
 	isKeyboardMode: boolean;

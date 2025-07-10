@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, provide } from "vue";
-import NavigationBar from "./components/app/AppNavigationBar.vue";
-import AppFooter from "./components/app/AppFooter.vue";
+import NavigationBar from "./lib/AppNavigationBar.vue";
+import AppFooter from "./lib/AppFooter.vue";
 
 const isKeyboardMode = ref(false);
 provide("isKeyboardMode", isKeyboardMode);
