@@ -1,0 +1,92 @@
+<script setup lang="ts">
+import { ref, watch, computed } from "vue";
+import { useRoute } from "vue-router";
+import ToggleButton from "../../lib/ToggleButton.vue";
+import { navigationRoutes } from "../../core/routes";
+
+const props = defineProps<{
+	isKeyboardMode: boolean;
+}>();
+
+const emit = defineEmits<{
+	(e: "toggle-keyboard-mode", value: boolean): void;
+}>();
+
+// Get the current route to determine which tab should be active
+const route = useRoute();
+const activeTab = ref(route.path);
+
+// Computed property to preserve query parameters when navigating
+const preserveQueryParams = computed(() => {
+	return route.query;
+});
+
+// Watch for route changes to update active tab
+watch(
+	() => route.path,
+	(newPath) => {
+		activeTab.value = newPath;
+	}
+);
+
+// Watch for changes in keyboard mode and emit the event
+const isKeyboardMode = ref(props.isKeyboardMode || false);
+
+// Watch for prop changes to update local state
+watch(
+	() => props.isKeyboardMode,
+	(newValue) => {
+		isKeyboardMode.value = newValue;
+	}
+);
+
+// Watch for local changes to emit to parent
+watch(isKeyboardMode, (newValue) => {
+	emit("toggle-keyboard-mode", newValue);
+});
+</script>
+
+<template>
+	<nav class="border-b border-black shadow-2xl bg-custom-gray min-h-14">
+		<div class="flex items-center justify-between h-full max-w-full px-4">
+			<div class="flex items-center flex-shrink-0 gap-2">
+				<div class="text-[#007acc] flex items-center">
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+						<path
+							d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0L19.2 12l-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"
+						/>
+					</svg>
+				</div>
+				<router-link
+					:to="{ path: '/setup', query: preserveQueryParams }"
+					class="text-white transition-colors duration-200 font-lg semibold whitespace-nowrap"
+					>Code Review App
+				</router-link>
+			</div>
+
+			<!-- Navigation Links -->
+			<ul class="flex h-full gap-2">
+				<li v-for="route in navigationRoutes" :key="route.path" class="flex items-center">
+					<router-link
+						:to="{ path: route.path, query: preserveQueryParams }"
+						class="inactive-tab"
+						:class="{ 'active-tab': activeTab === route.path }"
+					>
+						{{ route.name }}
+					</router-link>
+				</li>
+			</ul>
+
+			<!-- Toggle Button for Keyboard Mode -->
+			<div v-if="activeTab.includes('/code-review')">
+				<ToggleButton
+					label="Keyboard Mode"
+					:isActive="isKeyboardMode"
+					@update:isActive="isKeyboardMode = $event"
+				/>
+			</div>
+			<!-- TODO: Do not add an empty div-->
+			<div v-else class="w-[166px]"></div>
+		</div>
+	</nav>
+</template>
