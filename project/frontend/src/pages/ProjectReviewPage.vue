@@ -175,84 +175,37 @@ watch(
 </script>
 
 <template>
-	<div class="project-review-page">
-		<div class="page-header">
-			<h1>Project Review</h1>
-			<p class="page-description">
-				Add comments and feedback for the project structure, folders, and individual files
-			</p>
-		</div>
-		<div class="review-content">
-			<!-- Project File Explorer -->
-			<ProjectReviewFileExplorer
-				:localComments="localComments"
-				:projectStructure="projectStructure"
-				@saveFileComment="saveFileComment"
-				@updateContainsChangedComments="(status) => (containsChangedComments = status)"
-				@shownProjectStructure="(structure) => (shownProjectStructure = structure)"
-			/>
+	<div class="w-full h-full overflow-auto font-sans bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+		<div class="flex flex-col h-full mx-auto">
+			<div class="px-4 pt-8 text-center rounded-b-lg">
+				<h1 class="text-3xl font-bold text-blue-300 md:text-2xl drop-shadow">Project Review</h1>
+				<p class="text-lg text-gray-400">
+					Add comments and feedback for the project structure, folders, and individual files
+				</p>
+			</div>
+			<div class="flex flex-1 w-full gap-6 p-6">
+				<!-- Project File Explorer -->
+				<div class="flex-2">
+					<ProjectReviewFileExplorer
+						:localComments="localComments"
+						:projectStructure="projectStructure"
+						@saveFileComment="saveFileComment"
+						@updateContainsChangedComments="(status) => (containsChangedComments = status)"
+						@shownProjectStructure="(structure) => (shownProjectStructure = structure)"
+					/>
+				</div>
 
-			<!-- Project Summary Components -->
-			<ProjectReviewSummary
-				:localComments="localComments"
-				:filteredProjectStructure="shownProjectStructure"
-				:containsChangedComments="containsChangedComments"
-				@saveProjectOverviewComment="saveProjectOverviewComment"
-				@saveCommentsUsingApi="saveCommentsUsingApi"
-			/>
+				<!-- Project Summary Components -->
+				<div class="flex-1">
+					<ProjectReviewSummary
+						:localComments="localComments"
+						:filteredProjectStructure="shownProjectStructure"
+						:containsChangedComments="containsChangedComments"
+						@saveProjectOverviewComment="saveProjectOverviewComment"
+						@saveCommentsUsingApi="saveCommentsUsingApi"
+					/>
+				</div>
+			</div>
 		</div>
 	</div>
 </template>
-
-<style scoped>
-.project-review-page {
-	height: 100vh;
-	width: 100vw;
-	padding: 1rem;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-	overflow: hidden;
-	display: flex;
-	flex-direction: column;
-	background-color: #1a202c;
-}
-
-.page-header {
-	text-align: center;
-	margin-bottom: 1rem;
-	flex-shrink: 0;
-}
-
-.page-header h1 {
-	font-size: 2rem;
-	font-weight: 600;
-	color: #e2e8f0;
-	margin-bottom: 0.25rem;
-}
-
-.page-description {
-	font-size: 1rem;
-	color: #a0aec0;
-	margin: 0;
-}
-
-.review-content {
-	display: grid;
-	grid-template-columns: 3fr 1fr;
-	gap: 1rem;
-	flex: 1;
-	min-height: 0;
-}
-
-@media (max-width: 768px) {
-	.project-review-page {
-		padding: 1rem;
-	}
-
-	.review-content {
-		grid-template-columns: 1fr;
-	}
-	.page-header h1 {
-		font-size: 1.5rem;
-	}
-}
-</style>

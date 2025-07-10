@@ -46,156 +46,57 @@ const handleCreateConfiguration = async () => {
 </script>
 
 <template>
-	<div class="home-page-container">
-		<div class="form-container">
-			<h2>Setup New Code Review</h2>
-			<p>Enter a public GitHub repository URL to start a new review session.</p>
+	<div class="flex items-center justify-center min-h-screen p-4 bg-gray-900 page">
+		<div class="w-full max-w-xl p-8 text-gray-200 bg-gray-800 rounded-lg shadow-2xl">
+			<h2 class="mt-0 mb-4 text-2xl font-semibold text-center text-gray-400">Setup New Code Review</h2>
+			<p class="mb-6 text-base text-center text-gray-300">
+				Enter a public GitHub repository URL to start a new review session.
+			</p>
 			<form @submit.prevent="handleCreateConfiguration">
 				<!-- GitHub Repository URL -->
-				<div class="form-group">
-					<label for="repoUrl">GitHub Repository URL:</label>
+				<div class="mb-6">
+					<label for="repoUrl" class="block mb-2 font-bold text-gray-400">GitHub Repository URL:</label>
 					<input
 						type="url"
 						id="repoUrl"
 						v-model="githubRepoUrl"
 						placeholder="https://github.com/owner/repository"
 						required
+						class="box-border w-full p-3 text-base text-gray-200 bg-gray-900 border border-gray-700 rounded focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-400"
 					/>
 				</div>
 				<!-- Branch Name -->
-				<div class="form-group">
-					<label for="branchName">Branch Name:</label>
-					<input type="text" id="branchName" v-model="branchName" placeholder="master" required />
+				<div class="mb-6">
+					<label for="branchName" class="block mb-2 font-bold text-gray-400">Branch Name:</label>
+					<input
+						type="text"
+						id="branchName"
+						v-model="branchName"
+						placeholder="master"
+						required
+						class="box-border w-full p-3 text-base text-gray-200 bg-gray-900 border border-gray-700 rounded focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-400"
+					/>
 				</div>
-				<button type="submit" :disabled="isLoading">
+				<button
+					class="w-full px-6 py-3 font-bold text-white transition-colors duration-200 bg-blue-600 rounded hover:bg-blue-700"
+					type="submit"
+					:disabled="isLoading"
+				>
 					{{ isLoading ? "Generating Link..." : "Generate Review Link" }}
 				</button>
 			</form>
-			<div v-if="errorMessage" class="error-message-home">{{ errorMessage }}</div>
-			<div v-if="generatedReviewLink" class="generated-link-container">
-				<p>Review session created! Use this link:</p>
-				<a :href="generatedReviewLink" target="_blank">{{ generatedReviewLink }}</a>
+			<div v-if="errorMessage" class="p-3 mt-6 text-center text-red-500 bg-red-100 border border-red-500 rounded">
+				{{ errorMessage }}
+			</div>
+			<div v-if="generatedReviewLink" class="p-4 mt-8 text-center bg-gray-900 border border-gray-700 rounded">
+				<p class="mb-2 text-gray-400">Review session created! Use this link:</p>
+				<a
+					:href="generatedReviewLink"
+					target="_blank"
+					class="font-bold text-blue-400 break-all hover:underline"
+					>{{ generatedReviewLink }}</a
+				>
 			</div>
 		</div>
 	</div>
 </template>
-
-<style scoped>
-.home-page-container {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	min-height: 100vh;
-	background-color: #1a202c;
-	padding: 1rem; /* Add some padding for smaller screens */
-}
-
-.form-container {
-	background-color: #2d3748;
-	color: #e2e8f0;
-	padding: 2rem;
-	border-radius: 8px;
-	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-	width: 100%;
-	max-width: 600px;
-}
-
-h2 {
-	color: #a0aec0;
-	margin-top: 0;
-	margin-bottom: 1rem;
-	text-align: center;
-}
-
-p {
-	color: #cbd5e0;
-	margin-bottom: 1.5rem;
-	text-align: center;
-	font-size: 0.95rem;
-}
-
-.form-group {
-	margin-bottom: 1.5rem;
-}
-
-label {
-	display: block;
-	margin-bottom: 0.5rem;
-	color: #a0aec0;
-	font-weight: bold;
-}
-
-input {
-	width: 100%;
-	padding: 0.75rem;
-	border: 1px solid #4a5568;
-	border-radius: 4px;
-	background-color: #1a202c;
-	color: #e2e8f0;
-	font-size: 1rem;
-	box-sizing: border-box;
-}
-
-input:focus {
-	outline: none;
-	border-color: #3182ce;
-	box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.3);
-}
-
-button[type="submit"] {
-	width: 100%;
-	padding: 0.85rem;
-	background-color: #3182ce;
-	color: white;
-	border: none;
-	border-radius: 4px;
-	font-size: 1rem;
-	font-weight: bold;
-	cursor: pointer;
-	transition: background-color 0.2s ease;
-}
-
-button[type="submit"]:hover:not(:disabled) {
-	background-color: #2b6cb0;
-}
-
-button[type="submit"]:disabled {
-	background-color: #4a5568;
-	cursor: not-allowed;
-}
-
-.error-message-home {
-	margin-top: 1.5rem;
-	color: #f56565;
-	background-color: rgba(245, 101, 101, 0.1);
-	border: 1px solid #f56565;
-	padding: 0.75rem;
-	border-radius: 4px;
-	text-align: center;
-}
-
-.generated-link-container {
-	margin-top: 2rem;
-	padding: 1rem;
-	background-color: #1a202c;
-	border: 1px solid #4a5568;
-	border-radius: 4px;
-	text-align: center;
-}
-
-.generated-link-container p {
-	margin-bottom: 0.5rem;
-	color: #a0aec0;
-}
-
-.generated-link-container a {
-	color: #63b3ed;
-	text-decoration: none;
-	font-weight: bold;
-	word-break: break-all;
-}
-
-.generated-link-container a:hover {
-	text-decoration: underline;
-}
-</style>

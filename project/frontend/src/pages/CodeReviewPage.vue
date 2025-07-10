@@ -285,96 +285,61 @@ watch(
 </script>
 
 <template>
-	<div class="review-page-container">
-		<div class="sidebar-container">
-			<div v-if="isLoadingRepo" class="loading-message">Loading repository...</div>
-			<FileExplorer
-				v-else-if="fileTreeData.length > 0"
-				:treeData="fileTreeData"
-				:selectedFile="selectedFile"
-				@file-selected="handleFileSelected"
-				@toggle-expand-item="handleToggleExpandInTree"
-			/>
+	<div class="page">
+		<div class="flex h-full w-full bg-[#1e1e1e] font-sans">
 			<div
-				v-if="errorMessage && !isLoadingRepo && fileTreeData.length === 0 && !isLoadingComments"
-				class="error-message"
+				class="w-[280px] min-w-[200px] bg-[#252526] flex flex-col overflow-auto border-r border-[#181818] flex-shrink-0"
 			>
-				{{ errorMessage }}
+				<div v-if="isLoadingRepo" class="p-4 text-sm text-center text-gray-400">Loading repository...</div>
+				<FileExplorer
+					v-else-if="fileTreeData.length > 0"
+					:treeData="fileTreeData"
+					:selectedFile="selectedFile"
+					@file-selected="handleFileSelected"
+					@toggle-expand-item="handleToggleExpandInTree"
+				/>
+				<div
+					v-if="errorMessage && !isLoadingRepo && fileTreeData.length === 0 && !isLoadingComments"
+					class="p-4 text-sm text-red-500"
+				>
+					{{ errorMessage }}
+				</div>
 			</div>
-		</div>
 
-		<div class="editor-group">
-			<div v-if="isLoadingComments && !isLoadingFile" class="loading-message">Loading comments...</div>
-			<CodeEditor
-				v-else
-				:file-path="selectedFile"
-				:file-content="fileContent"
-				:is-loading-file="isLoadingFile"
-				:comments="currentFileComments"
-				:delete-comment-action="deleteCommentAndReload"
-				@line-double-clicked="handleLineDoubleClicked"
-				@multiline-selected="handleMultilineSelected"
+			<div class="flex flex-col flex-grow overflow-auto">
+				<div v-if="isLoadingComments && !isLoadingFile" class="p-4 text-sm text-center text-gray-400">
+					Loading comments...
+				</div>
+				<CodeEditor
+					v-else
+					:file-path="selectedFile"
+					:file-content="fileContent"
+					:is-loading-file="isLoadingFile"
+					:comments="currentFileComments"
+					:delete-comment-action="deleteCommentAndReload"
+					@line-double-clicked="handleLineDoubleClicked"
+					@multiline-selected="handleMultilineSelected"
+				/>
+			</div>
+
+			<SinglelineCommentModal
+				:visible="isAddingSinglelineComment"
+				:lineNumber="modalLineNumber"
+				:filePath="modalFilePath"
+				:initialText="modalInitialText"
+				@submit="handleSinglelineCommentSubmit"
+				@close="closeSinglelineCommentModal"
+			/>
+
+			<MultilineCommentModal
+				:visible="isAddingMultilineComment"
+				:startLineNumber="modalStartLineNumber"
+				:endLineNumber="modalEndLineNumber"
+				:filePath="modalFilePath"
+				:initialText="multilineModalInitialText"
+				@submit="handleMultilineCommentSubmit"
+				@close="closeMultilineCommentModal"
 			/>
 		</div>
-
-		<SinglelineCommentModal
-			:visible="isAddingSinglelineComment"
-			:lineNumber="modalLineNumber"
-			:filePath="modalFilePath"
-			:initialText="modalInitialText"
-			@submit="handleSinglelineCommentSubmit"
-			@close="closeSinglelineCommentModal"
-		/>
-
-		<MultilineCommentModal
-			:visible="isAddingMultilineComment"
-			:startLineNumber="modalStartLineNumber"
-			:endLineNumber="modalEndLineNumber"
-			:filePath="modalFilePath"
-			:initialText="multilineModalInitialText"
-			@submit="handleMultilineCommentSubmit"
-			@close="closeMultilineCommentModal"
-		/>
 	</div>
 </template>
-
-<style scoped>
-.review-page-container {
-	display: flex;
-	height: 100vh;
-	width: 100vw;
-	background-color: #1e1e1e;
-	font-family: sans-serif;
-}
-
-.sidebar-container {
-	width: 280px;
-	min-width: 200px;
-	background-color: #252526;
-	flex-shrink: 0;
-	display: flex;
-	flex-direction: column;
-	overflow: auto;
-	border-right: 1px solid #181818;
-}
-
-.editor-group {
-	flex-grow: 1;
-	display: flex;
-	flex-direction: column;
-	overflow: auto;
-}
-
-.loading-message {
-	padding: 16px;
-	text-align: center;
-	color: gray;
-	font-size: 14px;
-}
-
-.error-message {
-	padding: 16px;
-	color: red;
-	font-size: 14px;
-}
-</style>
