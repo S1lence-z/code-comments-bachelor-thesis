@@ -340,10 +340,7 @@ watch(
 <template>
 	<div class="page">
 		<div class="flex h-full w-full bg-[#1e1e1e] font-sans">
-			<div
-				:style="{ width: sidebarWidth + 'px' }"
-				class="min-w-[200px] flex flex-col overflow-auto border-r flex-shrink-0"
-			>
+			<div :style="{ width: sidebarWidth + 'px' }" class="min-w-[200px] flex flex-col border-r flex-shrink-0">
 				<!-- File Explorer -->
 				<div v-if="isLoadingRepo" class="p-4 text-sm text-center text-gray-400">Loading repository...</div>
 				<FileExplorer
@@ -367,7 +364,7 @@ watch(
 			></div>
 
 			<!-- Code Editor and Comments -->
-			<div class="flex flex-col flex-grow">
+			<div class="flex flex-col flex-grow overflow-hidden">
 				<div v-if="isLoadingComments && !isLoadingFile" class="p-4 text-sm text-center text-gray-400">
 					Loading comments...
 				</div>

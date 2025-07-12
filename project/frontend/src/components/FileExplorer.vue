@@ -15,9 +15,17 @@ defineEmits<{
 </script>
 
 <template>
-	<aside class="explorer-container">
-		<div class="explorer-header">Explorer</div>
-		<ul class="file-tree-list">
+	<aside
+		class="h-full flex flex-col bg-[#252526] text-[#cccccc] overflow-y-auto select-none border-r border-[#2d2d30] font-sans min-w-[200px]"
+	>
+		<div
+			class="px-4 py-2.5 pl-5 text-xs font-bold text-[#cccccc] uppercase tracking-widest bg-[#2d2d30] border-b border-[#3c3c3c] sticky top-0 z-10 flex items-center h-10 box-border before:content-[''] before:w-4 before:h-4 before:mr-1.5 before:bg-[url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 16 16\'%3E%3Cpath fill=\'%23cccccc\' d=\'M14.5 3H7.71l-.85-.85L6.51 2h-5a.5.5 0 0 0-.5.5v11a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-10a.5.5 0 0 0-.5-.5z\'/%3E%3C/svg%3E')] before:bg-no-repeat before:bg-contain before:flex-shrink-0"
+		>
+			Explorer
+		</div>
+		<ul
+			class="flex-1 list-none p-0 m-0 overflow-y-auto [&::-webkit-scrollbar]:w-[10px] [&::-webkit-scrollbar-track]:bg-[#2d2d30] [&::-webkit-scrollbar-thumb]:bg-[#424242] [&::-webkit-scrollbar-thumb]:rounded-[5px] [&::-webkit-scrollbar-thumb:hover]:bg-[#4f4f4f]"
+		>
 			<FileExplorerItem
 				v-for="item in treeData"
 				:key="item.path"
@@ -29,76 +37,3 @@ defineEmits<{
 		</ul>
 	</aside>
 </template>
-
-<style scoped>
-.explorer-container {
-	height: 100%;
-	display: flex;
-	flex-direction: column;
-	background-color: #252526;
-	color: #cccccc;
-	overflow-y: auto;
-	user-select: none;
-	border-right: 1px solid #2d2d30;
-	font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-	min-width: 200px;
-}
-
-.explorer-header {
-	padding: 10px 16px 10px 20px;
-	font-size: 12px;
-	font-weight: 700;
-	color: #cccccc;
-	text-transform: uppercase;
-	letter-spacing: 0.1em;
-	background-color: #2d2d30;
-	border-bottom: 1px solid #3c3c3c;
-	position: sticky;
-	top: 0;
-	z-index: 10;
-	display: flex;
-	align-items: center;
-	height: 40px;
-	box-sizing: border-box;
-}
-
-.explorer-header::before {
-	content: "";
-	width: 16px;
-	height: 16px;
-	margin-right: 6px;
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23cccccc' d='M14.5 3H7.71l-.85-.85L6.51 2h-5a.5.5 0 0 0-.5.5v11a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-10a.5.5 0 0 0-.5-.5z'/%3E%3C/svg%3E");
-	background-repeat: no-repeat;
-	background-size: contain;
-	flex-shrink: 0;
-}
-
-.file-tree-list {
-	flex: 1;
-	list-style: none;
-	padding: 0;
-	margin: 0;
-	overflow-y: auto;
-}
-
-.file-tree-list::-webkit-scrollbar {
-	width: 10px;
-}
-
-.file-tree-list::-webkit-scrollbar-track {
-	background: #2d2d30;
-}
-
-.file-tree-list::-webkit-scrollbar-thumb {
-	background: #424242;
-	border-radius: 5px;
-}
-
-.file-tree-list::-webkit-scrollbar-thumb:hover {
-	background: #4f4f4f;
-}
-
-.select-none {
-	user-select: none;
-}
-</style>

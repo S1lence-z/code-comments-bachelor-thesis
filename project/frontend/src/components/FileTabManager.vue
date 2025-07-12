@@ -11,6 +11,11 @@ const emits = defineEmits<{
 
 const openFileTabs = ref<string[]>([]);
 
+// Function to extract filename from full path
+const getFileName = (filePath: string): string => {
+	return filePath.split("/").pop() || filePath;
+};
+
 const setActiveFileTab = (filePath: string) => {
 	if (openFileTabs.value.includes(filePath)) {
 		emits("update:modelValue", filePath);
@@ -38,19 +43,19 @@ watch(
 </script>
 
 <template>
-	<div v-if="openFileTabs.length > 0" class="flex flex-1 flex-col h-full">
+	<div v-if="openFileTabs.length > 0" class="flex flex-1 flex-col h-full overflow-hidden">
 		<!-- File Tabs -->
-		<div class="flex flex-row">
-			<ul class="file-tabs">
+		<div class="flex-shrink-0 w-full overflow-x-auto overflow-y-hidden scrollbar-hidden">
+			<ul class="file-tabs flex flex-row gap-2 bg-black mb-1 min-w-max">
 				<li
 					v-for="file in openFileTabs"
 					:key="file"
-					class="file-tab"
+					class="file-tab flex-shrink-0"
 					:class="{
 						active: file === modelValue,
 					}"
 				>
-					<span @click="setActiveFileTab(file)">{{ file }}</span>
+					<span @click="setActiveFileTab(file)" :title="file">{{ getFileName(file) }}</span>
 					<span class="flex items-center justify-center cursor-pointer" @click="removeFileTab(file)">X</span>
 				</li>
 			</ul>

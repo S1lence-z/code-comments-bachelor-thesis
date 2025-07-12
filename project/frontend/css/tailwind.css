@@ -62,4 +62,13 @@
 	.file-tab.active {
 		@apply bg-blue-500 text-black;
 	}
+
+	/* Hide scrollbar for any element with inline scroll styles */
+	.scrollbar-hidden::-webkit-scrollbar {
+		display: none;
+	}
+	.scrollbar-hidden {
+		-ms-overflow-style: none; /* IE and Edge */
+		scrollbar-width: none; /* Firefox */
+	}
 }
