@@ -71,4 +71,15 @@
 		-ms-overflow-style: none; /* IE and Edge */
 		scrollbar-width: none; /* Firefox */
 	}
+
+	/* Hide scrollbars in CodeMirror components */
+	.scrollbar-hidden .cm-editor::-webkit-scrollbar,
+	.scrollbar-hidden .cm-scroller::-webkit-scrollbar {
+		display: none;
+	}
+	.scrollbar-hidden .cm-editor,
+	.scrollbar-hidden .cm-scroller {
+		-ms-overflow-style: none; /* IE and Edge */
+		scrollbar-width: none; /* Firefox */
+	}
 }

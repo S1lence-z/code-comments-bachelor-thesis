@@ -23,9 +23,7 @@ defineEmits<{
 		>
 			Explorer
 		</div>
-		<ul
-			class="flex-1 list-none p-0 m-0 overflow-y-auto [&::-webkit-scrollbar]:w-[10px] [&::-webkit-scrollbar-track]:bg-[#2d2d30] [&::-webkit-scrollbar-thumb]:bg-[#424242] [&::-webkit-scrollbar-thumb]:rounded-[5px] [&::-webkit-scrollbar-thumb:hover]:bg-[#4f4f4f]"
-		>
+		<ul class="flex-1 list-none p-0 m-0 overflow-y-auto scrollbar-hidden">
 			<FileExplorerItem
 				v-for="item in treeData"
 				:key="item.path"

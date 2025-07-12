@@ -103,27 +103,38 @@ const handleSelectionChange = () => {
 </script>
 
 <template>
-	<section class="code-editor-container">
-		<div v-if="!filePath && fileContent === null && !isLoadingFile" class="no-file-selected-message">
+	<section class="flex flex-col flex-grow h-full bg-gray-800 text-gray-300">
+		<div
+			v-if="!filePath && fileContent === null && !isLoadingFile"
+			class="flex items-center justify-center flex-grow text-gray-400 italic"
+		>
 			Select a file to view its content.
 		</div>
 
-		<div v-if="isLoadingFile && filePath" class="loading-message">
-			<p class="loading-text">Loading {{ filePath }}...</p>
+		<div v-if="isLoadingFile && filePath" class="flex items-center justify-center flex-grow">
+			<p class="text-center italic text-gray-400 p-5">Loading {{ filePath }}...</p>
 		</div>
-		<div v-else-if="fileContent && fileContent.startsWith('Error loading file:')" class="error-message">
-			<p class="error-text">{{ fileContent }}</p>
+		<div
+			v-else-if="fileContent && fileContent.startsWith('Error loading file:')"
+			class="flex items-center justify-center flex-grow"
+		>
+			<p class="text-center text-rose-500 p-5">{{ fileContent }}</p>
 		</div>
 		<div
 			v-else-if="filePath && fileContent !== null"
-			class="editor-wrapper"
-			:class="{ 'keyboard-mode': isKeyboardMode }"
+			class="flex-grow relative overflow-auto scrollbar-hidden"
+			:class="{ 'border-2 border-blue-600': isKeyboardMode }"
 		>
-			<div v-if="isKeyboardMode" class="keyboard-mode-indicator">🎹 Keyboard Navigation Mode</div>
+			<div
+				v-if="isKeyboardMode"
+				class="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 text-xs font-semibold z-10 pointer-events-none"
+			>
+				🎹 Keyboard Navigation Mode
+			</div>
 			<codemirror
 				v-model="currentContent"
 				:placeholder="editorPlaceholder"
-				:style="{ height: '100%', overflow: 'auto' }"
+				:style="{ height: '100%' }"
 				:autofocus="isKeyboardMode"
 				:indent-with-tab="true"
 				:tab-size="2"
@@ -134,75 +145,3 @@ const handleSelectionChange = () => {
 		</div>
 	</section>
 </template>
-
-<style scoped>
-.code-editor-container {
-	display: flex;
-	flex-direction: column;
-	flex-grow: 1;
-	height: 100%;
-	background-color: #1f2937;
-	color: #d1d5db;
-}
-
-.no-file-selected-message {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex-grow: 1;
-	color: #9ca3af;
-	font-style: italic;
-}
-
-.loading-message {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex-grow: 1;
-}
-
-.loading-text {
-	text-align: center;
-	font-style: italic;
-	color: #9ca3af;
-	padding: 1.25rem;
-}
-
-.error-message {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex-grow: 1;
-}
-
-.error-text {
-	text-align: center;
-	color: #f43f5e;
-	padding: 1.25rem;
-}
-
-.editor-wrapper {
-	flex-grow: 1;
-	overflow: auto; /* Ensures scrolling is enabled */
-	position: relative;
-}
-
-.editor-wrapper.keyboard-mode {
-	border: 2px solid #007acc;
-	border-radius: 4px;
-}
-
-.keyboard-mode-indicator {
-	position: absolute;
-	top: 8px;
-	right: 8px;
-	background-color: #007acc;
-	color: white;
-	padding: 4px 8px;
-	border-radius: 4px;
-	font-size: 0.75rem;
-	font-weight: 600;
-	z-index: 10;
-	pointer-events: none;
-}
-</style>
