@@ -35,17 +35,20 @@
 	}
 
 	/* Navigation Tab Styles */
-	.active-tab {
+	.nav-tabs {
+		@apply flex h-full gap-2;
+	}
+
+	.nav-tab {
+		@apply flex items-center justify-center h-full gap-2 px-4 text-lg font-medium transition-colors duration-200;
+		@apply text-gray-300 hover:text-white;
+	}
+
+	.nav-tab.active {
 		@apply text-black bg-blue-500;
 	}
 
-	.inactive-tab {
-		@apply flex items-center justify-center h-full gap-0 px-4 text-xl text-center text-white;
-		@apply transition-colors duration-200;
-		@apply hover:bg-blue-400;
-	}
-
-	/* File Explorer Tab Styles */
+	/* File Tab Manager Styles */
 	.file-tabs {
 		@apply flex flex-row gap-2 bg-black mb-1 h-full;
 	}
@@ -57,6 +60,6 @@
 	}
 
 	.file-tab.active {
-		@apply bg-blue-500 text-white;
+		@apply bg-blue-500 text-black;
 	}
 }

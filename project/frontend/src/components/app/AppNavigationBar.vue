@@ -68,13 +68,16 @@ watch(isKeyboardMode, (newValue) => {
 			</div>
 
 			<!-- Navigation Links -->
-			<ul class="flex h-full gap-2">
-				<li v-for="route in navigationRoutes" :key="route.path" class="flex items-center">
-					<router-link
-						:to="{ path: route.path, query: preserveQueryParams }"
-						class="inactive-tab"
-						:class="{ 'active-tab': activeTab === route.path }"
-					>
+			<ul class="nav-tabs">
+				<li
+					v-for="route in navigationRoutes"
+					:key="route.path"
+					class="nav-tab"
+					:class="{
+						active: activeTab === route.path,
+					}"
+				>
+					<router-link :to="{ path: route.path, query: preserveQueryParams }">
 						{{ route.name }}
 					</router-link>
 				</li>
