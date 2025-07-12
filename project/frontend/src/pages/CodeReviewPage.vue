@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, watch, provide } from "vue";
+import { ref, onMounted, onUnmounted, computed, watch, provide } from "vue";
 import { useRoute } from "vue-router";
 import FileExplorer from "../components/FileExplorer.vue";
 import CodeEditor from "../components/CodeEditor.vue";
@@ -47,6 +47,12 @@ const multilineModalInitialText = ref<string>("");
 const backendComments = ref<ICommentDto[]>([]);
 const allFetchedCategories = ref<ICategoryDto[]>([]);
 provide("allFetchedCategories", allFetchedCategories);
+
+// Resizable sidebar state
+const sidebarWidth = ref(280);
+const minSidebarWidth = 200;
+const maxSidebarWidth = 600;
+const isResizing = ref(false);
 
 const currentFileComments = computed(() => {
 	if (selectedFile.value && backendComments.value.length > 0) {
@@ -255,12 +261,47 @@ function closeMultilineCommentModal() {
 	multilineModalInitialText.value = "";
 }
 
+// Resize handling functions
+const startResize = (event: MouseEvent) => {
+	event.preventDefault();
+	isResizing.value = true;
+	document.addEventListener("mousemove", handleResize);
+	document.addEventListener("mouseup", stopResize);
+	document.body.style.cursor = "col-resize";
+	document.body.style.userSelect = "none";
+};
+
+const handleResize = (event: MouseEvent) => {
+	if (!isResizing.value) return;
+
+	const newWidth = event.clientX;
+	if (newWidth >= minSidebarWidth && newWidth <= maxSidebarWidth) {
+		sidebarWidth.value = newWidth;
+	}
+};
+
+const stopResize = () => {
+	isResizing.value = false;
+	cleanResize();
+};
+
+const cleanResize = () => {
+	document.removeEventListener("mousemove", handleResize);
+	document.removeEventListener("mouseup", stopResize);
+	document.body.style.cursor = "";
+	document.body.style.userSelect = "";
+};
+
 onMounted(async () => {
 	if (repoUrl.value && writeApiUrl.value) {
 		await loadCategories();
 		await localFetchRepoTree();
 		await loadComments();
 	}
+});
+
+onUnmounted(() => {
+	cleanResize();
 });
 
 watch(
@@ -288,7 +329,8 @@ watch(
 	<div class="page">
 		<div class="flex h-full w-full bg-[#1e1e1e] font-sans">
 			<div
-				class="w-[280px] min-w-[200px] bg-[#252526] flex flex-col overflow-auto border-r border-[#181818] flex-shrink-0"
+				:style="{ width: sidebarWidth + 'px' }"
+				class="min-w-[200px] flex flex-col overflow-auto border-r flex-shrink-0"
 			>
 				<div v-if="isLoadingRepo" class="p-4 text-sm text-center text-gray-400">Loading repository...</div>
 				<FileExplorer
@@ -305,6 +347,12 @@ watch(
 					{{ errorMessage }}
 				</div>
 			</div>
+
+			<!-- Resize handle -->
+			<div
+				class="flex w-1 h-full cursor-col-resize bg-black hover:bg-blue-500 transition-colors"
+				@mousedown="startResize"
+			></div>
 
 			<div class="flex flex-col flex-grow overflow-auto">
 				<div v-if="isLoadingComments && !isLoadingFile" class="p-4 text-sm text-center text-gray-400">
