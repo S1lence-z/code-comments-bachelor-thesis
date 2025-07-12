@@ -4,15 +4,14 @@ import type { TreeNode } from "../types/githubApi.ts";
 
 interface Props {
 	treeData: TreeNode[];
-	selectedFile: string | null;
+	modelValue: string | null;
 }
 defineProps<Props>();
 
-const emit = defineEmits(["file-selected", "toggle-expand-item"]);
-
-function handleToggleExpand(item: TreeNode) {
-	emit("toggle-expand-item", item);
-}
+defineEmits<{
+	(event: "update:modelValue", value: string | null): void;
+	(event: "toggle-expand-item", item: TreeNode): void;
+}>();
 </script>
 
 <template>
@@ -23,9 +22,9 @@ function handleToggleExpand(item: TreeNode) {
 				v-for="item in treeData"
 				:key="item.path"
 				:item="item"
-				:selectedFile="selectedFile"
-				@file-selected="$emit('file-selected', $event)"
-				@toggle-expand-item="handleToggleExpand"
+				:selectedFile="modelValue"
+				@file-selected="$emit('update:modelValue', $event)"
+				@toggle-expand-item="$emit('toggle-expand-item', $event)"
 			/>
 		</ul>
 	</aside>

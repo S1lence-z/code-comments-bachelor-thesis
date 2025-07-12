@@ -121,7 +121,7 @@ async function localFetchRepoTree() {
 }
 
 async function handleFileSelected(path: string) {
-	if (!path || path === selectedFile.value) return;
+	if (!path) return;
 	selectedFile.value = path;
 	fileContent.value = null;
 	isLoadingFile.value = true;
@@ -349,8 +349,7 @@ watch(
 				<FileExplorer
 					v-else-if="fileTreeData.length > 0"
 					:treeData="fileTreeData"
-					:selectedFile="selectedFile"
-					@file-selected="handleFileSelected"
+					v-model="selectedFile"
 					@toggle-expand-item="handleToggleExpandInTree"
 				/>
 				<div
