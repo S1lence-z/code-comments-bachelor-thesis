@@ -22,6 +22,7 @@
     "@codemirror/state": "^6.5.2",
     "@codemirror/theme-one-dark": "^6.1.2",
     "@codemirror/view": "^6.37.1",
+    "@replit/codemirror-lang-csharp": "^6.2.0",
     "@tailwindcss/vite": "^4.1.11",
     "@types/web": "^0.0.239",
     "tailwindcss": "^4.1.11",
