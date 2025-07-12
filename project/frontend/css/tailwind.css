@@ -8,14 +8,19 @@
 
 @layer components {
 	/* Button Styles */
+	.btn {
+		@apply inline-flex items-center justify-center font-semibold text-lg transition-colors duration-200 px-4 py-2 rounded cursor-pointer;
+	}
+
 	.btn-primary {
-		@apply px-4 py-2 text-white rounded cursor-pointer bg-custom-blue hover:bg-custom-blue-hover;
+		@apply text-white bg-custom-blue hover:bg-custom-blue-hover;
 	}
 
 	.btn-secondary {
-		@apply px-4 py-2 text-gray-700 bg-gray-200 rounded cursor-pointer hover:bg-gray-300;
+		@apply text-gray-700 bg-gray-200 hover:bg-gray-300;
 	}
 
+	/* Modal Styles */
 	.modal {
 		@apply fixed inset-0 z-50 flex items-center justify-around bg-gray-500 backdrop-blur-2xl;
 	}
@@ -24,10 +29,12 @@
 		@apply w-full max-w-md p-6 bg-white shadow-lg rounded-3xl;
 	}
 
+	/* Page Styles */
 	.page {
 		@apply h-full overflow-auto bg-gray-50;
 	}
 
+	/* Tab Styles */
 	.active-tab {
 		@apply text-black bg-blue-500;
 	}
