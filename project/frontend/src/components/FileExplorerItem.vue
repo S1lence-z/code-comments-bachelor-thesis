@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { getFileIcon, getFileIconColor } from "../utils/fileUtils";
 import { type TreeNode } from "../types/githubApi.ts";
 
 interface FileExplorerItemProps {
 	item: TreeNode;
-	selectedFile: string | null;
+	modelValue: string | null;
 	depth?: number;
 }
 
@@ -13,26 +13,29 @@ const props = withDefaults(defineProps<FileExplorerItemProps>(), {
 	depth: 0,
 });
 
-const emit = defineEmits(["file-selected", "toggle-expand-item"]);
+const emits = defineEmits<{
+	(event: "update:modelValue", value: string | null): void;
+	(event: "toggle-expand-item", item: TreeNode): void;
+}>();
 const isHovered = ref(false);
 
 function itemClicked() {
 	if (props.item.type === "file") {
-		emit("file-selected", props.item.path);
+		emits("update:modelValue", props.item.path);
 	} else if (props.item.type === "folder") {
 		// Clicking folder name also toggles
-		emit("toggle-expand-item", props.item);
+		emits("toggle-expand-item", props.item);
 	}
 }
 
 function toggleExpand() {
 	if (props.item.type === "folder") {
-		emit("toggle-expand-item", props.item);
+		emits("toggle-expand-item", props.item);
 	}
 }
 
 function getBackgroundColor() {
-	if (props.item.path === props.selectedFile && props.item.type === "file") {
+	if (props.item.path === props.modelValue && props.item.type === "file") {
 		return "#094771"; // VS Code selection color
 	}
 	if (isHovered.value) {
@@ -40,17 +43,16 @@ function getBackgroundColor() {
 	}
 	return "transparent";
 }
+
+watch;
 </script>
 
 <template>
-	<li class="explorer-item">
+	<li class="list-none m-0 p-0">
+		<!-- Item container with hover and click handling -->
 		<div
 			@click="itemClicked"
-			:class="{
-				'selected-file': item.path === selectedFile && item.type === 'file',
-				'explorer-item-content': true,
-				'is-folder': item.type === 'folder',
-			}"
+			class="flex items-center h-7 cursor-pointer text-sm text-gray-300 transition-colors duration-100 whitespace-nowrap"
 			:title="item.path"
 			@mouseover="isHovered = true"
 			@mouseleave="isHovered = false"
@@ -59,26 +61,34 @@ function getBackgroundColor() {
 				backgroundColor: getBackgroundColor(),
 			}"
 		>
-			<span v-if="item.type === 'folder'" class="folder-toggle" @click.stop="toggleExpand">
+			<!-- Arrow expand icon for folders -->
+			<span
+				v-if="item.type === 'folder'"
+				class="w-[18px] h-[18px] flex items-center justify-center mr-0.5 text-gray-300 transition-transform duration-100 flex-shrink-0 hover:text-white"
+				@click.stop="toggleExpand"
+			>
 				<svg
 					width="18"
 					height="18"
 					viewBox="0 0 16 16"
-					class="chevron-icon"
-					:class="{ expanded: item.isExpanded }"
+					class="transition-transform duration-100 origin-center"
+					:class="{ 'rotate-90': item.isExpanded }"
 				>
 					<path fill="currentColor" d="M6 4l4 4-4 4V4z" />
 				</svg>
 			</span>
-			<span v-else class="icon-spacer"></span>
-			<span class="item-icon">
+
+			<span v-else class="w-5 flex-shrink-0"></span>
+
+			<!-- Item Icon -->
+			<span class="w-[18px] h-[18px] mr-2 flex items-center justify-center flex-shrink-0">
+				<!-- Folder icon for folders -->
 				<svg
 					v-if="item.type === 'folder'"
 					width="18"
 					height="18"
 					viewBox="0 0 16 16"
-					class="folder-icon"
-					:class="{ expanded: item.isExpanded }"
+					class="transition-all duration-100"
 				>
 					<path
 						v-if="!item.isExpanded"
@@ -91,147 +101,41 @@ function getBackgroundColor() {
 						d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3.797a1.5 1.5 0 0 1 1.06.44L8.914 3H14.5A1.5 1.5 0 0 1 16 4.5v7A1.5 1.5 0 0 1 14.5 13h-13A1.5 1.5 0 0 1 0 11.5v-9z"
 					/>
 				</svg>
-				<span v-else class="file-icon" :style="{ color: getFileIconColor(item.name) }">{{
-					getFileIcon(item.name)
-				}}</span>
+				<!-- File icon for files -->
+				<span
+					v-else
+					class="font-semibold text-xs leading-none flex items-center justify-center w-[18px] h-[18px] rounded-sm transition-all duration-100"
+					:style="{
+						color:
+							item.path === props.modelValue && item.type === 'file'
+								? 'inherit'
+								: getFileIconColor(item.name),
+					}"
+				>
+					{{ getFileIcon(item.name) }}
+				</span>
 			</span>
 
-			<span class="item-name">{{ item.name }}</span>
+			<!-- File or folder name -->
+			<span
+				class="flex-1 text-ellipsis whitespace-nowrap text-sm"
+				:class="{ '!text-white': item.path === props.modelValue && item.type === 'file' }"
+			>
+				{{ item.name }}
+			</span>
 		</div>
 
-		<ul
-			v-if="item.type === 'folder' && item.isExpanded && item.children && item.children.length > 0"
-			class="children-list"
-		>
+		<!-- Render children if item is a folder and expanded -->
+		<ul v-if="item.type === 'folder' && item.isExpanded && item.children && item.children.length > 0">
 			<FileExplorerItem
 				v-for="child in item.children"
 				:key="child.path"
 				:item="child"
-				:selectedFile="selectedFile"
+				:modelValue="props.modelValue"
+				@update:modelValue="$emit('update:modelValue', $event)"
 				:depth="depth + 1"
-				@file-selected="$emit('file-selected', $event)"
 				@toggle-expand-item="$emit('toggle-expand-item', $event)"
 			/>
 		</ul>
 	</li>
 </template>
-
-<style scoped>
-.explorer-item {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-}
-
-.explorer-item-content {
-	display: flex;
-	align-items: center;
-	height: 28px;
-	cursor: pointer;
-	font-size: 14px;
-	color: #cccccc;
-	transition: background-color 0.1s ease;
-	white-space: nowrap;
-	overflow: hidden;
-	position: relative;
-	box-sizing: border-box;
-}
-
-.explorer-item-content:hover {
-	background-color: #2a2d2e !important;
-}
-
-.selected-file {
-	background-color: #094771 !important;
-	color: #ffffff;
-}
-
-.selected-file .item-name {
-	color: #ffffff;
-}
-
-.folder-toggle {
-	width: 18px;
-	height: 18px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	margin-right: 2px;
-	color: #cccccc;
-	transition: transform 0.1s ease;
-	flex-shrink: 0;
-}
-
-.folder-toggle:hover {
-	color: #ffffff;
-}
-
-.chevron-icon {
-	transition: transform 0.1s ease;
-	transform-origin: center;
-}
-
-.chevron-icon.expanded {
-	transform: rotate(90deg);
-}
-
-.icon-spacer {
-	width: 20px;
-	flex-shrink: 0;
-}
-
-.item-icon {
-	width: 18px;
-	height: 18px;
-	margin-right: 8px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex-shrink: 0;
-}
-
-.folder-icon {
-	transition: all 0.1s ease;
-}
-
-.item-name {
-	flex: 1;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	font-size: 14px;
-	line-height: 28px;
-	color: inherit;
-}
-
-.children-list {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-}
-
-/* File type specific colors for icons */
-.file-icon {
-	font-weight: 600;
-	font-size: 12px;
-	line-height: 1;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 18px;
-	height: 18px;
-	background-color: rgba(255, 255, 255, 0.1);
-	border-radius: 2px;
-	transition: all 0.1s ease;
-}
-
-/* Override colors for specific file types if needed */
-.explorer-item-content:not(.is-folder) .item-name {
-	color: #cccccc;
-}
-
-.selected-file .file-icon {
-	background-color: rgba(255, 255, 255, 0.2);
-	color: inherit !important;
-}
-</style>
