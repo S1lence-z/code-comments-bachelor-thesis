@@ -59,7 +59,7 @@ watch(isKeyboardMode, (newValue) => {
 					<router-link
 						:to="{ path: '/setup', query: preserveQueryParams }"
 						class="text-white transition-colors duration-200 font-lg semibold whitespace-nowrap"
-						>Code Review App
+						>Code Comments
 					</router-link>
 				</div>
 				<!-- Synced Status -->
