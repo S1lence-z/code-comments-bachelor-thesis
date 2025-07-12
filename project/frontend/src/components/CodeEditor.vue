@@ -146,6 +146,7 @@ const handleSelectionChange = () => {
 	display: flex;
 	flex-direction: column;
 	flex-grow: 1;
+	height: 100%;
 	background-color: #1f2937;
 	color: #d1d5db;
 }

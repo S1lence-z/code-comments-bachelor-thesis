@@ -34,7 +34,7 @@
 		@apply h-full overflow-auto bg-gray-50;
 	}
 
-	/* Tab Styles */
+	/* Navigation Tab Styles */
 	.active-tab {
 		@apply text-black bg-blue-500;
 	}
@@ -43,5 +43,20 @@
 		@apply flex items-center justify-center h-full gap-0 px-4 text-xl text-center text-white;
 		@apply transition-colors duration-200;
 		@apply hover:bg-blue-400;
+	}
+
+	/* File Explorer Tab Styles */
+	.file-tabs {
+		@apply flex flex-row gap-2 bg-black mb-1 h-full;
+	}
+
+	.file-tab {
+		@apply flex justify-center items-center gap-4 px-4 py-2 text-sm font-medium transition-colors duration-200;
+		@apply bg-gray-500 text-gray-800;
+		@apply hover:bg-blue-700 hover:text-white;
+	}
+
+	.file-tab.active {
+		@apply bg-blue-500 text-white;
 	}
 }

@@ -12,6 +12,7 @@ import { fetchComments, addComment, deleteComment, getAllCategories } from "../a
 import { CommentType } from "../../../shared/enums/CommentType.ts";
 import type ICategoryDto from "../../../shared/dtos/ICategoryDto.ts";
 import { extractBaseUrl } from "../utils/urlUtils.ts";
+import FileTabManager from "../components/FileTabManager.vue";
 
 const route = useRoute();
 
@@ -323,6 +324,17 @@ watch(
 		}
 	}
 );
+
+watch(
+	() => selectedFile.value,
+	() => {
+		if (selectedFile.value) {
+			handleFileSelected(selectedFile.value);
+		} else {
+			fileContent.value = null;
+		}
+	}
+);
 </script>
 
 <template>
@@ -332,6 +344,7 @@ watch(
 				:style="{ width: sidebarWidth + 'px' }"
 				class="min-w-[200px] flex flex-col overflow-auto border-r flex-shrink-0"
 			>
+				<!-- File Explorer -->
 				<div v-if="isLoadingRepo" class="p-4 text-sm text-center text-gray-400">Loading repository...</div>
 				<FileExplorer
 					v-else-if="fileTreeData.length > 0"
@@ -354,22 +367,25 @@ watch(
 				@mousedown="startResize"
 			></div>
 
-			<div class="flex flex-col flex-grow overflow-auto">
+			<!-- Code Editor and Comments -->
+			<div class="flex flex-col flex-grow">
 				<div v-if="isLoadingComments && !isLoadingFile" class="p-4 text-sm text-center text-gray-400">
 					Loading comments...
 				</div>
-				<CodeEditor
-					v-else
-					:file-path="selectedFile"
-					:file-content="fileContent"
-					:is-loading-file="isLoadingFile"
-					:comments="currentFileComments"
-					:delete-comment-action="deleteCommentAndReload"
-					@line-double-clicked="handleLineDoubleClicked"
-					@multiline-selected="handleMultilineSelected"
-				/>
+				<FileTabManager v-else v-model="selectedFile">
+					<CodeEditor
+						:file-path="selectedFile"
+						:file-content="fileContent"
+						:is-loading-file="isLoadingFile"
+						:comments="currentFileComments"
+						:delete-comment-action="deleteCommentAndReload"
+						@line-double-clicked="handleLineDoubleClicked"
+						@multiline-selected="handleMultilineSelected"
+					/>
+				</FileTabManager>
 			</div>
 
+			<!-- Comment Modals -->
 			<SinglelineCommentModal
 				:visible="isAddingSinglelineComment"
 				:lineNumber="modalLineNumber"
