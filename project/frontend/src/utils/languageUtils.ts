@@ -8,6 +8,7 @@ import { python } from "@codemirror/lang-python";
 import { sql } from "@codemirror/lang-sql";
 import { java } from "@codemirror/lang-java";
 import { csharp } from "@replit/codemirror-lang-csharp";
+import { svelte } from "@replit/codemirror-lang-svelte";
 import type { LanguageSupport } from "@codemirror/language";
 
 export function getLanguageExtension(filePath: string | null): LanguageSupport | LanguageSupport[] {
@@ -38,6 +39,8 @@ export function getLanguageExtension(filePath: string | null): LanguageSupport |
 			return java();
 		case "cs":
 			return csharp();
+		case "svelte":
+			return svelte();
 		default:
 			return [];
 	}
