@@ -2,6 +2,7 @@
 import { ref, provide } from "vue";
 import NavigationBar from "./components/app/AppNavigationBar.vue";
 import AppFooter from "./components/app/AppFooter.vue";
+import Modal from "./lib/Modal.vue";
 
 // State to manage keyboard mode
 const isKeyboardMode = ref(false);
@@ -34,10 +35,8 @@ const handleKeyboardModeToggle = (value: boolean) => {
 	</div>
 
 	<!-- Global Testing Modal -->
-	<div v-if="false" class="modal">
-		<div class="modal-content">
-			<p>Welcome to the Code Review App! Please set up your project to start reviewing code.</p>
-			<button class="btn-primary" @click="$router.push('/setup')">Get Started</button>
-		</div>
-	</div>
+	<Modal v-if="false">
+		<p>Welcome to the Code Review App! Please set up your project to start reviewing code.</p>
+		<button class="btn btn-primary" @click="$router.push('/setup')">Get Started</button>
+	</Modal>
 </template>
