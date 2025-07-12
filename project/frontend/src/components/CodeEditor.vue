@@ -35,11 +35,6 @@ const handleSingleLineComment = (lineNumber: number, filePath: string) => {
 	emit("line-double-clicked", { lineNumber, filePath });
 };
 
-function getFileName(path: string | null): string {
-	if (!path) return "";
-	return path.split("/").pop() || path;
-}
-
 const editorPlaceholder = computed(() => {
 	return props.filePath ? `Content of ${props.filePath}` : "Code will appear here...";
 });
@@ -109,8 +104,7 @@ const handleSelectionChange = () => {
 
 <template>
 	<section class="code-editor-container">
-		<div v-if="filePath" class="file-path-display">📄 {{ getFileName(filePath) }}</div>
-		<div v-else-if="!filePath && fileContent === null && !isLoadingFile" class="no-file-selected-message">
+		<div v-if="!filePath && fileContent === null && !isLoadingFile" class="no-file-selected-message">
 			Select a file to view its content.
 		</div>
 
@@ -149,19 +143,6 @@ const handleSelectionChange = () => {
 	height: 100%;
 	background-color: #1f2937;
 	color: #d1d5db;
-}
-
-.file-path-display {
-	background-color: #2d3748;
-	font-size: 0.875rem;
-	color: #d1d5db;
-	padding: 0.5rem 1rem;
-	border-bottom: 1px solid #1f2937;
-	border-top: 1px solid #1f2937;
-	-webkit-user-select: none; /* Safari */
-	-ms-user-select: none; /* IE 10+ */
-	user-select: none;
-	flex-shrink: 0;
 }
 
 .no-file-selected-message {
