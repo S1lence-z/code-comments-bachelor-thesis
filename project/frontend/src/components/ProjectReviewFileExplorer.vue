@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, defineProps, watch } from "vue";
+import { ref, computed, watch } from "vue";
 import { type TreeNode } from "../types/githubApi";
 import type ICommentDto from "../../../shared/dtos/ICommentDto";
 import { CommentType } from "../../../shared/enums/CommentType";

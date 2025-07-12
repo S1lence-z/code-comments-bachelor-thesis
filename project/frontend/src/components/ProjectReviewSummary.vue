@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { defineProps, defineEmits } from "vue";
 import { type TreeNode } from "../types/githubApi";
 import type ICommentDto from "../../../shared/dtos/ICommentDto";
 import { CommentType } from "../../../shared/enums/CommentType";

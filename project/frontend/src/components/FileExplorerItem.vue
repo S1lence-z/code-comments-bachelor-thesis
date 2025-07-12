@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, withDefaults } from "vue";
+import { ref } from "vue";
 import { getFileIcon, getFileIconColor } from "../utils/fileUtils";
 import { type TreeNode } from "../types/githubApi.ts";
 
