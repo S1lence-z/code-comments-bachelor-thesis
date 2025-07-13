@@ -2,20 +2,25 @@
 import { computed } from "vue";
 
 const props = defineProps({
-	name: {
+	srcName: {
 		type: String,
-		required: true,
+		required: false,
 	},
 	size: {
 		type: String,
 		default: "18px",
 	},
+	textIcon: {
+		type: String,
+		default: "",
+	},
 });
 
-const iconSrc = computed(() => `/assets/${props.name}.svg`);
+const iconSrc = computed(() => `/assets/${props.srcName}.svg`);
 const iconSize = computed(() => `w-[${props.size}] h-[${props.size}]`);
 </script>
 
 <template>
-	<img :src="iconSrc" :class="iconSize" :alt="`${name} icon`" />
+	<img v-if="props.srcName" :src="iconSrc" :class="iconSize" :alt="`${props.srcName} icon`" />
+	<span v-else-if="props.textIcon">{{ props.textIcon }}</span>
 </template>

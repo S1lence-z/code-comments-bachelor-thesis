@@ -55,7 +55,7 @@ watch(isKeyboardMode, (newValue) => {
 			<div class="flex items-center">
 				<!-- Logo -->
 				<div class="flex items-center gap-2">
-					<Icon name="appLogo" size="24px" />
+					<Icon srcName="appLogo" size="24px" />
 					<router-link
 						:to="{ path: '/setup', query: preserveQueryParams }"
 						class="text-white transition-colors duration-200 font-lg semibold whitespace-nowrap"
