@@ -55,7 +55,7 @@ watch(
 						active: file === modelValue,
 					}"
 				>
-					<span class="flex flex-1 px-4 py-2" @click="setActiveFileTab(file)" :title="file">{{
+					<span class="flex px-4 py-2" @click="setActiveFileTab(file)" :title="file">{{
 						getFileName(file)
 					}}</span>
 					<span class="flex flex-1 px-4 py-2 text-md border-l-2" @click="removeFileTab(file)">X</span>
