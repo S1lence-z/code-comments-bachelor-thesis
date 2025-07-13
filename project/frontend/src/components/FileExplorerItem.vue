@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import { getFileIcon, getFileIconColor } from "../utils/fileUtils";
 import { type TreeNode } from "../types/githubApi.ts";
+import Icon from "../lib/Icon.vue";
 
 interface FileExplorerItemProps {
 	item: TreeNode;
@@ -43,8 +44,6 @@ function getBackgroundColor() {
 	}
 	return "transparent";
 }
-
-watch;
 </script>
 
 <template>
@@ -52,7 +51,7 @@ watch;
 		<!-- Item container with hover and click handling -->
 		<div
 			@click="itemClicked"
-			class="flex items-center h-7 cursor-pointer text-sm text-gray-300 transition-colors duration-100 whitespace-nowrap"
+			class="flex items-center h-7 gap-2 cursor-pointer text-sm text-gray-300 transition-colors duration-100 whitespace-nowrap"
 			:title="item.path"
 			@mouseover="isHovered = true"
 			@mouseleave="isHovered = false"
@@ -67,40 +66,24 @@ watch;
 				class="w-[18px] h-[18px] flex items-center justify-center mr-0.5 text-gray-300 transition-transform duration-100 flex-shrink-0 hover:text-white"
 				@click.stop="toggleExpand"
 			>
-				<svg
-					width="18"
-					height="18"
-					viewBox="0 0 16 16"
+				<Icon
+					name="arrow"
+					size="18px"
 					class="transition-transform duration-100 origin-center"
 					:class="{ 'rotate-90': item.isExpanded }"
-				>
-					<path fill="currentColor" d="M6 4l4 4-4 4V4z" />
-				</svg>
+				/>
 			</span>
-
 			<span v-else class="w-5 flex-shrink-0"></span>
 
 			<!-- Item Icon -->
 			<span class="w-[18px] h-[18px] mr-2 flex items-center justify-center flex-shrink-0">
 				<!-- Folder icon for folders -->
-				<svg
+				<Icon
 					v-if="item.type === 'folder'"
-					width="18"
-					height="18"
-					viewBox="0 0 16 16"
+					:name="item.isExpanded ? 'openFolder' : 'closedFolder'"
+					size="18px"
 					class="transition-all duration-100"
-				>
-					<path
-						v-if="!item.isExpanded"
-						fill="#dcb67a"
-						d="M14.5 3H7.71l-.85-.85L6.51 2h-5a.5.5 0 0 0-.5.5v11a.5.5 0 0 0 .5.5h13a.5.5 0 0 0-.5-.5v-10a.5.5 0 0 0-.5-.5z"
-					/>
-					<path
-						v-else
-						fill="#dcb67a"
-						d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3.797a1.5 1.5 0 0 1 1.06.44L8.914 3H14.5A1.5 1.5 0 0 1 16 4.5v7A1.5 1.5 0 0 1 14.5 13h-13A1.5 1.5 0 0 1 0 11.5v-9z"
-					/>
-				</svg>
+				/>
 				<!-- File icon for files -->
 				<span
 					v-else

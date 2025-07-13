@@ -2,7 +2,7 @@
 import { ref, watch, computed } from "vue";
 import { useRoute } from "vue-router";
 import ToggleButton from "../../lib/ToggleButton.vue";
-import AppIcon from "../icons/AppLogo.vue";
+import Icon from "../../lib/Icon.vue";
 import { navigationRoutes } from "../../core/routes";
 
 const props = defineProps<{
@@ -55,7 +55,7 @@ watch(isKeyboardMode, (newValue) => {
 			<div class="flex items-center">
 				<!-- Logo -->
 				<div class="flex items-center gap-2">
-					<AppIcon :size="24" />
+					<Icon name="appLogo" size="24px" />
 					<router-link
 						:to="{ path: '/setup', query: preserveQueryParams }"
 						class="text-white transition-colors duration-200 font-lg semibold whitespace-nowrap"
