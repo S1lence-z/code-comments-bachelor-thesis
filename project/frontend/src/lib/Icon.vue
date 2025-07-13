@@ -12,7 +12,7 @@ const props = defineProps({
 	},
 });
 
-const iconSrc = computed(() => `/${props.name}.svg`);
+const iconSrc = computed(() => `/assets/${props.name}.svg`);
 const iconSize = computed(() => `w-[${props.size}] h-[${props.size}]`);
 </script>
 
