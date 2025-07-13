@@ -58,7 +58,7 @@ function getBackgroundColor() {
 		<div class="flex items-center">
 			<div
 				@click="itemClicked"
-				class="flex flex-grow items-center gap-2 cursor-pointer text-gray-300"
+				class="flex flex-grow items-center gap-2 cursor-pointer text-gray-300 min-w-0"
 				:title="item.path"
 				@mouseover="isHovered = true"
 				@mouseleave="isHovered = false"
@@ -106,7 +106,7 @@ function getBackgroundColor() {
 
 				<!-- File or folder name -->
 				<span
-					class="flex-1 text-md"
+					class="flex-1 text-md truncate"
 					:class="{ '!text-white': item.path === props.modelValue && item.type === 'file' }"
 				>
 					{{ item.name }}
