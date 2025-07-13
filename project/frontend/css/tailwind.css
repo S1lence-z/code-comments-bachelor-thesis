@@ -40,8 +40,12 @@
 	}
 
 	.nav-tab {
-		@apply flex items-center justify-center h-full gap-2 px-4 text-lg font-medium transition-colors duration-200;
+		@apply flex flex-grow items-center px-2 justify-center h-full text-lg font-medium transition-colors duration-200;
 		@apply text-gray-300 hover:text-white;
+	}
+
+	.nav-tab a {
+		@apply flex items-center justify-center w-full h-full;
 	}
 
 	.nav-tab.active {
