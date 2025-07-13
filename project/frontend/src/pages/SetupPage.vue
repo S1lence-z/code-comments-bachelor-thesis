@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { createConfiguration } from "../api/commentsApi.ts";
+import { createConfiguration } from "../services/commentsService.ts";
 import type ISetupProjectRequest from "../../../shared/api/ISetupProjectRequest.ts";
 import InputField from "../lib/InputField.vue";
 import Button from "../lib/Button.vue";
