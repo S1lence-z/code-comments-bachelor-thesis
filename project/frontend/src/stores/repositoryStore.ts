@@ -51,7 +51,6 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 		},
 
 		async initializeData() {
-			console.log(this.$state);
 			this.syncStateWithRoute();
 			if (!this.repositoryUrl || !this.writeApiUrl) {
 				this.errorMessage = "Repository URL and Comments API URL must be set.";
