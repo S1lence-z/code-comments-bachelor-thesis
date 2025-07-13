@@ -27,8 +27,6 @@ const zoomStep = 0.1;
 // Computed styles for transform
 const contentStyle = computed(() => ({
 	transform: `translate(${panX.value}px, ${panY.value}px) scale(${zoom.value})`,
-	transformOrigin: "center center",
-	transition: isDragging.value ? "none" : "transform 0.1s ease-out",
 }));
 
 const resetZoom = () => {
@@ -119,7 +117,7 @@ const handleTouchEnd = () => {
 <template>
 	<div
 		ref="containerRef"
-		class="relative w-full h-full bg-[#1e1e1e] overflow-hidden"
+		class="relative w-full h-full bg-[#272c33] overflow-hidden"
 		@wheel="handleWheel"
 		tabindex="0"
 		@touchstart="handleTouchStart"
@@ -127,7 +125,7 @@ const handleTouchEnd = () => {
 		@touchend="handleTouchEnd"
 	>
 		<!-- Zoom Level Display -->
-		<div class="absolute top-4 left-4 z-10 bg-[#2d2d30] rounded px-3 py-1 text-white text-sm">
+		<div class="absolute top-4 left-4 z-10 bg-[#0e639c] rounded px-3 py-1 text-white text-sm">
 			{{ Math.round(zoom * 100) }}%
 		</div>
 
