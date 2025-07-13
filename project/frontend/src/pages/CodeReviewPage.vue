@@ -6,21 +6,22 @@ import SinglelineCommentModal from "../components/SinglelineCommentModal.vue";
 import MultilineCommentModal from "../components/MultilineCommentModal.vue";
 import type { TreeNode } from "../types/githubApi.ts";
 import type ICommentDto from "../../../shared/dtos/ICommentDto";
-import { fetchFileContentAPI } from "../services/githubService.ts";
 import { addComment, deleteComment } from "../services/commentsService.ts";
 import { CommentType } from "../../../shared/enums/CommentType.ts";
 import type ICategoryDto from "../../../shared/dtos/ICategoryDto.ts";
 import FileTabManager from "../components/FileTabManager.vue";
 import { useRepositoryStore } from "../stores/repositoryStore.ts";
+import { useFileContentStore } from "../stores/fileContentStore.ts";
 // @ts-ignore
 import { storeToRefs } from "pinia";
 
-// Import the repository store
+// Import stores
 const repositoryStore = useRepositoryStore();
+const fileContentStore = useFileContentStore();
 
 // Get repository settings and data from the store
 const {
-	repositoryUrl: repoUrl,
+	repositoryUrl,
 	writeApiUrl,
 	branch,
 	githubPersonalAccessToken,
@@ -83,10 +84,10 @@ async function handleFileSelected(path: string) {
 	isLoadingFile.value = true;
 
 	try {
-		fileContent.value = await fetchFileContentAPI(
-			repoUrl.value,
-			branch.value,
+		fileContent.value = await fileContentStore.getFileContent(
 			path,
+			repositoryUrl.value,
+			branch.value,
 			githubPersonalAccessToken.value
 		);
 	} catch (e: any) {
