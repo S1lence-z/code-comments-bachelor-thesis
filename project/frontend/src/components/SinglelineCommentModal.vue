@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
-import { inject, computed } from "vue";
-import type { Ref } from "vue";
+import { ref, watch, type Ref } from "vue";
+import { computed } from "vue";
 import type ICategoryDto from "../../../shared/dtos/ICategoryDto";
+import { useRepositoryStore } from "../stores/repositoryStore";
+import { storeToRefs } from "pinia";
 
 interface SinglelineCommentModalProps {
 	visible: boolean;
@@ -21,7 +22,9 @@ const emit = defineEmits(["submit", "close"]);
 
 const currentCommentText = ref("");
 const selectedCategory = ref<string | null>(null);
-const allCategories = inject("allFetchedCategories") as Ref<ICategoryDto[]>;
+const { categories: allCategories } = storeToRefs(useRepositoryStore()) as {
+	categories: Ref<ICategoryDto[]>;
+};
 const categories = computed(() => allCategories.value);
 
 watch(

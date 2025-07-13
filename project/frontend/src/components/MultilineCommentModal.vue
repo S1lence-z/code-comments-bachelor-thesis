@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { computed, inject, ref, watch, type Ref } from "vue";
+import { computed, ref, watch, type Ref } from "vue";
 import type ICategoryDto from "../../../shared/dtos/ICategoryDto";
+import { useRepositoryStore } from "../stores/repositoryStore";
+import { storeToRefs } from "pinia";
 
 interface MultilineCommentModalProps {
 	visible: boolean;
@@ -19,7 +21,9 @@ const props = withDefaults(defineProps<MultilineCommentModalProps>(), {
 const emit = defineEmits(["submit", "close"]);
 const currentCommentText = ref("");
 const selectedCategory = ref<string | null>(null);
-const allCategories = inject("allFetchedCategories") as Ref<ICategoryDto[]>;
+const { categories: allCategories } = storeToRefs(useRepositoryStore()) as {
+	categories: Ref<ICategoryDto[]>;
+};
 const categories = computed(() => allCategories.value);
 
 watch(

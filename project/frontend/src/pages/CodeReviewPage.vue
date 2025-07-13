@@ -1,35 +1,40 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, watch, provide } from "vue";
-import { useRoute } from "vue-router";
+import { ref, onMounted, onUnmounted, computed, watch } from "vue";
 import FileExplorer from "../components/FileExplorer.vue";
 import CodeEditor from "../components/CodeEditor.vue";
 import SinglelineCommentModal from "../components/SinglelineCommentModal.vue";
 import MultilineCommentModal from "../components/MultilineCommentModal.vue";
 import type { TreeNode } from "../types/githubApi.ts";
 import type ICommentDto from "../../../shared/dtos/ICommentDto";
-import { fetchRepoTreeAPI, fetchFileContentAPI } from "../services/githubService.ts";
-import { fetchComments, addComment, deleteComment, getAllCategories } from "../services/commentsService.ts";
+import { fetchFileContentAPI } from "../services/githubService.ts";
+import { addComment, deleteComment } from "../services/commentsService.ts";
 import { CommentType } from "../../../shared/enums/CommentType.ts";
 import type ICategoryDto from "../../../shared/dtos/ICategoryDto.ts";
-import { extractBaseUrl } from "../utils/urlUtils.ts";
 import FileTabManager from "../components/FileTabManager.vue";
+import { useRepositoryStore } from "../stores/repositoryStore.ts";
+// @ts-ignore
+import { storeToRefs } from "pinia";
 
-const route = useRoute();
+// Import the repository store
+const repositoryStore = useRepositoryStore();
 
-// Get props from router query parameters
-const repoUrl = computed(() => decodeURIComponent((route.query.repoUrl as string) || ""));
-const writeApiUrl = computed(() => decodeURIComponent((route.query.commentsApiUrl as string) || ""));
-const initialBranch = computed(() => decodeURIComponent((route.query.branch as string) || "main"));
+// Get repository settings and data from the store
+const {
+	repositoryUrl: repoUrl,
+	writeApiUrl,
+	branch,
+	githubPersonalAccessToken,
+	fileTree,
+	allComments: backendComments,
+	isLoadingRepo,
+	isLoadingComments,
+	errorMessage: storeErrorMessage,
+} = storeToRefs(repositoryStore);
 
-const branch = ref(initialBranch.value);
-const fileTreeData = ref<TreeNode[]>([]);
+// Local state for file selection and content
 const selectedFile = ref<string | null>(null);
 const fileContent = ref<string | null>(null);
-const errorMessage = ref<string>("");
-const isLoadingRepo = ref<boolean>(false);
 const isLoadingFile = ref<boolean>(false);
-const isLoadingComments = ref<boolean>(false);
-const GITHUB_PAT = import.meta.env.VITE_GITHUB_PAT || "";
 
 // SHARED modal state
 const modalFilePath = ref<string | null>(null);
@@ -45,10 +50,6 @@ const modalStartLineNumber = ref<number | null>(null);
 const modalEndLineNumber = ref<number | null>(null);
 const multilineModalInitialText = ref<string>("");
 
-const backendComments = ref<ICommentDto[]>([]);
-const allFetchedCategories = ref<ICategoryDto[]>([]);
-provide("allFetchedCategories", allFetchedCategories);
-
 // Resizable sidebar state
 const sidebarWidth = ref(280);
 const minSidebarWidth = 200;
@@ -57,66 +58,21 @@ const isResizing = ref(false);
 
 const currentFileComments = computed(() => {
 	if (selectedFile.value && backendComments.value.length > 0) {
-		return backendComments.value.filter((comment) => comment.filePath === selectedFile.value);
+		return repositoryStore.getCommentsForFile(selectedFile.value);
 	}
 	return [];
 });
 
 async function deleteCommentAndReload(commentId: number): Promise<void> {
 	if (!writeApiUrl.value) {
-		errorMessage.value = "Cannot delete comment: comments API URL is not configured.";
+		console.error("Cannot delete comment: comments API URL is not configured.");
 		return;
 	}
 	try {
 		await deleteComment(writeApiUrl.value, commentId);
-		await loadComments();
+		repositoryStore.removeComment(commentId);
 	} catch (e: any) {
-		errorMessage.value = `Failed to delete comment: ${e.message}`;
-		console.error("Error deleting comment:", e);
-	}
-}
-
-async function loadComments() {
-	if (!writeApiUrl.value) return;
-	isLoadingComments.value = true;
-	try {
-		const response = await fetchComments(writeApiUrl.value);
-		backendComments.value = response.comments || [];
-	} catch (e: any) {
-		errorMessage.value = `Failed to load comments: ${e.message}`;
-		console.error("Error fetching comments:", e);
-		backendComments.value = [];
-	} finally {
-		isLoadingComments.value = false;
-	}
-}
-
-async function loadCategories() {
-	try {
-		const response = await getAllCategories(extractBaseUrl(writeApiUrl.value));
-		allFetchedCategories.value = response;
-	} catch (e: any) {
-		errorMessage.value = `Failed to load categories`;
-		console.error("Error fetching categories:", e);
-		allFetchedCategories.value = [];
-	}
-}
-
-async function localFetchRepoTree() {
-	if (!repoUrl.value) return;
-	isLoadingRepo.value = true;
-	errorMessage.value = "";
-	fileTreeData.value = [];
-	selectedFile.value = null;
-	fileContent.value = null;
-
-	try {
-		fileTreeData.value = await fetchRepoTreeAPI(repoUrl.value, branch.value, GITHUB_PAT);
-	} catch (e: any) {
-		errorMessage.value = e.message;
-		console.error("Error fetching repo tree:", e);
-	} finally {
-		isLoadingRepo.value = false;
+		console.error("Failed to delete comment:", e);
 	}
 }
 
@@ -127,7 +83,12 @@ async function handleFileSelected(path: string) {
 	isLoadingFile.value = true;
 
 	try {
-		fileContent.value = await fetchFileContentAPI(repoUrl.value, branch.value, path, GITHUB_PAT);
+		fileContent.value = await fetchFileContentAPI(
+			repoUrl.value,
+			branch.value,
+			path,
+			githubPersonalAccessToken.value
+		);
 	} catch (e: any) {
 		fileContent.value = `Error loading file: ${e.message}`;
 		console.error("Error fetching file content:", e);
@@ -149,16 +110,19 @@ function handleToggleExpandInTree(itemToToggle: TreeNode) {
 		}
 		return false;
 	};
-	findAndToggle(fileTreeData.value);
+	findAndToggle(fileTree.value);
 }
 
+// Handle comment actions
 function handleLineDoubleClicked(payload: { lineNumber: number; filePath: string }) {
 	const { lineNumber, filePath } = payload;
 	if (!filePath || !writeApiUrl.value) {
-		errorMessage.value = "Cannot add comment: comments API URL is not configured.";
+		console.error("Cannot add comment: comments API URL is not configured.");
 		return;
 	}
-	const existingComment = backendComments.value.find((c) => c.filePath === filePath && c.lineNumber === lineNumber);
+	const existingComment = backendComments.value.find(
+		(c: ICommentDto) => c.filePath === filePath && c.lineNumber === lineNumber
+	);
 	modalLineNumber.value = lineNumber;
 	modalFilePath.value = filePath;
 	modalInitialText.value = existingComment ? existingComment.content : "";
@@ -168,7 +132,7 @@ function handleLineDoubleClicked(payload: { lineNumber: number; filePath: string
 function handleMultilineSelected(payload: { startLineNumber: number; endLineNumber: number; filePath: string }) {
 	const { startLineNumber, endLineNumber, filePath } = payload;
 	if (!filePath || !writeApiUrl.value) {
-		errorMessage.value = "Cannot add comment: comments API URL is not configured.";
+		console.error("Cannot add comment: comments API URL is not configured.");
 		return;
 	}
 	modalStartLineNumber.value = startLineNumber;
@@ -179,7 +143,7 @@ function handleMultilineSelected(payload: { startLineNumber: number; endLineNumb
 
 async function handleSinglelineCommentSubmit(commentText: string, category: ICategoryDto) {
 	if (modalFilePath.value === null || modalLineNumber.value === null || !writeApiUrl.value) {
-		errorMessage.value = "Cannot save comment: missing data or API URL.";
+		console.error("Cannot save comment: missing data or API URL.");
 		return;
 	}
 
@@ -200,10 +164,9 @@ async function handleSinglelineCommentSubmit(commentText: string, category: ICat
 
 	try {
 		await addComment(writeApiUrl.value, commentData);
-		await loadComments();
+		await repositoryStore.fetchAllComments();
 	} catch (e: any) {
-		errorMessage.value = `Failed to save comment: ${e.message}`;
-		console.error("Error saving comment:", e);
+		console.error("Failed to save comment:", e);
 	} finally {
 		closeSinglelineCommentModal();
 	}
@@ -216,7 +179,7 @@ async function handleMultilineCommentSubmit(commentText: string, category: ICate
 		modalEndLineNumber.value === null ||
 		!writeApiUrl.value
 	) {
-		errorMessage.value = "Cannot save comment: missing data or API URL.";
+		console.error("Cannot save comment: missing data or API URL.");
 		return;
 	}
 
@@ -238,10 +201,9 @@ async function handleMultilineCommentSubmit(commentText: string, category: ICate
 
 	try {
 		await addComment(writeApiUrl.value, commentData);
-		await loadComments();
+		await repositoryStore.fetchAllComments();
 	} catch (e: any) {
-		errorMessage.value = `Failed to save comment: ${e.message}`;
-		console.error("Error saving comment:", e);
+		console.error("Failed to save comment:", e);
 	} finally {
 		closeMultilineCommentModal();
 	}
@@ -294,36 +256,16 @@ const cleanResize = () => {
 };
 
 onMounted(async () => {
-	if (repoUrl.value && writeApiUrl.value) {
-		await loadCategories();
-		await localFetchRepoTree();
-		await loadComments();
+	try {
+		await repositoryStore.initializeData();
+	} catch (error) {
+		console.error("Failed to initialize store data:", error);
 	}
 });
 
 onUnmounted(() => {
 	cleanResize();
 });
-
-watch(
-	() => writeApiUrl.value,
-	async (newUrl, oldUrl) => {
-		if (newUrl && newUrl !== oldUrl) {
-			await loadComments();
-		}
-	}
-);
-
-watch(
-	() => repoUrl.value,
-	async (newUrl, oldUrl) => {
-		if (newUrl && newUrl !== oldUrl) {
-			await localFetchRepoTree();
-			// Potentially reload comments if the repo changes and comments are repo-specific beyond the ID
-			if (writeApiUrl.value) await loadComments();
-		}
-	}
-);
 
 watch(
 	() => selectedFile.value,
@@ -344,16 +286,16 @@ watch(
 				<!-- File Explorer -->
 				<div v-if="isLoadingRepo" class="p-4 text-sm text-center text-gray-400">Loading repository...</div>
 				<FileExplorer
-					v-else-if="fileTreeData.length > 0"
-					:treeData="fileTreeData"
+					v-else-if="fileTree.length > 0"
+					:treeData="fileTree"
 					v-model="selectedFile"
 					@toggle-expand-item="handleToggleExpandInTree"
 				/>
 				<div
-					v-if="errorMessage && !isLoadingRepo && fileTreeData.length === 0 && !isLoadingComments"
+					v-if="storeErrorMessage && !isLoadingRepo && fileTree.length === 0 && !isLoadingComments"
 					class="p-4 text-sm text-red-500"
 				>
-					{{ errorMessage }}
+					{{ storeErrorMessage }}
 				</div>
 			</div>
 
