@@ -2,7 +2,7 @@
 import { ref, watch } from "vue";
 
 const props = defineProps<{
-	modelValue: string | null; // This is the file path of the currently active tab
+	modelValue: string | null;
 }>();
 
 const emits = defineEmits<{
@@ -50,13 +50,15 @@ watch(
 				<li
 					v-for="file in openFileTabs"
 					:key="file"
-					class="file-tab flex-shrink-0"
+					class="file-tab"
 					:class="{
 						active: file === modelValue,
 					}"
 				>
-					<span @click="setActiveFileTab(file)" :title="file">{{ getFileName(file) }}</span>
-					<span class="flex items-center justify-center cursor-pointer" @click="removeFileTab(file)">X</span>
+					<span class="flex flex-1 px-4 py-2" @click="setActiveFileTab(file)" :title="file">{{
+						getFileName(file)
+					}}</span>
+					<span class="flex flex-1 px-4 py-2 text-md border-l-2" @click="removeFileTab(file)">X</span>
 				</li>
 			</ul>
 		</div>
