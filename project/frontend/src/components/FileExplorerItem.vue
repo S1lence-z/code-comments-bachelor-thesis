@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { getFileIcon, getFileIconColor } from "../utils/fileUtils";
-import { type TreeNode } from "../types/githubApi.ts";
+import { type TreeNode } from "../types/githubTree.ts";
 import Icon from "../lib/Icon.vue";
 
 interface FileExplorerItemProps {

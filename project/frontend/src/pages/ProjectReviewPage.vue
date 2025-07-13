@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, watch } from "vue";
-import { fetchRepoTreeAPI } from "../services/githubService";
+import { fetchRepoTreeAPI } from "../services/githubTreeService";
 import { fetchComments, addComment, updateComment } from "../services/commentsService";
-import { type TreeNode } from "../types/githubApi";
+import { type TreeNode } from "../types/githubTree";
 import type ICommentDto from "../../../shared/dtos/ICommentDto";
 import type IGetCommentsResponse from "../../../shared/api/IGetCommentsResponse";
 import { CommentType } from "../../../shared/enums/CommentType";

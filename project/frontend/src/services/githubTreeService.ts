@@ -1,4 +1,4 @@
-import type { GitHubTreeItem, TreeNode } from "../types/githubApi.ts";
+import type { GitHubTreeItem, TreeNode } from "../types/githubTree.ts";
 
 export function buildFileTreeFromGitHub(gitHubItems: GitHubTreeItem[]): TreeNode[] {
 	const rootNodes: TreeNode[] = [];
@@ -71,32 +71,4 @@ export async function fetchRepoTreeAPI(repoUrl: string, branch: string, GITHUB_P
 		throw new Error("Invalid tree data received from GitHub API.");
 	}
 	return buildFileTreeFromGitHub(data.tree as GitHubTreeItem[]);
-}
-
-export async function fetchFileContentAPI(
-	repoUrl: string,
-	branch: string,
-	path: string,
-	GITHUB_PAT?: string
-): Promise<string> {
-	const url = new URL(repoUrl);
-	const [owner, repo] = url.pathname.split("/").filter(Boolean);
-	if (!owner || !repo) {
-		throw new Error("Invalid repository URL for API construction.");
-	}
-	const contentUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`;
-
-	const headers: HeadersInit = {
-		Accept: "application/vnd.github.raw",
-	};
-	if (GITHUB_PAT) {
-		headers["Authorization"] = `Bearer ${GITHUB_PAT}`;
-	}
-
-	const res = await fetch(contentUrl, { headers });
-	if (!res.ok) {
-		const errorText = await res.text();
-		throw new Error(`Status ${res.status}: ${errorText || "Failed to load file content."}`);
-	}
-	return res.text();
 }

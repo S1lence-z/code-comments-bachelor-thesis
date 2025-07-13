@@ -1,10 +1,10 @@
 import { defineStore } from "pinia";
 import { useRoute } from "vue-router";
-import type { TreeNode } from "../types/githubApi";
+import type { TreeNode } from "../types/githubTree";
 import type ICommentDto from "../../../shared/dtos/ICommentDto";
 import type ICategoryDto from "../../../shared/dtos/ICategoryDto";
 import { extractBaseUrl } from "../utils/urlUtils";
-import { fetchRepoTreeAPI } from "../services/githubService";
+import { fetchRepoTreeAPI } from "../services/githubTreeService";
 import { fetchComments, getAllCategories } from "../services/commentsService";
 
 export const useRepositoryStore = defineStore("repositoryStore", {

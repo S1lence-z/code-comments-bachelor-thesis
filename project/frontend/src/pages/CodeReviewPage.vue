@@ -4,7 +4,8 @@ import FileExplorer from "../components/FileExplorer.vue";
 import CodeEditor from "../components/CodeEditor.vue";
 import SinglelineCommentModal from "../components/SinglelineCommentModal.vue";
 import MultilineCommentModal from "../components/MultilineCommentModal.vue";
-import type { TreeNode } from "../types/githubApi.ts";
+import OtherContentViewer from "../components/OtherContentViewer.vue";
+import type { TreeNode } from "../types/githubTree.ts";
 import type ICommentDto from "../../../shared/dtos/ICommentDto";
 import { addComment, deleteComment } from "../services/commentsService.ts";
 import { CommentType } from "../../../shared/enums/CommentType.ts";
@@ -14,6 +15,7 @@ import { useRepositoryStore } from "../stores/repositoryStore.ts";
 import { useFileContentStore } from "../stores/fileContentStore.ts";
 // @ts-ignore
 import { storeToRefs } from "pinia";
+import type { ProcessedFile } from "../types/githubFile.ts";
 
 // Import stores
 const repositoryStore = useRepositoryStore();
@@ -33,8 +35,8 @@ const {
 } = storeToRefs(repositoryStore);
 
 // Local state for file selection and content
-const selectedFile = ref<string | null>(null);
-const fileContent = ref<string | null>(null);
+const selectedFilePath = ref<string | null>(null);
+const processedSelectedFile = ref<ProcessedFile | null>(null);
 const isLoadingFile = ref<boolean>(false);
 
 // SHARED modal state
@@ -58,12 +60,13 @@ const maxSidebarWidth = 600;
 const isResizing = ref(false);
 
 const currentFileComments = computed(() => {
-	if (selectedFile.value && backendComments.value.length > 0) {
-		return repositoryStore.getCommentsForFile(selectedFile.value);
+	if (selectedFilePath.value && backendComments.value.length > 0) {
+		return repositoryStore.getCommentsForFile(selectedFilePath.value);
 	}
 	return [];
 });
 
+// Comment handling
 async function deleteCommentAndReload(commentId: number): Promise<void> {
 	if (!writeApiUrl.value) {
 		console.error("Cannot delete comment: comments API URL is not configured.");
@@ -79,25 +82,25 @@ async function deleteCommentAndReload(commentId: number): Promise<void> {
 
 async function handleFileSelected(path: string) {
 	if (!path) return;
-	selectedFile.value = path;
-	fileContent.value = null;
-	isLoadingFile.value = true;
 
+	selectedFilePath.value = path;
+	isLoadingFile.value = true;
 	try {
-		fileContent.value = await fileContentStore.getFileContent(
+		processedSelectedFile.value = await fileContentStore.getFileContent(
 			path,
 			repositoryUrl.value,
 			branch.value,
 			githubPersonalAccessToken.value
 		);
 	} catch (e: any) {
-		fileContent.value = `Error loading file: ${e.message}`;
+		processedSelectedFile.value = null;
 		console.error("Error fetching file content:", e);
 	} finally {
 		isLoadingFile.value = false;
 	}
 }
 
+// TODO: move this function to the FileExplorer component
 function handleToggleExpandInTree(itemToToggle: TreeNode) {
 	const findAndToggle = (nodes: TreeNode[]): boolean => {
 		for (const node of nodes) {
@@ -269,12 +272,12 @@ onUnmounted(() => {
 });
 
 watch(
-	() => selectedFile.value,
+	() => selectedFilePath.value,
 	() => {
-		if (selectedFile.value) {
-			handleFileSelected(selectedFile.value);
+		if (selectedFilePath.value) {
+			handleFileSelected(selectedFilePath.value);
 		} else {
-			fileContent.value = null;
+			processedSelectedFile.value = null;
 		}
 	}
 );
@@ -289,7 +292,7 @@ watch(
 				<FileExplorer
 					v-else-if="fileTree.length > 0"
 					:treeData="fileTree"
-					v-model="selectedFile"
+					v-model="selectedFilePath"
 					@toggle-expand-item="handleToggleExpandInTree"
 				/>
 				<div
@@ -311,15 +314,23 @@ watch(
 				<div v-if="isLoadingComments && !isLoadingFile" class="p-4 text-sm text-center text-gray-400">
 					Loading comments...
 				</div>
-				<FileTabManager v-else v-model="selectedFile">
+				<FileTabManager v-else v-model="selectedFilePath">
 					<CodeEditor
-						:file-path="selectedFile"
-						:file-content="fileContent"
+						v-if="processedSelectedFile?.displayType === 'text'"
+						:file-path="selectedFilePath"
+						:file-content="processedSelectedFile?.content"
 						:is-loading-file="isLoadingFile"
 						:comments="currentFileComments"
 						:delete-comment-action="deleteCommentAndReload"
 						@line-double-clicked="handleLineDoubleClicked"
 						@multiline-selected="handleMultilineSelected"
+					/>
+					<OtherContentViewer
+						v-else
+						:display-type="processedSelectedFile?.displayType ?? 'binary'"
+						:download-url="processedSelectedFile?.downloadUrl ?? null"
+						:file-name="processedSelectedFile?.fileName ?? 'Unknown'"
+						:selected-file-path="selectedFilePath"
 					/>
 				</FileTabManager>
 			</div>

@@ -9,8 +9,8 @@ import "../../css/codemirror.css";
 const isKeyboardMode = inject("isKeyboardMode") as Ref<boolean>;
 
 interface CodeEditorProps {
-	fileContent: string | null;
 	filePath: string | null;
+	fileContent: string | null | undefined;
 	isLoadingFile?: boolean;
 	comments?: ICommentDto[];
 	deleteCommentAction: (commentId: number) => Promise<void>;
@@ -26,7 +26,7 @@ const emit = defineEmits<{
 	"multiline-selected": [{ startLineNumber: number; endLineNumber: number; filePath: string }];
 }>();
 
-const currentContent = ref("");
+const currentContent = ref<string>("");
 const editorView = shallowRef<EditorView>();
 const lastSelectionTimeout = ref<number | null>(null);
 
@@ -52,8 +52,8 @@ const extensions = computed(() => {
 
 watch(
 	() => props.fileContent,
-	(newVal: string | null) => {
-		currentContent.value = newVal === null ? "" : newVal;
+	(newVal: string | null | undefined) => {
+		currentContent.value = newVal ?? "";
 	},
 	{ immediate: true }
 );

@@ -1,9 +1,10 @@
 import { defineStore } from "pinia";
-import { fetchFileContentAPI } from "../services/githubService";
+import { fetchProcessedFile } from "../services/githubFileService";
+import type { ProcessedFile } from "../types/githubFile";
 
 export const useFileContentStore = defineStore("fileContentStore", {
 	state: () => ({
-		fileContentCache: new Map<string, string>(),
+		fileContentCache: new Map<string, ProcessedFile>(),
 	}),
 	getters: {
 		isFileCached: (state) => (filePath: string) => {
@@ -11,11 +12,16 @@ export const useFileContentStore = defineStore("fileContentStore", {
 		},
 	},
 	actions: {
-		cacheFile(key: string, value: string) {
+		cacheFile(key: string, value: ProcessedFile) {
 			this.fileContentCache.set(key, value);
 		},
 
-		async getFileContent(filePath: string, repoUrl: string, branch: string, githubPat?: string): Promise<string> {
+		async getFileContent(
+			filePath: string,
+			repoUrl: string,
+			branch: string,
+			githubPat?: string
+		): Promise<ProcessedFile> {
 			if (this.isFileCached(filePath)) {
 				const cached = this.fileContentCache.get(filePath);
 				if (cached) return cached;
@@ -24,9 +30,9 @@ export const useFileContentStore = defineStore("fileContentStore", {
 				}
 			}
 
-			const content = await fetchFileContentAPI(repoUrl, branch, filePath, githubPat);
-			this.cacheFile(filePath, content);
-			return content;
+			const processedFile = await fetchProcessedFile(repoUrl, branch, filePath, githubPat);
+			this.cacheFile(filePath, processedFile);
+			return processedFile;
 		},
 	},
 });
