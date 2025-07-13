@@ -4,7 +4,7 @@ import FileExplorer from "../components/FileExplorer.vue";
 import CodeEditor from "../components/CodeEditor.vue";
 import SinglelineCommentModal from "../components/SinglelineCommentModal.vue";
 import MultilineCommentModal from "../components/MultilineCommentModal.vue";
-import OtherContentViewer from "../components/OtherContentViewer.vue";
+import OtherContentViewer from "../components/ContentViewer.vue";
 import type { TreeNode } from "../types/githubTree.ts";
 import type ICommentDto from "../../../shared/dtos/ICommentDto";
 import { addComment, deleteComment } from "../services/commentsService.ts";
