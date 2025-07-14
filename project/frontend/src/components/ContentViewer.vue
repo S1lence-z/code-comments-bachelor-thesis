@@ -177,6 +177,16 @@ const handleTouchEnd = () => {
 					<div class="text-gray-400 text-lg mb-2">Binary File</div>
 					<div class="text-gray-500 text-sm">{{ fileName }}</div>
 					<div class="text-gray-600 text-xs mt-2">Content cannot be displayed</div>
+					<div class="text-gray-500 text-lg mt-1">
+						You can take a look at it
+						<a
+							:href="downloadUrl ?? ''"
+							class="text-blue-500 hover:underline"
+							target="_blank"
+							rel="noopener"
+							>here</a
+						>.
+					</div>
 				</div>
 			</template>
 
@@ -186,6 +196,16 @@ const handleTouchEnd = () => {
 					<div class="text-6xl text-gray-600 mb-4">❓</div>
 					<div class="text-gray-400 text-lg mb-2">Unsupported File Type</div>
 					<div class="text-gray-500 text-sm">{{ fileName }}</div>
+					<div class="text-gray-500 text-lg mt-1">
+						You can take a look at it
+						<a
+							:href="downloadUrl ?? ''"
+							class="text-blue-500 hover:underline"
+							target="_blank"
+							rel="noopener"
+							>here</a
+						>.
+					</div>
 				</div>
 			</template>
 		</div>

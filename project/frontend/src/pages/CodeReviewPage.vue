@@ -410,7 +410,7 @@ watch(
 				@close="closeMultilineCommentModal"
 			/>
 
-			<!-- Modal to add a comment for the selected file -->
+			<!-- File/Folder Comment Modal -->
 			<Modal v-if="isAddingFileComment" @close="closeFileCommentModal" class="bg-color-white">
 				<h3 class="text-lg font-semibold text-black mb-4">File/Folder: {{ fileCommentData.filePath }}</h3>
 				<p class="text-sm mb-4">
