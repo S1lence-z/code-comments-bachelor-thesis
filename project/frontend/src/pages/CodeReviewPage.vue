@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, watch, provide, readonly } from "vue";
+import { ref, onMounted, onUnmounted, computed, watch, provide } from "vue";
 import FileExplorer from "../components/FileExplorer.vue";
 import CodeEditor from "../components/CodeEditor.vue";
 import SinglelineCommentModal from "../components/SinglelineCommentModal.vue";
@@ -419,7 +419,7 @@ watch(
 				<div class="space-y-4">
 					<textarea
 						v-model="fileCommentData.content"
-						class="w-full p-3 border border-gray-600 rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+						class="w-full p-3 border border-gray-600 rounded-md bg-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
 						placeholder="Enter your comment here..."
 						rows="4"
 					></textarea>
