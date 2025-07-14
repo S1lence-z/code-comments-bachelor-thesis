@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, watch } from "vue";
+import { ref, onMounted, onUnmounted, computed, watch, provide, readonly } from "vue";
 import FileExplorer from "../components/FileExplorer.vue";
 import CodeEditor from "../components/CodeEditor.vue";
 import SinglelineCommentModal from "../components/SinglelineCommentModal.vue";
@@ -13,9 +13,9 @@ import type ICategoryDto from "../../../shared/dtos/ICategoryDto.ts";
 import FileTabManager from "../components/FileTabManager.vue";
 import { useRepositoryStore } from "../stores/repositoryStore.ts";
 import { useFileContentStore } from "../stores/fileContentStore.ts";
-// @ts-ignore
 import { storeToRefs } from "pinia";
 import type { ProcessedFile } from "../types/githubFile.ts";
+import Modal from "../lib/Modal.vue";
 
 // Import stores
 const repositoryStore = useRepositoryStore();
@@ -52,6 +52,23 @@ const isAddingMultilineComment = ref(false);
 const modalStartLineNumber = ref<number | null>(null);
 const modalEndLineNumber = ref<number | null>(null);
 const multilineModalInitialText = ref<string>("");
+
+// File/Folder comment modal state
+const isAddingFileComment = ref(false);
+function updateIsAddingFileComment(value: boolean) {
+	isAddingFileComment.value = value;
+}
+provide("updateIsAddingFileComment", updateIsAddingFileComment);
+
+const fileCommentData = ref<{ filePath: string | null; content: string }>({
+	filePath: null,
+	content: "",
+});
+const updateFileCommentData = (filePath: string, content: string) => {
+	fileCommentData.value.filePath = filePath;
+	fileCommentData.value.content = content;
+};
+provide("updateFileCommentData", updateFileCommentData);
 
 // Resizable sidebar state
 const sidebarWidth = ref(280);
@@ -228,6 +245,43 @@ function closeMultilineCommentModal() {
 	multilineModalInitialText.value = "";
 }
 
+// Handle file comment modal
+function handleFileCommentModal(isAdding: boolean) {
+	if (isAdding) {
+		fileCommentData.value.filePath = null;
+		fileCommentData.value.content = "";
+		isAddingFileComment.value = true;
+	}
+}
+
+function closeFileCommentModal() {
+	isAddingFileComment.value = false;
+	fileCommentData.value.filePath = null;
+	fileCommentData.value.content = "";
+}
+
+async function handleFileCommentSubmit() {
+	if (!fileCommentData.value.filePath || !fileCommentData.value.content.trim() || !writeApiUrl.value) {
+		console.error("Cannot save comment: missing data or API URL.");
+		return;
+	}
+
+	const commentData: ICommentDto = {
+		id: 0,
+		filePath: fileCommentData.value.filePath,
+		content: fileCommentData.value.content,
+		type: CommentType.File,
+	};
+
+	try {
+		console.log("Submitting file comment:", commentData);
+	} catch (e: any) {
+		console.error("Failed to save comment:", e);
+	} finally {
+		closeFileCommentModal();
+	}
+}
+
 // Resize handling functions
 const startResize = (event: MouseEvent) => {
 	event.preventDefault();
@@ -293,6 +347,7 @@ watch(
 					v-else-if="fileTree.length > 0"
 					:treeData="fileTree"
 					v-model="selectedFilePath"
+					@update:isAddingFileComment="handleFileCommentModal"
 					@toggle-expand-item="handleToggleExpandInTree"
 				/>
 				<div
@@ -354,6 +409,32 @@ watch(
 				@submit="handleMultilineCommentSubmit"
 				@close="closeMultilineCommentModal"
 			/>
+
+			<!-- Modal to add a comment for the selected file -->
+			<Modal v-if="isAddingFileComment" @close="closeFileCommentModal" class="bg-color-white">
+				<h3 class="text-lg font-semibold text-black mb-4">File/Folder: {{ fileCommentData.filePath }}</h3>
+				<p class="text-sm mb-4">
+					You can add comments directly to the file. Please select a category and enter your comment.
+				</p>
+				<div class="space-y-4">
+					<textarea
+						v-model="fileCommentData.content"
+						class="w-full p-3 border border-gray-600 rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+						placeholder="Enter your comment here..."
+						rows="4"
+					></textarea>
+					<div class="flex justify-end space-x-2">
+						<button @click="closeFileCommentModal" class="btn btn-secondary">Cancel</button>
+						<button
+							@click="handleFileCommentSubmit"
+							:disabled="!fileCommentData.content.trim()"
+							class="btn btn-primary"
+						>
+							Add Comment
+						</button>
+					</div>
+				</div>
+			</Modal>
 		</div>
 	</div>
 </template>

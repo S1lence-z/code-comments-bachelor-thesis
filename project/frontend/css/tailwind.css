@@ -22,7 +22,7 @@
 
 	/* Modal Styles */
 	.modal {
-		@apply fixed inset-0 z-50 flex items-center justify-around bg-gray-500 backdrop-blur-2xl;
+		@apply fixed inset-0 z-50 flex items-center justify-around backdrop-blur-sm;
 	}
 
 	.modal-content {

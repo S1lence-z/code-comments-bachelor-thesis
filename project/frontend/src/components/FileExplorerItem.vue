@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, inject } from "vue";
 import { getFileIcon, getFileIconColor } from "../utils/fileUtils";
 import { type TreeNode } from "../types/githubTree.ts";
 import Icon from "../lib/Icon.vue";
@@ -43,6 +43,19 @@ function getBackgroundColor() {
 		return "#2a2d2e"; // VS Code hover color
 	}
 	return "transparent";
+}
+
+// File/Folder comment data
+const updateFileCommentData: (filePath: string, content: string) => void = inject("updateFileCommentData", () =>
+	console.warn("updateFileCommentData not provided")
+);
+const updateIsAddingFileComment: (value: boolean) => void = inject("updateIsAddingFileComment", () =>
+	console.warn("updateIsAddingFileComment not provided")
+);
+
+function addFileComment() {
+	updateIsAddingFileComment(true);
+	updateFileCommentData(props.item.path, "");
 }
 </script>
 
@@ -115,7 +128,7 @@ function getBackgroundColor() {
 
 			<!-- Item Actions -->
 			<div class="ml-2">
-				<button class="btn text-xl" @click="() => console.log(item.path)">+</button>
+				<button class="btn text-xl" @click="addFileComment">+</button>
 			</div>
 		</div>
 
