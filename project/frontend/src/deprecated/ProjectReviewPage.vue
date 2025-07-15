@@ -6,8 +6,8 @@ import { type TreeNode } from "../types/githubTree";
 import type ICommentDto from "../../../shared/dtos/ICommentDto";
 import type IGetCommentsResponse from "../../../shared/api/IGetCommentsResponse";
 import { CommentType } from "../../../shared/enums/CommentType";
-import ProjectReviewSummary from "../components/ProjectReviewSummary.vue";
-import ProjectReviewFileExplorer from "../components/ProjectReviewFileExplorer.vue";
+import ProjectReviewSummary from "./ProjectReviewSummary.vue";
+import ProjectReviewFileExplorer from "./ProjectReviewFileExplorer.vue";
 
 const projectStructure = ref<TreeNode[]>([]);
 const shownProjectStructure = ref<TreeNode[]>([]);
