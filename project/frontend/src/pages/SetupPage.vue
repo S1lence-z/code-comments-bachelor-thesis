@@ -4,6 +4,8 @@ import { createConfiguration } from "../services/commentsService.ts";
 import type ISetupProjectRequest from "../../../shared/api/ISetupProjectRequest.ts";
 import InputField from "../lib/InputField.vue";
 import Button from "../lib/Button.vue";
+import Card from "../lib/Card.vue";
+import Icon from "../lib/Icon.vue";
 
 const githubRepoUrl = ref("");
 const branchName = ref("");
@@ -21,11 +23,16 @@ const allFetchedProjects = ref([
 		name: "Another Project",
 		reviewLink: "https://example.com/review/2",
 	},
+	{
+		id: 3,
+		name: "Third Project",
+		reviewLink: "https://example.com/review/3",
+	},
 ]);
 
 const createEditRepoUrl = (writeApiUrl: string, repoLandingPageUrl: string, branchName: string) => {
 	const frontendBaseUrl = globalThis.location.origin;
-	return `${frontendBaseUrl}/code-review/?repoUrl=${encodeURIComponent(
+	return `${frontendBaseUrl}/review/code/?repoUrl=${encodeURIComponent(
 		repoLandingPageUrl || ""
 	)}&commentsApiUrl=${encodeURIComponent(writeApiUrl || "")}&branch=${encodeURIComponent(branchName || "")}`;
 };
@@ -66,84 +73,131 @@ const navigateToReviewSession = () => {
 </script>
 
 <template>
-	<div class="page flex flex-row">
-		<!-- Existing Projects List -->
-		<div class="flex flex-1 items-center justify-center">
-			<div class="w-full h-full p-6 bg-black m-auto">
-				<h2 class="mb-4 text-2xl font-semibold text-center text-white">Existing Code Reviews</h2>
-				<p class="mb-6 text-base text-center text-white">Select an existing code review session to continue.</p>
-				<div v-if="allFetchedProjects.length === 0" class="text-center text-gray-500">
-					No existing code reviews found.
+	<div class="page">
+		<!-- Header -->
+		<div class="bg-white/5 backdrop-blur-sm border-b border-white/10">
+			<div class="mx-auto px-6 py-8">
+				<div class="text-center">
+					<h1 class="text-4xl font-bold text-white mb-2">Code Review Dashboard</h1>
+					<p class="text-slate-300 text-lg">Manage your code review sessions</p>
 				</div>
-				<ul class="space-y-4">
-					<li
-						v-for="project in allFetchedProjects"
-						:key="project.id"
-						class="p-4 bg-gray-700 rounded hover:bg-gray-600 transition-colors cursor-pointer"
-					>
-						<a :href="project.reviewLink" class="text-blue-400 hover:underline">
-							{{ project.name }}
-						</a>
-					</li>
-				</ul>
 			</div>
 		</div>
-		<!-- Setup Form -->
-		<div class="flex flex-1 items-center justify-center">
-			<div class="w-full h-full p-6 bg-gray-800 my-auto">
-				<h2 class="text-2xl font-semibold text-center text-white">Setup New Code Review</h2>
-				<p class="mb-6 text-base text-center text-white">
-					Enter a public GitHub repository URL to start a new review session.
-				</p>
-				<form @submit.prevent="handleCreateConfiguration">
-					<!-- GitHub Repository URL -->
-					<InputField
-						label="GitHub Repository URL"
-						v-model="githubRepoUrl"
-						type="url"
-						placeholder="https://github.com/owner/repository"
-						:required="true"
-					/>
 
-					<!-- Branch Name -->
-					<InputField
-						label="Branch Name"
-						v-model="branchName"
-						type="text"
-						placeholder="master"
-						:required="true"
-					/>
+		<!-- Main Content -->
+		<div class="mx-auto px-6 py-12">
+			<div class="flex flex-col lg:flex-row gap-12 max-w-7xl mx-auto">
+				<!-- Existing Projects List -->
+				<div class="flex-1 space-y-6">
+					<Card
+						title="Existing Reviews"
+						subtitle="Continue working on your previous code reviews"
+						iconName="archive"
+						iconGradient="blue"
+					>
+						<div v-if="allFetchedProjects.length === 0" class="empty-state">
+							<div class="empty-state-icon">
+								<svg
+									class="w-8 h-8 text-slate-400"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+									/>
+								</svg>
+							</div>
+							<p class="text-slate-400">No existing code reviews found</p>
+							<p class="text-slate-500 text-sm mt-2">Create your first review session to get started</p>
+						</div>
 
-					<!-- Submit Button -->
-					<Button
-						class="w-full"
-						label="Create Review Session"
-						type="submit"
-						buttonStyle="primary"
-						:disabled="isLoading"
-					/>
-				</form>
-				<!-- Error/Success Message -->
-				<div class="mt-6">
-					<div
-						v-if="errorMessage"
-						class="p-3 mt-6 text-center text-red-500 bg-red-100 border border-red-500 rounded"
+						<div class="space-y-4">
+							<div v-for="project in allFetchedProjects" :key="project.id" class="card-item">
+								<a :href="project.reviewLink" class="block">
+									<div class="flex items-center justify-between">
+										<div class="flex items-center gap-3">
+											<div class="card-icon-sm gradient-icon-green">
+												<Icon srcName="code" />
+											</div>
+											<h3
+												class="text-white font-semibold group-hover:text-blue-300 transition-colors"
+											>
+												{{ project.name }}
+											</h3>
+										</div>
+										<Icon srcName="externalLink" />
+									</div>
+								</a>
+							</div>
+						</div>
+					</Card>
+				</div>
+
+				<!-- Setup Form -->
+				<div class="flex-1 space-y-6">
+					<Card
+						title="New Review Session"
+						subtitle="Start a new code review by entering a GitHub repository URL"
+						iconName="plus"
+						iconGradient="emerald"
 					>
-						{{ errorMessage }}
-					</div>
-					<div
-						v-if="generatedReviewLink"
-						class="p-4 mt-8 text-center bg-gray-900 border border-gray-700 rounded"
-					>
-						<p class="text-white text-lg">Review session created! Use this link:</p>
-						<Button
-							class="w-full mt-4"
-							type="button"
-							label="Open Review Session"
-							buttonStyle="secondary"
-							:onClick="navigateToReviewSession"
-						/>
-					</div>
+						<form @submit.prevent="handleCreateConfiguration" class="space-y-6">
+							<!-- GitHub Repository URL -->
+							<InputField
+								label="GitHub Repository URL"
+								v-model="githubRepoUrl"
+								type="url"
+								placeholder="https://github.com/owner/repository"
+								:required="true"
+							/>
+
+							<!-- Branch Name -->
+							<InputField
+								label="Branch Name"
+								v-model="branchName"
+								type="text"
+								placeholder="main"
+								:required="true"
+							/>
+
+							<!-- Submit Button -->
+							<Button
+								class="w-full"
+								label="Create Review Session"
+								type="submit"
+								buttonStyle="primary"
+								:disabled="isLoading"
+							/>
+						</form>
+
+						<!-- Messages -->
+						<div class="mt-8 space-y-4">
+							<div v-if="errorMessage" class="status-message error">
+								<div class="flex items-center gap-3">
+									<Icon srcName="error" />
+									<p class="text-red-400">{{ errorMessage }}</p>
+								</div>
+							</div>
+
+							<div v-if="generatedReviewLink" class="status-message success">
+								<div class="flex items-center gap-3 mb-4">
+									<Icon srcName="success" />
+									<p class="text-emerald-400 font-semibold">Review session created successfully!</p>
+								</div>
+								<Button
+									class="w-full"
+									type="button"
+									label="Open Review Session"
+									buttonStyle="secondary"
+									:onClick="navigateToReviewSession"
+								/>
+							</div>
+						</div>
+					</Card>
 				</div>
 			</div>
 		</div>
