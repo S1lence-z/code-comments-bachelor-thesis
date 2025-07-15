@@ -86,4 +86,21 @@
 		-ms-overflow-style: none; /* IE and Edge */
 		scrollbar-width: none; /* Firefox */
 	}
+
+	/* Utility Classes */
+	.contains-comments {
+		@apply bg-amber-600;
+	}
+
+	.contains-comments span {
+		@apply text-black font-semibold;
+	}
+
+	.contains-comments:hover {
+		@apply bg-amber-700;
+	}
+
+	.selected {
+		@apply bg-blue-500 text-white font-semibold;
+	}
 }

@@ -49,7 +49,6 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 			this.initialBranch = decodeURIComponent(query.branch as string) || "main";
 			this.githubPat = import.meta.env.VITE_GITHUB_PAT || "";
 		},
-
 		async initializeData() {
 			this.syncStateWithRoute();
 			if (!this.repositoryUrl || !this.writeApiUrl) {
@@ -58,7 +57,6 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 			}
 			await Promise.all([this.fetchRepositoryTree(), this.fetchAllComments(), this.fetchAllCategories()]);
 		},
-
 		async fetchRepositoryTree() {
 			if (!this.repositoryUrl) return;
 
@@ -77,7 +75,6 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 				this.isLoadingRepo = false;
 			}
 		},
-
 		async fetchAllComments() {
 			if (!this.writeApiUrl) return;
 
@@ -97,7 +94,6 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 				this.isLoadingComments = false;
 			}
 		},
-
 		async fetchAllCategories() {
 			if (!this.writeApiUrl) return;
 
@@ -117,23 +113,23 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 				this.isLoadingCategories = false;
 			}
 		},
-
 		addComment(comment: ICommentDto) {
 			this.comments.push(comment);
 		},
-
 		updateComment(updatedComment: ICommentDto) {
 			const index = this.comments.findIndex((c: ICommentDto) => c.id === updatedComment.id);
 			if (index !== -1) {
 				this.comments[index] = updatedComment;
 			}
 		},
-
 		removeComment(commentId: number) {
 			const index = this.comments.findIndex((c: ICommentDto) => c.id === commentId);
 			if (index !== -1) {
 				this.comments.splice(index, 1);
 			}
+		},
+		fileContainsComments(filePath: string): boolean {
+			return this.comments.some((comment: ICommentDto) => comment.filePath === filePath);
 		},
 	},
 });

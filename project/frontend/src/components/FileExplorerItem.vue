@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, inject } from "vue";
+import { inject } from "vue";
 import { getFileIcon, getFileIconColor } from "../utils/fileUtils";
 import { type TreeNode } from "../types/githubTree.ts";
 import Icon from "../lib/Icon.vue";
+import { useRepositoryStore } from "../stores/repositoryStore.ts";
 
 interface FileExplorerItemProps {
 	item: TreeNode;
@@ -18,7 +19,6 @@ const emits = defineEmits<{
 	(event: "update:modelValue", value: string | null): void;
 	(event: "toggle-expand-item", item: TreeNode): void;
 }>();
-const isHovered = ref(false);
 
 function itemClicked() {
 	if (props.item.type === "file") {
@@ -35,16 +35,6 @@ function toggleExpand() {
 	}
 }
 
-function getBackgroundColor() {
-	if (props.item.path === props.modelValue && props.item.type === "file") {
-		return "#094771"; // VS Code selection color
-	}
-	if (isHovered.value) {
-		return "#2a2d2e"; // VS Code hover color
-	}
-	return "transparent";
-}
-
 // File/Folder comment data
 const updateFileCommentData: (filePath: string, content: string) => void = inject("updateFileCommentData", () =>
 	console.warn("updateFileCommentData not provided")
@@ -57,24 +47,28 @@ function addFileComment() {
 	updateIsAddingFileComment(true);
 	updateFileCommentData(props.item.path, "");
 }
+
+// Check if the file contains comments
+const repositoryStore = useRepositoryStore();
+function containsComments(filePath: string): boolean {
+	return repositoryStore.fileContainsComments(filePath);
+}
 </script>
 
 <template>
-	<li
-		class="list-none transition-colors duration-100"
-		:style="{
-			backgroundColor: getBackgroundColor(),
-		}"
-		:title="item.path"
-	>
+	<li class="list-none transition-colors duration-100" :title="item.path">
 		<!-- Item container with hover and click handling -->
-		<div class="flex items-center">
+		<div
+			class="flex items-center hover:bg-gray-500"
+			:class="{
+				'contains-comments': containsComments(item.path),
+				selected: item.path === modelValue && item.type === 'file',
+			}"
+		>
 			<div
 				@click="itemClicked"
 				class="flex flex-grow items-center gap-2 cursor-pointer text-gray-300 min-w-0"
 				:title="item.path"
-				@mouseover="isHovered = true"
-				@mouseleave="isHovered = false"
 				:style="{
 					paddingLeft: `${props.depth * 16 + 8}px`,
 				}"
@@ -124,6 +118,9 @@ function addFileComment() {
 				>
 					{{ item.name }}
 				</span>
+
+				<!-- Contains comments indicator -->
+				<span v-if="containsComments(item.path)" class="ml-2 text-sm">💬</span>
 			</div>
 
 			<!-- Item Actions -->
