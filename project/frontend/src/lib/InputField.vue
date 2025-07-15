@@ -22,7 +22,7 @@ defineEmits<{
 			:required="props.required"
 			:value="props.modelValue"
 			@input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
-			class="box-border w-full p-3 text-base text-gray-200 bg-gray-900 border border-gray-700 rounded focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-400"
+			class="box-border w-full p-3 text-base text-gray-200 bg-gray-900 border border-gray-700 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-400"
 		/>
 	</div>
 </template>

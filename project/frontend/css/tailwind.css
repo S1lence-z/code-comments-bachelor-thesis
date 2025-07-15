@@ -9,7 +9,7 @@
 @layer components {
 	/* Button Styles */
 	.btn {
-		@apply inline-flex items-center justify-center font-semibold text-lg transition-colors duration-200 px-4 py-2 rounded cursor-pointer;
+		@apply inline-flex items-center justify-center font-semibold text-lg transition-colors duration-200 px-4 py-2 rounded-xl cursor-pointer;
 	}
 
 	.btn-primary {
@@ -27,11 +27,6 @@
 
 	.modal-content {
 		@apply w-full max-w-md p-6  bg-gray-400 border-black border-2 shadow-lg rounded-3xl;
-	}
-
-	/* Page Styles */
-	.page {
-		@apply h-full overflow-auto bg-gray-50;
 	}
 
 	/* Navigation Tab Styles */
@@ -67,7 +62,7 @@
 		@apply bg-blue-500 text-black;
 	}
 
-	/* Hide scrollbar for any element with inline scroll styles */
+	/* Hide scrollbar styles */
 	.scrollbar-hidden::-webkit-scrollbar {
 		display: none;
 	}
@@ -87,7 +82,7 @@
 		scrollbar-width: none; /* Firefox */
 	}
 
-	/* Utility Classes */
+	/* Contains Comments */
 	.contains-comments {
 		@apply bg-amber-600;
 	}
@@ -102,5 +97,83 @@
 
 	.selected {
 		@apply bg-blue-500 text-white font-semibold;
+	}
+
+	/* Page Styles */
+	.page {
+		@apply h-full overflow-y-auto bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900;
+	}
+
+	.page.header {
+		@apply bg-white/5 border-b border-gray-700;
+	}
+
+	/* Modern Card Styles */
+	.card {
+		@apply bg-white/5 backdrop-blur-lg rounded-xl border border-white/10 p-8 transition-all duration-300;
+	}
+
+	.card:hover {
+		@apply bg-white/10;
+	}
+
+	.card-header {
+		@apply flex items-center gap-3 mb-6;
+	}
+
+	.card-icon {
+		@apply w-10 h-10 rounded-xl flex items-center justify-center;
+	}
+
+	.card-icon-sm {
+		@apply w-8 h-8 rounded-lg flex items-center justify-center;
+	}
+
+	.card-title {
+		@apply text-2xl font-bold text-white;
+	}
+
+	.card-subtitle {
+		@apply text-slate-300 mb-8;
+	}
+
+	.card-item {
+		@apply bg-white/5 border border-white/10 rounded-xl p-6 transition-all duration-200 ease-in;
+	}
+
+	.card-item:hover {
+		@apply bg-white/10 border-white/20;
+	}
+
+	.empty-state {
+		@apply text-center py-12;
+	}
+
+	.empty-state-icon {
+		@apply w-16 h-16 bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4;
+	}
+
+	.status-message {
+		@apply p-4 rounded-xl;
+	}
+
+	.status-message.error {
+		@apply bg-red-500/10 border border-red-500/20;
+	}
+
+	.status-message.success {
+		@apply p-6 bg-emerald-500/10 border border-emerald-500/20;
+	}
+
+	.gradient-icon-blue {
+		@apply bg-gradient-to-r from-blue-500 to-purple-700;
+	}
+
+	.gradient-icon-green {
+		@apply bg-gradient-to-r from-green-500 to-teal-500;
+	}
+
+	.gradient-icon-emerald {
+		@apply bg-gradient-to-r from-emerald-500 to-teal-500;
 	}
 }
