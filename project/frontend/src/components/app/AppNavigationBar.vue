@@ -47,51 +47,61 @@ watch(isKeyboardMode, (newValue) => {
 	emit("update:isKeyboardMode", newValue);
 });
 </script>
-
++
 <template>
-	<nav class="border-b border-black shadow-2xl bg-custom-gray min-h-14">
-		<div class="flex items-center justify-between h-full max-w-full px-4">
+	<nav class="bg-modern-black backdrop-blur-sm border-b border-white/10 shadow-lg">
+		<div class="flex items-center justify-between h-full max-w-full px-6 py-4">
 			<!-- Logo and Synced Status -->
 			<div class="flex items-center">
 				<!-- Logo -->
-				<div class="flex items-center gap-2">
+				<div class="flex items-center gap-3">
 					<Icon srcName="appLogo" size="24px" />
 					<router-link
 						:to="{ path: '/setup', query: preserveQueryParams }"
-						class="text-white transition-colors duration-200 font-lg semibold whitespace-nowrap"
-						>Code Comments
+						class="text-white text-xl font-bold transition-colors duration-200 hover:text-blue-300 whitespace-nowrap"
+					>
+						Code Comments
 					</router-link>
 				</div>
 				<!-- Synced Status -->
-				<div v-if="isServerSynced" class="ml-4 text-green-500 font-semibold">Comments Synced</div>
-				<div v-else class="ml-4 text-red-500 font-semibold">Comments Not Synced</div>
+				<div v-if="isServerSynced" class="ml-6 flex items-center gap-2">
+					<div class="w-2 h-2 bg-emerald-400 rounded-full"></div>
+					<span class="text-emerald-400 font-medium text-sm">Comments Synced</span>
+				</div>
+				<div v-else class="ml-6 flex items-center gap-2">
+					<div class="w-2 h-2 bg-red-400 rounded-full"></div>
+					<span class="text-red-400 font-medium text-sm">Comments Not Synced</span>
+				</div>
 			</div>
 
 			<!-- Navigation Links -->
-			<ul class="nav-tabs">
-				<li
+			<div class="nav-tabs">
+				<div
 					v-for="route in navigationRoutes"
 					:key="route.path"
 					class="nav-tab"
 					:class="{
 						active: activeTab === route.path,
+						inactive: activeTab !== route.path,
 					}"
 				>
-					<router-link :to="{ path: route.path, query: preserveQueryParams }">
+					<router-link :to="{ path: route.path, query: preserveQueryParams }" class="block">
 						{{ route.name }}
 					</router-link>
-				</li>
-			</ul>
+				</div>
+			</div>
 
 			<!-- Toggle Button for Keyboard Mode -->
-			<div v-if="activeTab.includes('/code-review')">
-				<ToggleButton
-					label="Keyboard Mode"
-					:isActive="isKeyboardMode"
-					@update:isActive="isKeyboardMode = $event"
-				/>
+			<div v-if="activeTab.includes('/review/code')" class="flex items-center">
+				<div class="bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 p-1">
+					<ToggleButton
+						label="Keyboard Mode"
+						:isActive="isKeyboardMode"
+						@update:isActive="isKeyboardMode = $event"
+					/>
+				</div>
 			</div>
-			<div v-else class="w-[173px]"></div>
+			<div v-else class="w-[183px]"></div>
 		</div>
 	</nav>
 </template>

@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 @theme {
-	--color-custom-gray: #2d2d30;
-	--color-custom-blue: #007acc;
-	--color-custom-blue-hover: #005f99;
+	--color-modern-blue: #007acc;
+	--color-modern-blue-hover: #005f99;
+	--color-modern-black: #000000;
 }
 
 @layer components {
@@ -13,7 +13,7 @@
 	}
 
 	.btn-primary {
-		@apply text-white bg-custom-blue hover:bg-custom-blue-hover;
+		@apply text-white bg-modern-blue hover:bg-modern-blue-hover;
 	}
 
 	.btn-secondary {
@@ -31,11 +31,11 @@
 
 	/* Navigation Tab Styles */
 	.nav-tabs {
-		@apply flex h-full gap-2;
+		@apply flex items-center gap-2;
 	}
 
 	.nav-tab {
-		@apply flex flex-grow items-center px-2 justify-center h-full text-lg font-medium transition-colors duration-200;
+		@apply px-4 py-2 rounded-lg transition-all duration-200;
 		@apply text-gray-300 hover:text-white;
 	}
 
@@ -44,7 +44,11 @@
 	}
 
 	.nav-tab.active {
-		@apply text-black bg-blue-500;
+		@apply bg-white/10 text-white font-semibold;
+	}
+
+	.nav-tab.inactive {
+		@apply text-slate-300 hover:text-white hover:bg-white/5
 	}
 
 	/* File Tab Manager Styles */
