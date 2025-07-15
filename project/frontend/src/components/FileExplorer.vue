@@ -15,21 +15,24 @@ defineEmits<{
 </script>
 
 <template>
-	<aside class="h-full flex flex-col">
-		<div
-			class="py-2.5 text-xs font-bold text-white uppercase tracking-widest bg-black flex items-center h-10 before:w-4"
-		>
-			Explorer
+	<aside class="h-full flex flex-col bg-white/5 backdrop-blur-sm border-r border-white/10">
+		<!-- Header -->
+		<div class="bg-white/5 backdrop-blur-sm border-b border-white/10 px-6 py-4">
+			<h2 class="text-white font-semibold uppercase">Explorer</h2>
 		</div>
-		<ul class="flex-1 overflow-y-auto scrollbar-hidden">
-			<FileExplorerItem
-				v-for="item in treeData"
-				:key="item.path"
-				:item="item"
-				:modelValue="modelValue"
-				@update:modelValue="$emit('update:modelValue', $event)"
-				@toggle-expand-item="$emit('toggle-expand-item', $event)"
-			/>
-		</ul>
+
+		<!-- File Tree -->
+		<div class="flex-1 overflow-y-auto scrollbar-hidden">
+			<ul class="p-2 space-y-1">
+				<FileExplorerItem
+					v-for="item in treeData"
+					:key="item.path"
+					:item="item"
+					:modelValue="modelValue"
+					@update:modelValue="$emit('update:modelValue', $event)"
+					@toggle-expand-item="$emit('toggle-expand-item', $event)"
+				/>
+			</ul>
+		</div>
 	</aside>
 </template>

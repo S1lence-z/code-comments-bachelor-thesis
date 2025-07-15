@@ -43,26 +43,48 @@ watch(
 </script>
 
 <template>
-	<div v-if="openFileTabs.length > 0" class="flex flex-1 flex-col h-full overflow-hidden">
+	<div v-if="openFileTabs.length > 0" class="flex flex-col h-full overflow-hidden">
 		<!-- File Tabs -->
-		<div class="flex-shrink-0 w-full overflow-x-auto overflow-y-hidden scrollbar-hidden">
-			<ul class="file-tabs flex flex-row gap-2 bg-black mb-1 min-w-max">
-				<li
-					v-for="file in openFileTabs"
-					:key="file"
-					class="file-tab"
-					:class="{
-						active: file === modelValue,
-					}"
-				>
-					<span class="flex px-4 py-2" @click="setActiveFileTab(file)" :title="file">{{
-						getFileName(file)
-					}}</span>
-					<span class="flex flex-1 px-4 py-2 text-md border-l-2" @click="removeFileTab(file)">X</span>
-				</li>
-			</ul>
+		<div class="w-full bg-white/5 backdrop-blur-sm border-b border-white/10 py-2">
+			<div class="flex items-center px-4">
+				<!-- Open Files Label -->
+				<span class="text-slate-300 font-semibold mr-6">Open Files</span>
+				<!-- File Tabs -->
+				<div class="flex items-center gap-2 overflow-x-auto scrollbar-hidden">
+					<div
+						v-for="file in openFileTabs"
+						:key="file"
+						class="flex items-center bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 duration-200 hover:bg-white/10"
+						:class="{
+							'bg-white/10 border-white/20': file === modelValue,
+							'hover:border-white/20': file !== modelValue,
+						}"
+					>
+						<button
+							@click="setActiveFileTab(file)"
+							:title="file"
+							class="flex items-center gap-2 px-3 py-2 font-semibold duration-200 min-w-0"
+							:class="{
+								'text-white': file === modelValue,
+								'text-slate-300 hover:text-white': file !== modelValue,
+							}"
+						>
+							<span class="truncate max-w-32">{{ getFileName(file) }}</span>
+						</button>
+
+						<button
+							@click="removeFileTab(file)"
+							class="flex items-center justify-center w-6 h-6 text-slate-400 hover:text-white hover:bg-white/10 rounded-md duration-200 mr-1"
+							title="Close file"
+						>
+							x
+						</button>
+					</div>
+				</div>
+			</div>
 		</div>
-		<!-- Slot -->
+
+		<!-- Slot for file content -->
 		<div class="flex-1 overflow-hidden">
 			<slot></slot>
 		</div>

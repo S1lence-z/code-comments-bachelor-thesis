@@ -56,56 +56,62 @@ function containsComments(filePath: string): boolean {
 </script>
 
 <template>
-	<li class="list-none transition-colors duration-100" :title="item.path">
-		<!-- Item container with hover and click handling -->
+	<li class="list-none" :title="item.path">
+		<!-- Item Container -->
 		<div
-			class="flex items-center hover:bg-gray-500"
+			class="flex items-center rounded-lg transition-all duration-200"
 			:class="{
-				'contains-comments': containsComments(item.path),
-				selected: item.path === modelValue && item.type === 'file',
+				'bg-white/10 text-white border border-white/20': item.path === modelValue && item.type === 'file',
+				'bg-amber-500/10 border border-amber-500/20': containsComments(item.path) && item.path !== modelValue,
+				'hover:bg-white/5': item.path !== modelValue,
 			}"
 		>
 			<div
 				@click="itemClicked"
-				class="flex flex-grow items-center gap-2 cursor-pointer text-gray-300 min-w-0"
+				class="flex flex-grow items-center gap-2 cursor-pointer text-slate-300 min-w-0 py-2 px-3 rounded-lg"
 				:title="item.path"
 				:style="{
-					paddingLeft: `${props.depth * 16 + 8}px`,
+					paddingLeft: `${props.depth * 16 + 12}px`,
 				}"
 			>
 				<!-- Arrow expand icon for folders -->
 				<span
 					v-if="item.type === 'folder'"
-					class="w-[18px] h-[18px] flex items-center justify-center mr-0.5 text-gray-300 transition-transform duration-100 flex-shrink-0 hover:text-white"
+					class="w-4 h-4 flex items-center justify-center text-slate-400 transition-all duration-200 flex-shrink-0 hover:text-white"
 					@click.stop="toggleExpand"
 				>
 					<Icon
 						srcName="arrow"
-						size="18px"
-						class="transition-transform duration-100 origin-center"
+						size="16px"
+						class="transition-transform duration-200 origin-center"
 						:class="{ 'rotate-90': item.isExpanded }"
 					/>
 				</span>
-				<span v-else class="w-5 flex-shrink-0"></span>
+				<span v-else class="w-4 flex-shrink-0"></span>
 
 				<!-- Item Icon -->
-				<span class="w-[18px] h-[18px] mr-2 flex items-center justify-center flex-shrink-0">
+				<span class="w-5 h-5 flex items-center justify-center flex-shrink-0">
 					<!-- Folder icon for folders -->
 					<Icon
 						v-if="item.type === 'folder'"
 						:srcName="item.isExpanded ? 'openFolder' : 'closedFolder'"
 						size="18px"
-						class="transition-all duration-100"
+						class="transition-all duration-200"
+						:class="{
+							'text-blue-400': item.isExpanded,
+							'text-slate-400': !item.isExpanded,
+						}"
 					/>
 					<!-- File icon for files -->
 					<Icon
 						v-else
 						:text-icon="getFileIcon(item.name)"
-						class="transition-all duration-100"
+						size="18px"
+						class="transition-all duration-200"
 						:style="{
 							color:
 								item.path === props.modelValue && item.type === 'file'
-									? 'inherit'
+									? 'currentColor'
 									: getFileIconColor(item.name),
 						}"
 					/>
@@ -113,24 +119,39 @@ function containsComments(filePath: string): boolean {
 
 				<!-- File or folder name -->
 				<span
-					class="flex-1 text-md truncate"
-					:class="{ '!text-white': item.path === props.modelValue && item.type === 'file' }"
+					class="flex-1 text-sm font-medium truncate transition-colors duration-200"
+					:class="{
+						'text-white': item.path === props.modelValue && item.type === 'file',
+						'text-slate-300 group-hover:text-white': item.path !== props.modelValue,
+					}"
 				>
 					{{ item.name }}
 				</span>
 
 				<!-- Contains comments indicator -->
-				<span v-if="containsComments(item.path)" class="ml-2 text-sm">💬</span>
+				<span v-if="containsComments(item.path)" class="flex items-center gap-1 ml-2">
+					<div class="w-2 h-2 bg-amber-400 rounded-full"></div>
+					<span class="text-xs text-amber-400">💬</span>
+				</span>
 			</div>
 
 			<!-- Item Actions -->
-			<div class="ml-2">
-				<button class="btn text-xl" @click="addFileComment">+</button>
+			<div class="mr-2 duration-200">
+				<button
+					@click="addFileComment"
+					class="w-6 h-6 bg-white/10 hover:bg-white/20 hover:text-white rounded-md flex items-center justify-center transition-all duration-200 text-black cursor-pointer"
+					title="Add comment"
+				>
+					+
+				</button>
 			</div>
 		</div>
 
 		<!-- Render children if item is a folder and expanded -->
-		<ul v-if="item.type === 'folder' && item.isExpanded && item.children && item.children.length > 0">
+		<ul
+			v-if="item.type === 'folder' && item.isExpanded && item.children && item.children.length > 0"
+			class="mt-1 space-y-1"
+		>
 			<FileExplorerItem
 				v-for="child in item.children"
 				:key="child.path"
