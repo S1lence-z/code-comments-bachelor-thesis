@@ -95,6 +95,7 @@ function handleSubmit() {
 </script>
 
 <template>
+	<!-- TODO: modernize the modal -->
 	<Modal v-if="visible" @close="$emit('close')">
 		<h3 class="text-xl font-medium mb-5">Comment on Line {{ lineNumber }}</h3>
 

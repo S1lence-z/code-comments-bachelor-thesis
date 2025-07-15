@@ -339,10 +339,17 @@ watch(
 
 <template>
 	<div class="page">
-		<div class="flex h-full w-full bg-[#1e1e1e] font-sans">
-			<div :style="{ width: sidebarWidth + 'px' }" class="min-w-[200px] flex flex-col border-r flex-shrink-0">
+		<div class="flex h-full w-full">
+			<div :style="{ width: sidebarWidth + 'px' }">
 				<!-- File Explorer -->
-				<div v-if="isLoadingRepo" class="p-4 text-sm text-center text-gray-400">Loading repository...</div>
+				<div v-if="isLoadingRepo" class="p-6 text-sm text-center text-slate-300">
+					<div class="inline-flex items-center space-x-2">
+						<div
+							class="animate-spin rounded-full h-4 w-4 border-2 border-modern-blue border-t-transparent"
+						></div>
+						<span>Loading repository...</span>
+					</div>
+				</div>
 				<FileExplorer
 					v-else-if="fileTree.length > 0"
 					:treeData="fileTree"
@@ -352,7 +359,7 @@ watch(
 				/>
 				<div
 					v-if="storeErrorMessage && !isLoadingRepo && fileTree.length === 0 && !isLoadingComments"
-					class="p-4 text-sm text-red-500"
+					class="status-message error m-4 text-red-400"
 				>
 					{{ storeErrorMessage }}
 				</div>
@@ -365,9 +372,14 @@ watch(
 			></div>
 
 			<!-- Code Editor and Comments -->
-			<div class="flex flex-col flex-grow overflow-hidden">
-				<div v-if="isLoadingComments && !isLoadingFile" class="p-4 text-sm text-center text-gray-400">
-					Loading comments...
+			<div class="flex flex-col flex-grow overflow-hidden backdrop-blur-sm bg-white/5">
+				<div v-if="isLoadingComments && !isLoadingFile" class="p-6 text-sm text-center text-slate-300">
+					<div class="inline-flex items-center space-x-2">
+						<div
+							class="animate-spin rounded-full h-4 w-4 border-2 border-modern-blue border-t-transparent"
+						></div>
+						<span>Loading comments...</span>
+					</div>
 				</div>
 				<FileTabManager v-else v-model="selectedFilePath">
 					<CodeEditor
@@ -410,6 +422,7 @@ watch(
 				@close="closeMultilineCommentModal"
 			/>
 
+			<!-- TODO: modernize the modal -->
 			<!-- File/Folder Comment Modal -->
 			<Modal v-if="isAddingFileComment" @close="closeFileCommentModal" class="bg-color-white">
 				<h3 class="text-lg font-semibold text-black mb-4">File/Folder: {{ fileCommentData.filePath }}</h3>
