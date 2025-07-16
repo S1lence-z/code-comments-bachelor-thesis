@@ -16,6 +16,7 @@ import { useFileContentStore } from "../stores/fileContentStore.ts";
 import { storeToRefs } from "pinia";
 import type { ProcessedFile } from "../types/githubFile.ts";
 import Modal from "../lib/Modal.vue";
+import CodeReviewToolbar from "../components/CodeReviewToolbar.vue";
 
 // Import stores
 const repositoryStore = useRepositoryStore();
@@ -60,6 +61,7 @@ function updateIsAddingFileComment(value: boolean) {
 }
 provide("updateIsAddingFileComment", updateIsAddingFileComment);
 
+// File comment data
 const fileCommentData = ref<{ filePath: string | null; content: string }>({
 	filePath: null,
 	content: "",
@@ -69,6 +71,13 @@ const updateFileCommentData = (filePath: string, content: string) => {
 	fileCommentData.value.content = content;
 };
 provide("updateFileCommentData", updateFileCommentData);
+
+// IsKeyboardMode state
+const isKeyboardMode = ref(false);
+function updateKeyboardModeState(value: boolean) {
+	isKeyboardMode.value = value;
+}
+provide("keyboardModeContext", { isKeyboardMode: isKeyboardMode, updateKeyboardModeState });
 
 // Resizable sidebar state
 const sidebarWidth = ref(280);
@@ -339,67 +348,72 @@ watch(
 
 <template>
 	<div class="page">
-		<div class="flex h-full w-full">
-			<div :style="{ width: sidebarWidth + 'px' }">
-				<!-- File Explorer -->
-				<div v-if="isLoadingRepo" class="p-6 text-sm text-center text-slate-300">
-					<div class="inline-flex items-center space-x-2">
-						<div
-							class="animate-spin rounded-full h-4 w-4 border-2 border-modern-blue border-t-transparent"
-						></div>
-						<span>Loading repository...</span>
+		<div class="flex flex-col h-full w-full">
+			<!-- Code Editor Toolbar -->
+			<CodeReviewToolbar />
+			<div class="flex h-full w-full">
+				<!-- Sidebar -->
+				<div :style="{ width: sidebarWidth + 'px' }">
+					<!-- File Explorer -->
+					<div v-if="isLoadingRepo" class="p-6 text-sm text-center text-slate-300">
+						<div class="inline-flex items-center space-x-2">
+							<div
+								class="animate-spin rounded-full h-4 w-4 border-2 border-modern-blue border-t-transparent"
+							></div>
+							<span>Loading repository...</span>
+						</div>
+					</div>
+					<FileExplorer
+						v-else-if="fileTree.length > 0"
+						:treeData="fileTree"
+						v-model="selectedFilePath"
+						@update:isAddingFileComment="handleFileCommentModal"
+						@toggle-expand-item="handleToggleExpandInTree"
+					/>
+					<div
+						v-if="storeErrorMessage && !isLoadingRepo && fileTree.length === 0 && !isLoadingComments"
+						class="status-message error m-4 text-red-400"
+					>
+						{{ storeErrorMessage }}
 					</div>
 				</div>
-				<FileExplorer
-					v-else-if="fileTree.length > 0"
-					:treeData="fileTree"
-					v-model="selectedFilePath"
-					@update:isAddingFileComment="handleFileCommentModal"
-					@toggle-expand-item="handleToggleExpandInTree"
-				/>
+
+				<!-- Resize handle -->
 				<div
-					v-if="storeErrorMessage && !isLoadingRepo && fileTree.length === 0 && !isLoadingComments"
-					class="status-message error m-4 text-red-400"
-				>
-					{{ storeErrorMessage }}
-				</div>
-			</div>
+					class="flex w-1 h-full cursor-col-resize bg-black hover:bg-blue-500 transition-colors"
+					@mousedown="startResize"
+				></div>
 
-			<!-- Resize handle -->
-			<div
-				class="flex w-1 h-full cursor-col-resize bg-black hover:bg-blue-500 transition-colors"
-				@mousedown="startResize"
-			></div>
-
-			<!-- Code Editor and Comments -->
-			<div class="flex flex-col flex-grow overflow-hidden backdrop-blur-sm bg-white/5">
-				<div v-if="isLoadingComments && !isLoadingFile" class="p-6 text-sm text-center text-slate-300">
-					<div class="inline-flex items-center space-x-2">
-						<div
-							class="animate-spin rounded-full h-4 w-4 border-2 border-modern-blue border-t-transparent"
-						></div>
-						<span>Loading comments...</span>
+				<!-- Code Editor and Comments -->
+				<div class="flex flex-col flex-grow overflow-hidden backdrop-blur-sm bg-white/5">
+					<div v-if="isLoadingComments && !isLoadingFile" class="p-6 text-sm text-center text-slate-300">
+						<div class="inline-flex items-center space-x-2">
+							<div
+								class="animate-spin rounded-full h-4 w-4 border-2 border-modern-blue border-t-transparent"
+							></div>
+							<span>Loading comments...</span>
+						</div>
 					</div>
+					<FileTabManager v-else v-model="selectedFilePath">
+						<CodeEditor
+							v-if="processedSelectedFile?.displayType === 'text'"
+							:file-path="selectedFilePath"
+							:file-content="processedSelectedFile?.content"
+							:is-loading-file="isLoadingFile"
+							:comments="currentFileComments"
+							:delete-comment-action="deleteCommentAndReload"
+							@line-double-clicked="handleLineDoubleClicked"
+							@multiline-selected="handleMultilineSelected"
+						/>
+						<OtherContentViewer
+							v-else
+							:display-type="processedSelectedFile?.displayType ?? 'binary'"
+							:download-url="processedSelectedFile?.downloadUrl ?? null"
+							:file-name="processedSelectedFile?.fileName ?? 'Unknown'"
+							:selected-file-path="selectedFilePath"
+						/>
+					</FileTabManager>
 				</div>
-				<FileTabManager v-else v-model="selectedFilePath">
-					<CodeEditor
-						v-if="processedSelectedFile?.displayType === 'text'"
-						:file-path="selectedFilePath"
-						:file-content="processedSelectedFile?.content"
-						:is-loading-file="isLoadingFile"
-						:comments="currentFileComments"
-						:delete-comment-action="deleteCommentAndReload"
-						@line-double-clicked="handleLineDoubleClicked"
-						@multiline-selected="handleMultilineSelected"
-					/>
-					<OtherContentViewer
-						v-else
-						:display-type="processedSelectedFile?.displayType ?? 'binary'"
-						:download-url="processedSelectedFile?.downloadUrl ?? null"
-						:file-name="processedSelectedFile?.fileName ?? 'Unknown'"
-						:selected-file-path="selectedFilePath"
-					/>
-				</FileTabManager>
 			</div>
 
 			<!-- Comment Modals -->

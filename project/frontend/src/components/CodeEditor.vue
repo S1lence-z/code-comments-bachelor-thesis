@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { ref, watch, shallowRef, computed, inject, type Ref } from "vue";
+import { ref, watch, shallowRef, computed, inject } from "vue";
 import { Codemirror } from "vue-codemirror";
 import { EditorView } from "@codemirror/view";
 import type ICommentDto from "../../../shared/dtos/ICommentDto";
 import { createEditorExtensions } from "../codeMirror/configs/editorConfig";
 import "../../css/codemirror.css";
 
-const isKeyboardMode = inject("isKeyboardMode") as Ref<boolean>;
+const keyboardModeContext = inject("keyboardModeContext", {
+	isKeyboardMode: ref(false),
+});
 
 interface CodeEditorProps {
 	filePath: string | null;
@@ -45,7 +47,7 @@ const extensions = computed(() => {
 		props.filePath,
 		currentFileComments,
 		props.deleteCommentAction,
-		isKeyboardMode.value,
+		keyboardModeContext.isKeyboardMode.value,
 		handleSingleLineComment
 	);
 });
@@ -123,10 +125,10 @@ const handleSelectionChange = () => {
 		<div
 			v-else-if="filePath && fileContent !== null"
 			class="flex-grow relative overflow-auto scrollbar-hidden"
-			:class="{ 'border-2 border-blue-600': isKeyboardMode }"
+			:class="{ 'border-2 border-blue-600': keyboardModeContext.isKeyboardMode.value }"
 		>
 			<div
-				v-if="isKeyboardMode"
+				v-if="keyboardModeContext.isKeyboardMode.value"
 				class="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 text-xs font-semibold z-10 pointer-events-none"
 			>
 				🎹 Keyboard Navigation Mode
@@ -135,7 +137,7 @@ const handleSelectionChange = () => {
 				v-model="currentContent"
 				:placeholder="editorPlaceholder"
 				:style="{ height: '100%' }"
-				:autofocus="isKeyboardMode"
+				:autofocus="keyboardModeContext.isKeyboardMode.value"
 				:indent-with-tab="true"
 				:tab-size="2"
 				:extensions="extensions"

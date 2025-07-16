@@ -1,24 +1,20 @@
 <script setup lang="ts">
 import { ref, watch, computed } from "vue";
 import { useRoute } from "vue-router";
-import ToggleButton from "../../lib/ToggleButton.vue";
 import Icon from "../../lib/Icon.vue";
 import { navigationRoutes } from "../../core/routes";
 
 const props = defineProps<{
-	isKeyboardMode: boolean;
 	isServerSynced: boolean;
 }>();
 
-const emit = defineEmits<{
-	(e: "update:isKeyboardMode", value: boolean): void;
+defineEmits<{
 	(e: "update:isServerSynced", value: boolean): void;
 }>();
 
 // Get the current route to determine which tab should be active
 const route = useRoute();
 const activeTab = ref(route.path);
-const isKeyboardMode = ref(props.isKeyboardMode);
 const isServerSynced = ref(props.isServerSynced);
 
 // Computed property to preserve query parameters when navigating
@@ -33,19 +29,6 @@ watch(
 		activeTab.value = newPath;
 	}
 );
-
-// Watch for prop changes to update local state
-watch(
-	() => props.isKeyboardMode,
-	(newValue) => {
-		isKeyboardMode.value = newValue;
-	}
-);
-
-// Watch for changes in keyboard mode and emit the event
-watch(isKeyboardMode, (newValue) => {
-	emit("update:isKeyboardMode", newValue);
-});
 </script>
 +
 <template>
@@ -90,18 +73,6 @@ watch(isKeyboardMode, (newValue) => {
 					</router-link>
 				</div>
 			</div>
-
-			<!-- Toggle Button for Keyboard Mode -->
-			<div v-if="activeTab.includes('/review/code')" class="flex items-center">
-				<div class="bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 p-1">
-					<ToggleButton
-						label="Keyboard Mode"
-						:isActive="isKeyboardMode"
-						@update:isActive="isKeyboardMode = $event"
-					/>
-				</div>
-			</div>
-			<div v-else class="w-[183px]"></div>
 		</div>
 	</nav>
 </template>
