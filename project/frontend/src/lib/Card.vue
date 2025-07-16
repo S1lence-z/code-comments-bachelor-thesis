@@ -36,6 +36,8 @@ const gradientClasses = {
 		<p v-if="subtitle" class="card-subtitle">{{ subtitle }}</p>
 
 		<!-- Content slot -->
-		<slot></slot>
+		<div class="card-content">
+			<slot></slot>
+		</div>
 	</div>
 </template>
