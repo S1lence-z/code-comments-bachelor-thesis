@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineEmits } from "vue";
+import { defineEmits, onMounted, onUnmounted } from "vue";
 
 const emit = defineEmits(["close"]);
 
@@ -8,6 +8,20 @@ function onBackgroundClick(e: MouseEvent) {
 		emit("close");
 	}
 }
+
+function onKeydown(e: KeyboardEvent) {
+	if (e.key === "Escape") {
+		emit("close");
+	}
+}
+
+onMounted(() => {
+	window.addEventListener("keydown", onKeydown);
+});
+
+onUnmounted(() => {
+	window.removeEventListener("keydown", onKeydown);
+});
 </script>
 
 <template>
