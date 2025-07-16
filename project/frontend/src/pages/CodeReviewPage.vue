@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, watch, provide } from "vue";
+import { ref, onMounted, onUnmounted, watch, provide } from "vue";
 import FileExplorer from "../components/FileExplorer.vue";
 import CodeEditor from "../components/CodeEditor.vue";
 import SinglelineCommentModal from "../components/SinglelineCommentModal.vue";
@@ -10,7 +10,7 @@ import type ICommentDto from "../../../shared/dtos/ICommentDto";
 import { addComment, deleteComment } from "../services/commentsService.ts";
 import { CommentType } from "../../../shared/enums/CommentType.ts";
 import type ICategoryDto from "../../../shared/dtos/ICategoryDto.ts";
-import FileTabManager from "../components/FileTabManager.vue";
+import SplitPanelManager from "../components/SplitPanelManager.vue";
 import { useRepositoryStore } from "../stores/repositoryStore.ts";
 import { useFileContentStore } from "../stores/fileContentStore.ts";
 import { storeToRefs } from "pinia";
@@ -87,12 +87,61 @@ const minSidebarWidth = 200;
 const maxSidebarWidth = 600;
 const isResizing = ref(false);
 
-const currentFileComments = computed(() => {
-	if (selectedFilePath.value && backendComments.value.length > 0) {
-		return repositoryStore.getCommentsForFile(selectedFilePath.value);
+// File cache for split panel manager
+const fileCache = ref<Map<string, ProcessedFile>>(new Map());
+
+// Helper functions for split panel manager
+const getCommentsForFile = (filePath: string) => {
+	if (filePath && backendComments.value.length > 0) {
+		return repositoryStore.getCommentsForFile(filePath);
 	}
 	return [];
-});
+};
+
+const getFileDisplayType = (filePath: string) => {
+	const cachedFile = fileCache.value.get(filePath);
+	return cachedFile?.displayType ?? "binary";
+};
+
+const getFileContent = (filePath: string) => {
+	const cachedFile = fileCache.value.get(filePath);
+	return cachedFile?.content ?? "";
+};
+
+const getFileDownloadUrl = (filePath: string) => {
+	const cachedFile = fileCache.value.get(filePath);
+	return cachedFile?.downloadUrl ?? null;
+};
+
+const getFileName = (filePath: string) => {
+	return filePath.split("/").pop() || filePath;
+};
+
+// Enhanced file loading for split panels
+async function ensureFileLoaded(filePath: string): Promise<void> {
+	if (fileCache.value.has(filePath)) {
+		return; // Already loaded
+	}
+
+	try {
+		const processedFile = await fileContentStore.getFileContent(
+			filePath,
+			repositoryUrl.value,
+			branch.value,
+			githubPersonalAccessToken.value
+		);
+		fileCache.value.set(filePath, processedFile);
+	} catch (e: any) {
+		console.error("Error fetching file content:", e);
+		// Set a default error state
+		fileCache.value.set(filePath, {
+			content: "",
+			displayType: "binary",
+			downloadUrl: null,
+			fileName: getFileName(filePath),
+		});
+	}
+}
 
 // Comment handling
 async function deleteCommentAndReload(commentId: number): Promise<void> {
@@ -346,6 +395,13 @@ watch(
 		}
 	}
 );
+
+// Watch for selectedFilePath changes to preload the file
+watch(selectedFilePath, async (newPath) => {
+	if (newPath) {
+		await ensureFileLoaded(newPath);
+	}
+});
 </script>
 
 <template>
@@ -396,25 +452,39 @@ watch(
 							<span>Loading comments...</span>
 						</div>
 					</div>
-					<FileTabManager v-else v-model="selectedFilePath">
-						<CodeEditor
-							v-if="processedSelectedFile?.displayType === 'text'"
-							:file-path="selectedFilePath"
-							:file-content="processedSelectedFile?.content"
-							:is-loading-file="isLoadingFile"
-							:comments="currentFileComments"
-							:delete-comment-action="deleteCommentAndReload"
-							@line-double-clicked="handleLineDoubleClicked"
-							@multiline-selected="handleMultilineSelected"
-						/>
-						<OtherContentViewer
-							v-else
-							:display-type="processedSelectedFile?.displayType ?? 'binary'"
-							:download-url="processedSelectedFile?.downloadUrl ?? null"
-							:file-name="processedSelectedFile?.fileName ?? 'Unknown'"
-							:selected-file-path="selectedFilePath"
-						/>
-					</FileTabManager>
+					<SplitPanelManager v-else v-model="selectedFilePath">
+						<template #default="{ filePath }">
+							<div v-if="filePath" class="h-full">
+								<div v-if="!fileCache.has(filePath)" class="p-6 text-sm text-center text-slate-300">
+									<div class="inline-flex items-center space-x-2">
+										<div
+											class="animate-spin rounded-full h-4 w-4 border-2 border-modern-blue border-t-transparent"
+										></div>
+										<span>Loading file...</span>
+									</div>
+								</div>
+								<template v-else>
+									<CodeEditor
+										v-if="getFileDisplayType(filePath) === 'text'"
+										:file-path="filePath"
+										:file-content="getFileContent(filePath)"
+										:is-loading-file="false"
+										:comments="getCommentsForFile(filePath)"
+										:delete-comment-action="deleteCommentAndReload"
+										@line-double-clicked="handleLineDoubleClicked"
+										@multiline-selected="handleMultilineSelected"
+									/>
+									<OtherContentViewer
+										v-else
+										:display-type="getFileDisplayType(filePath)"
+										:download-url="getFileDownloadUrl(filePath)"
+										:file-name="getFileName(filePath)"
+										:selected-file-path="filePath"
+									/>
+								</template>
+							</div>
+						</template>
+					</SplitPanelManager>
 				</div>
 			</div>
 
