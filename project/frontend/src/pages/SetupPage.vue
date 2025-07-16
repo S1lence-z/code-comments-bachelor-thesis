@@ -85,7 +85,7 @@ const navigateToReviewSession = () => {
 		</div>
 
 		<!-- Main Content -->
-		<div class="mx-auto px-6 py-12">
+		<div class="mx-auto px-6 mt-12">
 			<div class="flex flex-col lg:flex-row gap-12 max-w-7xl mx-auto">
 				<!-- Existing Projects List -->
 				<div class="flex-1 space-y-6">
