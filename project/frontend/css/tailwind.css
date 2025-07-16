@@ -7,6 +7,26 @@
 }
 
 @layer components {
+	/* Hide scrollbar styles */
+	.scrollbar-hidden::-webkit-scrollbar {
+		display: none;
+	}
+	.scrollbar-hidden {
+		-ms-overflow-style: none; /* IE and Edge */
+		scrollbar-width: none; /* Firefox */
+	}
+
+	/* Hide scrollbars in CodeMirror components */
+	.scrollbar-hidden .cm-editor::-webkit-scrollbar,
+	.scrollbar-hidden .cm-scroller::-webkit-scrollbar {
+		display: none;
+	}
+	.scrollbar-hidden .cm-editor,
+	.scrollbar-hidden .cm-scroller {
+		-ms-overflow-style: none; /* IE and Edge */
+		scrollbar-width: none; /* Firefox */
+	}
+
 	/* Button Styles */
 	.btn {
 		@apply inline-flex items-center justify-center font-semibold text-lg transition-colors duration-200 px-4 py-2 rounded-xl cursor-pointer;
@@ -53,37 +73,15 @@
 
 	/* File Tab Manager Styles */
 	.file-tabs {
-		@apply flex flex-row gap-2 bg-black mb-1 h-full;
+		@apply flex items-center gap-2 overflow-x-auto;
 	}
 
 	.file-tab {
-		@apply flex justify-center items-center text-sm font-medium transition-colors duration-200 cursor-pointer;
-		@apply bg-gray-500 text-gray-800;
-		@apply hover:bg-blue-700 hover:text-white;
+		@apply flex items-center bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 duration-200 hover:bg-white/10;
 	}
 
 	.file-tab.active {
-		@apply bg-blue-500 text-black;
-	}
-
-	/* Hide scrollbar styles */
-	.scrollbar-hidden::-webkit-scrollbar {
-		display: none;
-	}
-	.scrollbar-hidden {
-		-ms-overflow-style: none; /* IE and Edge */
-		scrollbar-width: none; /* Firefox */
-	}
-
-	/* Hide scrollbars in CodeMirror components */
-	.scrollbar-hidden .cm-editor::-webkit-scrollbar,
-	.scrollbar-hidden .cm-scroller::-webkit-scrollbar {
-		display: none;
-	}
-	.scrollbar-hidden .cm-editor,
-	.scrollbar-hidden .cm-scroller {
-		-ms-overflow-style: none; /* IE and Edge */
-		scrollbar-width: none; /* Firefox */
+		@apply bg-white/10 text-white font-semibold;
 	}
 
 	/* Contains Comments */

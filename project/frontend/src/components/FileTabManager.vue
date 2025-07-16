@@ -50,20 +50,17 @@ watch(
 				<!-- Open Files Label -->
 				<span class="text-slate-300 font-semibold mr-6">Open Files</span>
 				<!-- File Tabs -->
-				<div class="flex items-center gap-2 overflow-x-auto scrollbar-hidden">
+				<div class="file-tabs scrollbar-hidden">
 					<div
 						v-for="file in openFileTabs"
 						:key="file"
-						class="flex items-center bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 duration-200 hover:bg-white/10"
-						:class="{
-							'bg-white/10 border-white/20': file === modelValue,
-							'hover:border-white/20': file !== modelValue,
-						}"
+						class="file-tab"
+						:class="{ active: file === modelValue }"
 					>
 						<button
 							@click="setActiveFileTab(file)"
 							:title="file"
-							class="flex items-center gap-2 px-3 py-2 font-semibold duration-200 min-w-0"
+							class="flex items-center gap-2 px-3 py-2 duration-200 cursor-pointer"
 							:class="{
 								'text-white': file === modelValue,
 								'text-slate-300 hover:text-white': file !== modelValue,
@@ -74,7 +71,7 @@ watch(
 
 						<button
 							@click="removeFileTab(file)"
-							class="flex items-center justify-center w-6 h-6 text-slate-400 hover:text-white hover:bg-white/10 rounded-md duration-200 mr-1"
+							class="flex items-center justify-center w-6 h-6 text-slate-400 hover:text-white hover:bg-white/10 rounded-md duration-200 mr-1 cursor-pointer"
 							title="Close file"
 						>
 							x
