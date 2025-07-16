@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ref, type Ref } from "vue";
 import { computed } from "vue";
-import type ICategoryDto from "../../../shared/dtos/ICategoryDto";
-import { useRepositoryStore } from "../stores/repositoryStore";
+import type ICategoryDto from "../../../../shared/dtos/ICategoryDto";
+import { useRepositoryStore } from "../../stores/repositoryStore";
 import { storeToRefs } from "pinia";
-import Modal from "../lib/Modal.vue";
-import Card from "../lib/Card.vue";
-import InputArea from "../lib/InputArea.vue";
-import InputSelect from "../lib/InputSelect.vue";
+import Modal from "../../lib/Modal.vue";
+import Card from "../../lib/Card.vue";
+import InputArea from "../../lib/InputArea.vue";
+import InputSelect from "../../lib/InputSelect.vue";
 
 interface SinglelineCommentModalProps {
 	isVisible: boolean;

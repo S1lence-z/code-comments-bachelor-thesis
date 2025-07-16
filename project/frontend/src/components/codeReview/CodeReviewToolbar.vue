@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { inject, ref } from "vue";
-import ToggleButton from "../lib/ToggleButton.vue";
+import ToggleButton from "../../lib/ToggleButton.vue";
 
 const keyboardModeContext = inject("keyboardModeContext", {
 	isKeyboardMode: ref(false),

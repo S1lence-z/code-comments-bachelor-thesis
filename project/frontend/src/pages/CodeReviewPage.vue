@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch, provide } from "vue";
-import FileExplorer from "../components/FileExplorer.vue";
-import CodeEditor from "../components/CodeEditor.vue";
-import SinglelineCommentModal from "../components/SinglelineCommentModal.vue";
-import MultilineCommentModal from "../components/MultilineCommentModal.vue";
-import OtherContentViewer from "../components/ContentViewer.vue";
+import FileExplorer from "../components/codeReview/FileExplorer.vue";
+import CodeEditor from "../components/codeReview/CodeEditor.vue";
+import SinglelineCommentModal from "../components/codeReview/SinglelineCommentModal.vue";
+import MultilineCommentModal from "../components/codeReview/MultilineCommentModal.vue";
+import OtherContentViewer from "../components/codeReview/ContentViewer.vue";
 import type { TreeNode } from "../types/githubTree.ts";
 import type ICommentDto from "../../../shared/dtos/ICommentDto";
 import { addComment, deleteComment } from "../services/commentsService.ts";
 import { CommentType } from "../../../shared/enums/CommentType.ts";
 import type ICategoryDto from "../../../shared/dtos/ICategoryDto.ts";
-import SplitPanelManager from "../components/SplitPanelManager.vue";
+import SplitPanelManager from "../components/codeReview/SplitPanelManager.vue";
 import { useRepositoryStore } from "../stores/repositoryStore.ts";
 import { useFileContentStore } from "../stores/fileContentStore.ts";
 import { storeToRefs } from "pinia";
@@ -18,7 +18,7 @@ import type { ProcessedFile } from "../types/githubFile.ts";
 import Modal from "../lib/Modal.vue";
 import Card from "../lib/Card.vue";
 import InputArea from "../lib/InputArea.vue";
-import CodeReviewToolbar from "../components/CodeReviewToolbar.vue";
+import CodeReviewToolbar from "../components/codeReview/CodeReviewToolbar.vue";
 
 // Import stores
 const repositoryStore = useRepositoryStore();

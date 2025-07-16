@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { inject } from "vue";
-import { getFileIcon, getFileIconColor } from "../utils/fileUtils";
-import { type TreeNode } from "../types/githubTree.ts";
-import Icon from "../lib/Icon.vue";
-import { useRepositoryStore } from "../stores/repositoryStore.ts";
+import { getFileIcon, getFileIconColor } from "../../utils/fileUtils";
+import { type TreeNode } from "../../types/githubTree.ts";
+import Icon from "../../lib/Icon.vue";
+import { useRepositoryStore } from "../../stores/repositoryStore.ts";
 
 interface FileExplorerItemProps {
 	item: TreeNode;
@@ -158,7 +158,7 @@ function containsComments(filePath: string): boolean {
 				:item="child"
 				:modelValue="props.modelValue"
 				@update:modelValue="$emit('update:modelValue', $event)"
-				:depth="depth + 1"
+				:depth="props.depth + 1"
 				@toggle-expand-item="$emit('toggle-expand-item', $event)"
 			/>
 		</ul>

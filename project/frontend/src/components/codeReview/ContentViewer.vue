@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import type { FileDisplayType } from "../types/githubFile";
+import type { FileDisplayType } from "../../types/githubFile";
 
 interface Props {
 	displayType: FileDisplayType;
