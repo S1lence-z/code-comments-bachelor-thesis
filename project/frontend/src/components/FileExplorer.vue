@@ -15,7 +15,7 @@ defineEmits<{
 </script>
 
 <template>
-	<aside class="h-full flex flex-col bg-white/5 backdrop-blur-sm border-r border-white/10">
+	<aside class="h-full flex flex-col bg-white/10 backdrop-blur-sm">
 		<!-- Header -->
 		<div class="bg-white/5 backdrop-blur-sm border-b border-white/10 px-6 py-4">
 			<h2 class="text-white font-semibold uppercase">Explorer</h2>
