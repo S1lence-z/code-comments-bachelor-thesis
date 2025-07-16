@@ -351,7 +351,7 @@ watch(
 		<div class="flex flex-col h-full w-full">
 			<!-- Code Editor Toolbar -->
 			<CodeReviewToolbar />
-			<div class="flex h-full w-full">
+			<div class="flex h-full w-full overflow-hidden">
 				<!-- Sidebar -->
 				<div :style="{ width: sidebarWidth + 'px' }">
 					<!-- File Explorer -->
