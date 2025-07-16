@@ -5,7 +5,7 @@ import type ICommentDto from "../../../shared/dtos/ICommentDto";
 import type ICategoryDto from "../../../shared/dtos/ICategoryDto";
 import { extractBaseUrl } from "../utils/urlUtils";
 import { fetchRepoTreeAPI } from "../services/githubTreeService";
-import { fetchComments, getAllCategories } from "../services/commentsService";
+import { fetchComments, getAllCategories, addComment, updateComment } from "../services/commentsService";
 
 export const useRepositoryStore = defineStore("repositoryStore", {
 	state: () => ({
@@ -80,10 +80,6 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 
 			this.isLoadingComments = true;
 			try {
-				if (this.isCommentsFetched) {
-					console.log("Comments already fetched, skipping API call.");
-					return;
-				}
 				const response = await fetchComments(this.writeApiUrl);
 				this.comments = response.comments || [];
 			} catch (error: any) {
@@ -130,6 +126,30 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 		},
 		fileContainsComments(filePath: string): boolean {
 			return this.comments.some((comment: ICommentDto) => comment.filePath === filePath);
+		},
+		async saveComment(commentData: ICommentDto): Promise<void> {
+			try {
+				// Update existing comment
+				if (commentData.id > 0) {
+					const response = await updateComment(this.writeApiUrl, commentData.id, commentData);
+					if (response.success) {
+						this.updateComment(commentData);
+					} else {
+						throw new Error("Failed to update comment");
+					}
+					return;
+				}
+				// Add new comment
+				const response = await addComment(this.writeApiUrl, commentData);
+				if (response.success) {
+					this.addComment(commentData);
+				} else {
+					throw new Error("Failed to add comment");
+				}
+			} catch (error: any) {
+				this.errorMessage = `Error adding comment: ${error.message}`;
+				console.error("Error in saveComment:", error);
+			}
 		},
 	},
 });

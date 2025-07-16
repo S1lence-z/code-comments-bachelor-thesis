@@ -69,6 +69,17 @@ const fileCommentData = ref<{ filePath: string | null; content: string }>({
 	content: "",
 });
 const updateFileCommentData = (filePath: string, content: string) => {
+	const existingComment = backendComments.value.find(
+		(comment: ICommentDto) => comment.filePath === filePath && comment.type === CommentType.File
+	);
+
+	// Update existing comment data if found
+	if (existingComment) {
+		fileCommentData.value.filePath = filePath;
+		fileCommentData.value.content = existingComment.content;
+		return;
+	}
+	// Adding new comment data
 	fileCommentData.value.filePath = filePath;
 	fileCommentData.value.content = content;
 };
@@ -326,15 +337,23 @@ async function handleFileCommentSubmit() {
 		return;
 	}
 
-	const commentData: ICommentDto = {
+	const commentToSubmit: ICommentDto = {
 		id: 0,
 		filePath: fileCommentData.value.filePath,
 		content: fileCommentData.value.content,
 		type: CommentType.File,
 	};
 
+	// Find the existing comment or create a new one
+	backendComments.value.forEach((comment: ICommentDto) => {
+		if (comment.filePath === fileCommentData.value.filePath && comment.type === CommentType.File) {
+			commentToSubmit.id = comment.id;
+		}
+	});
+
+	// Submit the comment
 	try {
-		console.log("Submitting file comment:", commentData);
+		await repositoryStore.saveComment(commentToSubmit);
 	} catch (e: any) {
 		console.error("Failed to save comment:", e);
 	} finally {
