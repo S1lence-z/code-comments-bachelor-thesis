@@ -73,7 +73,6 @@ function closeModal() {
 </script>
 
 <template>
-	<!-- TODO: modernize the modal -->
 	<Modal v-if="isVisible" @close="closeModal">
 		<Card
 			:title="'Comment from line ' + startLineNumber + ' to ' + endLineNumber"
