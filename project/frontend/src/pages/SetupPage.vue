@@ -129,7 +129,9 @@ const navigateToReviewSession = () => {
 												{{ project.name }}
 											</h3>
 										</div>
-										<Icon srcName="externalLink" />
+										<div class="card-icon-sm">
+											<Icon srcName="externalLink" />
+										</div>
 									</div>
 								</a>
 							</div>
@@ -178,14 +180,18 @@ const navigateToReviewSession = () => {
 						<div class="mt-8 space-y-4">
 							<div v-if="errorMessage" class="status-message error">
 								<div class="flex items-center gap-3">
-									<Icon srcName="error" />
+									<div class="card-icon-sm">
+										<Icon srcName="error" />
+									</div>
 									<p class="text-red-400">{{ errorMessage }}</p>
 								</div>
 							</div>
 
-							<div v-if="generatedReviewLink" class="status-message success">
-								<div class="flex items-center gap-3 mb-4">
-									<Icon srcName="success" />
+							<div v-if="generatedReviewLink" class="status-message success flex flex-col gap-4">
+								<div class="flex items-center gap-3">
+									<div class="card-icon-sm">
+										<Icon srcName="success" />
+									</div>
 									<p class="text-emerald-400 font-semibold">Review session created successfully!</p>
 								</div>
 								<Button
