@@ -9,7 +9,7 @@ const keyboardModeContext = inject("keyboardModeContext", {
 </script>
 
 <template>
-	<div class="flex items-center justify-end p-2">
+	<div class="flex items-center justify-center space-x-6 p-2">
 		<!-- Toggle Button for Keyboard Mode -->
 		<div class="flex items-center">
 			<ToggleButton
