@@ -16,6 +16,8 @@ import { useFileContentStore } from "../stores/fileContentStore.ts";
 import { storeToRefs } from "pinia";
 import type { ProcessedFile } from "../types/githubFile.ts";
 import Modal from "../lib/Modal.vue";
+import Card from "../lib/Card.vue";
+import InputArea from "../lib/InputArea.vue";
 import CodeReviewToolbar from "../components/CodeReviewToolbar.vue";
 
 // Import stores
@@ -46,13 +48,13 @@ const modalFilePath = ref<string | null>(null);
 // Single line comment modal state
 const isAddingSinglelineComment = ref(false);
 const modalLineNumber = ref<number | null>(null);
-const modalInitialText = ref("");
+const singlelineModalCommentText = ref<string>("");
 
 // Multiline comment modal state
 const isAddingMultilineComment = ref(false);
 const modalStartLineNumber = ref<number | null>(null);
 const modalEndLineNumber = ref<number | null>(null);
-const multilineModalInitialText = ref<string>("");
+const multilineModalCommentText = ref<string>("");
 
 // File/Folder comment modal state
 const isAddingFileComment = ref(false);
@@ -155,7 +157,7 @@ function handleLineDoubleClicked(payload: { lineNumber: number; filePath: string
 	);
 	modalLineNumber.value = lineNumber;
 	modalFilePath.value = filePath;
-	modalInitialText.value = existingComment ? existingComment.content : "";
+	singlelineModalCommentText.value = existingComment ? existingComment.content : "";
 	isAddingSinglelineComment.value = true;
 }
 
@@ -243,7 +245,7 @@ function closeSinglelineCommentModal() {
 	isAddingSinglelineComment.value = false;
 	modalLineNumber.value = null;
 	modalFilePath.value = null;
-	modalInitialText.value = "";
+	singlelineModalCommentText.value = "";
 }
 
 function closeMultilineCommentModal() {
@@ -251,7 +253,7 @@ function closeMultilineCommentModal() {
 	modalStartLineNumber.value = null;
 	modalEndLineNumber.value = null;
 	modalFilePath.value = null;
-	multilineModalInitialText.value = "";
+	multilineModalCommentText.value = "";
 }
 
 // Handle file comment modal
@@ -418,49 +420,46 @@ watch(
 
 			<!-- Comment Modals -->
 			<SinglelineCommentModal
-				:visible="isAddingSinglelineComment"
+				v-model:isVisible="isAddingSinglelineComment"
+				v-model:commentText="singlelineModalCommentText"
 				:lineNumber="modalLineNumber"
 				:filePath="modalFilePath"
-				:initialText="modalInitialText"
 				@submit="handleSinglelineCommentSubmit"
 				@close="closeSinglelineCommentModal"
 			/>
 
 			<MultilineCommentModal
-				:visible="isAddingMultilineComment"
+				v-model:isVisible="isAddingMultilineComment"
+				v-model:commentText="multilineModalCommentText"
 				:startLineNumber="modalStartLineNumber"
 				:endLineNumber="modalEndLineNumber"
 				:filePath="modalFilePath"
-				:initialText="multilineModalInitialText"
 				@submit="handleMultilineCommentSubmit"
 				@close="closeMultilineCommentModal"
 			/>
 
-			<!-- TODO: modernize the modal -->
 			<!-- File/Folder Comment Modal -->
-			<Modal v-if="isAddingFileComment" @close="closeFileCommentModal" class="bg-color-white">
-				<h3 class="text-lg font-semibold text-black mb-4">File/Folder: {{ fileCommentData.filePath }}</h3>
-				<p class="text-sm mb-4">
-					You can add comments directly to the file. Please select a category and enter your comment.
-				</p>
-				<div class="space-y-4">
-					<textarea
-						v-model="fileCommentData.content"
-						class="w-full p-3 border border-gray-600 rounded-md bg-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-						placeholder="Enter your comment here..."
-						rows="4"
-					></textarea>
-					<div class="flex justify-end space-x-2">
-						<button @click="closeFileCommentModal" class="btn btn-secondary">Cancel</button>
-						<button
-							@click="handleFileCommentSubmit"
-							:disabled="!fileCommentData.content.trim()"
-							class="btn btn-primary"
-						>
-							Add Comment
-						</button>
+			<Modal v-if="isAddingFileComment" @close="closeFileCommentModal">
+				<Card :title="'Comment: ' + fileCommentData.filePath" subtitle="Add a comment to the file or folder">
+					<div class="space-y-2">
+						<InputArea
+							label="Comment"
+							v-model="fileCommentData.content"
+							placeholder="Enter your comment here..."
+							:rows="6"
+						/>
+						<div class="flex justify-end space-x-2">
+							<button @click="closeFileCommentModal" class="btn btn-secondary">Cancel</button>
+							<button
+								@click="handleFileCommentSubmit"
+								:disabled="!fileCommentData.content.trim()"
+								class="btn btn-primary"
+							>
+								Add Comment
+							</button>
+						</div>
 					</div>
-				</div>
+				</Card>
 			</Modal>
 		</div>
 	</div>

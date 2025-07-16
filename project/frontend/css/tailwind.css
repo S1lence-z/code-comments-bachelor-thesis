@@ -46,7 +46,7 @@
 	}
 
 	.modal-content {
-		@apply w-full max-w-md p-6  bg-gray-400 border-black border-2 shadow-lg rounded-3xl;
+		@apply w-full max-w-md;
 	}
 
 	/* Navigation Tab Styles */

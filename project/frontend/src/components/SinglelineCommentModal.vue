@@ -1,71 +1,43 @@
 <script setup lang="ts">
-import { ref, watch, type Ref } from "vue";
+import { ref, type Ref } from "vue";
 import { computed } from "vue";
 import type ICategoryDto from "../../../shared/dtos/ICategoryDto";
 import { useRepositoryStore } from "../stores/repositoryStore";
 import { storeToRefs } from "pinia";
 import Modal from "../lib/Modal.vue";
+import Card from "../lib/Card.vue";
+import InputArea from "../lib/InputArea.vue";
+import InputSelect from "../lib/InputSelect.vue";
 
 interface SinglelineCommentModalProps {
-	visible: boolean;
+	isVisible: boolean;
 	lineNumber: number | null;
 	filePath: string | null;
-	initialText?: string;
-	initialCategory?: string;
+	commentText?: string;
+	commentCategory?: string;
 }
 
 const props = withDefaults(defineProps<SinglelineCommentModalProps>(), {
-	initialText: "",
-	initialCategory: "",
+	commentText: "",
+	commentCategory: "",
 });
 
-const emit = defineEmits(["submit", "close"]);
-
-const currentCommentText = ref("");
-const selectedCategory = ref<string | null>(null);
+const emit = defineEmits(["submit", "close", "update:isVisible", "update:commentText"]);
+const isVisible = computed({
+	get: () => props.isVisible,
+	set: (value: boolean) => emit("update:isVisible", value),
+});
+const commentText = computed({
+	get: () => props.commentText,
+	set: (value: string) => emit("update:commentText", value),
+});
+const selectedCommentCategory = ref<string>("");
 const { categories: allCategories } = storeToRefs(useRepositoryStore()) as {
 	categories: Ref<ICategoryDto[]>;
 };
-const categories = computed(() => allCategories.value);
-
-watch(
-	() => props.initialText,
-	(newVal) => {
-		currentCommentText.value = newVal || "";
-	},
-	{ immediate: true }
-);
-
-watch(
-	() => props.initialCategory,
-	(newVal) => {
-		selectedCategory.value = newVal || allCategories.value[0]?.label || null;
-	},
-	{ immediate: true }
-);
-
-// Watch for when categories become available
-watch(
-	() => allCategories.value,
-	(newCategories) => {
-		if (newCategories && newCategories.length > 0 && !selectedCategory.value) {
-			selectedCategory.value = props.initialCategory || newCategories[0]?.label || null;
-		}
-	},
-	{ immediate: true }
-);
-
-watch(
-	() => props.visible,
-	(newVal) => {
-		if (newVal) {
-			currentCommentText.value = props.initialText || "";
-		}
-	}
-);
 
 function handleSubmit() {
-	if (!currentCommentText.value.trim()) {
+	if (!commentText.value.trim()) {
 		alert("Comment cannot be empty.");
 		return;
 	}
@@ -75,14 +47,14 @@ function handleSubmit() {
 		return;
 	}
 
-	if (!selectedCategory.value) {
+	if (!selectedCommentCategory.value) {
 		alert("Please select a category.");
 		return;
 	}
 
 	const categoryObject =
 		allCategories.value.length > 0
-			? allCategories.value.find((cat: ICategoryDto) => cat.label === selectedCategory.value)
+			? allCategories.value.find((cat: ICategoryDto) => cat.label === selectedCommentCategory.value)
 			: null;
 
 	if (!categoryObject) {
@@ -90,40 +62,34 @@ function handleSubmit() {
 		return;
 	}
 
-	emit("submit", currentCommentText.value, categoryObject);
+	emit("submit", commentText.value, categoryObject);
+}
+
+function closeModal() {
+	emit("close");
+	commentText.value = "";
+	selectedCommentCategory.value = "";
 }
 </script>
 
 <template>
-	<!-- TODO: modernize the modal -->
-	<Modal v-if="visible" @close="$emit('close')">
-		<h3 class="text-xl font-medium mb-5">Comment on Line {{ lineNumber }}</h3>
+	<Modal v-if="isVisible" @close="closeModal">
+		<Card :title="'Comment on Line ' + lineNumber" :subtitle="'Add a comment to file ' + props.filePath">
+			<div class="space-y-4">
+				<InputSelect
+					label="Category"
+					v-model="selectedCommentCategory"
+					:options="allCategories.map((cat) => ({ value: cat.label, label: cat.label }))"
+					placeholder="Select a category"
+				/>
 
-		<div class="mb-5">
-			<label class="block mb-2 text-sm font-medium">Category</label>
-			<select
-				v-model="selectedCategory"
-				class="w-full p-2.5 rounded border border-gray-600 bg-gray-800 text-gray-200 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-30 appearance-none pr-10"
-			>
-				<option v-for="category in categories" :key="category.id" :value="category.label">
-					{{ category.label }}
-				</option>
-			</select>
-		</div>
+				<InputArea label="Comment" v-model="commentText" placeholder="Enter your comment..." :rows="4" />
 
-		<div class="mb-5">
-			<label class="block mb-2 text-smfont-medium">Comment</label>
-			<textarea
-				v-model="currentCommentText"
-				placeholder="Enter your comment..."
-				class="w-full p-2.5 rounded border border-gray-600 bg-gray-800 text-gray-200 text-sm resize-y focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-30"
-				rows="4"
-			></textarea>
-		</div>
-
-		<div class="flex justify-end gap-2.5">
-			<button @click="$emit('close')" class="btn btn-secondary">Cancel</button>
-			<button @click="handleSubmit" class="btn btn-primary">Save</button>
-		</div>
+				<div class="flex justify-end space-x-2">
+					<button @click="closeModal" class="btn btn-secondary">Cancel</button>
+					<button @click="handleSubmit" class="btn btn-primary">Save</button>
+				</div>
+			</div>
+		</Card>
 	</Modal>
 </template>
