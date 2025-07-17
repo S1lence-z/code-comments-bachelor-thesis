@@ -19,6 +19,10 @@ import Modal from "../lib/Modal.vue";
 import Card from "../lib/Card.vue";
 import InputArea from "../lib/InputArea.vue";
 import CodeReviewToolbar from "../components/codeReview/CodeReviewToolbar.vue";
+import { useRoute } from "vue-router";
+
+// Router
+const route = useRoute();
 
 // Import stores
 const repositoryStore = useRepositoryStore();
@@ -392,9 +396,28 @@ const cleanResize = () => {
 	document.body.style.userSelect = "";
 };
 
+// TODO: add the handling the line number if applicable
+function handleFileQueryParam() {
+	const filePath = decodeURIComponent((route.query.file as string) || "");
+	if (filePath) {
+		selectedFilePath.value = filePath;
+	} else {
+		selectedFilePath.value = null;
+		processedSelectedFile.value = null;
+	}
+}
+
+watch(
+	() => route.query.file,
+	() => {
+		handleFileQueryParam();
+	}
+);
+
 onMounted(async () => {
 	try {
 		await repositoryStore.initializeData();
+		handleFileQueryParam();
 	} catch (error) {
 		console.error("Failed to initialize store data:", error);
 	}

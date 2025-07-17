@@ -141,18 +141,14 @@ const getCodePreview = (filePath: string, comment: ICommentDto) => {
 };
 
 const navigateToFile = (filePath: string, comment: ICommentDto) => {
-	const params = new URLSearchParams({
+	const params = {
 		repoUrl: props.repositoryUrl,
 		commentsApiUrl: props.commentsApiUrl,
 		branch: props.branch,
 		file: filePath,
-	});
-
-	if (comment.lineNumber) {
-		params.append("line", comment.lineNumber.toString());
-	}
-
-	router.push(`/review/code?${params.toString()}`);
+		...(comment.lineNumber ? { line: comment.lineNumber.toString() } : {}),
+	};
+	router.push({ path: "/review/code", query: params });
 };
 </script>
 

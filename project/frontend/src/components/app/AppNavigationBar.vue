@@ -19,7 +19,9 @@ const isServerSynced = ref(props.isServerSynced);
 
 // Computed property to preserve query parameters when navigating
 const preserveQueryParams = computed(() => {
-	return route.query;
+	//! file and line are not preserved in the navigation
+	const { file, line, ...rest } = route.query;
+	return rest;
 });
 
 // Watch for route changes to update active tab
