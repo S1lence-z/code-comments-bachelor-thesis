@@ -9,16 +9,18 @@ import { CommentType } from "../../../shared/enums/CommentType";
 import CommentStatistics from "../components/overview/CommentStatistics.vue";
 import CommentBrowser from "../components/overview/CommentBrowser.vue";
 import { useRouter } from "vue-router";
+import { useProjectStore } from "../stores/projectStore";
 
 // Router
 const router = useRouter();
 
 // Stores
+const projectStore = useProjectStore();
 const repositoryStore = useRepositoryStore();
 
 // Store refs
-const { allComments, repositoryUrl, branch, githubPersonalAccessToken, isLoadingComments, errorMessage } =
-	storeToRefs(repositoryStore);
+const { repositoryUrl, writeApiUrl, repositoryBranch, githubPat } = storeToRefs(projectStore);
+const { allComments, isLoadingComments } = storeToRefs(repositoryStore);
 
 // Filtering state
 const selectedCommentTypeFilter = ref<CommentType | null>(null);
@@ -68,7 +70,12 @@ const navigateToCodeReview = () => {
 
 onMounted(async () => {
 	try {
-		await repositoryStore.initializeData();
+		await repositoryStore.initializeStoreAsync(
+			repositoryUrl.value,
+			writeApiUrl.value,
+			repositoryBranch.value,
+			githubPat.value
+		);
 	} catch (error) {
 		console.error("Failed to initialize repository data:", error);
 	}
@@ -136,13 +143,6 @@ onMounted(async () => {
 					</div>
 				</div>
 
-				<!-- Error State -->
-				<div v-else-if="errorMessage && !isLoadingComments" class="status-message error">
-					<div class="flex items-center gap-3">
-						<p class="text-red-400">{{ errorMessage }}</p>
-					</div>
-				</div>
-
 				<!-- Empty State -->
 				<div v-else-if="totalComments === 0" class="text-center mt-16">
 					<div class="empty-state">
@@ -165,11 +165,10 @@ onMounted(async () => {
 					<CommentBrowser
 						:allComments="filteredComments"
 						:repositoryUrl="repositoryUrl"
-						:branch="branch"
-						:commentsApiUrl="repositoryStore.commentsApiUrl"
-						:githubPersonalAccessToken="githubPersonalAccessToken"
+						:branch="repositoryBranch"
+						:commentsApiUrl="writeApiUrl"
+						:githubPersonalAccessToken="githubPat"
 						:isLoadingComments="isLoadingComments"
-						:errorMessage="errorMessage"
 						:commentsByFile="commentsByFile"
 					/>
 				</div>

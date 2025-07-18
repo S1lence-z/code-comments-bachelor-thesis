@@ -15,8 +15,8 @@ interface CommentBrowserProps {
 	commentsApiUrl: string;
 	githubPersonalAccessToken: string;
 	isLoadingComments: boolean;
-	errorMessage: string | null;
 	commentsByFile: Record<string, ICommentDto[]>;
+	errorMessage?: string;
 }
 const props = withDefaults(defineProps<CommentBrowserProps>(), {
 	allComments: () => [] as ICommentDto[],
@@ -149,7 +149,7 @@ const loadAllFilePreviewContent = async () => {
 	for (const filePath of filePaths) {
 		if (!fileContentStore.isFileCached(filePath)) {
 			try {
-				await fileContentStore.getFileContent(
+				await fileContentStore.getFileContentAsync(
 					filePath,
 					props.repositoryUrl,
 					props.branch,

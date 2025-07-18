@@ -4,7 +4,7 @@ import type { FileDisplayType } from "../../types/githubFile";
 
 interface Props {
 	displayType: FileDisplayType;
-	downloadUrl: string | null;
+	downloadUrl: string;
 	fileName: string;
 	selectedFilePath: string | null;
 }
@@ -149,7 +149,7 @@ const handleTouchEnd = () => {
 			<!-- Image Content -->
 			<template v-if="displayType === 'image'">
 				<img
-					:src="downloadUrl ?? undefined"
+					:src="downloadUrl ?? ''"
 					:alt="`Image: ${selectedFilePath}`"
 					:style="contentStyle"
 					class="max-w-none max-h-none pointer-events-none select-none"

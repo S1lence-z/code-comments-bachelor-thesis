@@ -1,12 +1,32 @@
 <script setup lang="ts">
-import { ref, provide } from "vue";
+import { ref, provide, onMounted } from "vue";
 import NavigationBar from "./components/app/AppNavigationBar.vue";
 import AppFooter from "./components/app/AppFooter.vue";
 import Modal from "./lib/Modal.vue";
+import { useRouter, useRoute } from "vue-router";
+import { useProjectStore } from "./stores/projectStore.ts";
 
 // State to manage syncedState
 const isServerSynced = ref(true);
 provide("isServerSynced", isServerSynced);
+
+// Router
+const router = useRouter();
+const route = useRoute();
+
+// Project Store
+const projectStore = useProjectStore();
+
+onMounted(async () => {
+	await router
+		.isReady()
+		.then(() => {
+			projectStore.initializeStore(route.query);
+		})
+		.catch((error) => {
+			console.error("Router is not ready:", error);
+		});
+});
 </script>
 
 <template>

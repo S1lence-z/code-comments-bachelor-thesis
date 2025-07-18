@@ -7,7 +7,7 @@ import MultilineCommentModal from "../components/codeReview/MultilineCommentModa
 import OtherContentViewer from "../components/codeReview/ContentViewer.vue";
 import type { TreeNode } from "../types/githubTree.ts";
 import type ICommentDto from "../../../shared/dtos/ICommentDto";
-import { addComment, deleteComment } from "../services/commentsService.ts";
+import { deleteComment } from "../services/commentsService.ts";
 import { CommentType } from "../../../shared/enums/CommentType.ts";
 import type ICategoryDto from "../../../shared/dtos/ICategoryDto.ts";
 import SplitPanelManager from "../components/codeReview/SplitPanelManager.vue";
@@ -21,26 +21,20 @@ import InputArea from "../lib/InputArea.vue";
 import CodeReviewToolbar from "../components/codeReview/CodeReviewToolbar.vue";
 import { useRoute } from "vue-router";
 import ResizeHandle from "../lib/ResizeHandle.vue";
+import { useProjectStore } from "../stores/projectStore.ts";
+import { getFileName } from "../utils/fileUtils.ts";
 
 // Router
 const route = useRoute();
 
-// Import stores
+// Stores
+const projectStore = useProjectStore();
 const repositoryStore = useRepositoryStore();
 const fileContentStore = useFileContentStore();
 
-// Get repository settings and data from the store
-const {
-	repositoryUrl,
-	writeApiUrl,
-	branch,
-	githubPersonalAccessToken,
-	fileTree,
-	allComments: backendComments,
-	isLoadingRepo,
-	isLoadingComments,
-	errorMessage: storeErrorMessage,
-} = storeToRefs(repositoryStore);
+// Store refs
+const { repositoryUrl, writeApiUrl, repositoryBranch, githubPat } = storeToRefs(projectStore);
+const { fileTree, allComments: backendComments, isLoadingRepository, isLoadingComments } = storeToRefs(repositoryStore);
 
 // State for file explorer
 const showSideBar = ref<boolean>(true);
@@ -106,59 +100,20 @@ const minSidebarWidth = 200;
 const maxSidebarWidth = 600;
 const sidebar = ref<HTMLElement | null>(null);
 
-// File cache for split panel manager
-const fileCache = ref<Map<string, ProcessedFile>>(new Map());
-
-// Helper functions for split panel manager
-const getCommentsForFile = (filePath: string) => {
-	if (filePath && backendComments.value.length > 0) {
-		return repositoryStore.getCommentsForFile(filePath);
-	}
-	return [];
-};
-
-const getFileDisplayType = (filePath: string) => {
-	const cachedFile = fileCache.value.get(filePath);
-	return cachedFile?.displayType ?? "binary";
-};
-
-const getFileContent = (filePath: string) => {
-	const cachedFile = fileCache.value.get(filePath);
-	return cachedFile?.content ?? "";
-};
-
-const getFileDownloadUrl = (filePath: string) => {
-	const cachedFile = fileCache.value.get(filePath);
-	return cachedFile?.downloadUrl ?? null;
-};
-
-const getFileName = (filePath: string) => {
-	return filePath.split("/").pop() || filePath;
-};
-
-// Enhanced file loading for split panels
-async function ensureFileLoaded(filePath: string): Promise<void> {
-	if (fileCache.value.has(filePath)) {
-		return; // Already loaded
+async function ensureFileCached(filePath: string): Promise<void> {
+	if (fileContentStore.isFileCached(filePath)) {
+		return;
 	}
 
 	try {
-		const processedFile = await fileContentStore.getFileContent(
+		await fileContentStore.getFileContentAsync(
 			filePath,
 			repositoryUrl.value,
-			branch.value,
-			githubPersonalAccessToken.value
+			repositoryBranch.value,
+			githubPat.value
 		);
-		fileCache.value.set(filePath, processedFile);
 	} catch (e: any) {
 		console.error("Error fetching file content:", e);
-		// Set a default error state
-		fileCache.value.set(filePath, {
-			content: "",
-			displayType: "binary",
-			downloadUrl: null,
-			fileName: getFileName(filePath),
-		});
 	}
 }
 
@@ -170,7 +125,7 @@ async function deleteCommentAndReload(commentId: number): Promise<void> {
 	}
 	try {
 		await deleteComment(writeApiUrl.value, commentId);
-		repositoryStore.removeComment(commentId);
+		repositoryStore.deleteCommentLocal(commentId);
 	} catch (e: any) {
 		console.error("Failed to delete comment:", e);
 	}
@@ -182,11 +137,11 @@ async function handleFileSelected(path: string) {
 	selectedFilePath.value = path;
 	isLoadingFile.value = true;
 	try {
-		processedSelectedFile.value = await fileContentStore.getFileContent(
+		processedSelectedFile.value = await fileContentStore.getFileContentAsync(
 			path,
 			repositoryUrl.value,
-			branch.value,
-			githubPersonalAccessToken.value
+			repositoryBranch.value,
+			githubPat.value
 		);
 	} catch (e: any) {
 		processedSelectedFile.value = null;
@@ -213,7 +168,7 @@ function handleToggleExpandInTree(itemToToggle: TreeNode) {
 	findAndToggle(fileTree.value);
 }
 
-// Handle comment actions
+//! Handle comment modals
 function handleLineDoubleClicked(payload: { lineNumber: number; filePath: string }) {
 	const { lineNumber, filePath } = payload;
 	if (!filePath || !writeApiUrl.value) {
@@ -263,8 +218,7 @@ async function handleSinglelineCommentSubmit(commentText: string, category: ICat
 	}
 
 	try {
-		await addComment(writeApiUrl.value, commentData);
-		await repositoryStore.fetchAllComments();
+		await repositoryStore.upsertCommentAsync(commentData, writeApiUrl.value);
 	} catch (e: any) {
 		console.error("Failed to save comment:", e);
 	} finally {
@@ -300,8 +254,7 @@ async function handleMultilineCommentSubmit(commentText: string, category: ICate
 	}
 
 	try {
-		await addComment(writeApiUrl.value, commentData);
-		await repositoryStore.fetchAllComments();
+		await repositoryStore.upsertCommentAsync(commentData, writeApiUrl.value);
 	} catch (e: any) {
 		console.error("Failed to save comment:", e);
 	} finally {
@@ -324,7 +277,6 @@ function closeMultilineCommentModal() {
 	multilineModalCommentText.value = "";
 }
 
-// Handle file comment modal
 function handleFileCommentModal(isAdding: boolean) {
 	if (isAdding) {
 		fileCommentData.value.filePath = null;
@@ -361,7 +313,7 @@ async function handleFileCommentSubmit() {
 
 	// Submit the comment
 	try {
-		await repositoryStore.saveComment(commentToSubmit);
+		await repositoryStore.upsertCommentAsync(commentToSubmit, writeApiUrl.value);
 	} catch (e: any) {
 		console.error("Failed to save comment:", e);
 	} finally {
@@ -375,7 +327,7 @@ const handleSidebarResize = (newWidth: number) => {
 };
 
 // TODO: add the handling the line number if applicable
-function handleFileQueryParam() {
+const handleFileQueryParam = () => {
 	const filePath = decodeURIComponent((route.query.file as string) || "");
 	if (filePath) {
 		selectedFilePath.value = filePath;
@@ -383,23 +335,47 @@ function handleFileQueryParam() {
 		selectedFilePath.value = null;
 		processedSelectedFile.value = null;
 	}
-}
+};
 
-watch(
-	() => route.query.file,
-	() => {
-		handleFileQueryParam();
+// Setup function
+const initRepositoryStore = async () => {
+	// If project is already set up, initialize immediately
+	if (projectStore.isProjectSetup) {
+		// Prevent multiple initialization attempts
+		if (repositoryStore.isRepositorySetup) {
+			return;
+		}
+
+		try {
+			await repositoryStore.initializeStoreAsync(
+				repositoryUrl.value,
+				writeApiUrl.value,
+				repositoryBranch.value,
+				githubPat.value
+			);
+			handleFileQueryParam();
+		} catch (error) {
+			console.error("Failed to initialize store data:", error);
+		}
 	}
-);
+};
 
 onMounted(async () => {
-	try {
-		await repositoryStore.initializeData();
-		handleFileQueryParam();
-	} catch (error) {
-		console.error("Failed to initialize store data:", error);
+	if (projectStore.isProjectSetup) {
+		await initRepositoryStore();
 	}
 });
+
+// Watch for project setup completion
+watch(
+	() => projectStore.isProjectSetup,
+	async (isSetup) => {
+		if (isSetup) {
+			await initRepositoryStore();
+		}
+	},
+	{ immediate: true }
+);
 
 watch(
 	() => selectedFilePath.value,
@@ -412,10 +388,17 @@ watch(
 	}
 );
 
+watch(
+	() => route.query.file,
+	() => {
+		handleFileQueryParam();
+	}
+);
+
 // Watch for selectedFilePath changes to preload the file
 watch(selectedFilePath, async (newPath) => {
 	if (newPath) {
-		await ensureFileLoaded(newPath);
+		await ensureFileCached(newPath);
 	}
 });
 </script>
@@ -429,7 +412,7 @@ watch(selectedFilePath, async (newPath) => {
 				<!-- Sidebar -->
 				<div ref="sidebar" v-if="showSideBar" :style="{ width: sidebarWidth + 'px' }">
 					<!-- File Explorer -->
-					<div v-if="isLoadingRepo" class="p-6 text-sm text-center text-slate-300">
+					<div v-if="isLoadingRepository" class="p-6 text-sm text-center text-slate-300">
 						<div class="inline-flex items-center space-x-2">
 							<div
 								class="animate-spin rounded-full h-4 w-4 border-2 border-modern-blue border-t-transparent"
@@ -444,12 +427,6 @@ watch(selectedFilePath, async (newPath) => {
 						@update:isAddingFileComment="handleFileCommentModal"
 						@toggle-expand-item="handleToggleExpandInTree"
 					/>
-					<div
-						v-if="storeErrorMessage && !isLoadingRepo && fileTree.length === 0 && !isLoadingComments"
-						class="status-message error m-4 text-red-400"
-					>
-						{{ storeErrorMessage }}
-					</div>
 				</div>
 
 				<!-- Resize Handle -->
@@ -474,7 +451,10 @@ watch(selectedFilePath, async (newPath) => {
 					<SplitPanelManager v-else v-model:selected-file-path="selectedFilePath">
 						<template #default="{ filePath }">
 							<div v-if="filePath" class="h-full">
-								<div v-if="!fileCache.has(filePath)" class="p-6 text-sm text-center text-slate-300">
+								<div
+									v-if="!fileContentStore.isFileCached(filePath)"
+									class="p-6 text-sm text-center text-slate-300"
+								>
 									<div class="inline-flex items-center space-x-2">
 										<div
 											class="animate-spin rounded-full h-4 w-4 border-2 border-modern-blue border-t-transparent"
@@ -484,19 +464,19 @@ watch(selectedFilePath, async (newPath) => {
 								</div>
 								<template v-else>
 									<CodeEditor
-										v-if="getFileDisplayType(filePath) === 'text'"
+										v-if="fileContentStore.getFileDisplayType(filePath) === 'text'"
 										:file-path="filePath"
-										:file-content="getFileContent(filePath)"
+										:file-content="fileContentStore.getFileContent(filePath)"
 										:is-loading-file="false"
-										:comments="getCommentsForFile(filePath)"
+										:comments="repositoryStore.getCommentsForFile(filePath)"
 										:delete-comment-action="deleteCommentAndReload"
 										@line-double-clicked="handleLineDoubleClicked"
 										@multiline-selected="handleMultilineSelected"
 									/>
 									<OtherContentViewer
 										v-else
-										:display-type="getFileDisplayType(filePath)"
-										:download-url="getFileDownloadUrl(filePath)"
+										:display-type="fileContentStore.getFileDisplayType(filePath)"
+										:download-url="fileContentStore.getFileDownloadUrl(filePath)"
 										:file-name="getFileName(filePath)"
 										:selected-file-path="filePath"
 									/>
