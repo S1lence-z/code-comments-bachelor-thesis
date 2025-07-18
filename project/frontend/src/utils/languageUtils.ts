@@ -42,6 +42,6 @@ export function getLanguageExtension(filePath: string | null): LanguageSupport |
 		case "svelte":
 			return svelte();
 		default:
-			return [];
+			return javascript();
 	}
 }
