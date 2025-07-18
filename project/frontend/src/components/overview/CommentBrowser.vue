@@ -121,6 +121,18 @@ const getCodePreview = (filePath: string, comment: ICommentDto) => {
 	return "No preview available";
 };
 
+const hasCodePreview = (comment: ICommentDto) => {
+	switch (comment.type) {
+		case CommentType.SingleLine:
+		case CommentType.MultiLine:
+			return true;
+		case CommentType.File:
+		case CommentType.Project:
+		default:
+			return false;
+	}
+};
+
 const openFileInEditor = (filePath: string, comment: ICommentDto) => {
 	const params = {
 		repoUrl: props.repositoryUrl,
@@ -227,7 +239,7 @@ onMounted(async () => {
 								<p class="text-slate-200 whitespace-pre-wrap">{{ comment.content }}</p>
 							</div>
 							<!-- Code Preview -->
-							<div class="mt-4">
+							<div v-if="hasCodePreview(comment)" class="mt-4">
 								<div class="bg-slate-900 rounded-lg p-4 border border-white/10">
 									<pre
 										class="text-slate-300 text-sm overflow-x-auto"
