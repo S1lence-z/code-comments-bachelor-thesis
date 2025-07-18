@@ -58,17 +58,8 @@ export const multilineCommentTheme = EditorView.theme({
 		background: "rgba(154, 52, 18, 0.08)",
 		"backdrop-filter": "blur(4px)",
 		"-webkit-backdrop-filter": "blur(4px)",
-		"border-left": "3px solid rgba(154, 52, 18, 0.4)",
+		"border-left": "3px solid rgba(154, 52, 18)",
 		"border-radius": "0 4px 4px 0",
 		position: "relative",
-	},
-	".cm-line.multiline-comment-line-number::before": {
-		content: "''",
-		position: "absolute",
-		left: "-3px",
-		top: "0",
-		bottom: "0",
-		width: "1px",
-		background: "linear-gradient(180deg, rgba(154, 52, 18, 0.6), rgba(154, 52, 18, 0.2))",
 	},
 });
