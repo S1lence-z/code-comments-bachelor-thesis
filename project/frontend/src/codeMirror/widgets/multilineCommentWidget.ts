@@ -36,6 +36,7 @@ export default class MultilineCommentWidget extends BaseCommentWidget {
 
 		// Create and append content div
 		const contentDiv = document.createElement("div");
+		contentDiv.className = "comment-content";
 		contentDiv.textContent = this.content;
 
 		wrap.appendChild(tools);
@@ -53,18 +54,8 @@ export default class MultilineCommentWidget extends BaseCommentWidget {
 
 	protected override createCategoryLabel(category: ICategoryDto): HTMLSpanElement {
 		const label = document.createElement("span");
-		label.className = "comment-category comment-category-pill";
+		label.className = "comment-category comment-category-pill comment-category-orange";
 		label.textContent = category.label;
-		label.style.cssText = `
-				display: flex;
-				padding: 2px 8px;
-				border-radius: 12px;
-				background-color: #e0e7ff;
-				color: #3730a3;
-				font-size: 12px;
-				font-weight: 500;
-				border: 1px solid #c7d2fe;
-			`;
 		return label;
 	}
 

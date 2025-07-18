@@ -1,11 +1,10 @@
 import { oneDark } from "@codemirror/theme-one-dark";
-import { EditorView, lineNumbers, gutter, keymap } from "@codemirror/view";
+import { EditorView, lineNumbers, keymap } from "@codemirror/view";
 import type ICommentDto from "../../../../shared/dtos/ICommentDto.ts";
 import { getLanguageExtension } from "../../utils/languageUtils.ts";
 import { commentsDisplayExtension } from "../commentsExtension.ts";
 import { getLineNumbersConfig, type LineNumberConfig } from "./lineNumbersConfig.ts";
-import { createGutterConfig, type GutterConfig } from "../configs/gutterConfig.ts";
-import { multilineCommentHighlightExtension, multilineCommentTheme } from "../multilineCommentHighlight.ts";
+import { multilineCommentHighlightExtension, multilineCommentTheme } from "../others/multilineCommentHighlight.ts";
 import { EditorState, type Extension } from "@codemirror/state";
 
 /**
@@ -21,12 +20,10 @@ export function createEditorExtensions(
 	const langExt = getLanguageExtension(filePath);
 	const currentFileComments = comments || [];
 	const lineNumbersConfig: LineNumberConfig = getLineNumbersConfig(currentFileComments);
-	const guttersConfig: GutterConfig = createGutterConfig(currentFileComments);
 
 	const extensions = [
 		oneDark,
 		lineNumbers(lineNumbersConfig),
-		gutter(guttersConfig),
 		multilineCommentHighlightExtension(currentFileComments),
 		multilineCommentTheme,
 		EditorView.lineWrapping,

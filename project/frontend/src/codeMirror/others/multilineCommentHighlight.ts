@@ -1,6 +1,6 @@
 import { EditorView, ViewPlugin, ViewUpdate, Decoration, type DecorationSet } from "@codemirror/view";
 import { Range } from "@codemirror/state";
-import type ICommentDto from "../../../shared/dtos/ICommentDto.ts";
+import type ICommentDto from "../../../../shared/dtos/ICommentDto.ts";
 
 // Create decorations for line numbers and gutter markers
 const multilineCommentLineNumberDeco = Decoration.line({
@@ -55,10 +55,20 @@ export function multilineCommentHighlightExtension(comments: ICommentDto[]) {
 // Theme extension for styling
 export const multilineCommentTheme = EditorView.theme({
 	".cm-line.multiline-comment-line-number": {
-		"background-color": "#154066",
+		background: "rgba(154, 52, 18, 0.08)",
+		"backdrop-filter": "blur(4px)",
+		"-webkit-backdrop-filter": "blur(4px)",
+		"border-left": "3px solid rgba(154, 52, 18, 0.4)",
+		"border-radius": "0 4px 4px 0",
+		position: "relative",
 	},
-	".multiline-comment-gutter-line": {
-		"background-color": "#154066",
-		"border-radius": "2px",
+	".cm-line.multiline-comment-line-number::before": {
+		content: "''",
+		position: "absolute",
+		left: "-3px",
+		top: "0",
+		bottom: "0",
+		width: "1px",
+		background: "linear-gradient(180deg, rgba(154, 52, 18, 0.6), rgba(154, 52, 18, 0.2))",
 	},
 });

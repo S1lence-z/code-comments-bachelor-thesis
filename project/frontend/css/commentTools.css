@@ -1,0 +1,36 @@
+/* Comment Tools Shared Styles */
+.comment-tools {
+	display: flex;
+	gap: 12px;
+	align-items: center;
+	margin-bottom: 12px;
+	padding-bottom: 8px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.comment-tools button {
+	background: rgba(239, 68, 68, 0.1);
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
+	color: #fca5a5;
+	border: 1px solid rgba(239, 68, 68, 0.2);
+	padding: 6px 12px;
+	border-radius: 8px;
+	cursor: pointer;
+	font-size: 0.85em;
+	font-weight: 500;
+	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+	position: relative;
+	overflow: hidden;
+}
+
+.comment-tools button:hover {
+	background: rgba(239, 68, 68, 0.2);
+	border-color: rgba(239, 68, 68, 0.4);
+	color: #fee2e2;
+	transform: translateY(-1px);
+}
+
+.comment-tools button:active {
+	transform: translateY(0);
+}
