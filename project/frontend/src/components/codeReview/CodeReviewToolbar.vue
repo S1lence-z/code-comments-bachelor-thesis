@@ -2,6 +2,18 @@
 import { inject, ref } from "vue";
 import ToggleButton from "../../lib/ToggleButton.vue";
 
+interface ToolbarProps {
+	showSideBar: boolean;
+}
+
+withDefaults(defineProps<ToolbarProps>(), {
+	showSideBar: true,
+});
+
+const emit = defineEmits<{
+	(event: "update:showSideBar", value: boolean): void;
+}>();
+
 const keyboardModeContext = inject("keyboardModeContext", {
 	isKeyboardMode: ref(false),
 	updateKeyboardModeState: (_: boolean) => console.warn("updateKeyboardModeState not provided"),
@@ -10,6 +22,14 @@ const keyboardModeContext = inject("keyboardModeContext", {
 
 <template>
 	<div class="flex items-center justify-center space-x-6 p-2">
+		<!-- Toggle Button for Sidebar -->
+		<div class="flex items-center">
+			<ToggleButton
+				label="Show Sidebar"
+				:isActive="showSideBar"
+				@update:isActive="emit('update:showSideBar', $event)"
+			/>
+		</div>
 		<!-- Toggle Button for Keyboard Mode -->
 		<div class="flex items-center">
 			<ToggleButton

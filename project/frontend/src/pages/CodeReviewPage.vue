@@ -41,6 +41,9 @@ const {
 	errorMessage: storeErrorMessage,
 } = storeToRefs(repositoryStore);
 
+// State for file explorer
+const showSideBar = ref<boolean>(true);
+
 // Local state for file selection and content
 const selectedFilePath = ref<string | null>(null);
 const processedSelectedFile = ref<ProcessedFile | null>(null);
@@ -450,10 +453,10 @@ watch(selectedFilePath, async (newPath) => {
 	<div class="page">
 		<div class="flex flex-col h-full w-full">
 			<!-- Code Editor Toolbar -->
-			<CodeReviewToolbar />
+			<CodeReviewToolbar v-model:showSideBar="showSideBar" />
 			<div class="flex h-full w-full overflow-hidden">
 				<!-- Sidebar -->
-				<div :style="{ width: sidebarWidth + 'px' }">
+				<div v-if="showSideBar" :style="{ width: sidebarWidth + 'px' }">
 					<!-- File Explorer -->
 					<div v-if="isLoadingRepo" class="p-6 text-sm text-center text-slate-300">
 						<div class="inline-flex items-center space-x-2">
@@ -480,6 +483,7 @@ watch(selectedFilePath, async (newPath) => {
 
 				<!-- Resize handle -->
 				<div
+					v-if="showSideBar"
 					class="flex w-1 h-full cursor-col-resize bg-black hover:bg-blue-500 transition-colors"
 					@mousedown="startResize"
 				></div>
