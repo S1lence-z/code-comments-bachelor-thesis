@@ -6,8 +6,6 @@ const props = defineProps<{
 	panelId: string;
 	openTabs: string[];
 	activeTab: string | null;
-	size?: number;
-	splitDirection?: "horizontal" | "vertical";
 	isSinglePanel: boolean;
 }>();
 
@@ -17,56 +15,14 @@ const emits = defineEmits<{
 }>();
 
 // Inject context from SplitPanelManager
-const splitPanelContext = inject("splitPanelContext") as any;
+const splitPanelFunctionality = inject<{
+	handleTabDrop: (panelId: string) => void;
+	closePanel: (panelId: string) => void;
+	draggedTab: () => { fromPanelId: string; filePath: string } | null;
+}>("splitPanelContext")!;
 
 const isDragOver = ref(false);
 const showDropZone = ref(false);
-
-// Panel styling based on split direction and size
-const panelStyle = computed(() => {
-	const baseStyle: any = {
-		display: "flex",
-		flexDirection: "column",
-		overflow: "hidden",
-	};
-
-	if (props.size) {
-		if (props.splitDirection === "horizontal") {
-			baseStyle.height = `${props.size}%`;
-			baseStyle.width = "100%";
-		} else {
-			baseStyle.width = `${props.size}%`;
-			baseStyle.height = "100%";
-		}
-	} else {
-		baseStyle.flex = "1";
-	}
-
-	return baseStyle;
-});
-
-// Handle tab selection
-const handleTabSelected = (filePath: string) => {
-	emits("tab-selected", filePath, props.panelId);
-};
-
-// Handle tab closing
-const handleTabClosed = (filePath: string) => {
-	emits("tab-closed", filePath, props.panelId);
-};
-
-// Split panel actions
-const splitHorizontally = () => {
-	splitPanelContext?.splitPanelHorizontally(props.panelId);
-};
-
-const splitVertically = () => {
-	splitPanelContext?.splitPanelVertically(props.panelId);
-};
-
-const closePanel = () => {
-	splitPanelContext?.closePanel(props.panelId);
-};
 
 // Drag and drop handling
 const handleDragOver = (event: DragEvent) => {
@@ -74,7 +30,7 @@ const handleDragOver = (event: DragEvent) => {
 	event.dataTransfer!.dropEffect = "move";
 
 	// Only show drop zone if dragging from another panel
-	const draggedTab = splitPanelContext?.draggedTab?.();
+	const draggedTab = splitPanelFunctionality.draggedTab?.();
 	if (draggedTab && draggedTab.fromPanelId !== props.panelId) {
 		isDragOver.value = true;
 		showDropZone.value = true;
@@ -97,7 +53,7 @@ const handleDrop = (event: DragEvent) => {
 	showDropZone.value = false;
 
 	// Drop at the end of the panel's tabs
-	splitPanelContext?.handleTabDrop(props.panelId);
+	splitPanelFunctionality?.handleTabDrop(props.panelId);
 };
 
 // Enhanced FileTabManager that supports the panel's tabs
@@ -106,59 +62,42 @@ const currentActiveTab = computed(() => props.activeTab);
 
 const handleTabUpdate = (filePath: string | null) => {
 	if (filePath) {
-		handleTabSelected(filePath);
+		emits("tab-selected", filePath, props.panelId);
 	}
+};
+
+const handleClosePanel = () => {
+	if (props.isSinglePanel) return;
+		splitPanelFunctionality.closePanel(props.panelId);
+};
+
+const handleCloseFileTab = (filePath: string) => {
+	emits("tab-closed", filePath, props.panelId);
 };
 </script>
 
 <template>
 	<div
-		class="panel-container relative"
-		:style="panelStyle"
+		class="relative border-r border-black"
 		@dragover="handleDragOver"
 		@dragleave="handleDragLeave"
 		@drop="handleDrop"
 	>
 		<!-- Panel Header with Controls -->
-		<div class="panel-header flex items-center justify-between px-2 py-1 bg-white/5 border-b border-white/10">
+		<div class="flex items-center justify-between px-2 py-1 bg-white/5 border-b border-white/10">
 			<div class="flex items-center space-x-2">
-				<span class="text-xs text-slate-400">Panel {{ panelId }}</span>
+				<span class="text-xs text-slate-400">{{ panelId }}</span>
 			</div>
 
-			<div class="flex items-center space-x-1">
-				<!-- Split Controls -->
-				<button
-					@click="splitHorizontally"
-					class="p-1 text-slate-400 hover:text-white hover:bg-white/10 rounded transition-colors"
-					title="Split Horizontally"
-				>
-					<svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
-						<rect x="0" y="0" width="12" height="5" rx="1" />
-						<rect x="0" y="7" width="12" height="5" rx="1" />
-					</svg>
-				</button>
-
-				<button
-					@click="splitVertically"
-					class="p-1 text-slate-400 hover:text-white hover:bg-white/10 rounded transition-colors"
-					title="Split Vertically"
-				>
-					<svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
-						<rect x="0" y="0" width="5" height="12" rx="1" />
-						<rect x="7" y="0" width="5" height="12" rx="1" />
-					</svg>
-				</button>
-
+			<div class="flex items-center">
 				<!-- Close Panel Button -->
 				<button
 					v-if="!isSinglePanel"
-					@click="closePanel"
-					class="p-1 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors"
+					@click="handleClosePanel"
+					class="text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors cursor-pointer"
 					title="Close Panel"
 				>
-					<svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
-						<path d="M9.5 3.5L8.5 2.5 6 5 3.5 2.5 2.5 3.5 5 6 2.5 8.5 3.5 9.5 6 7 8.5 9.5 9.5 8.5 7 6z" />
-					</svg>
+					X
 				</button>
 			</div>
 		</div>
@@ -169,7 +108,7 @@ const handleTabUpdate = (filePath: string | null) => {
 			:open-tabs="currentTabs"
 			:panel-id="panelId"
 			@update:model-value="handleTabUpdate"
-			@tab-closed="handleTabClosed"
+			@tab-closed="handleCloseFileTab"
 		>
 			<slot></slot>
 		</FileTabManager>
@@ -184,13 +123,3 @@ const handleTabUpdate = (filePath: string | null) => {
 		</div>
 	</div>
 </template>
-
-<style scoped>
-.panel-container {
-	border-right: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.panel-container:last-child {
-	border-right: none;
-}
-</style>

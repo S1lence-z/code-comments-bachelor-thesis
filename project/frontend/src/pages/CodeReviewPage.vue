@@ -462,7 +462,7 @@ watch(selectedFilePath, async (newPath) => {
 				/>
 
 				<!-- Code Editor and Comments -->
-				<div class="flex flex-col flex-grow overflow-hidden backdrop-blur-sm bg-white/5">
+				<div class="flex flex-col flex-grow overflow-hidden backdrop-blur-sm bg-white/5 w-full">
 					<div v-if="isLoadingComments && !isLoadingFile" class="p-6 text-sm text-center text-slate-300">
 						<div class="inline-flex items-center space-x-2">
 							<div
@@ -471,7 +471,7 @@ watch(selectedFilePath, async (newPath) => {
 							<span>Loading comments...</span>
 						</div>
 					</div>
-					<SplitPanelManager v-else v-model="selectedFilePath">
+					<SplitPanelManager v-else v-model:selected-file-path="selectedFilePath">
 						<template #default="{ filePath }">
 							<div v-if="filePath" class="h-full">
 								<div v-if="!fileCache.has(filePath)" class="p-6 text-sm text-center text-slate-300">
