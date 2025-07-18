@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch, provide } from "vue";
+import { ref, onMounted, watch, provide } from "vue";
 import FileExplorer from "../components/codeReview/FileExplorer.vue";
 import CodeEditor from "../components/codeReview/CodeEditor.vue";
 import SinglelineCommentModal from "../components/codeReview/SinglelineCommentModal.vue";
@@ -20,6 +20,7 @@ import Card from "../lib/Card.vue";
 import InputArea from "../lib/InputArea.vue";
 import CodeReviewToolbar from "../components/codeReview/CodeReviewToolbar.vue";
 import { useRoute } from "vue-router";
+import ResizeHandle from "../lib/ResizeHandle.vue";
 
 // Router
 const route = useRoute();
@@ -103,7 +104,7 @@ provide("keyboardModeContext", { isKeyboardMode: isKeyboardMode, updateKeyboardM
 const sidebarWidth = ref(280);
 const minSidebarWidth = 200;
 const maxSidebarWidth = 600;
-const isResizing = ref(false);
+const sidebar = ref<HTMLElement | null>(null);
 
 // File cache for split panel manager
 const fileCache = ref<Map<string, ProcessedFile>>(new Map());
@@ -368,35 +369,9 @@ async function handleFileCommentSubmit() {
 	}
 }
 
-// Resize handling functions
-const startResize = (event: MouseEvent) => {
-	event.preventDefault();
-	isResizing.value = true;
-	document.addEventListener("mousemove", handleResize);
-	document.addEventListener("mouseup", stopResize);
-	document.body.style.cursor = "col-resize";
-	document.body.style.userSelect = "none";
-};
-
-const handleResize = (event: MouseEvent) => {
-	if (!isResizing.value) return;
-
-	const newWidth = event.clientX;
-	if (newWidth >= minSidebarWidth && newWidth <= maxSidebarWidth) {
-		sidebarWidth.value = newWidth;
-	}
-};
-
-const stopResize = () => {
-	isResizing.value = false;
-	cleanResize();
-};
-
-const cleanResize = () => {
-	document.removeEventListener("mousemove", handleResize);
-	document.removeEventListener("mouseup", stopResize);
-	document.body.style.cursor = "";
-	document.body.style.userSelect = "";
+// Handle resize events from ResizeHandle component
+const handleSidebarResize = (newWidth: number) => {
+	sidebarWidth.value = newWidth;
 };
 
 // TODO: add the handling the line number if applicable
@@ -426,10 +401,6 @@ onMounted(async () => {
 	}
 });
 
-onUnmounted(() => {
-	cleanResize();
-});
-
 watch(
 	() => selectedFilePath.value,
 	() => {
@@ -456,7 +427,7 @@ watch(selectedFilePath, async (newPath) => {
 			<CodeReviewToolbar v-model:showSideBar="showSideBar" />
 			<div class="flex h-full w-full overflow-hidden">
 				<!-- Sidebar -->
-				<div v-if="showSideBar" :style="{ width: sidebarWidth + 'px' }">
+				<div ref="sidebar" v-if="showSideBar" :style="{ width: sidebarWidth + 'px' }">
 					<!-- File Explorer -->
 					<div v-if="isLoadingRepo" class="p-6 text-sm text-center text-slate-300">
 						<div class="inline-flex items-center space-x-2">
@@ -481,12 +452,14 @@ watch(selectedFilePath, async (newPath) => {
 					</div>
 				</div>
 
-				<!-- Resize handle -->
-				<div
+				<!-- Resize Handle -->
+				<ResizeHandle
 					v-if="showSideBar"
-					class="flex w-1 h-full cursor-col-resize bg-black hover:bg-blue-500 transition-colors"
-					@mousedown="startResize"
-				></div>
+					:resizable-element="sidebar"
+					:min-width="minSidebarWidth"
+					:max-width="maxSidebarWidth"
+					@resize-number="(newWidth: number) => handleSidebarResize(newWidth)"
+				/>
 
 				<!-- Code Editor and Comments -->
 				<div class="flex flex-col flex-grow overflow-hidden backdrop-blur-sm bg-white/5">
