@@ -5,9 +5,7 @@ import CodeEditor from "../components/codeReview/CodeEditor.vue";
 import SinglelineCommentModal from "../components/codeReview/SinglelineCommentModal.vue";
 import MultilineCommentModal from "../components/codeReview/MultilineCommentModal.vue";
 import OtherContentViewer from "../components/codeReview/ContentViewer.vue";
-import type { TreeNode } from "../types/githubTree.ts";
 import type ICommentDto from "../../../shared/dtos/ICommentDto";
-import { deleteComment } from "../services/commentsService.ts";
 import { CommentType } from "../../../shared/enums/CommentType.ts";
 import type ICategoryDto from "../../../shared/dtos/ICategoryDto.ts";
 import SplitPanelManager from "../components/codeReview/SplitPanelManager.vue";
@@ -23,6 +21,13 @@ import { useRoute } from "vue-router";
 import ResizeHandle from "../lib/ResizeHandle.vue";
 import { useProjectStore } from "../stores/projectStore.ts";
 import { getFileName } from "../utils/fileUtils.ts";
+
+// Provide IsKeyboardMode Context
+const isKeyboardMode = ref(false);
+function updateKeyboardModeState(value: boolean) {
+	isKeyboardMode.value = value;
+}
+provide("keyboardModeContext", { isKeyboardMode: isKeyboardMode, updateKeyboardModeState });
 
 // Router
 const route = useRoute();
@@ -44,21 +49,131 @@ const selectedFilePath = ref<string | null>(null);
 const processedSelectedFile = ref<ProcessedFile | null>(null);
 const isLoadingFile = ref<boolean>(false);
 
-// SHARED modal state
-const modalFilePath = ref<string | null>(null);
+// Resizable sidebar state
+const sidebarWidth = ref(280);
+const minSidebarWidth = 200;
+const maxSidebarWidth = 600;
+const sidebar = ref<HTMLElement | null>(null);
 
-// Single line comment modal state
+// Handle file selection and loading
+async function handleFileSelected(path: string) {
+	if (!path) return;
+
+	selectedFilePath.value = path;
+	isLoadingFile.value = true;
+	try {
+		processedSelectedFile.value = await fileContentStore.getFileContentAsync(
+			path,
+			repositoryUrl.value,
+			repositoryBranch.value,
+			githubPat.value
+		);
+	} catch (e: any) {
+		processedSelectedFile.value = null;
+		console.error("Error fetching file content:", e);
+	} finally {
+		isLoadingFile.value = false;
+	}
+}
+
+//#region Single line comment modal
+const singlelineModalFilePath = ref<string | null>(null);
 const isAddingSinglelineComment = ref(false);
 const modalLineNumber = ref<number | null>(null);
 const singlelineModalCommentText = ref<string>("");
 
-// Multiline comment modal state
+function handleLineDoubleClicked(payload: { lineNumber: number; filePath: string }) {
+	const { lineNumber, filePath } = payload;
+	if (!filePath || !writeApiUrl.value) {
+		console.error("Cannot add comment: comments API URL is not configured.");
+		return;
+	}
+	const existingComment = backendComments.value.find(
+		(c: ICommentDto) => c.filePath === filePath && c.lineNumber === lineNumber
+	);
+	modalLineNumber.value = lineNumber;
+	singlelineModalFilePath.value = filePath;
+	singlelineModalCommentText.value = existingComment ? existingComment.content : "";
+	isAddingSinglelineComment.value = true;
+}
+
+async function handleSinglelineCommentSubmit(commentText: string, category: ICategoryDto) {
+	if (singlelineModalFilePath.value === null || modalLineNumber.value === null || !writeApiUrl.value) {
+		console.error("Cannot save comment: missing data or API URL.");
+		return;
+	}
+
+	const commentData: ICommentDto = {
+		id: 0,
+		filePath: singlelineModalFilePath.value,
+		lineNumber: modalLineNumber.value,
+		content: commentText,
+		type: CommentType.SingleLine,
+		categories: category ? [category] : [],
+	};
+
+	try {
+		await repositoryStore.upsertCommentAsync(commentData, writeApiUrl.value);
+	} catch (e: any) {
+		console.error("Failed to save comment:", e);
+	}
+}
+//#endregion
+
+//#region Multiline comment modal
+const multilineModalFilePath = ref<string | null>(null);
 const isAddingMultilineComment = ref(false);
 const modalStartLineNumber = ref<number | null>(null);
 const modalEndLineNumber = ref<number | null>(null);
 const multilineModalCommentText = ref<string>("");
 
-// File/Folder comment modal state
+function handleMultilineSelected(payload: { startLineNumber: number; endLineNumber: number; filePath: string }) {
+	const { startLineNumber, endLineNumber, filePath } = payload;
+	if (!filePath || !writeApiUrl.value) {
+		console.error("Cannot add comment: comments API URL is not configured.");
+		return;
+	}
+	modalStartLineNumber.value = startLineNumber;
+	modalEndLineNumber.value = endLineNumber;
+	multilineModalFilePath.value = filePath;
+	isAddingMultilineComment.value = true;
+}
+
+async function handleMultilineCommentSubmit(commentText: string, category: ICategoryDto) {
+	if (
+		multilineModalFilePath.value === null ||
+		modalStartLineNumber.value === null ||
+		modalEndLineNumber.value === null ||
+		!writeApiUrl.value
+	) {
+		console.error("Cannot save comment: missing data or API URL.");
+		return;
+	}
+
+	const commentData: ICommentDto = {
+		id: 0,
+		filePath: multilineModalFilePath.value,
+		content: commentText,
+		type: CommentType.MultiLine,
+		startLineNumber: modalStartLineNumber.value,
+		endLineNumber: modalEndLineNumber.value,
+		categories: category ? [category] : [],
+	};
+
+	if (!commentData.content.trim()) {
+		console.log("Comment text is empty, not submitting.");
+		return;
+	}
+
+	try {
+		await repositoryStore.upsertCommentAsync(commentData, writeApiUrl.value);
+	} catch (e: any) {
+		console.error("Failed to save comment:", e);
+	}
+}
+//#endregion
+
+//#region File/Folder comment modal
 const isAddingFileComment = ref(false);
 function updateIsAddingFileComment(value: boolean) {
 	isAddingFileComment.value = value;
@@ -86,196 +201,6 @@ const updateFileCommentData = (filePath: string, content: string) => {
 	fileCommentData.value.content = content;
 };
 provide("updateFileCommentData", updateFileCommentData);
-
-// IsKeyboardMode state
-const isKeyboardMode = ref(false);
-function updateKeyboardModeState(value: boolean) {
-	isKeyboardMode.value = value;
-}
-provide("keyboardModeContext", { isKeyboardMode: isKeyboardMode, updateKeyboardModeState });
-
-// Resizable sidebar state
-const sidebarWidth = ref(280);
-const minSidebarWidth = 200;
-const maxSidebarWidth = 600;
-const sidebar = ref<HTMLElement | null>(null);
-
-async function ensureFileCached(filePath: string): Promise<void> {
-	if (fileContentStore.isFileCached(filePath)) {
-		return;
-	}
-
-	try {
-		await fileContentStore.getFileContentAsync(
-			filePath,
-			repositoryUrl.value,
-			repositoryBranch.value,
-			githubPat.value
-		);
-	} catch (e: any) {
-		console.error("Error fetching file content:", e);
-	}
-}
-
-// Comment handling
-async function deleteCommentAndReload(commentId: number): Promise<void> {
-	if (!writeApiUrl.value) {
-		console.error("Cannot delete comment: comments API URL is not configured.");
-		return;
-	}
-	try {
-		await deleteComment(writeApiUrl.value, commentId);
-		repositoryStore.deleteCommentLocal(commentId);
-	} catch (e: any) {
-		console.error("Failed to delete comment:", e);
-	}
-}
-
-async function handleFileSelected(path: string) {
-	if (!path) return;
-
-	selectedFilePath.value = path;
-	isLoadingFile.value = true;
-	try {
-		processedSelectedFile.value = await fileContentStore.getFileContentAsync(
-			path,
-			repositoryUrl.value,
-			repositoryBranch.value,
-			githubPat.value
-		);
-	} catch (e: any) {
-		processedSelectedFile.value = null;
-		console.error("Error fetching file content:", e);
-	} finally {
-		isLoadingFile.value = false;
-	}
-}
-
-// TODO: move this function to the FileExplorer component
-function handleToggleExpandInTree(itemToToggle: TreeNode) {
-	const findAndToggle = (nodes: TreeNode[]): boolean => {
-		for (const node of nodes) {
-			if (node.path === itemToToggle.path && node.type === "folder") {
-				node.isExpanded = !node.isExpanded;
-				return true;
-			}
-			if (node.children && node.children.length > 0) {
-				if (findAndToggle(node.children)) return true;
-			}
-		}
-		return false;
-	};
-	findAndToggle(fileTree.value);
-}
-
-//! Handle comment modals
-function handleLineDoubleClicked(payload: { lineNumber: number; filePath: string }) {
-	const { lineNumber, filePath } = payload;
-	if (!filePath || !writeApiUrl.value) {
-		console.error("Cannot add comment: comments API URL is not configured.");
-		return;
-	}
-	const existingComment = backendComments.value.find(
-		(c: ICommentDto) => c.filePath === filePath && c.lineNumber === lineNumber
-	);
-	modalLineNumber.value = lineNumber;
-	modalFilePath.value = filePath;
-	singlelineModalCommentText.value = existingComment ? existingComment.content : "";
-	isAddingSinglelineComment.value = true;
-}
-
-function handleMultilineSelected(payload: { startLineNumber: number; endLineNumber: number; filePath: string }) {
-	const { startLineNumber, endLineNumber, filePath } = payload;
-	if (!filePath || !writeApiUrl.value) {
-		console.error("Cannot add comment: comments API URL is not configured.");
-		return;
-	}
-	modalStartLineNumber.value = startLineNumber;
-	modalEndLineNumber.value = endLineNumber;
-	modalFilePath.value = filePath;
-	isAddingMultilineComment.value = true;
-}
-
-async function handleSinglelineCommentSubmit(commentText: string, category: ICategoryDto) {
-	if (modalFilePath.value === null || modalLineNumber.value === null || !writeApiUrl.value) {
-		console.error("Cannot save comment: missing data or API URL.");
-		return;
-	}
-
-	const commentData: ICommentDto = {
-		id: 0,
-		filePath: modalFilePath.value,
-		lineNumber: modalLineNumber.value,
-		content: commentText,
-		type: CommentType.SingleLine,
-		categories: category ? [category] : [],
-	};
-
-	if (!commentData.content.trim()) {
-		console.log("Comment text is empty, not submitting.");
-		closeSinglelineCommentModal();
-		return;
-	}
-
-	try {
-		await repositoryStore.upsertCommentAsync(commentData, writeApiUrl.value);
-	} catch (e: any) {
-		console.error("Failed to save comment:", e);
-	} finally {
-		closeSinglelineCommentModal();
-	}
-}
-
-async function handleMultilineCommentSubmit(commentText: string, category: ICategoryDto) {
-	if (
-		modalFilePath.value === null ||
-		modalStartLineNumber.value === null ||
-		modalEndLineNumber.value === null ||
-		!writeApiUrl.value
-	) {
-		console.error("Cannot save comment: missing data or API URL.");
-		return;
-	}
-
-	const commentData: ICommentDto = {
-		id: 0,
-		filePath: modalFilePath.value,
-		content: commentText,
-		type: CommentType.MultiLine,
-		startLineNumber: modalStartLineNumber.value,
-		endLineNumber: modalEndLineNumber.value,
-		categories: category ? [category] : [],
-	};
-
-	if (!commentData.content.trim()) {
-		console.log("Comment text is empty, not submitting.");
-		closeMultilineCommentModal();
-		return;
-	}
-
-	try {
-		await repositoryStore.upsertCommentAsync(commentData, writeApiUrl.value);
-	} catch (e: any) {
-		console.error("Failed to save comment:", e);
-	} finally {
-		closeMultilineCommentModal();
-	}
-}
-
-function closeSinglelineCommentModal() {
-	isAddingSinglelineComment.value = false;
-	modalLineNumber.value = null;
-	modalFilePath.value = null;
-	singlelineModalCommentText.value = "";
-}
-
-function closeMultilineCommentModal() {
-	isAddingMultilineComment.value = false;
-	modalStartLineNumber.value = null;
-	modalEndLineNumber.value = null;
-	modalFilePath.value = null;
-	multilineModalCommentText.value = "";
-}
 
 function handleFileCommentModal(isAdding: boolean) {
 	if (isAdding) {
@@ -320,6 +245,7 @@ async function handleFileCommentSubmit() {
 		closeFileCommentModal();
 	}
 }
+//#endregion
 
 // Handle resize events from ResizeHandle component
 const handleSidebarResize = (newWidth: number) => {
@@ -394,13 +320,6 @@ watch(
 		handleFileQueryParam();
 	}
 );
-
-// Watch for selectedFilePath changes to preload the file
-watch(selectedFilePath, async (newPath) => {
-	if (newPath) {
-		await ensureFileCached(newPath);
-	}
-});
 </script>
 
 <template>
@@ -422,10 +341,9 @@ watch(selectedFilePath, async (newPath) => {
 					</div>
 					<FileExplorer
 						v-else-if="fileTree.length > 0"
+						v-model:selectedPath="selectedFilePath"
 						:treeData="fileTree"
-						v-model="selectedFilePath"
 						@update:isAddingFileComment="handleFileCommentModal"
-						@toggle-expand-item="handleToggleExpandInTree"
 					/>
 				</div>
 
@@ -469,7 +387,10 @@ watch(selectedFilePath, async (newPath) => {
 										:file-content="fileContentStore.getFileContent(filePath)"
 										:is-loading-file="false"
 										:comments="repositoryStore.getCommentsForFile(filePath)"
-										:delete-comment-action="deleteCommentAndReload"
+										:delete-comment-action="
+											async (commentId) =>
+												await repositoryStore.deleteCommentAsync(commentId, writeApiUrl)
+										"
 										@line-double-clicked="handleLineDoubleClicked"
 										@multiline-selected="handleMultilineSelected"
 									/>
@@ -492,9 +413,8 @@ watch(selectedFilePath, async (newPath) => {
 				v-model:isVisible="isAddingSinglelineComment"
 				v-model:commentText="singlelineModalCommentText"
 				:lineNumber="modalLineNumber"
-				:filePath="modalFilePath"
+				:filePath="singlelineModalFilePath"
 				@submit="handleSinglelineCommentSubmit"
-				@close="closeSinglelineCommentModal"
 			/>
 
 			<MultilineCommentModal
@@ -502,9 +422,8 @@ watch(selectedFilePath, async (newPath) => {
 				v-model:commentText="multilineModalCommentText"
 				:startLineNumber="modalStartLineNumber"
 				:endLineNumber="modalEndLineNumber"
-				:filePath="modalFilePath"
+				:filePath="multilineModalFilePath"
 				@submit="handleMultilineCommentSubmit"
-				@close="closeMultilineCommentModal"
 			/>
 
 			<!-- File/Folder Comment Modal -->

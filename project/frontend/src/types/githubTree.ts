@@ -1,17 +1,17 @@
 export interface TreeNode {
 	name: string;
-	path: string; // Full path from repo root
+	path: string;
 	type: "file" | "folder";
 	children: TreeNode[];
-	isExpanded: boolean; // Manages UI state for folders
+	isExpanded: boolean;
 }
 
 // For GitHub API response
 export interface GitHubTreeItem {
 	path: string;
-	type: "blob" | "tree" | "commit"; // 'commit' for submodules
+	type: "blob" | "tree" | "commit";
 	mode: string;
 	sha: string;
 	url: string;
-	size?: number; // for blobs
+	size?: number;
 }

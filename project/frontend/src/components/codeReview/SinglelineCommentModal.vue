@@ -9,6 +9,8 @@ import Card from "../../lib/Card.vue";
 import InputArea from "../../lib/InputArea.vue";
 import InputSelect from "../../lib/InputSelect.vue";
 
+const repositoryStore = useRepositoryStore();
+
 interface SinglelineCommentModalProps {
 	isVisible: boolean;
 	lineNumber: number | null;
@@ -22,7 +24,9 @@ const props = withDefaults(defineProps<SinglelineCommentModalProps>(), {
 	commentCategory: "",
 });
 
-const emit = defineEmits(["submit", "close", "update:isVisible", "update:commentText"]);
+const emit = defineEmits(["submit", "update:isVisible", "update:commentText"]);
+
+const selectedCommentCategory = ref<string>("");
 const isVisible = computed({
 	get: () => props.isVisible,
 	set: (value: boolean) => emit("update:isVisible", value),
@@ -31,9 +35,9 @@ const commentText = computed({
 	get: () => props.commentText,
 	set: (value: string) => emit("update:commentText", value),
 });
-const selectedCommentCategory = ref<string>("");
-const { categories: allCategories } = storeToRefs(useRepositoryStore()) as {
-	categories: Ref<ICategoryDto[]>;
+
+const { allCategories } = storeToRefs(repositoryStore) as {
+	allCategories: Ref<ICategoryDto[]>;
 };
 
 function handleSubmit() {
@@ -62,18 +66,19 @@ function handleSubmit() {
 		return;
 	}
 
+	emit("update:isVisible", false);
 	emit("submit", commentText.value, categoryObject);
 }
 
 function closeModal() {
-	emit("close");
+	emit("update:isVisible", false);
 	commentText.value = "";
 	selectedCommentCategory.value = "";
 }
 </script>
 
 <template>
-	<Modal v-if="isVisible" @close="closeModal">
+	<Modal v-if="isVisible" @close="emit">
 		<Card :title="'Comment on Line ' + lineNumber" :subtitle="'Add a comment to file ' + props.filePath">
 			<div class="space-y-4">
 				<InputSelect

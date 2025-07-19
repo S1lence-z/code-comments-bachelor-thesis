@@ -13,8 +13,7 @@ interface MultilineCommentModalProps {
 	startLineNumber: number | null;
 	endLineNumber: number | null;
 	filePath: string | null;
-	commentText?: string;
-	commentCategory?: string;
+	commentText: string;
 }
 
 const props = withDefaults(defineProps<MultilineCommentModalProps>(), {
@@ -22,7 +21,7 @@ const props = withDefaults(defineProps<MultilineCommentModalProps>(), {
 	commentCategory: "",
 });
 
-const emit = defineEmits(["submit", "close", "update:isVisible", "update:commentText"]);
+const emit = defineEmits(["submit", "update:isVisible", "update:commentText"]);
 const isVisible = computed({
 	get: () => props.isVisible,
 	set: (value: boolean) => emit("update:isVisible", value),
@@ -66,7 +65,7 @@ function handleSubmit() {
 }
 
 function closeModal() {
-	emit("close");
+	emit("update:isVisible", false);
 	commentText.value = "";
 	selectedCommentCategory.value = "";
 }

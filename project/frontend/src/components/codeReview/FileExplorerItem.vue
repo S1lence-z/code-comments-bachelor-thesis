@@ -4,10 +4,11 @@ import { getFileIcon, getFileIconColor } from "../../utils/fileUtils";
 import { type TreeNode } from "../../types/githubTree.ts";
 import Icon from "../../lib/Icon.vue";
 import { useRepositoryStore } from "../../stores/repositoryStore.ts";
+import { handleToggleExpandInTree } from "../../utils/treeNodeUtils.ts";
 
 interface FileExplorerItemProps {
 	item: TreeNode;
-	modelValue: string | null;
+	filePath: string | null;
 	depth?: number;
 }
 
@@ -16,15 +17,14 @@ const props = withDefaults(defineProps<FileExplorerItemProps>(), {
 });
 
 const emits = defineEmits<{
-	(event: "update:modelValue", value: string | null): void;
+	(event: "update:filePath", value: string | null): void;
 	(event: "toggle-expand-item", item: TreeNode): void;
 }>();
 
 function itemClicked() {
 	if (props.item.type === "file") {
-		emits("update:modelValue", props.item.path);
+		emits("update:filePath", props.item.path);
 	} else if (props.item.type === "folder") {
-		// Clicking folder name also toggles
 		emits("toggle-expand-item", props.item);
 	}
 }
@@ -61,9 +61,9 @@ function containsComments(filePath: string): boolean {
 		<div
 			class="flex items-center rounded-lg transition-all duration-200"
 			:class="{
-				'bg-white/10 text-white border border-white/20': item.path === modelValue && item.type === 'file',
-				'bg-amber-500/10 border border-amber-500/20': containsComments(item.path) && item.path !== modelValue,
-				'hover:bg-white/5': item.path !== modelValue,
+				'bg-white/10 text-white border border-white/20': item.path === filePath && item.type === 'file',
+				'bg-amber-500/10 border border-amber-500/20': containsComments(item.path) && item.path !== filePath,
+				'hover:bg-white/5': item.path !== filePath,
 			}"
 		>
 			<div
@@ -110,7 +110,7 @@ function containsComments(filePath: string): boolean {
 						class="transition-all duration-200"
 						:style="{
 							color:
-								item.path === props.modelValue && item.type === 'file'
+								item.path === props.filePath && item.type === 'file'
 									? 'currentColor'
 									: getFileIconColor(item.name),
 						}"
@@ -121,8 +121,8 @@ function containsComments(filePath: string): boolean {
 				<span
 					class="flex-1 text-sm font-medium truncate transition-colors duration-200"
 					:class="{
-						'text-white': item.path === props.modelValue && item.type === 'file',
-						'text-slate-300 group-hover:text-white': item.path !== props.modelValue,
+						'text-white': item.path === props.filePath && item.type === 'file',
+						'text-slate-300 group-hover:text-white': item.path !== props.filePath,
 					}"
 				>
 					{{ item.name }}
@@ -156,10 +156,10 @@ function containsComments(filePath: string): boolean {
 				v-for="child in item.children"
 				:key="child.path"
 				:item="child"
-				:modelValue="props.modelValue"
-				@update:modelValue="$emit('update:modelValue', $event)"
 				:depth="props.depth + 1"
-				@toggle-expand-item="$emit('toggle-expand-item', $event)"
+				:filePath="props.filePath"
+				@update:filePath="$emit('update:filePath', $event)"
+				@toggle-expand-item="handleToggleExpandInTree(child, item.children)"
 			/>
 		</ul>
 	</li>

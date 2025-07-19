@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import FileExplorerItem from "./FileExplorerItem.vue";
 import type { TreeNode } from "../../types/githubTree.ts";
+import { handleToggleExpandInTree } from "../../utils/treeNodeUtils.ts";
 
 interface Props {
 	treeData: TreeNode[];
-	modelValue: string | null;
+	selectedPath: string | null;
 }
 defineProps<Props>();
 
 defineEmits<{
-	(event: "update:modelValue", value: string | null): void;
-	(event: "toggle-expand-item", item: TreeNode): void;
+	(event: "update:selectedPath", value: string | null): void;
 }>();
 </script>
 
@@ -28,9 +28,9 @@ defineEmits<{
 					v-for="item in treeData"
 					:key="item.path"
 					:item="item"
-					:modelValue="modelValue"
-					@update:modelValue="$emit('update:modelValue', $event)"
-					@toggle-expand-item="$emit('toggle-expand-item', $event)"
+					:filePath="selectedPath"
+					@update:filePath="$emit('update:selectedPath', $event)"
+					@toggle-expand-item="handleToggleExpandInTree(item, treeData)"
 				/>
 			</ul>
 		</div>
