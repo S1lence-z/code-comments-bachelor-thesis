@@ -72,6 +72,10 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 				}
 
 				const response = await fetchComments(writeApiUrl);
+				if (!response || !response.comments) {
+					console.warn("No comments found in the response");
+					return;
+				}
 				this.comments = response.comments || [];
 			} catch (error: any) {
 				console.error("Error fetching comments:", error);
@@ -141,6 +145,11 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 				if (!response.success) {
 					throw new Error("Failed to add comment");
 				}
+				const tempLocalId = Date.now();
+				this.upsertCommentLocal({ ...commentData, id: tempLocalId });
+
+				// TODO: implement the refetching frequently and bind it to the comments synced context
+				await this.fetchAllCommentsAsync(writeApiUrl);
 			} catch (error: any) {
 				console.error("Error in saveComment:", error);
 			}
