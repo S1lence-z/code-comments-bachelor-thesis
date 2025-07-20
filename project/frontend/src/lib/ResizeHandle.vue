@@ -46,13 +46,16 @@ const startResize = (event: MouseEvent) => {
 const handleResize = (event: MouseEvent) => {
 	if (!isResizing.value || !props.resizableElement) return;
 
-	const parentElement = props.resizableElement.parentElement;
-	if (!parentElement) {
+	// Use the parent element to calculate the container bounds
+	const containerRect = props.resizableElement.parentElement?.getBoundingClientRect();
+
+	if (!containerRect) {
 		console.error("ResizeHandle: Parent element not found");
 		return;
 	}
-	const rect = parentElement.getBoundingClientRect();
-	const offsetX = event.clientX - rect.left;
+
+	// Calculate position relative to the container's left edge
+	const offsetX = event.clientX - containerRect.left;
 
 	// Apply constraints
 	const constrainedWidth = Math.max(props.minWidth, Math.min(props.maxWidth, offsetX));
@@ -60,7 +63,6 @@ const handleResize = (event: MouseEvent) => {
 	emit("resize-number", constrainedWidth);
 	emit("resize-event", event);
 };
-
 const stopResize = () => {
 	if (!isResizing.value) return;
 
@@ -78,8 +80,8 @@ const cleanUpResize = () => {
 
 onMounted(() => {
 	if (resizeHandleElement.value) {
-        emit("handle-mounted", resizeHandleElement.value);
-    }
+		emit("handle-mounted", resizeHandleElement.value);
+	}
 });
 
 onUnmounted(() => {

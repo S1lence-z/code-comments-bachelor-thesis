@@ -53,7 +53,7 @@ const isLoadingFile = ref<boolean>(false);
 // Resizable sidebar state
 const sidebarWidth = ref(280);
 const minSidebarWidth = 200;
-const maxSidebarWidth = 600;
+const maxSidebarWidth = 450;
 const sidebar = ref<HTMLElement | null>(null);
 
 // Handle file selection and loading
@@ -303,10 +303,8 @@ async function handleProjectCommentSubmit() {
 
 // Handle resize events from ResizeHandle component
 const handleSidebarResize = (newWidth: number) => {
-	sidebarWidth.value = newWidth;
-};
-
-// TODO: add the handling the line number if applicable
+	sidebarWidth.value = Math.max(minSidebarWidth, Math.min(maxSidebarWidth, newWidth));
+}; // TODO: add the handling the line number if applicable
 const handleFileQueryParam = () => {
 	const filePath = decodeURIComponent((route.query.file as string) || "");
 	if (filePath) {
@@ -370,7 +368,7 @@ watch(
 			<CodeReviewToolbar v-model:showSideBar="showSideBar" />
 			<div class="flex h-full w-full overflow-hidden">
 				<!-- Sidebar -->
-				<div ref="sidebar" v-if="showSideBar" :style="{ width: sidebarWidth + 'px' }">
+				<div ref="sidebar" v-if="showSideBar" class="flex-shrink-0" :style="{ width: sidebarWidth + 'px' }">
 					<!-- File Explorer -->
 					<div v-if="isLoadingRepository" class="p-6 text-sm text-center text-slate-300">
 						<div class="inline-flex items-center space-x-2">
@@ -414,9 +412,7 @@ watch(
 									class="p-6 text-sm text-center text-slate-300"
 								>
 									<div class="inline-flex items-center space-x-2">
-										<div
-											class="animate-spin rounded-full h-4 w-4 border-2 border-modern-blue border-t-transparent"
-										></div>
+										<span class="spinner"></span>
 										<span>Loading file...</span>
 									</div>
 								</div>

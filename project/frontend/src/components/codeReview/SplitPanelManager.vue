@@ -21,6 +21,11 @@ const leftDropZoneActive = ref(false);
 const rightDropZoneActive = ref(false);
 const dropZoneWidth = 200;
 const panelIdCounter = ref(0);
+const minPanelWidthPx = 100;
+
+// Constants for panel sizing
+const FULL_WIDTH_PERCENTAGE = 100;
+const DEFAULT_PANEL_SIZE_PERCENTAGE = 50;
 
 const closePanel = (panelId: string) => {
 	if (panels.value.length === 1) return; // Don't close the last panel
@@ -46,7 +51,7 @@ const closePanel = (panelId: string) => {
 
 	// Redistribute sizes
 	if (panels.value.length > 0) {
-		const remainingSize = 100 / panels.value.length;
+		const remainingSize = FULL_WIDTH_PERCENTAGE / panels.value.length;
 		panels.value.forEach((panel) => {
 			panel.size = remainingSize;
 		});
@@ -162,7 +167,7 @@ const handleDropZoneDrop = (event: DragEvent) => {
 		panels.value.splice(insertPosition, 0, newPanel);
 
 		// Redistribute sizes
-		const equalSize = 100 / panels.value.length;
+		const equalSize = FULL_WIDTH_PERCENTAGE / panels.value.length;
 		panels.value.forEach((panel) => {
 			panel.size = equalSize;
 		});
@@ -228,79 +233,42 @@ const handleTabDrop = (targetPanelId: string, insertIndex?: number) => {
 // Panel resizing functionality
 const containerElement = ref<HTMLElement>();
 
-const handlePanelResize = (panelIndex: number, newWidth: number) => {
-	if (panelIndex >= panels.value.length - 1) return; // Can't resize the last panel
+const minPanelWidthPxRef = ref(minPanelWidthPx);
 
+const handlePanelResize = (panelIndex: number, newWidth: number) => {
 	const container = containerElement.value;
-	if (!container) return;
+	if (!container || panelIndex >= panels.value.length - 1) return;
 
 	const containerWidth = container.getBoundingClientRect().width;
-
-	// Get the current panel and next panel
 	const currentPanel = panels.value[panelIndex];
 	const nextPanel = panels.value[panelIndex + 1];
 
 	if (!currentPanel || !nextPanel) return;
 
-	// For 2 panels, the logic is simpler
-	if (panels.value.length === 2 && panelIndex === 0) {
-		// For 2 panels, newWidth is the desired width of the first panel
-		const minWidthPx = 100;
-		const maxWidthPx = containerWidth - minWidthPx;
-
-		// Clamp the new width
-		const clampedFirstPanelWidth = Math.max(minWidthPx, Math.min(maxWidthPx, newWidth));
-		const clampedSecondPanelWidth = containerWidth - clampedFirstPanelWidth;
-
-		// Convert to percentages
-		currentPanel.size = (clampedFirstPanelWidth / containerWidth) * 100;
-		nextPanel.size = (clampedSecondPanelWidth / containerWidth) * 100;
-		return;
-	}
-
-	// For multiple panels, calculate cumulative width up to the current panel
+	// Calculate cumulative width up to current panel
 	let cumulativeWidth = 0;
 	for (let i = 0; i <= panelIndex; i++) {
-		const panelSize = panels.value[i].size || 50;
-		cumulativeWidth += (panelSize / 100) * containerWidth;
+		cumulativeWidth +=
+			((panels.value[i].size || DEFAULT_PANEL_SIZE_PERCENTAGE) / FULL_WIDTH_PERCENTAGE) * containerWidth;
 	}
 
-	// Calculate current sizes in pixels
-	const currentSize = currentPanel.size || 50;
-	const nextSize = nextPanel.size || 50;
-	const currentWidthPx = (currentSize / 100) * containerWidth;
-	const nextWidthPx = (nextSize / 100) * containerWidth;
+	// Calculate total width of current + next panel
+	const currentWidthPx =
+		((currentPanel.size || DEFAULT_PANEL_SIZE_PERCENTAGE) / FULL_WIDTH_PERCENTAGE) * containerWidth;
+	const nextWidthPx = ((nextPanel.size || DEFAULT_PANEL_SIZE_PERCENTAGE) / FULL_WIDTH_PERCENTAGE) * containerWidth;
 	const totalWidthPx = currentWidthPx + nextWidthPx;
 
-	// Calculate the desired width for the current panel
-	const cumulativeWidthBeforeCurrent = cumulativeWidth - currentWidthPx;
-	const desiredCurrentWidthPx = newWidth - cumulativeWidthBeforeCurrent;
+	// Desired width for current panel
+	const desiredCurrentWidthPx = newWidth - (cumulativeWidth - currentWidthPx);
 
-	// Define minimum widths in pixels
-	const minWidthPx = 100; // Match the min-width prop
+	// Clamp to ensure both panels have minimum width
+	const minWidth = minPanelWidthPxRef.value;
+	const clampedCurrentWidthPx = Math.max(minWidth, Math.min(totalWidthPx - minWidth, desiredCurrentWidthPx));
+	const clampedNextWidthPx = totalWidthPx - clampedCurrentWidthPx;
 
-	// Calculate maximum width for current panel (leave minimum for next panel)
-	const maxCurrentWidthPx = totalWidthPx - minWidthPx;
-
-	// Clamp the desired width for current panel
-	let clampedCurrentWidthPx = Math.max(minWidthPx, Math.min(maxCurrentWidthPx, desiredCurrentWidthPx));
-	let clampedNextWidthPx = totalWidthPx - clampedCurrentWidthPx;
-
-	// Ensure next panel also respects minimum width
-	if (clampedNextWidthPx < minWidthPx) {
-		clampedNextWidthPx = minWidthPx;
-		clampedCurrentWidthPx = totalWidthPx - clampedNextWidthPx;
-	}
-
-	// Final safety check to ensure both panels have minimum width
-	if (clampedCurrentWidthPx < minWidthPx) {
-		clampedCurrentWidthPx = minWidthPx;
-		clampedNextWidthPx = Math.max(minWidthPx, totalWidthPx - clampedCurrentWidthPx);
-	}
-
-	// Convert back to percentages
-	currentPanel.size = (clampedCurrentWidthPx / containerWidth) * 100;
-	nextPanel.size = (clampedNextWidthPx / containerWidth) * 100;
+	// Update panel sizes
+	currentPanel.size = (clampedCurrentWidthPx / containerWidth) * FULL_WIDTH_PERCENTAGE;
+	nextPanel.size = (clampedNextWidthPx / containerWidth) * FULL_WIDTH_PERCENTAGE;
 };
 
 // Provide context for child components
@@ -318,7 +286,7 @@ const handleSelectedFilePathChange = (newFilePath: string | null) => {
 		// If no panels exist, create a new one
 		panels.value.push(generateNewPanel(panelIdCounter));
 		// Set the first panel to take full width
-		panels.value[0].size = 100;
+		panels.value[0].size = FULL_WIDTH_PERCENTAGE;
 	}
 
 	// Check if file is already open in any panel
@@ -361,9 +329,9 @@ watch(() => props.selectedFilePath, handleSelectedFilePathChange);
 
 			<!-- Resize Handle (only between panels, not after the last one) -->
 			<ResizeHandle
-				v-if="index < panels.length - 1 && panels.length > 1"
+				v-if="index < panels.length - 1"
 				:resizable-element="containerElement || null"
-				:min-width="100"
+				:min-width="minPanelWidthPx"
 				@resize-number="(newWidth) => handlePanelResize(index, newWidth)"
 			/>
 		</template>
