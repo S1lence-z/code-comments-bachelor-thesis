@@ -32,6 +32,10 @@
 		@apply inline-flex items-center justify-center font-semibold text-lg transition-colors duration-200 px-4 py-2 rounded-xl cursor-pointer;
 	}
 
+	.btn:disabled {
+		@apply opacity-50 cursor-not-allowed;
+	}
+
 	.btn-primary {
 		@apply text-white bg-modern-blue hover:bg-modern-blue-hover;
 	}
@@ -181,5 +185,10 @@
 
 	.gradient-icon-emerald {
 		@apply bg-gradient-to-r from-emerald-500 to-teal-500;
+	}
+
+	/* Spinner Styles */
+	.spinner {
+		@apply animate-spin rounded-full border-4 border-t-transparent border-blue-500 w-8 h-8;
 	}
 }

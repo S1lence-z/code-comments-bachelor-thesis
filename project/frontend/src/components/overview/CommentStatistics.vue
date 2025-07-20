@@ -49,16 +49,28 @@ const categoryCounts = computed(() => {
 });
 
 const shouldShowTotalCard = () => {
-	return props.commentTypeFilter === null;
+	return props.commentTypeFilter === null || props.commentTypeFilter === CommentType.Project;
 };
 const shouldShowFileAndFoldersCard = () => {
-	return props.commentTypeFilter === null || props.commentTypeFilter === CommentType.File;
+	return (
+		props.commentTypeFilter === null ||
+		props.commentTypeFilter === CommentType.File ||
+		props.commentTypeFilter === CommentType.Project
+	);
 };
 const shouldShowSingleLineCard = () => {
-	return props.commentTypeFilter === null || props.commentTypeFilter === CommentType.SingleLine;
+	return (
+		props.commentTypeFilter === null ||
+		props.commentTypeFilter === CommentType.SingleLine ||
+		props.commentTypeFilter === CommentType.Project
+	);
 };
 const shouldShowMultiLineCard = () => {
-	return props.commentTypeFilter === null || props.commentTypeFilter === CommentType.MultiLine;
+	return (
+		props.commentTypeFilter === null ||
+		props.commentTypeFilter === CommentType.MultiLine ||
+		props.commentTypeFilter === CommentType.Project
+	);
 };
 const shouldShowCategoryDistributionCard = () => {
 	return (
@@ -93,13 +105,13 @@ const shouldShowCards = () => {
 		</Card>
 		<Card
 			v-if="shouldShowSingleLineCard()"
-			title="SingleLine"
-			subtitle="SingleLine comments in files"
+			title="Singleline"
+			subtitle="Singleline comments in files"
 			class="flex-1"
 		>
 			<h1 class="text-2xl text-white">{{ commentTypeStats[CommentType.SingleLine] }}</h1>
 		</Card>
-		<Card v-if="shouldShowMultiLineCard()" title="MultiLine" subtitle="MultiLine comments in files" class="flex-1">
+		<Card v-if="shouldShowMultiLineCard()" title="Multiline" subtitle="Multiline comments in files" class="flex-1">
 			<h1 class="text-2xl text-white">{{ commentTypeStats[CommentType.MultiLine] }}</h1>
 		</Card>
 		<Card v-if="shouldShowCategoryDistributionCard()" title="Category Distribution" class="flex-1">

@@ -91,6 +91,9 @@ const getLineRangeDisplay = (comment: ICommentDto) => {
 	if (comment.type === CommentType.File) {
 		return "File comment";
 	}
+	if (comment.type === CommentType.Project) {
+		return "Whole Project comment";
+	}
 	return "Unknown";
 };
 
@@ -156,18 +159,14 @@ const loadAllFilePreviewContent = async () => {
 					props.githubPersonalAccessToken
 				);
 			} catch (error) {
-				console.error("Error loading file content:", error);
+				console.error(`Failed to load content for ${filePath}:`, error);
 			}
 		}
 	}
 };
 
 onMounted(async () => {
-	try {
-		await loadAllFilePreviewContent();
-	} catch (error) {
-		console.error("Failed to load file previews:", error);
-	}
+	await loadAllFilePreviewContent();
 });
 </script>
 
@@ -210,7 +209,7 @@ onMounted(async () => {
 									<span class="text-slate-400 text-sm ml-2">{{ getLineRangeDisplay(comment) }}</span>
 								</div>
 							</div>
-							<div class="flex items-center gap-2">
+							<div v-if="comment.type !== CommentType.Project" class="flex items-center gap-2">
 								<Button
 									label="View in Editor"
 									buttonStyle="primary"

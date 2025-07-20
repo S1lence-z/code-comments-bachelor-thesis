@@ -34,9 +34,13 @@ onMounted(async () => {
 		<!-- Navigation Bar -->
 		<NavigationBar :isServerSynced="isServerSynced" />
 		<!-- Main Content -->
-		<main class="flex-1 overflow-hidden">
+		<main v-if="projectStore.isProjectSetup" class="flex-1 overflow-hidden">
 			<router-view />
 		</main>
+		<!-- Fallback for when project is not set up -->
+		<div v-else class="flex flex-1 items-center justify-center">
+			<span class="spinner" />
+		</div>
 		<!-- Footer -->
 		<AppFooter />
 	</div>
