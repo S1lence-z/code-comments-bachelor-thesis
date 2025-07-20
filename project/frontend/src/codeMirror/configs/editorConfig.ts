@@ -29,10 +29,26 @@ export function createEditorExtensions(
 		EditorView.lineWrapping,
 		...(Array.isArray(langExt) ? langExt : [langExt]),
 		commentsDisplayExtension(currentFileComments, deleteCommentAction),
-		addCursorNavigationExtensions(isKeyboardMode, filePath, onSingleLineComment),
+		addCursorNavigationExtensions(isKeyboardMode),
+		addCustomKeyboardShortcuts(filePath, onSingleLineComment),
+		preventDefaultDragAndDrop(),
 	];
 
 	return extensions;
+}
+
+// Make an extension to prevent the default drag and drop behavior
+export function preventDefaultDragAndDrop(): Extension {
+	return EditorView.domEventHandlers({
+		dragover: (event) => {
+			event.preventDefault();
+			return false;
+		},
+		drop: (event) => {
+			event.preventDefault();
+			return false;
+		},
+	});
 }
 
 function addCustomKeyboardShortcuts(
@@ -60,11 +76,7 @@ function addCustomKeyboardShortcuts(
 	];
 }
 
-function addCursorNavigationExtensions(
-	showCursor: boolean,
-	filePath: string | null,
-	onSingleLineComment: (lineNumber: number, filePath: string) => void
-): Extension[] {
+function addCursorNavigationExtensions(showCursor: boolean): Extension[] {
 	const extensions: Extension[] = [];
 	if (!showCursor) {
 		extensions.push(EditorView.editable.of(showCursor));
@@ -96,9 +108,6 @@ function addCursorNavigationExtensions(
 			tabindex: "0",
 		})
 	);
-
-	// Add custom keyboard shortcuts for single line comments
-	extensions.push(...addCustomKeyboardShortcuts(filePath, onSingleLineComment));
 
 	return extensions;
 }
