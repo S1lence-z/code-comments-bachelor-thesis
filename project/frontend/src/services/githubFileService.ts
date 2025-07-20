@@ -33,7 +33,7 @@ export async function fetchProcessedFile(
 function processFileContent(file: GithubFileContentResponse): ProcessedFile {
 	const { name, content, download_url } = file;
 	let displayType: FileDisplayType = "text";
-	let contentToDisplay: string | null = null;
+	let fileContent: string | null = null;
 
 	if (name.endsWith(".jpg") || name.endsWith(".png")) {
 		displayType = "image";
@@ -43,12 +43,17 @@ function processFileContent(file: GithubFileContentResponse): ProcessedFile {
 		displayType = "binary";
 	} else {
 		// Github API returns base64 encoded content for text files
-		contentToDisplay = atob(content);
+		fileContent = atob(content);
+		const bytes = new Uint8Array(fileContent.length);
+		for (let i = 0; i < fileContent.length; i++) {
+			bytes[i] = fileContent.charCodeAt(i);
+		}
+		fileContent = new TextDecoder("utf-8").decode(bytes);
 	}
 
 	return {
 		displayType,
-		content: contentToDisplay,
+		content: fileContent,
 		downloadUrl: download_url,
 		fileName: name,
 	};
