@@ -5,6 +5,7 @@ import { type TreeNode } from "../../types/githubTree.ts";
 import Icon from "../../lib/Icon.vue";
 import { useRepositoryStore } from "../../stores/repositoryStore.ts";
 import { handleToggleExpandInTree } from "../../utils/treeNodeUtils.ts";
+import { fileCommentModalContextKey } from "../../core/keys.ts";
 
 interface FileExplorerItemProps {
 	item: TreeNode;
@@ -36,7 +37,7 @@ function toggleExpand() {
 }
 
 // File/Folder comment data
-const { updateFileCommentData, updateIsAddingFileComment } = inject("fileCommentModalContext", {
+const { updateFileCommentData, updateIsAddingFileComment } = inject(fileCommentModalContextKey, {
 	updateFileCommentData: (_: string, __: string) => console.warn("updateFileCommentData not provided"),
 	updateIsAddingFileComment: (_: boolean) => console.warn("updateIsAddingFileComment not provided"),
 });

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, inject, computed } from "vue";
 import FileTabManager from "./FileTabManager.vue";
+import { splitPanelContextKey } from "../../core/keys.ts";
 
 const props = defineProps<{
 	panelId: string;
@@ -19,7 +20,7 @@ const splitPanelFunctionality = inject<{
 	handleTabDrop: (panelId: string) => void;
 	closePanel: (panelId: string) => void;
 	draggedTab: () => { fromPanelId: string; filePath: string } | null;
-}>("splitPanelContext")!;
+}>(splitPanelContextKey)!;
 
 const isDragOver = ref(false);
 const showDropZone = ref(false);
@@ -68,7 +69,7 @@ const handleTabUpdate = (filePath: string | null) => {
 
 const handleClosePanel = () => {
 	if (props.isSinglePanel) return;
-		splitPanelFunctionality.closePanel(props.panelId);
+	splitPanelFunctionality.closePanel(props.panelId);
 };
 
 const handleCloseFileTab = (filePath: string) => {

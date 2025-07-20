@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { inject, ref } from "vue";
 import ToggleButton from "../../lib/ToggleButton.vue";
+import { keyboardModeContextKey } from "../../core/keys";
 
 interface ToolbarProps {
 	showSideBar: boolean;
@@ -14,7 +15,7 @@ const emit = defineEmits<{
 	(event: "update:showSideBar", value: boolean): void;
 }>();
 
-const keyboardModeContext = inject("keyboardModeContext", {
+const keyboardModeContext = inject(keyboardModeContextKey, {
 	isKeyboardMode: ref(false),
 	updateKeyboardModeState: (_: boolean) => console.warn("updateKeyboardModeState not provided"),
 });

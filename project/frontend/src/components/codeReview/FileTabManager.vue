@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, computed, inject } from "vue";
+import { splitPanelContextKey } from "../../core/keys.ts";
 
 const props = defineProps<{
 	modelValue: string | null;
@@ -13,7 +14,7 @@ const emits = defineEmits<{
 }>();
 
 // Inject context from SplitPanelManager (if available)
-const splitPanelContext = inject("splitPanelContext", null) as any;
+const splitPanelContext = inject(splitPanelContextKey, null) as any;
 
 // Use external tabs if provided, otherwise manage internal tabs
 const openFileTabs = ref<string[]>([]);

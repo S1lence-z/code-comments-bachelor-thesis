@@ -5,8 +5,9 @@ import { EditorView } from "@codemirror/view";
 import type ICommentDto from "../../../../shared/dtos/ICommentDto";
 import { createEditorExtensions } from "../../codeMirror/configs/editorConfig";
 import "../../../css/codemirror.css";
+import { keyboardModeContextKey } from "../../core/keys";
 
-const keyboardModeContext = inject("keyboardModeContext", {
+const keyboardModeContext = inject(keyboardModeContextKey, {
 	isKeyboardMode: ref(false),
 });
 

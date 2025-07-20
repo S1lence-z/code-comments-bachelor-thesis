@@ -3,6 +3,7 @@ import { ref, provide, watch } from "vue";
 import Panel from "./Panel.vue";
 import type { PanelData } from "../../utils/panelUtils";
 import { determineDropPosition, generateNewPanel } from "../../utils/panelUtils";
+import { splitPanelContextKey } from "../../core/keys.ts";
 
 const props = defineProps<{
 	selectedFilePath: string | null;
@@ -224,7 +225,7 @@ const handleTabDrop = (targetPanelId: string, insertIndex?: number) => {
 };
 
 // Provide context for child components
-provide("splitPanelContext", {
+provide(splitPanelContextKey, {
 	closePanel,
 	handleTabDragStart,
 	handleTabDragEnd,

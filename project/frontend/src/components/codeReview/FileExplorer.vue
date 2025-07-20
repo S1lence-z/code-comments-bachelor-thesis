@@ -3,6 +3,7 @@ import { inject } from "vue";
 import FileExplorerItem from "./FileExplorerItem.vue";
 import type { TreeNode } from "../../types/githubTree.ts";
 import { handleToggleExpandInTree } from "../../utils/treeNodeUtils.ts";
+import { projectCommentModalContextKey } from "../../core/keys.ts";
 
 interface FileExplorerProps {
 	treeData: TreeNode[];
@@ -14,7 +15,7 @@ defineEmits<{
 	(event: "update:selectedPath", value: string | null): void;
 }>();
 
-const { updateIsAddingProjectComment, updateProjectCommentData } = inject("projectCommentModalContext", {
+const { updateIsAddingProjectComment, updateProjectCommentData } = inject(projectCommentModalContextKey, {
 	updateIsAddingProjectComment: (_: boolean) => console.warn("updateIsAddingProjectComment not provided"),
 	updateProjectCommentData: (_: string) => console.warn("updateProjectCommentData not provided"),
 });

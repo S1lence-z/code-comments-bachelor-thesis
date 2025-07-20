@@ -21,13 +21,14 @@ import { useRoute } from "vue-router";
 import ResizeHandle from "../lib/ResizeHandle.vue";
 import { useProjectStore } from "../stores/projectStore.ts";
 import { getFileName } from "../utils/fileUtils.ts";
+import { keyboardModeContextKey, projectCommentModalContextKey, fileCommentModalContextKey } from "../core/keys.ts";
 
 // Provide IsKeyboardMode Context
 const isKeyboardMode = ref(false);
 function updateKeyboardModeState(value: boolean) {
 	isKeyboardMode.value = value;
 }
-provide("keyboardModeContext", { isKeyboardMode: isKeyboardMode, updateKeyboardModeState });
+provide(keyboardModeContextKey, { isKeyboardMode: isKeyboardMode, updateKeyboardModeState });
 
 // Router
 const route = useRoute();
@@ -200,7 +201,7 @@ const updateFileCommentData = (filePath: string, content: string) => {
 	fileCommentData.value.content = content;
 };
 
-provide("fileCommentModalContext", {
+provide(fileCommentModalContextKey, {
 	updateIsAddingFileComment,
 	updateFileCommentData,
 });
@@ -259,7 +260,7 @@ const updateProjectCommentData = (content: string) => {
 	// Adding new comment data
 	projectCommentData.value.content = content;
 };
-provide("projectCommentModalContext", {
+provide(projectCommentModalContextKey, {
 	updateIsAddingProjectComment,
 	updateProjectCommentData,
 });
