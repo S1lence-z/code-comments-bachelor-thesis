@@ -174,17 +174,16 @@ async function handleMultilineCommentSubmit(commentText: string, category: ICate
 //#endregion
 
 //#region File/Folder comment modal
+// Provide the file comment modal context
 const isAddingFileComment = ref(false);
-function updateIsAddingFileComment(value: boolean) {
-	isAddingFileComment.value = value;
-}
-provide("updateIsAddingFileComment", updateIsAddingFileComment);
-
-// File comment data
 const fileCommentData = ref<{ filePath: string | null; content: string }>({
 	filePath: null,
 	content: "",
 });
+
+const updateIsAddingFileComment = (value: boolean) => {
+	isAddingFileComment.value = value;
+};
 const updateFileCommentData = (filePath: string, content: string) => {
 	const existingComment = backendComments.value.find(
 		(comment: ICommentDto) => comment.filePath === filePath && comment.type === CommentType.File
@@ -200,15 +199,11 @@ const updateFileCommentData = (filePath: string, content: string) => {
 	fileCommentData.value.filePath = filePath;
 	fileCommentData.value.content = content;
 };
-provide("updateFileCommentData", updateFileCommentData);
 
-function handleFileCommentModal(isAdding: boolean) {
-	if (isAdding) {
-		fileCommentData.value.filePath = null;
-		fileCommentData.value.content = "";
-		isAddingFileComment.value = true;
-	}
-}
+provide("fileCommentModalContext", {
+	updateIsAddingFileComment,
+	updateFileCommentData,
+});
 
 function closeFileCommentModal() {
 	isAddingFileComment.value = false;
@@ -243,6 +238,64 @@ async function handleFileCommentSubmit() {
 		console.error("Failed to save comment:", e);
 	} finally {
 		closeFileCommentModal();
+	}
+}
+//#endregion
+
+//#Region Project comment modal
+const isAddingProjectComment = ref(false);
+const projectCommentData = ref<{ content: string }>({
+	content: "",
+});
+const updateIsAddingProjectComment = (value: boolean) => {
+	isAddingProjectComment.value = value;
+};
+const updateProjectCommentData = (content: string) => {
+	const existingComment = backendComments.value.find((comment: ICommentDto) => comment.type === CommentType.Project);
+	if (existingComment) {
+		projectCommentData.value.content = existingComment.content;
+		return;
+	}
+	// Adding new comment data
+	projectCommentData.value.content = content;
+};
+provide("projectCommentModalContext", {
+	updateIsAddingProjectComment,
+	updateProjectCommentData,
+});
+
+function closeProjectCommentModal() {
+	isAddingProjectComment.value = false;
+	projectCommentData.value.content = "";
+}
+
+async function handleProjectCommentSubmit() {
+	if (!projectCommentData.value.content.trim() || !writeApiUrl.value) {
+		alert("Cannot save project comment: content is empty or API URL is not configured.");
+		return;
+	}
+
+	const commentToSubmit: ICommentDto = {
+		id: 0,
+		filePath: projectStore.getRepositoryName,
+		content: projectCommentData.value.content,
+		type: CommentType.Project,
+	};
+
+	// Find the existing comment or create a new one
+	backendComments.value.forEach((comment: ICommentDto) => {
+		if (comment.type === CommentType.Project) {
+			commentToSubmit.id = comment.id;
+		}
+	});
+
+	// Submit the comment
+	try {
+		await repositoryStore.upsertCommentAsync(commentToSubmit, writeApiUrl.value);
+	} catch (e: any) {
+		console.error("Failed to save comment:", e);
+	} finally {
+		closeProjectCommentModal();
 	}
 }
 //#endregion
@@ -287,21 +340,8 @@ const initRepositoryStore = async () => {
 };
 
 onMounted(async () => {
-	if (projectStore.isProjectSetup) {
-		await initRepositoryStore();
-	}
+	await initRepositoryStore();
 });
-
-// Watch for project setup completion
-watch(
-	() => projectStore.isProjectSetup,
-	async (isSetup) => {
-		if (isSetup) {
-			await initRepositoryStore();
-		}
-	},
-	{ immediate: true }
-);
 
 watch(
 	() => selectedFilePath.value,
@@ -343,7 +383,6 @@ watch(
 						v-else-if="fileTree.length > 0"
 						v-model:selectedPath="selectedFilePath"
 						:treeData="fileTree"
-						@update:isAddingFileComment="handleFileCommentModal"
 					/>
 				</div>
 
@@ -441,6 +480,30 @@ watch(
 							<button
 								@click="handleFileCommentSubmit"
 								:disabled="!fileCommentData.content.trim()"
+								class="btn btn-primary"
+							>
+								Add Comment
+							</button>
+						</div>
+					</div>
+				</Card>
+			</Modal>
+
+			<!-- Project Comment Modal -->
+			<Modal v-if="isAddingProjectComment" @close="closeProjectCommentModal">
+				<Card title="Add a Project Comment">
+					<div class="space-y-2">
+						<InputArea
+							label="Comment"
+							v-model="projectCommentData.content"
+							placeholder="Enter your comment here..."
+							:rows="6"
+						/>
+						<div class="flex justify-end space-x-2">
+							<button @click="closeProjectCommentModal" class="btn btn-secondary">Cancel</button>
+							<button
+								@click="handleProjectCommentSubmit"
+								:disabled="!projectCommentData.content.trim()"
 								class="btn btn-primary"
 							>
 								Add Comment

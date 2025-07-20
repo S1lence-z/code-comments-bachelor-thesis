@@ -14,6 +14,7 @@ export const useProjectStore = defineStore("projectStore", {
 		getInitialBranch: (state) => state.repositoryBranch,
 		getGithubPat: (state) => state.githubPat,
 		isProjectSetup: (state) => !!state.repositoryUrl && !!state.writeApiUrl,
+		getRepositoryName: (state) => state.repositoryUrl.split("/").pop() || "Unknown",
 	},
 	actions: {
 		initializeStore(initialQuery: LocationQuery) {
