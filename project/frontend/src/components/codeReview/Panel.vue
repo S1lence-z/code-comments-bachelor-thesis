@@ -78,12 +78,7 @@ const handleCloseFileTab = (filePath: string) => {
 </script>
 
 <template>
-	<div
-		class="relative border-r border-black"
-		@dragover="handleDragOver"
-		@dragleave="handleDragLeave"
-		@drop="handleDrop"
-	>
+	<div class="relative" @dragover="handleDragOver" @dragleave="handleDragLeave" @drop="handleDrop">
 		<!-- Panel Header with Controls -->
 		<div class="flex items-center justify-between px-2 py-1 bg-white/5 border-b border-white/10">
 			<div class="flex items-center space-x-2">

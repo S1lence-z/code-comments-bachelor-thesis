@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, provide, watch } from "vue";
 import Panel from "./Panel.vue";
+import ResizeHandle from "../../lib/ResizeHandle.vue";
 import type { PanelData } from "../../utils/panelUtils";
 import { determineDropPosition, generateNewPanel } from "../../utils/panelUtils";
 import { splitPanelContextKey } from "../../core/keys.ts";
@@ -224,6 +225,84 @@ const handleTabDrop = (targetPanelId: string, insertIndex?: number) => {
 	draggedTab.value = null;
 };
 
+// Panel resizing functionality
+const containerElement = ref<HTMLElement>();
+
+const handlePanelResize = (panelIndex: number, newWidth: number) => {
+	if (panelIndex >= panels.value.length - 1) return; // Can't resize the last panel
+
+	const container = containerElement.value;
+	if (!container) return;
+
+	const containerWidth = container.getBoundingClientRect().width;
+
+	// Get the current panel and next panel
+	const currentPanel = panels.value[panelIndex];
+	const nextPanel = panels.value[panelIndex + 1];
+
+	if (!currentPanel || !nextPanel) return;
+
+	// For 2 panels, the logic is simpler
+	if (panels.value.length === 2 && panelIndex === 0) {
+		// For 2 panels, newWidth is the desired width of the first panel
+		const minWidthPx = 100;
+		const maxWidthPx = containerWidth - minWidthPx;
+
+		// Clamp the new width
+		const clampedFirstPanelWidth = Math.max(minWidthPx, Math.min(maxWidthPx, newWidth));
+		const clampedSecondPanelWidth = containerWidth - clampedFirstPanelWidth;
+
+		// Convert to percentages
+		currentPanel.size = (clampedFirstPanelWidth / containerWidth) * 100;
+		nextPanel.size = (clampedSecondPanelWidth / containerWidth) * 100;
+		return;
+	}
+
+	// For multiple panels, calculate cumulative width up to the current panel
+	let cumulativeWidth = 0;
+	for (let i = 0; i <= panelIndex; i++) {
+		const panelSize = panels.value[i].size || 50;
+		cumulativeWidth += (panelSize / 100) * containerWidth;
+	}
+
+	// Calculate current sizes in pixels
+	const currentSize = currentPanel.size || 50;
+	const nextSize = nextPanel.size || 50;
+	const currentWidthPx = (currentSize / 100) * containerWidth;
+	const nextWidthPx = (nextSize / 100) * containerWidth;
+	const totalWidthPx = currentWidthPx + nextWidthPx;
+
+	// Calculate the desired width for the current panel
+	const cumulativeWidthBeforeCurrent = cumulativeWidth - currentWidthPx;
+	const desiredCurrentWidthPx = newWidth - cumulativeWidthBeforeCurrent;
+
+	// Define minimum widths in pixels
+	const minWidthPx = 100; // Match the min-width prop
+
+	// Calculate maximum width for current panel (leave minimum for next panel)
+	const maxCurrentWidthPx = totalWidthPx - minWidthPx;
+
+	// Clamp the desired width for current panel
+	let clampedCurrentWidthPx = Math.max(minWidthPx, Math.min(maxCurrentWidthPx, desiredCurrentWidthPx));
+	let clampedNextWidthPx = totalWidthPx - clampedCurrentWidthPx;
+
+	// Ensure next panel also respects minimum width
+	if (clampedNextWidthPx < minWidthPx) {
+		clampedNextWidthPx = minWidthPx;
+		clampedCurrentWidthPx = totalWidthPx - clampedNextWidthPx;
+	}
+
+	// Final safety check to ensure both panels have minimum width
+	if (clampedCurrentWidthPx < minWidthPx) {
+		clampedCurrentWidthPx = minWidthPx;
+		clampedNextWidthPx = Math.max(minWidthPx, totalWidthPx - clampedCurrentWidthPx);
+	}
+
+	// Convert back to percentages
+	currentPanel.size = (clampedCurrentWidthPx / containerWidth) * 100;
+	nextPanel.size = (clampedNextWidthPx / containerWidth) * 100;
+};
+
 // Provide context for child components
 provide(splitPanelContextKey, {
 	closePanel,
@@ -260,13 +339,14 @@ watch(() => props.selectedFilePath, handleSelectedFilePathChange);
 
 <template>
 	<div
+		ref="containerElement"
 		id="split-panel-container"
 		class="flex h-full w-full relative"
 		@dragover="handleDropZoneDragOver"
 		@dragleave="handleDropZoneLeave"
 		@drop="handleDropZoneDrop"
 	>
-		<template v-for="(panel, _) in panels" :key="panel.id">
+		<template v-for="(panel, index) in panels" :key="panel.id">
 			<Panel
 				:panel-id="panel.id"
 				:open-tabs="panel.openTabs"
@@ -278,6 +358,14 @@ watch(() => props.selectedFilePath, handleSelectedFilePathChange);
 			>
 				<slot :filePath="panel.activeTab" :panelId="panel.id"></slot>
 			</Panel>
+
+			<!-- Resize Handle (only between panels, not after the last one) -->
+			<ResizeHandle
+				v-if="index < panels.length - 1 && panels.length > 1"
+				:resizable-element="containerElement || null"
+				:min-width="100"
+				@resize-number="(newWidth) => handlePanelResize(index, newWidth)"
+			/>
 		</template>
 
 		<!-- Left Drop Zone -->

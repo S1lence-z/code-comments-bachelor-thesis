@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onUnmounted, watch, onMounted } from "vue";
+import { ref, onUnmounted, onMounted } from "vue";
 
 interface ResizeHandleProps {
 	/** The element that should be resized */
@@ -23,7 +23,7 @@ const emit = defineEmits<{
 
 const props = withDefaults(defineProps<ResizeHandleProps>(), {
 	minWidth: 100,
-	maxWidth: 800,
+	maxWidth: Infinity,
 	direction: "horizontal",
 });
 
@@ -60,13 +60,6 @@ const handleResize = (event: MouseEvent) => {
 	emit("resize-number", constrainedWidth);
 	emit("resize-event", event);
 };
-
-watch(
-	() => isResizing.value,
-	(newValue) => {
-		console.log("Resize state changed:", newValue);
-	}
-);
 
 const stopResize = () => {
 	if (!isResizing.value) return;
