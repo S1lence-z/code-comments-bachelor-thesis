@@ -40,7 +40,7 @@ const fileContentStore = useFileContentStore();
 
 // Store refs
 const { repositoryUrl, writeApiUrl, repositoryBranch, githubPat } = storeToRefs(projectStore);
-const { fileTree, allComments: backendComments, isLoadingRepository, isLoadingComments } = storeToRefs(repositoryStore);
+const { fileTree, allComments, isLoadingRepository, isLoadingComments } = storeToRefs(repositoryStore);
 
 // State for file explorer
 const showSideBar = ref<boolean>(true);
@@ -89,7 +89,7 @@ function handleLineDoubleClicked(payload: { lineNumber: number; filePath: string
 		console.error("Cannot add comment: comments API URL is not configured.");
 		return;
 	}
-	const existingComment = backendComments.value.find(
+	const existingComment = allComments.value.find(
 		(c: ICommentDto) => c.filePath === filePath && c.lineNumber === lineNumber
 	);
 	modalLineNumber.value = lineNumber;
@@ -186,7 +186,7 @@ const updateIsAddingFileComment = (value: boolean) => {
 	isAddingFileComment.value = value;
 };
 const updateFileCommentData = (filePath: string, content: string) => {
-	const existingComment = backendComments.value.find(
+	const existingComment = allComments.value.find(
 		(comment: ICommentDto) => comment.filePath === filePath && comment.type === CommentType.File
 	);
 
@@ -226,7 +226,7 @@ async function handleFileCommentSubmit() {
 	};
 
 	// Find the existing comment or create a new one
-	backendComments.value.forEach((comment: ICommentDto) => {
+	allComments.value.forEach((comment: ICommentDto) => {
 		if (comment.filePath === fileCommentData.value.filePath && comment.type === CommentType.File) {
 			commentToSubmit.id = comment.id;
 		}
@@ -252,7 +252,7 @@ const updateIsAddingProjectComment = (value: boolean) => {
 	isAddingProjectComment.value = value;
 };
 const updateProjectCommentData = (content: string) => {
-	const existingComment = backendComments.value.find((comment: ICommentDto) => comment.type === CommentType.Project);
+	const existingComment = allComments.value.find((comment: ICommentDto) => comment.type === CommentType.Project);
 	if (existingComment) {
 		projectCommentData.value.content = existingComment.content;
 		return;
@@ -284,7 +284,7 @@ async function handleProjectCommentSubmit() {
 	};
 
 	// Find the existing comment or create a new one
-	backendComments.value.forEach((comment: ICommentDto) => {
+	allComments.value.forEach((comment: ICommentDto) => {
 		if (comment.type === CommentType.Project) {
 			commentToSubmit.id = comment.id;
 		}
@@ -347,8 +347,6 @@ watch(
 	() => {
 		if (selectedFilePath.value) {
 			handleFileSelected(selectedFilePath.value);
-		} else {
-			processedSelectedFile.value = null;
 		}
 	}
 );

@@ -133,23 +133,21 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 			try {
 				// Update existing comment
 				if (commentData.id > 0) {
-					this.upsertCommentLocal(commentData);
 					const response = await updateComment(writeApiUrl, commentData.id, commentData);
 					if (!response.success) {
 						throw new Error("Failed to update comment");
 					}
+					// Update local state with the updated comment
+					this.upsertCommentLocal(commentData);
 					return;
 				}
 				// Add new comment
 				const response = await addComment(writeApiUrl, commentData);
-				if (!response.success) {
+				if (!response.commentId) {
 					throw new Error("Failed to add comment");
 				}
-				const tempLocalId = Date.now();
-				this.upsertCommentLocal({ ...commentData, id: tempLocalId });
-
-				// TODO: implement the refetching frequently and bind it to the comments synced context
-				await this.fetchAllCommentsAsync(writeApiUrl);
+				this.upsertCommentLocal({ ...commentData, id: response.commentId });
+				// TODO: implement periodic sync or event-based updates if needed for multi-user scenarios
 			} catch (error: any) {
 				console.error("Error in saveComment:", error);
 			}

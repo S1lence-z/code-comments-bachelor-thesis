@@ -18,7 +18,7 @@ export async function fetchComments(readApiUrl: string): Promise<IGetCommentsRes
 	}
 }
 
-export async function addComment(writeApiUrl: string, commentData: ICommentDto): Promise<{ success: boolean }> {
+export async function addComment(writeApiUrl: string, commentData: ICommentDto): Promise<{ commentId: number }> {
 	try {
 		const response = await fetch(writeApiUrl, {
 			method: "POST",
@@ -38,7 +38,11 @@ export async function addComment(writeApiUrl: string, commentData: ICommentDto):
 	}
 }
 
-export async function updateComment(writeApiUrl: string, commentId: number, commentData: ICommentDto): Promise<{ success: boolean }> {
+export async function updateComment(
+	writeApiUrl: string,
+	commentId: number,
+	commentData: ICommentDto
+): Promise<{ success: boolean }> {
 	try {
 		const response = await fetch(`${writeApiUrl}/${commentId}`, {
 			method: "PUT",

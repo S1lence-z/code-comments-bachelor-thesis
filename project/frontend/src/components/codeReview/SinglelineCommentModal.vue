@@ -92,7 +92,7 @@ function closeModal() {
 
 				<div class="flex justify-end space-x-2">
 					<button @click="closeModal" class="btn btn-secondary">Cancel</button>
-					<button @click="handleSubmit" class="btn btn-primary">Save</button>
+					<button @click="handleSubmit" class="btn btn-primary" :disabled="!commentText || !selectedCommentCategory">Save</button>
 				</div>
 			</div>
 		</Card>
