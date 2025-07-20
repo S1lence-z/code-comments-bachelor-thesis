@@ -19,16 +19,16 @@ const panels = ref<PanelData[]>([]);
 const draggedTab = ref<{ filePath: string; fromPanelId: string } | null>(null);
 const leftDropZoneActive = ref(false);
 const rightDropZoneActive = ref(false);
-const dropZoneWidth = 200;
 const panelIdCounter = ref(0);
-const minPanelWidthPx = 100;
 
-// Constants for panel sizing
+// Constants
+const DROPZONE_WIDTH = 200;
+const MIN_PANEL_WIDTH_PX = 100;
 const FULL_WIDTH_PERCENTAGE = 100;
 const DEFAULT_PANEL_SIZE_PERCENTAGE = 50;
 
 const closePanel = (panelId: string) => {
-	if (panels.value.length === 1) return; // Don't close the last panel
+	if (panels.value.length === 1) return;
 
 	const panelIndex = panels.value.findIndex((p) => p.id === panelId);
 	if (panelIndex === -1) return;
@@ -93,7 +93,6 @@ const handleTabClosed = (filePath: string, panelId: string) => {
 	// Remove the tab from the panel
 	panel.openTabs.splice(tabIndex, 1);
 	if (panel.openTabs.length === 0) {
-		// If no tabs left, close the panel
 		closePanel(panelId);
 		return;
 	}
@@ -113,14 +112,13 @@ const handleDropZoneDragOver = (event: DragEvent) => {
 		const containerRect = container.getBoundingClientRect();
 		const relativeX = event.clientX - containerRect.left;
 		// Show left drop zone
-		leftDropZoneActive.value = relativeX <= dropZoneWidth;
+		leftDropZoneActive.value = relativeX <= DROPZONE_WIDTH;
 		// Show right drop zone
-		rightDropZoneActive.value = relativeX >= containerRect.width - dropZoneWidth;
+		rightDropZoneActive.value = relativeX >= containerRect.width - DROPZONE_WIDTH;
 	}
 };
 
 const handleDropZoneLeave = (event: DragEvent) => {
-	// Only hide if we're leaving the entire container
 	const currentTarget = event.currentTarget as HTMLElement;
 	const relatedTarget = event.relatedTarget as HTMLElement;
 	if (!currentTarget?.contains(relatedTarget)) {
@@ -145,7 +143,7 @@ const handleDropZoneDrop = (event: DragEvent) => {
 		if (!sourcePanel) return;
 
 		// Determine drop position
-		let insertPosition = determineDropPosition(relativeX, containerRect.width, dropZoneWidth, panels.value.length);
+		let insertPosition = determineDropPosition(relativeX, containerRect.width, DROPZONE_WIDTH, panels.value.length);
 		if (insertPosition === null) {
 			draggedTab.value = null;
 			return;
@@ -233,8 +231,6 @@ const handleTabDrop = (targetPanelId: string, insertIndex?: number) => {
 // Panel resizing functionality
 const containerElement = ref<HTMLElement>();
 
-const minPanelWidthPxRef = ref(minPanelWidthPx);
-
 const handlePanelResize = (panelIndex: number, newWidth: number) => {
 	const container = containerElement.value;
 	if (!container || panelIndex >= panels.value.length - 1) return;
@@ -262,8 +258,7 @@ const handlePanelResize = (panelIndex: number, newWidth: number) => {
 	const desiredCurrentWidthPx = newWidth - (cumulativeWidth - currentWidthPx);
 
 	// Clamp to ensure both panels have minimum width
-	const minWidth = minPanelWidthPxRef.value;
-	const clampedCurrentWidthPx = Math.max(minWidth, Math.min(totalWidthPx - minWidth, desiredCurrentWidthPx));
+	const clampedCurrentWidthPx = Math.max(MIN_PANEL_WIDTH_PX, Math.min(totalWidthPx - MIN_PANEL_WIDTH_PX, desiredCurrentWidthPx));
 	const clampedNextWidthPx = totalWidthPx - clampedCurrentWidthPx;
 
 	// Update panel sizes
@@ -331,7 +326,7 @@ watch(() => props.selectedFilePath, handleSelectedFilePathChange);
 			<ResizeHandle
 				v-if="index < panels.length - 1"
 				:resizable-element="containerElement || null"
-				:min-width="minPanelWidthPx"
+				:min-width="MIN_PANEL_WIDTH_PX"
 				@resize-number="(newWidth) => handlePanelResize(index, newWidth)"
 			/>
 		</template>
@@ -340,7 +335,7 @@ watch(() => props.selectedFilePath, handleSelectedFilePathChange);
 		<div
 			v-if="leftDropZoneActive"
 			class="absolute left-0 top-0 h-full bg-blue-500/30 border-r-2 border-blue-500 flex items-center justify-center z-10"
-			:style="{ width: dropZoneWidth + 'px' }"
+			:style="{ width: DROPZONE_WIDTH + 'px' }"
 		>
 			<div class="text-blue-200 text-xs font-medium transform -rotate-90 whitespace-nowrap">New Panel</div>
 		</div>
@@ -349,7 +344,7 @@ watch(() => props.selectedFilePath, handleSelectedFilePathChange);
 		<div
 			v-if="rightDropZoneActive"
 			class="absolute right-0 top-0 h-full bg-blue-500/30 border-l-2 border-blue-500 flex items-center justify-center z-10"
-			:style="{ width: dropZoneWidth + 'px' }"
+			:style="{ width: DROPZONE_WIDTH + 'px' }"
 		>
 			<div class="text-blue-200 text-xs font-medium transform -rotate-90 whitespace-nowrap">New Panel</div>
 		</div>
