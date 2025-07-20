@@ -141,9 +141,9 @@ app.post("/api/project/:project_id/comments", (req: Request, res: Response) => {
 		// Validate comment data
 		const validatedComment = CommentDtoSchema.parse(req.body);
 
-		CommentsController.addComment(commentsService, projectId, validatedComment);
+		const addCommentResponse = CommentsController.addComment(commentsService, projectId, validatedComment);
 
-		res.status(201).json({ success: true });
+		res.status(201).json({ commentId: addCommentResponse.id });
 	} catch (error) {
 		console.error("Error in PUT /api/comments/:project_id:", error);
 

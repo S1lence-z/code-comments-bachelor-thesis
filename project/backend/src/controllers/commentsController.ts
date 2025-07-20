@@ -40,8 +40,13 @@ export default class CommentsController {
 		};
 	}
 
-	public static addComment(commentsService: CommentsService, projectId: number, newComment: CommentDto): void {
-		commentsService.addComment(projectId, newComment);
+	public static addComment(
+		commentsService: CommentsService,
+		projectId: number,
+		newComment: CommentDto
+	): { id: number } {
+		const newCommentId = commentsService.addComment(projectId, newComment);
+		return { id: newCommentId };
 	}
 
 	public static updateComment(

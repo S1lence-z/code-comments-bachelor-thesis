@@ -8,7 +8,7 @@ class CommentsService {
 	/**
 	 * Add a new comment to a project
 	 */
-	public addComment(projectId: number, commentData: CommentDto): void {
+	public addComment(projectId: number, commentData: CommentDto): number {
 		try {
 			const db = this.dbManager.getDb();
 			// Get repository for this project
@@ -42,6 +42,7 @@ class CommentsService {
 					this.assignCategoryToComment(commentId, category.id);
 				}
 			}
+			return commentId;
 		} catch (error) {
 			console.error("Error adding comment:", error);
 			throw error;
