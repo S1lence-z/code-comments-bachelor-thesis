@@ -14,6 +14,7 @@ export function createEditorExtensions(
 	filePath: string | null,
 	comments: ICommentDto[] = [],
 	deleteCommentAction: (commentId: number) => Promise<void>,
+	editCommentAction: (commentId: number) => Promise<void>,
 	isKeyboardMode: boolean,
 	onSingleLineComment: (lineNumber: number, filePath: string) => void
 ) {
@@ -28,7 +29,7 @@ export function createEditorExtensions(
 		multilineCommentTheme,
 		EditorView.lineWrapping,
 		...(Array.isArray(langExt) ? langExt : [langExt]),
-		commentsDisplayExtension(currentFileComments, deleteCommentAction),
+		commentsDisplayExtension(currentFileComments, deleteCommentAction, editCommentAction),
 		addCursorNavigationExtensions(isKeyboardMode),
 		addCustomKeyboardShortcuts(filePath, onSingleLineComment),
 		preventDefaultDragAndDrop(),

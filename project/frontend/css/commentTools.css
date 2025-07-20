@@ -8,29 +8,30 @@
 	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.comment-tools button {
+/* Specific button styles */
+.comment-tools button.edit-button {
+	background: rgba(0, 157, 255, 0.1);
+	border-color: rgba(59, 130, 246, 0.2);
+	color: #2196f3;
+}
+
+.comment-tools button.delete-button {
 	background: rgba(239, 68, 68, 0.1);
+	border-color: rgba(239, 68, 68, 0.2);
+	color: #ef4444;
+}
+
+.comment-tools button {
 	backdrop-filter: blur(8px);
 	-webkit-backdrop-filter: blur(8px);
-	color: #fca5a5;
 	border: 1px solid rgba(239, 68, 68, 0.2);
 	padding: 6px 12px;
 	border-radius: 8px;
 	cursor: pointer;
-	font-size: 0.85em;
+	font-size: 14px;
 	font-weight: 500;
-	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-	position: relative;
-	overflow: hidden;
 }
 
 .comment-tools button:hover {
-	background: rgba(239, 68, 68, 0.2);
-	border-color: rgba(239, 68, 68, 0.4);
-	color: #fee2e2;
-	transform: translateY(-1px);
-}
-
-.comment-tools button:active {
-	transform: translateY(0);
+	color: #ffffff;
 }

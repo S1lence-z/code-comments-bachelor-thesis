@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, type Ref } from "vue";
+import { type Ref } from "vue";
 import { computed } from "vue";
 import type ICategoryDto from "../../../../shared/dtos/ICategoryDto";
 import { useRepositoryStore } from "../../stores/repositoryStore";
@@ -15,18 +15,17 @@ interface SinglelineCommentModalProps {
 	isVisible: boolean;
 	lineNumber: number | null;
 	filePath: string | null;
-	commentText?: string;
-	commentCategory?: string;
+	commentText: string;
+	commentCategory: string;
 }
 
-const props = withDefaults(defineProps<SinglelineCommentModalProps>(), {
-	commentText: "",
-	commentCategory: "",
+const props = defineProps<SinglelineCommentModalProps>();
+const emit = defineEmits(["submit", "update:isVisible", "update:commentText", "update:commentCategory"]);
+
+const selectedCommentCategory = computed({
+	get: () => props.commentCategory,
+	set: (value: string) => emit("update:commentCategory", value),
 });
-
-const emit = defineEmits(["submit", "update:isVisible", "update:commentText"]);
-
-const selectedCommentCategory = ref<string>("");
 const isVisible = computed({
 	get: () => props.isVisible,
 	set: (value: boolean) => emit("update:isVisible", value),
@@ -73,7 +72,7 @@ function handleSubmit() {
 function closeModal() {
 	emit("update:isVisible", false);
 	commentText.value = "";
-	selectedCommentCategory.value = "";
+	emit("update:commentCategory", "");
 }
 </script>
 
@@ -92,7 +91,13 @@ function closeModal() {
 
 				<div class="flex justify-end space-x-2">
 					<button @click="closeModal" class="btn btn-secondary">Cancel</button>
-					<button @click="handleSubmit" class="btn btn-primary" :disabled="!commentText || !selectedCommentCategory">Save</button>
+					<button
+						@click="handleSubmit"
+						class="btn btn-primary"
+						:disabled="!commentText || !selectedCommentCategory"
+					>
+						Save
+					</button>
 				</div>
 			</div>
 		</Card>

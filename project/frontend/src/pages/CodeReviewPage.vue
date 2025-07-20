@@ -82,6 +82,8 @@ const singlelineModalFilePath = ref<string | null>(null);
 const isAddingSinglelineComment = ref(false);
 const modalLineNumber = ref<number | null>(null);
 const singlelineModalCommentText = ref<string>("");
+const singlelineCommentCategory = ref<string>("");
+const editingCommentId = ref<number>(0); // Track if we're editing an existing comment
 
 function handleLineDoubleClicked(payload: { lineNumber: number; filePath: string }) {
 	const { lineNumber, filePath } = payload;
@@ -95,6 +97,8 @@ function handleLineDoubleClicked(payload: { lineNumber: number; filePath: string
 	modalLineNumber.value = lineNumber;
 	singlelineModalFilePath.value = filePath;
 	singlelineModalCommentText.value = existingComment ? existingComment.content : "";
+	singlelineCommentCategory.value = existingComment?.categories?.[0]?.label || "";
+	editingCommentId.value = existingComment ? existingComment.id : 0;
 	isAddingSinglelineComment.value = true;
 }
 
@@ -105,7 +109,7 @@ async function handleSinglelineCommentSubmit(commentText: string, category: ICat
 	}
 
 	const commentData: ICommentDto = {
-		id: 0,
+		id: editingCommentId.value, // Use the editing comment ID (0 for new, actual ID for edit)
 		filePath: singlelineModalFilePath.value,
 		lineNumber: modalLineNumber.value,
 		content: commentText,
@@ -115,6 +119,8 @@ async function handleSinglelineCommentSubmit(commentText: string, category: ICat
 
 	try {
 		await repositoryStore.upsertCommentAsync(commentData, writeApiUrl.value);
+		// Reset the editing ID after successful submission
+		editingCommentId.value = 0;
 	} catch (e: any) {
 		console.error("Failed to save comment:", e);
 	}
@@ -127,6 +133,8 @@ const isAddingMultilineComment = ref(false);
 const modalStartLineNumber = ref<number | null>(null);
 const modalEndLineNumber = ref<number | null>(null);
 const multilineModalCommentText = ref<string>("");
+const multilineCommentCategory = ref<string>("");
+const editingMultilineCommentId = ref<number>(0); // Track if we're editing an existing multiline comment
 
 function handleMultilineSelected(payload: { startLineNumber: number; endLineNumber: number; filePath: string }) {
 	const { startLineNumber, endLineNumber, filePath } = payload;
@@ -137,6 +145,10 @@ function handleMultilineSelected(payload: { startLineNumber: number; endLineNumb
 	modalStartLineNumber.value = startLineNumber;
 	modalEndLineNumber.value = endLineNumber;
 	multilineModalFilePath.value = filePath;
+	// Reset for new multiline comment
+	multilineModalCommentText.value = "";
+	multilineCommentCategory.value = "";
+	editingMultilineCommentId.value = 0;
 	isAddingMultilineComment.value = true;
 }
 
@@ -152,7 +164,7 @@ async function handleMultilineCommentSubmit(commentText: string, category: ICate
 	}
 
 	const commentData: ICommentDto = {
-		id: 0,
+		id: editingMultilineCommentId.value, // Use the editing comment ID (0 for new, actual ID for edit)
 		filePath: multilineModalFilePath.value,
 		content: commentText,
 		type: CommentType.MultiLine,
@@ -168,6 +180,8 @@ async function handleMultilineCommentSubmit(commentText: string, category: ICate
 
 	try {
 		await repositoryStore.upsertCommentAsync(commentData, writeApiUrl.value);
+		// Reset the editing ID after successful submission
+		editingMultilineCommentId.value = 0;
 	} catch (e: any) {
 		console.error("Failed to save comment:", e);
 	}
@@ -175,7 +189,6 @@ async function handleMultilineCommentSubmit(commentText: string, category: ICate
 //#endregion
 
 //#region File/Folder comment modal
-// Provide the file comment modal context
 const isAddingFileComment = ref(false);
 const fileCommentData = ref<{ filePath: string | null; content: string }>({
 	filePath: null,
@@ -243,7 +256,7 @@ async function handleFileCommentSubmit() {
 }
 //#endregion
 
-//#Region Project comment modal
+//#region Project comment modal
 const isAddingProjectComment = ref(false);
 const projectCommentData = ref<{ content: string }>({
 	content: "",
@@ -338,6 +351,35 @@ const initRepositoryStore = async () => {
 	}
 };
 
+// Handle edit button for the codemirror widget
+const handleEditCommentButton = async (commentId: number) => {
+	// Take the comment ID and open the modal for editing
+	const editedComment = allComments.value.find((comment: ICommentDto) => comment.id === commentId);
+	if (!editedComment) {
+		console.error("Comment not found for ID:", commentId);
+		return;
+	}
+
+	// Get the comment type
+	const commentType: CommentType = editedComment.type;
+	if (commentType === CommentType.SingleLine) {
+		singlelineModalFilePath.value = editedComment.filePath;
+		singlelineModalCommentText.value = editedComment.content;
+		modalLineNumber.value = editedComment.lineNumber || null;
+		singlelineCommentCategory.value = editedComment.categories?.[0]?.label || "";
+		editingCommentId.value = editedComment.id; // Set the ID for editing
+		isAddingSinglelineComment.value = true;
+	} else if (commentType === CommentType.MultiLine) {
+		multilineModalFilePath.value = editedComment.filePath;
+		multilineModalCommentText.value = editedComment.content;
+		modalStartLineNumber.value = editedComment.startLineNumber || null;
+		modalEndLineNumber.value = editedComment.endLineNumber || null;
+		multilineCommentCategory.value = editedComment.categories?.[0]?.label || "";
+		editingMultilineCommentId.value = editedComment.id; // Set the ID for editing
+		isAddingMultilineComment.value = true;
+	}
+};
+
 onMounted(async () => {
 	await initRepositoryStore();
 });
@@ -425,6 +467,7 @@ watch(
 											async (commentId) =>
 												await repositoryStore.deleteCommentAsync(commentId, writeApiUrl)
 										"
+										:edit-comment-action="handleEditCommentButton"
 										@line-double-clicked="handleLineDoubleClicked"
 										@multiline-selected="handleMultilineSelected"
 									/>
@@ -446,6 +489,7 @@ watch(
 			<SinglelineCommentModal
 				v-model:isVisible="isAddingSinglelineComment"
 				v-model:commentText="singlelineModalCommentText"
+				v-model:commentCategory="singlelineCommentCategory"
 				:lineNumber="modalLineNumber"
 				:filePath="singlelineModalFilePath"
 				@submit="handleSinglelineCommentSubmit"
@@ -454,6 +498,7 @@ watch(
 			<MultilineCommentModal
 				v-model:isVisible="isAddingMultilineComment"
 				v-model:commentText="multilineModalCommentText"
+				v-model:commentCategory="multilineCommentCategory"
 				:startLineNumber="modalStartLineNumber"
 				:endLineNumber="modalEndLineNumber"
 				:filePath="multilineModalFilePath"

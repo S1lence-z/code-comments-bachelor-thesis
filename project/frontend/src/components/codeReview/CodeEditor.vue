@@ -14,9 +14,10 @@ const keyboardModeContext = inject(keyboardModeContextKey, {
 interface CodeEditorProps {
 	filePath: string | null;
 	fileContent: string | null | undefined;
+	deleteCommentAction: (commentId: number) => Promise<void>;
+	editCommentAction: (commentId: number) => Promise<void>;
 	isLoadingFile?: boolean;
 	comments?: ICommentDto[];
-	deleteCommentAction: (commentId: number) => Promise<void>;
 }
 
 const props = withDefaults(defineProps<CodeEditorProps>(), {
@@ -48,6 +49,7 @@ const extensions = computed(() => {
 		props.filePath,
 		currentFileComments,
 		props.deleteCommentAction,
+		props.editCommentAction,
 		keyboardModeContext.isKeyboardMode.value,
 		handleSingleLineComment
 	);
@@ -76,7 +78,7 @@ const handleEditorDoubleClick = (event: MouseEvent) => {
 
 	const pos = editorView.value.posAtCoords({ x: event.clientX, y: event.clientY });
 	if (pos !== null && pos !== undefined) {
-		const lineNumber = editorView.value.state.doc.lineAt(pos).number; // lineNumber is 1-based
+		const lineNumber = editorView.value.state.doc.lineAt(pos).number;
 		if (props.filePath) {
 			emit("line-double-clicked", { lineNumber, filePath: props.filePath });
 		}

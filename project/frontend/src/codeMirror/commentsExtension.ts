@@ -14,7 +14,8 @@ import MultilineCommentWidget from "./widgets/multilineCommentWidget.ts";
 function buildDecorations(
 	state: EditorState,
 	commentsToDisplay: Readonly<ICommentDto[]>,
-	deleteCommentAction: (commentId: number) => Promise<void>
+	deleteCommentAction: (commentId: number) => Promise<void>,
+	editCommentAction: (commentId: number) => Promise<void>
 ): DecorationSet {
 	const builder = new RangeSetBuilder<Decoration>();
 
@@ -28,10 +29,10 @@ function buildDecorations(
 	for (const comment of sortedComments) {
 		switch (comment.type) {
 			case CommentType.SingleLine:
-				addSingleLineCommentDecoration(comment, state, builder, deleteCommentAction);
+				addSingleLineCommentDecoration(comment, state, builder, deleteCommentAction, editCommentAction);
 				break;
 			case CommentType.MultiLine:
-				addMultiLineCommentDecoration(comment, state, builder, deleteCommentAction);
+				addMultiLineCommentDecoration(comment, state, builder, deleteCommentAction, editCommentAction);
 				break;
 		}
 	}
@@ -50,7 +51,8 @@ function addMultiLineCommentDecoration(
 	comment: ICommentDto,
 	state: EditorState,
 	builder: RangeSetBuilder<Decoration>,
-	deleteCommentAction: (commentId: number) => Promise<void>
+	deleteCommentAction: (commentId: number) => Promise<void>,
+	editCommentAction: (commentId: number) => Promise<void>
 ): void {
 	const startLine = state.doc.line(comment.startLineNumber!);
 	builder.add(
@@ -61,7 +63,8 @@ function addMultiLineCommentDecoration(
 				comment.content,
 				comment.id,
 				comment.categories ? comment.categories : [],
-				deleteCommentAction
+				deleteCommentAction,
+				editCommentAction
 			),
 			side: -1,
 			block: true,
@@ -73,7 +76,8 @@ function addSingleLineCommentDecoration(
 	comment: ICommentDto,
 	state: EditorState,
 	builder: RangeSetBuilder<Decoration>,
-	deleteCommentAction: (commentId: number) => Promise<void>
+	deleteCommentAction: (commentId: number) => Promise<void>,
+	editCommentAction: (commentId: number) => Promise<void>
 ): void {
 	if (comment.lineNumber! > 0 && comment.lineNumber! <= state.doc.lines) {
 		const line = state.doc.line(comment.lineNumber!);
@@ -85,7 +89,8 @@ function addSingleLineCommentDecoration(
 					comment.content,
 					comment.id,
 					comment.categories ? comment.categories : [],
-					deleteCommentAction
+					deleteCommentAction,
+					editCommentAction
 				),
 				side: -1,
 				block: true,
@@ -99,15 +104,16 @@ function addSingleLineCommentDecoration(
  */
 export function commentsDisplayExtension(
 	currentComments: Readonly<ICommentDto[]>,
-	deleteCommentAction: (commentId: number) => Promise<void>
+	deleteCommentAction: (commentId: number) => Promise<void>,
+	editCommentAction: (commentId: number) => Promise<void>
 ) {
 	return StateField.define<DecorationSet>({
 		create(state: EditorState) {
-			return buildDecorations(state, currentComments, deleteCommentAction);
+			return buildDecorations(state, currentComments, deleteCommentAction, editCommentAction);
 		},
 		update(value: DecorationSet, tr) {
 			if (tr.docChanged) {
-				return buildDecorations(tr.state, currentComments, deleteCommentAction);
+				return buildDecorations(tr.state, currentComments, deleteCommentAction, editCommentAction);
 			}
 			return value.map(tr.changes);
 		},

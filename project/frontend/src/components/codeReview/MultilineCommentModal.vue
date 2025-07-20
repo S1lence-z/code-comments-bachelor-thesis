@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, type Ref } from "vue";
+import { computed, type Ref } from "vue";
 import type ICategoryDto from "../../../../shared/dtos/ICategoryDto";
 import { useRepositoryStore } from "../../stores/repositoryStore";
 import { storeToRefs } from "pinia";
@@ -14,14 +14,14 @@ interface MultilineCommentModalProps {
 	endLineNumber: number | null;
 	filePath: string | null;
 	commentText: string;
+	commentCategory: string;
 }
 
 const props = withDefaults(defineProps<MultilineCommentModalProps>(), {
 	commentText: "",
-	commentCategory: "",
 });
 
-const emit = defineEmits(["submit", "update:isVisible", "update:commentText"]);
+const emit = defineEmits(["submit", "update:isVisible", "update:commentText", "update:commentCategory"]);
 const isVisible = computed({
 	get: () => props.isVisible,
 	set: (value: boolean) => emit("update:isVisible", value),
@@ -30,9 +30,12 @@ const commentText = computed({
 	get: () => props.commentText,
 	set: (value: string) => emit("update:commentText", value),
 });
-const selectedCommentCategory = ref<string>("");
-const { categories: allCategories } = storeToRefs(useRepositoryStore()) as {
-	categories: Ref<ICategoryDto[]>;
+const selectedCommentCategory = computed({
+	get: () => props.commentCategory,
+	set: (value: string) => emit("update:commentCategory", value),
+});
+const { allCategories } = storeToRefs(useRepositoryStore()) as {
+	allCategories: Ref<ICategoryDto[]>;
 };
 
 function handleSubmit() {
@@ -61,13 +64,14 @@ function handleSubmit() {
 		return;
 	}
 
+	emit("update:isVisible", false);
 	emit("submit", commentText.value, categoryObject);
 }
 
 function closeModal() {
 	emit("update:isVisible", false);
 	commentText.value = "";
-	selectedCommentCategory.value = "";
+	emit("update:commentCategory", "");
 }
 </script>
 
@@ -89,7 +93,13 @@ function closeModal() {
 
 				<div class="flex justify-end space-x-2">
 					<button @click="closeModal" class="btn btn-secondary">Cancel</button>
-					<button @click="handleSubmit" class="btn btn-primary" :disabled="!commentText || !selectedCommentCategory">Save</button>
+					<button
+						@click="handleSubmit"
+						class="btn btn-primary"
+						:disabled="!commentText || !selectedCommentCategory"
+					>
+						Save
+					</button>
 				</div>
 			</div>
 		</Card>
