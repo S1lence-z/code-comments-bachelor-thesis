@@ -1,14 +1,10 @@
 <script setup lang="ts">
-import { ref, provide, onMounted } from "vue";
+import { onMounted } from "vue";
 import NavigationBar from "./components/app/AppNavigationBar.vue";
 import AppFooter from "./components/app/AppFooter.vue";
 import Modal from "./lib/Modal.vue";
 import { useRouter, useRoute } from "vue-router";
 import { useProjectStore } from "./stores/projectStore.ts";
-
-// State to manage syncedState
-const isServerSynced = ref(true);
-provide("isServerSynced", isServerSynced);
 
 // Router
 const router = useRouter();
@@ -32,7 +28,7 @@ onMounted(async () => {
 <template>
 	<div class="flex flex-col h-screen overflow-hidden">
 		<!-- Navigation Bar -->
-		<NavigationBar :isServerSynced="isServerSynced" class="z-10" />
+		<NavigationBar class="z-10" />
 		<!-- Main Content -->
 		<main v-if="projectStore.isProjectSetup" class="flex-1 overflow-hidden">
 			<router-view />

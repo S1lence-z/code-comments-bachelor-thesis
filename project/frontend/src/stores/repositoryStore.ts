@@ -5,6 +5,7 @@ import type ICategoryDto from "../../../shared/dtos/ICategoryDto";
 import { extractBaseUrl } from "../utils/urlUtils";
 import { fetchRepoTreeAPI } from "../services/githubTreeService";
 import { fetchComments, getAllCategories, addComment, updateComment, deleteComment } from "../services/commentsService";
+import { useServerStore } from "./serverStore";
 
 export const useRepositoryStore = defineStore("repositoryStore", {
 	state: () => ({
@@ -32,12 +33,19 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 	},
 	actions: {
 		async initializeStoreAsync(repositoryUrl: string, writeApiUrl: string, branch: string, githubPat: string) {
+			const serverStore = useServerStore();
+			serverStore.startSyncing();
+
+			const promises = [
+				this.fetchRepositoryTree(repositoryUrl, branch, githubPat),
+				this.fetchAllCommentsAsync(writeApiUrl).catch(() => {
+					serverStore.setSyncError("Failed to fetch comments");
+				}),
+				this.fetchAllCategoriesAsync(writeApiUrl),
+			];
+
 			if (!this.isCommentsFetched || !this.isTreeFetched || !this.isCategoriesFetched) {
-				await Promise.all([
-					this.fetchRepositoryTree(repositoryUrl, branch, githubPat),
-					this.fetchAllCommentsAsync(writeApiUrl),
-					this.fetchAllCategoriesAsync(writeApiUrl),
-				]);
+				await Promise.all(promises);
 			}
 		},
 		async fetchRepositoryTree(repositoryUrl: string, branch: string, githubPat: string) {
@@ -56,13 +64,15 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 
 				this.fileTreeData = await fetchRepoTreeAPI(repositoryUrl, branch, githubPat);
 			} catch (error: any) {
-				console.error("Error fetching repo tree:", error);
 				this.fileTreeData = [];
+				throw error;
 			} finally {
 				this.isLoadingRepository = false;
 			}
 		},
 		async fetchAllCommentsAsync(writeApiUrl: string) {
+			const serverStore = useServerStore();
+			serverStore.startSyncing();
 			this.isLoadingComments = true;
 			try {
 				if (!writeApiUrl || !writeApiUrl.trim()) {
@@ -73,13 +83,16 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 
 				const response = await fetchComments(writeApiUrl);
 				if (!response || !response.comments) {
+					serverStore.setSyncError("No comments found in the response");
 					console.warn("No comments found in the response");
 					return;
 				}
 				this.comments = response.comments || [];
+				serverStore.setSynced();
 			} catch (error: any) {
-				console.error("Error fetching comments:", error);
+				serverStore.setSyncError("Failed to fetch comments");
 				this.comments = [];
+				throw error;
 			} finally {
 				this.isLoadingComments = false;
 			}
@@ -130,7 +143,9 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 			}
 		},
 		async upsertCommentAsync(commentData: ICommentDto, writeApiUrl: string): Promise<void> {
+			const serverStore = useServerStore();
 			try {
+				serverStore.startSyncing();
 				// Update existing comment
 				if (commentData.id > 0) {
 					const response = await updateComment(writeApiUrl, commentData.id, commentData);
@@ -139,6 +154,7 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 					}
 					// Update local state with the updated comment
 					this.upsertCommentLocal(commentData);
+					serverStore.setSynced();
 					return;
 				}
 				// Add new comment
@@ -147,20 +163,26 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 					throw new Error("Failed to add comment");
 				}
 				this.upsertCommentLocal({ ...commentData, id: response.commentId });
-				// TODO: implement periodic sync or event-based updates if needed for multi-user scenarios
+				serverStore.setSynced();
 			} catch (error: any) {
-				console.error("Error in saveComment:", error);
+				serverStore.setSyncError("Failed to upsert comment");
+				throw error;
 			}
 		},
 		async deleteCommentAsync(commentId: number, writeApiUrl: string): Promise<void> {
+			const serverStore = useServerStore();
 			try {
+				serverStore.startSyncing();
 				const response = await deleteComment(writeApiUrl, commentId);
 				if (!response.success) {
+					serverStore.setSyncError("Failed to delete comment");
 					throw new Error("Failed to delete comment");
 				}
 				this.deleteCommentLocal(commentId);
+				serverStore.setSynced();
 			} catch (error: any) {
-				console.error("Error deleting comment:", error);
+				serverStore.setSyncError("Failed to delete comment");
+				throw error;
 			}
 		},
 		fileContainsComments(filePath: string): boolean {

@@ -7,22 +7,16 @@ import { useRepositoryStore } from "../../stores/repositoryStore";
 import { useProjectStore } from "../../stores/projectStore";
 import { downloadJSON, downloadJSONLD } from "../../utils/jsonUtils";
 import Dropdown from "../../lib/Dropdown.vue";
+import { useServerStore } from "../../stores/serverStore";
 
 const repositoryStore = useRepositoryStore();
 const projectStore = useProjectStore();
-
-const props = defineProps<{
-	isServerSynced: boolean;
-}>();
-
-defineEmits<{
-	(e: "update:isServerSynced", value: boolean): void;
-}>();
+const serverStore = useServerStore();
 
 // Get the current route to determine which tab should be active
 const route = useRoute();
 const activeTab = ref(route.path);
-const isServerSynced = ref(props.isServerSynced);
+const serverStatus = computed(() => serverStore.getStatus);
 
 // Computed property to preserve query parameters when navigating
 const preserveQueryParams = computed(() => {
@@ -88,13 +82,17 @@ watch(
 					</router-link>
 				</div>
 				<!-- Synced Status -->
-				<div v-if="isServerSynced" class="flex items-center gap-2">
+				<div v-if="serverStatus === 'synced'" class="flex items-center gap-2">
 					<div class="w-2 h-2 bg-emerald-400 rounded-full"></div>
 					<span class="text-emerald-400 font-medium text-sm">Comments Synced</span>
 				</div>
-				<div v-else class="ml-6 flex items-center gap-2">
+				<div v-else-if="serverStatus === 'syncing'" class="flex items-center gap-2">
+					<div class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+					<span class="text-yellow-400 font-medium text-sm">Syncing Comments...</span>
+				</div>
+				<div v-else-if="serverStatus === 'error'" class="flex items-center gap-2">
 					<div class="w-2 h-2 bg-red-400 rounded-full"></div>
-					<span class="text-red-400 font-medium text-sm">Comments Not Synced</span>
+					<span class="text-red-400 font-medium text-sm">Status: {{ serverStore.getErrorMessage }}</span>
 				</div>
 				<!-- Dropdown for Export Options -->
 				<Dropdown label="Export Options" :options="exportOptions" />
