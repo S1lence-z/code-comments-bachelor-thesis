@@ -59,3 +59,17 @@ export const downloadJSONLD = (comments: ICommentDto[], repositoryName: string, 
 	document.body.removeChild(a);
 	URL.revokeObjectURL(url);
 };
+
+export const parseJSON = <T>(jsonString: string | null): T | null => {
+	if (jsonString === null) {
+		console.error("JSON string is null");
+		return null;
+	}
+
+	try {
+		return JSON.parse(jsonString) as T;
+	} catch (error) {
+		console.error("Failed to parse JSON:", error);
+		return null;
+	}
+};

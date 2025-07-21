@@ -39,5 +39,13 @@ const keyboardModeContext = inject(keyboardModeContextKey, {
 				@update:isActive="keyboardModeContext.updateKeyboardModeState($event)"
 			/>
 		</div>
+		<!-- Save workspace to session storage -->
+		<div class="flex items-center">
+			<ToggleButton
+				label="Save Workspace"
+				:isActive="false"
+				@update:isActive="() => console.warn('Save Workspace functionality not implemented')"
+			/>
+		</div>
 	</div>
 </template>
