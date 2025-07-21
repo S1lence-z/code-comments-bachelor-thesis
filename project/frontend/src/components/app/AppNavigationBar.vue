@@ -3,6 +3,13 @@ import { ref, watch, computed } from "vue";
 import { useRoute } from "vue-router";
 import Icon from "../../lib/Icon.vue";
 import { navigationRoutes } from "../../core/routes";
+import Button from "../../lib/Button.vue";
+import { useRepositoryStore } from "../../stores/repositoryStore";
+import { useProjectStore } from "../../stores/projectStore";
+import { downloadJSON } from "../../utils/jsonUtils";
+
+const repositoryStore = useRepositoryStore();
+const projectStore = useProjectStore();
 
 const props = defineProps<{
 	isServerSynced: boolean;
@@ -24,6 +31,20 @@ const preserveQueryParams = computed(() => {
 	return rest;
 });
 
+// Export function
+const exportLocalComments = () => {
+	const localComments = repositoryStore.allComments;
+	if (localComments.length === 0) {
+		alert("No comments to export.");
+		return;
+	}
+	// Get the repository name from the project store and confirm export
+	const repositoryName = projectStore.getRepositoryName;
+	if (confirm(`Are you sure you want to export ${localComments.length} comments for ${repositoryName}?`)) {
+		downloadJSON(localComments, `${repositoryName}-comments.json`);
+	}
+};
+
 // Watch for route changes to update active tab
 watch(
 	() => route.path,
@@ -37,7 +58,7 @@ watch(
 	<nav class="bg-modern-black backdrop-blur-sm border-b border-white/10 shadow-lg">
 		<div class="flex items-center justify-between h-full max-w-full px-6 py-4">
 			<!-- Logo and Synced Status -->
-			<div class="flex items-center">
+			<div class="flex items-center space-x-6">
 				<!-- Logo -->
 				<div class="flex items-center gap-3">
 					<Icon srcName="appLogo" />
@@ -49,7 +70,7 @@ watch(
 					</router-link>
 				</div>
 				<!-- Synced Status -->
-				<div v-if="isServerSynced" class="ml-6 flex items-center gap-2">
+				<div v-if="isServerSynced" class="flex items-center gap-2">
 					<div class="w-2 h-2 bg-emerald-400 rounded-full"></div>
 					<span class="text-emerald-400 font-medium text-sm">Comments Synced</span>
 				</div>
@@ -57,6 +78,14 @@ watch(
 					<div class="w-2 h-2 bg-red-400 rounded-full"></div>
 					<span class="text-red-400 font-medium text-sm">Comments Not Synced</span>
 				</div>
+				<!-- Comments Export Button -->
+				<Button
+					class="text-sm"
+					label="Export Comments"
+					type="button"
+					buttonStyle="secondary"
+					:onclick="exportLocalComments"
+				/>
 			</div>
 
 			<!-- Navigation Links -->
