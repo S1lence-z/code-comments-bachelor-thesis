@@ -3,10 +3,10 @@ import { ref, watch, computed } from "vue";
 import { useRoute } from "vue-router";
 import Icon from "../../lib/Icon.vue";
 import { navigationRoutes } from "../../core/routes";
-import Button from "../../lib/Button.vue";
 import { useRepositoryStore } from "../../stores/repositoryStore";
 import { useProjectStore } from "../../stores/projectStore";
-import { downloadJSON } from "../../utils/jsonUtils";
+import { downloadJSON, downloadJSONLD } from "../../utils/jsonUtils";
+import Dropdown from "../../lib/Dropdown.vue";
 
 const repositoryStore = useRepositoryStore();
 const projectStore = useProjectStore();
@@ -31,7 +31,7 @@ const preserveQueryParams = computed(() => {
 	return rest;
 });
 
-// Export function
+// Exporting functionality
 const exportLocalComments = () => {
 	const localComments = repositoryStore.allComments;
 	if (localComments.length === 0) {
@@ -44,6 +44,24 @@ const exportLocalComments = () => {
 		downloadJSON(localComments, `${repositoryName}-comments.json`);
 	}
 };
+
+const exportLocalCommentsAsJsonLD = () => {
+	const localComments = repositoryStore.allComments;
+	if (localComments.length === 0) {
+		alert("No comments to export.");
+		return;
+	}
+	// Get the repository name from the project store and confirm export
+	const repositoryName = projectStore.getRepositoryName;
+	if (confirm(`Are you sure you want to export ${localComments.length} comments as JSON-LD for ${repositoryName}?`)) {
+		downloadJSONLD(localComments, repositoryName, `${repositoryName}-comments.jsonld`);
+	}
+};
+
+const exportOptions: Array<{ label: string; value: string; actionCallback: () => void }> = [
+	{ label: "JSON", value: "json", actionCallback: exportLocalComments },
+	{ label: "JSON-LD", value: "jsonld", actionCallback: exportLocalCommentsAsJsonLD },
+];
 
 // Watch for route changes to update active tab
 watch(
@@ -78,14 +96,8 @@ watch(
 					<div class="w-2 h-2 bg-red-400 rounded-full"></div>
 					<span class="text-red-400 font-medium text-sm">Comments Not Synced</span>
 				</div>
-				<!-- Comments Export Button -->
-				<Button
-					class="text-sm"
-					label="Export Comments"
-					type="button"
-					buttonStyle="secondary"
-					:onclick="exportLocalComments"
-				/>
+				<!-- Dropdown for Export Options -->
+				<Dropdown label="Export Options" :options="exportOptions" />
 			</div>
 
 			<!-- Navigation Links -->

@@ -1,0 +1,51 @@
+{
+	"@context": {
+		"@vocab": "https://schema.org/",
+		"CodeComment": {
+			"@id": "https://w3id.org/codeontology#Comment",
+			"@type": "@id"
+		},
+		"hasFilePath": {
+			"@id": "https://w3id.org/codeontology#hasFilePath",
+			"@type": "xsd:string"
+		},
+		"hasContent": {
+			"@id": "https://w3id.org/codeontology#hasContent",
+			"@type": "xsd:string"
+		},
+		"hasCommentType": {
+			"@id": "https://w3id.org/codeontology#hasCommentType",
+			"@type": "xsd:string"
+		},
+		"hasLineNumber": {
+			"@id": "https://w3id.org/codeontology#hasLineNumber",
+			"@type": "xsd:integer"
+		},
+		"hasStartLineNumber": {
+			"@id": "https://w3id.org/codeontology#hasStartLineNumber",
+			"@type": "xsd:integer"
+		},
+		"hasEndLineNumber": {
+			"@id": "https://w3id.org/codeontology#hasEndLineNumber",
+			"@type": "xsd:integer"
+		},
+		"hasCategory": {
+			"@id": "https://w3id.org/codeontology#hasCategory",
+			"@type": "@id"
+		},
+		"Category": {
+			"@id": "https://w3id.org/codeontology#Category",
+			"@type": "@id"
+		},
+		"label": {
+			"@id": "rdfs:label",
+			"@type": "xsd:string"
+		},
+		"description": {
+			"@id": "rdfs:comment",
+			"@type": "xsd:string"
+		},
+		"xsd": "http://www.w3.org/2001/XMLSchema#",
+		"rdfs": "http://www.w3.org/2000/01/rdf-schema#"
+	}
+}

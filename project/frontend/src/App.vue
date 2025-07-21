@@ -32,7 +32,7 @@ onMounted(async () => {
 <template>
 	<div class="flex flex-col h-screen overflow-hidden">
 		<!-- Navigation Bar -->
-		<NavigationBar :isServerSynced="isServerSynced" />
+		<NavigationBar :isServerSynced="isServerSynced" class="z-10" />
 		<!-- Main Content -->
 		<main v-if="projectStore.isProjectSetup" class="flex-1 overflow-hidden">
 			<router-view />
