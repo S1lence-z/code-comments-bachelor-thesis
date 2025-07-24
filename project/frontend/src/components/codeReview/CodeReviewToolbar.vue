@@ -5,14 +5,17 @@ import { keyboardModeContextKey } from "../../core/keys";
 
 interface ToolbarProps {
 	showSideBar: boolean;
+	saveWorkspace: boolean;
 }
 
 withDefaults(defineProps<ToolbarProps>(), {
 	showSideBar: true,
+	saveWorkspace: false,
 });
 
 const emit = defineEmits<{
 	(event: "update:showSideBar", value: boolean): void;
+	(event: "update:saveWorkspace", value: boolean): void; 
 }>();
 
 const keyboardModeContext = inject(keyboardModeContextKey, {
@@ -43,8 +46,8 @@ const keyboardModeContext = inject(keyboardModeContextKey, {
 		<div class="flex items-center">
 			<ToggleButton
 				label="Save Workspace"
-				:isActive="false"
-				@update:isActive="() => console.warn('Save Workspace functionality not implemented')"
+				:isActive="saveWorkspace"
+				@update:isActive="emit('update:saveWorkspace', $event)"
 			/>
 		</div>
 	</div>

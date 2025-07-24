@@ -45,6 +45,9 @@ const { fileTree, allComments, isLoadingRepository, isLoadingComments } = storeT
 // State for file explorer
 const showSideBar = ref<boolean>(true);
 
+// State for save workspace
+const saveWorkspace = ref<boolean>(false);
+
 // Local state for file selection and content
 const selectedFilePath = ref<string | null>(null);
 const processedSelectedFile = ref<ProcessedFile | null>(null);
@@ -405,7 +408,7 @@ watch(
 	<div class="page">
 		<div class="flex flex-col h-full w-full">
 			<!-- Code Editor Toolbar -->
-			<CodeReviewToolbar v-model:showSideBar="showSideBar" />
+			<CodeReviewToolbar v-model:showSideBar="showSideBar" v-model:saveWorkspace="saveWorkspace" />
 			<div class="flex h-full w-full overflow-hidden">
 				<!-- Sidebar -->
 				<div ref="sidebar" v-if="showSideBar" class="flex-shrink-0" :style="{ width: sidebarWidth + 'px' }">
@@ -444,7 +447,11 @@ watch(
 							<span>Loading comments...</span>
 						</div>
 					</div>
-					<SplitPanelManager v-else v-model:selected-file-path="selectedFilePath">
+					<SplitPanelManager
+						v-else
+						v-model:selected-file-path="selectedFilePath"
+						v-model:saveWorkspace="saveWorkspace"
+					>
 						<template #default="{ filePath }">
 							<div v-if="filePath" class="h-full">
 								<div

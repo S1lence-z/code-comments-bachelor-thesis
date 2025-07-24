@@ -1,21 +1,38 @@
 <script setup lang="ts">
-import { ref, provide, watch } from "vue";
+import { ref, provide, watch, onMounted } from "vue";
 import Panel from "./Panel.vue";
 import ResizeHandle from "../../lib/ResizeHandle.vue";
 import type { PanelData } from "../../utils/panelUtils";
 import { determineDropPosition, generateNewPanel } from "../../utils/panelUtils";
 import { splitPanelContextKey } from "../../core/keys.ts";
+import useLocalStorage from "../../composables/useLocalStorage.ts";
 
 const props = defineProps<{
 	selectedFilePath: string | null;
+	saveWorkspace: boolean;
 }>();
+
+// Initialize the localStorage composable at the component level
+const savedWorkspace = useLocalStorage("savedWorkspace", "[]");
 
 const emits = defineEmits<{
 	(event: "update:selectedFilePath", value: string | null): void;
+	(event: "update:saveWorkspace", value: boolean): void;
 }>();
 
 // Panel management
 const panels = ref<PanelData[]>([]);
+
+// Save workspace watcher
+watch(
+	[() => props.saveWorkspace, panels],
+	([saveWorkspace], [_, __]) => {
+		if (saveWorkspace) {
+			savedWorkspace.value = JSON.stringify(panels.value);
+		}
+	},
+	{ immediate: true, deep: true }
+);
 const draggedTab = ref<{ filePath: string; fromPanelId: string } | null>(null);
 const leftDropZoneActive = ref(false);
 const rightDropZoneActive = ref(false);
@@ -26,6 +43,45 @@ const DROPZONE_WIDTH = 200;
 const MIN_PANEL_WIDTH_PX = 100;
 const FULL_WIDTH_PERCENTAGE = 100;
 const DEFAULT_PANEL_SIZE_PERCENTAGE = 50;
+
+// Load saved workspace on component mount
+onMounted(() => {
+	try {
+		const savedData = savedWorkspace.value;
+		if (savedData && savedData !== "[]") {
+			emits("update:saveWorkspace", true);
+
+			// Parse the saved data and create panels
+			const parsedPanels = JSON.parse(savedData) as PanelData[];
+			parsedPanels.forEach((panel) => {
+				const tabFilePaths = panel.openTabs;
+				const newPanel = generateNewPanel(panelIdCounter);
+				newPanel.openTabs = tabFilePaths;
+				newPanel.activeTab = panel.activeTab || panel.openTabs[0] || null;
+				panels.value.push(newPanel);
+			});
+
+			// For each of the new panels, select the file path
+			panels.value.forEach((panel) => {
+				panel.openTabs.forEach((filePath) => {
+					setTimeout(() => {
+						handleSelectedFilePathChange(filePath);
+						emits("update:selectedFilePath", panel.activeTab);
+					}, 1000);
+				});
+			});
+
+			// Redistribute sizes
+			const equalSize = FULL_WIDTH_PERCENTAGE / panels.value.length;
+			panels.value.forEach((panel) => {
+				panel.size = equalSize;
+			});
+		}
+	} catch (error) {
+		console.error("Failed to restore workspace from localStorage:", error);
+		panels.value = [];
+	}
+});
 
 const closePanel = (panelId: string) => {
 	if (panels.value.length === 1) return;
@@ -258,7 +314,10 @@ const handlePanelResize = (panelIndex: number, newWidth: number) => {
 	const desiredCurrentWidthPx = newWidth - (cumulativeWidth - currentWidthPx);
 
 	// Clamp to ensure both panels have minimum width
-	const clampedCurrentWidthPx = Math.max(MIN_PANEL_WIDTH_PX, Math.min(totalWidthPx - MIN_PANEL_WIDTH_PX, desiredCurrentWidthPx));
+	const clampedCurrentWidthPx = Math.max(
+		MIN_PANEL_WIDTH_PX,
+		Math.min(totalWidthPx - MIN_PANEL_WIDTH_PX, desiredCurrentWidthPx)
+	);
 	const clampedNextWidthPx = totalWidthPx - clampedCurrentWidthPx;
 
 	// Update panel sizes
