@@ -10,8 +10,8 @@ Copy the following into your `.env` file:
 
 ```env
 BACKEND_API_PORT=3500
-BACKEND_HOSTNAME=http://backend
-FRONTEND_BASE_URL=http://frontend:5000
+BACKEND_HOSTNAME=http://localhost
+FRONTEND_BASE_URL=http://localhost:5000
 ```
 
 ### Frontend Project
@@ -20,7 +20,6 @@ Copy the following into your `.env` file for the frontend project. You may provi
 
 ```env
 VITE_GITHUB_PAT=your_github_pat_here
-VITE_API_BASE_URL=http://backend:3500
 ```
 
 ## New Features Overview
