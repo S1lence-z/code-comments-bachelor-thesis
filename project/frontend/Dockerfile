@@ -19,10 +19,6 @@ COPY shared/ ../shared/
 
 RUN npm run build
 
-# Debug: Check if assets are built correctly
-RUN ls -la ./dist/
-RUN ls -la ./dist/assets/ || echo "No assets folder in dist"
-
 FROM nginx:alpine
 
 # Copy the built frontend files

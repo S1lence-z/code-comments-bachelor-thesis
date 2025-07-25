@@ -10,7 +10,7 @@ COPY backend/package*.json ./
 
 RUN npm install
 
-# Copy backend source code (use ./* to copy contents, not the folder itself)
+# Copy backend source code
 COPY backend/src/ ./src/
 COPY backend/tsconfig.json ./
 COPY backend/nodemon.json ./
