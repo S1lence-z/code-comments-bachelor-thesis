@@ -1,4 +1,4 @@
-import { CommentType } from "../enums/CommentType.ts";
+import { CommentType } from "../enums/CommentType";
 import type ICategoryDto from "./ICategoryDto.ts";
 
 export default interface ICommentDto {

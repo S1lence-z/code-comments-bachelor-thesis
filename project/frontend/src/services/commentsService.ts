@@ -65,7 +65,7 @@ export async function updateComment(
 }
 
 export async function createConfiguration(setupRequest: ISetupProjectRequest): Promise<IProjectDto> {
-	const requestUrl = "http://localhost:4000/api/setup";
+	const requestUrl = "http://localhost:3500/api/setup";
 	try {
 		const response = await fetch(requestUrl, {
 			method: "POST",
