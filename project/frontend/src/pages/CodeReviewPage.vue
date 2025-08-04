@@ -406,92 +406,97 @@ watch(
 
 <template>
 	<div class="page">
-		<div class="flex flex-col h-full w-full">
-			<!-- Code Editor Toolbar -->
-			<CodeReviewToolbar v-model:showSideBar="showSideBar" v-model:saveWorkspace="saveWorkspace" />
-			<div class="flex h-full w-full overflow-hidden">
-				<!-- Sidebar -->
-				<div ref="sidebar" v-if="showSideBar" class="flex-shrink-0" :style="{ width: sidebarWidth + 'px' }">
-					<!-- File Explorer -->
-					<div v-if="isLoadingRepository" class="p-6 text-sm text-center text-slate-300">
-						<div class="inline-flex items-center space-x-2">
-							<div
-								class="animate-spin rounded-full h-4 w-4 border-2 border-modern-blue border-t-transparent"
-							></div>
-							<span>Loading repository...</span>
-						</div>
-					</div>
-					<FileExplorer
-						v-else-if="fileTree.length > 0"
-						v-model:selectedPath="selectedFilePath"
-						:treeData="fileTree"
-					/>
-				</div>
+		<div class="flex flex-row h-full w-full">
+			<!-- Code Editor Section-->
+			<div class="flex flex-col h-full w-full">
+				<!-- Code Editor Toolbar -->
+				<CodeReviewToolbar v-model:showSideBar="showSideBar" v-model:saveWorkspace="saveWorkspace" />
 
-				<!-- Resize Handle -->
-				<ResizeHandle
-					v-if="showSideBar"
-					:resizable-element="sidebar"
-					:min-width="minSidebarWidth"
-					:max-width="maxSidebarWidth"
-					@resize-number="(newWidth: number) => handleSidebarResize(newWidth)"
-				/>
-
-				<!-- Code Editor and Comments -->
-				<div class="flex flex-col flex-grow overflow-hidden backdrop-blur-sm bg-white/5 w-full">
-					<div v-if="isLoadingComments && !isLoadingFile" class="p-6 text-sm text-center text-slate-300">
-						<div class="inline-flex items-center space-x-2">
-							<div
-								class="animate-spin rounded-full h-4 w-4 border-2 border-modern-blue border-t-transparent"
-							></div>
-							<span>Loading comments...</span>
-						</div>
-					</div>
-					<SplitPanelManager
-						v-else
-						v-model:selected-file-path="selectedFilePath"
-						v-model:saveWorkspace="saveWorkspace"
-					>
-						<template #default="{ filePath }">
-							<div v-if="filePath" class="h-full">
+				<!-- Code Editor -->
+				<div class="flex h-full w-full overflow-hidden">
+					<!-- Sidebar -->
+					<div ref="sidebar" v-if="showSideBar" class="flex-shrink-0" :style="{ width: sidebarWidth + 'px' }">
+						<!-- File Explorer -->
+						<div v-if="isLoadingRepository" class="p-6 text-sm text-center text-slate-300">
+							<div class="inline-flex items-center space-x-2">
 								<div
-									v-if="!fileContentStore.isFileCached(filePath)"
-									class="p-6 text-sm text-center text-slate-300"
-								>
-									<div class="inline-flex items-center space-x-2">
-										<span class="spinner"></span>
-										<span>Loading file...</span>
-									</div>
-								</div>
-								<template v-else>
-									<CodeEditor
-										v-if="fileContentStore.getFileDisplayType(filePath) === 'text'"
-										:file-path="filePath"
-										:file-content="fileContentStore.getFileContent(filePath)"
-										:is-loading-file="false"
-										:comments="repositoryStore.getCommentsForFile(filePath)"
-										:delete-comment-action="
-											async (commentId) =>
-												await repositoryStore.deleteCommentAsync(commentId, writeApiUrl)
-										"
-										:edit-comment-action="handleEditCommentButton"
-										@line-double-clicked="handleLineDoubleClicked"
-										@multiline-selected="handleMultilineSelected"
-									/>
-									<OtherContentViewer
-										v-else
-										:display-type="fileContentStore.getFileDisplayType(filePath)"
-										:download-url="fileContentStore.getFileDownloadUrl(filePath)"
-										:file-name="getFileName(filePath)"
-										:selected-file-path="filePath"
-									/>
-								</template>
+									class="animate-spin rounded-full h-4 w-4 border-2 border-modern-blue border-t-transparent"
+								></div>
+								<span>Loading repository...</span>
 							</div>
-						</template>
-					</SplitPanelManager>
+						</div>
+						<FileExplorer
+							v-else-if="fileTree.length > 0"
+							v-model:selectedPath="selectedFilePath"
+							:treeData="fileTree"
+						/>
+					</div>
+
+					<!-- Resize Handle -->
+					<ResizeHandle
+						v-if="showSideBar"
+						:resizable-element="sidebar"
+						:min-width="minSidebarWidth"
+						:max-width="maxSidebarWidth"
+						@resize-number="(newWidth: number) => handleSidebarResize(newWidth)"
+					/>
+
+					<!-- Code Editor and Comments -->
+					<div class="flex flex-col flex-grow overflow-hidden backdrop-blur-sm bg-white/5 w-full">
+						<div v-if="isLoadingComments && !isLoadingFile" class="p-6 text-sm text-center text-slate-300">
+							<div class="inline-flex items-center space-x-2">
+								<div
+									class="animate-spin rounded-full h-4 w-4 border-2 border-modern-blue border-t-transparent"
+								></div>
+								<span>Loading comments...</span>
+							</div>
+						</div>
+						<SplitPanelManager
+							v-else
+							v-model:selected-file-path="selectedFilePath"
+							v-model:saveWorkspace="saveWorkspace"
+						>
+							<template #default="{ filePath }">
+								<div v-if="filePath" class="h-full">
+									<div
+										v-if="!fileContentStore.isFileCached(filePath)"
+										class="p-6 text-sm text-center text-slate-300"
+									>
+										<div class="inline-flex items-center space-x-2">
+											<span class="spinner"></span>
+											<span>Loading file...</span>
+										</div>
+									</div>
+									<template v-else>
+										<CodeEditor
+											v-if="fileContentStore.getFileDisplayType(filePath) === 'text'"
+											:file-path="filePath"
+											:file-content="fileContentStore.getFileContent(filePath)"
+											:is-loading-file="false"
+											:comments="repositoryStore.getCommentsForFile(filePath)"
+											:delete-comment-action="
+												async (commentId) =>
+													await repositoryStore.deleteCommentAsync(commentId, writeApiUrl)
+											"
+											:edit-comment-action="handleEditCommentButton"
+											@line-double-clicked="handleLineDoubleClicked"
+											@multiline-selected="handleMultilineSelected"
+										/>
+										<OtherContentViewer
+											v-else
+											:display-type="fileContentStore.getFileDisplayType(filePath)"
+											:download-url="fileContentStore.getFileDownloadUrl(filePath)"
+											:file-name="getFileName(filePath)"
+											:selected-file-path="filePath"
+										/>
+									</template>
+								</div>
+							</template>
+						</SplitPanelManager>
+					</div>
 				</div>
 			</div>
-
+			
 			<!-- Comment Modals -->
 			<SinglelineCommentModal
 				v-model:isVisible="isAddingSinglelineComment"
