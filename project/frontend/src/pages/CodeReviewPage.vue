@@ -1,13 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, provide, computed } from "vue";
+import { ref, onMounted, watch, provide } from "vue";
 import FileExplorer from "../components/codeReview/FileExplorer.vue";
 import CodeEditor from "../components/codeReview/CodeEditor.vue";
-import SinglelineCommentModal from "../components/codeReview/SinglelineCommentModal.vue";
-import MultilineCommentModal from "../components/codeReview/MultilineCommentModal.vue";
 import OtherContentViewer from "../components/codeReview/ContentViewer.vue";
 import type ICommentDto from "../../../shared/dtos/ICommentDto";
 import { CommentType } from "../../../shared/enums/CommentType.ts";
-import type ICategoryDto from "../../../shared/dtos/ICategoryDto.ts";
 import SplitPanelManager from "../components/codeReview/SplitPanelManager.vue";
 import { useRepositoryStore } from "../stores/repositoryStore.ts";
 import { useFileContentStore } from "../stores/fileContentStore.ts";
@@ -81,23 +78,14 @@ async function handleFileSelected(path: string) {
 	}
 }
 
-// Handle comment form
+// Comment form state
 const commentFilePath = ref<string | null>(null);
 const startLineNumber = ref<number | null>(null);
 const endLineNumber = ref<number | null>(null);
-const isEditingComment = computed(() => {
-	return startLineNumber.value !== null && endLineNumber.value !== null;
-});
+const commentId = ref<number | null>(null);
+const isAddingComment = ref<boolean>(false);
 
-//#region Single line comment modal
-const singlelineModalFilePath = ref<string | null>(null);
-const isAddingSinglelineComment = ref(false);
-const modalLineNumber = ref<number | null>(null);
-const singlelineModalCommentText = ref<string>("");
-const singlelineCommentCategory = ref<string>("");
-const editingCommentId = ref<number>(0); // Track if we're editing an existing comment
-
-function handleLineDoubleClicked(payload: { lineNumber: number; filePath: string }) {
+function handleSinglelineCommentSelected(payload: { lineNumber: number; filePath: string }) {
 	const { lineNumber, filePath } = payload;
 	if (!filePath || !writeApiUrl.value) {
 		console.error("Cannot add comment: comments API URL is not configured.");
@@ -106,99 +94,35 @@ function handleLineDoubleClicked(payload: { lineNumber: number; filePath: string
 	const existingComment = allComments.value.find(
 		(c: ICommentDto) => c.filePath === filePath && c.lineNumber === lineNumber
 	);
-	modalLineNumber.value = lineNumber;
-	singlelineModalFilePath.value = filePath;
-	singlelineModalCommentText.value = existingComment ? existingComment.content : "";
-	singlelineCommentCategory.value = existingComment?.categories?.[0]?.label || "";
-	editingCommentId.value = existingComment ? existingComment.id : 0;
-	isAddingSinglelineComment.value = true;
+
+	// Set the form state variables
+	commentFilePath.value = filePath;
+	startLineNumber.value = lineNumber;
+	endLineNumber.value = null;
+	commentId.value = existingComment ? existingComment.id : null;
+	isAddingComment.value = true;
 }
 
-async function handleSinglelineCommentSubmit(commentText: string, category: ICategoryDto) {
-	if (singlelineModalFilePath.value === null || modalLineNumber.value === null || !writeApiUrl.value) {
-		console.error("Cannot save comment: missing data or API URL.");
-		return;
-	}
-
-	const commentData: ICommentDto = {
-		id: editingCommentId.value, // Use the editing comment ID (0 for new, actual ID for edit)
-		filePath: singlelineModalFilePath.value,
-		lineNumber: modalLineNumber.value,
-		content: commentText,
-		type: CommentType.SingleLine,
-		categories: category ? [category] : [],
-	};
-
-	try {
-		await repositoryStore.upsertCommentAsync(commentData, writeApiUrl.value);
-		// Reset the editing ID after successful submission
-		editingCommentId.value = 0;
-	} catch (e: any) {
-		console.error("Failed to save comment:", e);
-	}
-}
-//#endregion
-
-//#region Multiline comment modal
-const multilineModalFilePath = ref<string | null>(null);
-const isAddingMultilineComment = ref(false);
-const modalStartLineNumber = ref<number | null>(null);
-const modalEndLineNumber = ref<number | null>(null);
-const multilineModalCommentText = ref<string>("");
-const multilineCommentCategory = ref<string>("");
-const editingMultilineCommentId = ref<number>(0); // Track if we're editing an existing multiline comment
-
-function handleMultilineSelected(payload: { startLineNumber: number; endLineNumber: number; filePath: string }) {
-	const { startLineNumber, endLineNumber, filePath } = payload;
+function handleMultilineCommentSelected(payload: {
+	selectedStartLineNumber: number;
+	selectedEndLineNumber: number;
+	filePath: string;
+}) {
+	const { selectedStartLineNumber, selectedEndLineNumber, filePath } = payload;
 	if (!filePath || !writeApiUrl.value) {
 		console.error("Cannot add comment: comments API URL is not configured.");
 		return;
 	}
-	modalStartLineNumber.value = startLineNumber;
-	modalEndLineNumber.value = endLineNumber;
-	multilineModalFilePath.value = filePath;
-	// Reset for new multiline comment
-	multilineModalCommentText.value = "";
-	multilineCommentCategory.value = "";
-	editingMultilineCommentId.value = 0;
-	isAddingMultilineComment.value = true;
+	const existingComment = allComments.value.find(
+		(c: ICommentDto) => c.filePath === filePath && c.startLineNumber === selectedStartLineNumber
+	);
+
+	commentFilePath.value = filePath;
+	startLineNumber.value = selectedStartLineNumber;
+	endLineNumber.value = selectedEndLineNumber;
+	commentId.value = existingComment ? existingComment.id : null;
+	isAddingComment.value = true;
 }
-
-async function handleMultilineCommentSubmit(commentText: string, category: ICategoryDto) {
-	if (
-		multilineModalFilePath.value === null ||
-		modalStartLineNumber.value === null ||
-		modalEndLineNumber.value === null ||
-		!writeApiUrl.value
-	) {
-		console.error("Cannot save comment: missing data or API URL.");
-		return;
-	}
-
-	const commentData: ICommentDto = {
-		id: editingMultilineCommentId.value, // Use the editing comment ID (0 for new, actual ID for edit)
-		filePath: multilineModalFilePath.value,
-		content: commentText,
-		type: CommentType.MultiLine,
-		startLineNumber: modalStartLineNumber.value,
-		endLineNumber: modalEndLineNumber.value,
-		categories: category ? [category] : [],
-	};
-
-	if (!commentData.content.trim()) {
-		console.log("Comment text is empty, not submitting.");
-		return;
-	}
-
-	try {
-		await repositoryStore.upsertCommentAsync(commentData, writeApiUrl.value);
-		// Reset the editing ID after successful submission
-		editingMultilineCommentId.value = 0;
-	} catch (e: any) {
-		console.error("Failed to save comment:", e);
-	}
-}
-//#endregion
 
 //#region File/Folder comment modal
 const isAddingFileComment = ref(false);
@@ -364,7 +288,7 @@ const initRepositoryStore = async () => {
 };
 
 // Handle edit button for the codemirror widget
-const handleEditCommentButton = async (commentId: number) => {
+const handleEditComment = async (commentId: number) => {
 	// Take the comment ID and open the modal for editing
 	const editedComment = allComments.value.find((comment: ICommentDto) => comment.id === commentId);
 	if (!editedComment) {
@@ -374,21 +298,19 @@ const handleEditCommentButton = async (commentId: number) => {
 
 	// Get the comment type
 	const commentType: CommentType = editedComment.type;
-	if (commentType === CommentType.SingleLine) {
-		singlelineModalFilePath.value = editedComment.filePath;
-		singlelineModalCommentText.value = editedComment.content;
-		modalLineNumber.value = editedComment.lineNumber || null;
-		singlelineCommentCategory.value = editedComment.categories?.[0]?.label || "";
-		editingCommentId.value = editedComment.id; // Set the ID for editing
-		isAddingSinglelineComment.value = true;
-	} else if (commentType === CommentType.MultiLine) {
-		multilineModalFilePath.value = editedComment.filePath;
-		multilineModalCommentText.value = editedComment.content;
-		modalStartLineNumber.value = editedComment.startLineNumber || null;
-		modalEndLineNumber.value = editedComment.endLineNumber || null;
-		multilineCommentCategory.value = editedComment.categories?.[0]?.label || "";
-		editingMultilineCommentId.value = editedComment.id; // Set the ID for editing
-		isAddingMultilineComment.value = true;
+	if (commentType === CommentType.Singleline) {
+		handleSinglelineCommentSelected({
+			lineNumber: editedComment.lineNumber || 0,
+			filePath: editedComment.filePath,
+		});
+	} else if (commentType === CommentType.Multiline) {
+		handleMultilineCommentSelected({
+			selectedStartLineNumber: editedComment.startLineNumber || 0,
+			selectedEndLineNumber: editedComment.endLineNumber || 0,
+			filePath: editedComment.filePath,
+		});
+	} else {
+		console.error("Unsupported comment type:", commentType);
 	}
 };
 
@@ -487,9 +409,9 @@ watch(
 												async (commentId) =>
 													await repositoryStore.deleteCommentAsync(commentId, writeApiUrl)
 											"
-											:edit-comment-action="handleEditCommentButton"
-											@line-double-clicked="handleLineDoubleClicked"
-											@multiline-selected="handleMultilineSelected"
+											:edit-comment-action="handleEditComment"
+											@line-double-clicked="handleSinglelineCommentSelected"
+											@multiline-selected="handleMultilineCommentSelected"
 										/>
 										<OtherContentViewer
 											v-else
@@ -508,28 +430,11 @@ watch(
 
 			<!-- Comment Add/Edit Form Component -->
 			<CommentFormPanel
-				:isVisible="isAddingSinglelineComment || isAddingMultilineComment"
+				v-model:isVisible="isAddingComment"
 				:commentFilePath="selectedFilePath"
-			/>
-
-			<!-- Comment Modals -->
-			<SinglelineCommentModal
-				v-model:isVisible="isAddingSinglelineComment"
-				v-model:commentText="singlelineModalCommentText"
-				v-model:commentCategory="singlelineCommentCategory"
-				:lineNumber="modalLineNumber"
-				:filePath="singlelineModalFilePath"
-				@submit="handleSinglelineCommentSubmit"
-			/>
-
-			<MultilineCommentModal
-				v-model:isVisible="isAddingMultilineComment"
-				v-model:commentText="multilineModalCommentText"
-				v-model:commentCategory="multilineCommentCategory"
-				:startLineNumber="modalStartLineNumber"
-				:endLineNumber="modalEndLineNumber"
-				:filePath="multilineModalFilePath"
-				@submit="handleMultilineCommentSubmit"
+				:start-line-number="startLineNumber"
+				:end-line-number="endLineNumber"
+				:comment-id="commentId"
 			/>
 
 			<!-- File/Folder Comment Modal -->

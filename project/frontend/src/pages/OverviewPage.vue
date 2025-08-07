@@ -114,8 +114,8 @@ onMounted(async () => {
 						:key="commentType"
 						class="flex items-center backdrop-blur-sm rounded-lg border border-white/10 duration-200 hover:bg-white/10 text-lg uppercase px-4 py-2 cursor-pointer"
 						:class="{
-							' text-blue-200': commentType === CommentType.SingleLine,
-							' text-green-200': commentType === CommentType.MultiLine,
+							' text-blue-200': commentType === CommentType.Singleline,
+							' text-green-200': commentType === CommentType.Multiline,
 							' text-yellow-200': commentType === CommentType.File,
 							' text-purple-200': commentType === CommentType.Project,
 							'bg-white/20': selectedCommentTypeFilter === commentType,

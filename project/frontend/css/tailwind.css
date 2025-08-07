@@ -194,6 +194,6 @@
 
 	/* Slideout Panel */
 	.panel {
-		@apply bg-white/15 backdrop-blur-lg rounded-xl border border-black p-8 transition-all duration-300;
+		@apply bg-white/10 backdrop-blur-lg rounded-tl-xl rounded-bl-xl border border-black p-8 transition-all duration-300;
 	}
 }

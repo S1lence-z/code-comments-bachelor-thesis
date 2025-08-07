@@ -53,9 +53,9 @@ const toggleFileExpanded = (filePath: string) => {
 
 const getCommentTypeLabel = (type: CommentType) => {
 	switch (type) {
-		case CommentType.SingleLine:
+		case CommentType.Singleline:
 			return "Line";
-		case CommentType.MultiLine:
+		case CommentType.Multiline:
 			return "MultiLine";
 		case CommentType.File:
 			return "File";
@@ -68,9 +68,9 @@ const getCommentTypeLabel = (type: CommentType) => {
 
 const getCommentTypeIcon = (type: CommentType) => {
 	switch (type) {
-		case CommentType.SingleLine:
+		case CommentType.Singleline:
 			return "arrow";
-		case CommentType.MultiLine:
+		case CommentType.Multiline:
 			return "code";
 		case CommentType.File:
 			return "closedFolder";
@@ -82,10 +82,10 @@ const getCommentTypeIcon = (type: CommentType) => {
 };
 
 const getLineRangeDisplay = (comment: ICommentDto) => {
-	if (comment.type === CommentType.SingleLine && comment.lineNumber) {
+	if (comment.type === CommentType.Singleline && comment.lineNumber) {
 		return `Line ${comment.lineNumber}`;
 	}
-	if (comment.type === CommentType.MultiLine && comment.startLineNumber && comment.endLineNumber) {
+	if (comment.type === CommentType.Multiline && comment.startLineNumber && comment.endLineNumber) {
 		return `Lines ${comment.startLineNumber}-${comment.endLineNumber}`;
 	}
 	if (comment.type === CommentType.File) {
@@ -109,13 +109,13 @@ const getCodePreview = (filePath: string, comment: ICommentDto) => {
 
 	const lines = cachedFile.content.split("\n");
 
-	if (comment.type === CommentType.SingleLine && comment.lineNumber) {
+	if (comment.type === CommentType.Singleline && comment.lineNumber) {
 		const startLine = Math.max(0, comment.lineNumber - showedLineOffset.value);
 		const endLine = Math.min(lines.length, comment.lineNumber + showedLineOffset.value);
 		return lines.slice(startLine, endLine).join("\n");
 	}
 
-	if (comment.type === CommentType.MultiLine && comment.startLineNumber && comment.endLineNumber) {
+	if (comment.type === CommentType.Multiline && comment.startLineNumber && comment.endLineNumber) {
 		const startLine = Math.max(0, comment.startLineNumber - showedLineOffset.value);
 		const endLine = Math.min(lines.length, comment.endLineNumber + showedLineOffset.value);
 		return lines.slice(startLine, endLine).join("\n");
@@ -126,8 +126,8 @@ const getCodePreview = (filePath: string, comment: ICommentDto) => {
 
 const hasCodePreview = (comment: ICommentDto) => {
 	switch (comment.type) {
-		case CommentType.SingleLine:
-		case CommentType.MultiLine:
+		case CommentType.Singleline:
+		case CommentType.Multiline:
 			return true;
 		case CommentType.File:
 		case CommentType.Project:
