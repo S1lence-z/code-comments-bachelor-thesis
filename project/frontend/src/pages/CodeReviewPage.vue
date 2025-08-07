@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, provide } from "vue";
+import { ref, onMounted, watch, provide, computed } from "vue";
 import FileExplorer from "../components/codeReview/FileExplorer.vue";
 import CodeEditor from "../components/codeReview/CodeEditor.vue";
 import SinglelineCommentModal from "../components/codeReview/SinglelineCommentModal.vue";
@@ -22,6 +22,7 @@ import ResizeHandle from "../lib/ResizeHandle.vue";
 import { useProjectStore } from "../stores/projectStore.ts";
 import { getFileName } from "../utils/fileUtils.ts";
 import { keyboardModeContextKey, projectCommentModalContextKey, fileCommentModalContextKey } from "../core/keys.ts";
+import CommentFormPanel from "../components/codeReview/CommentFormPanel.vue";
 
 // Provide IsKeyboardMode Context
 const isKeyboardMode = ref(false);
@@ -79,6 +80,14 @@ async function handleFileSelected(path: string) {
 		isLoadingFile.value = false;
 	}
 }
+
+// Handle comment form
+const commentFilePath = ref<string | null>(null);
+const startLineNumber = ref<number | null>(null);
+const endLineNumber = ref<number | null>(null);
+const isEditingComment = computed(() => {
+	return startLineNumber.value !== null && endLineNumber.value !== null;
+});
 
 //#region Single line comment modal
 const singlelineModalFilePath = ref<string | null>(null);
@@ -496,7 +505,13 @@ watch(
 					</div>
 				</div>
 			</div>
-			
+
+			<!-- Comment Add/Edit Form Component -->
+			<CommentFormPanel
+				:isVisible="isAddingSinglelineComment || isAddingMultilineComment"
+				:commentFilePath="selectedFilePath"
+			/>
+
 			<!-- Comment Modals -->
 			<SinglelineCommentModal
 				v-model:isVisible="isAddingSinglelineComment"
