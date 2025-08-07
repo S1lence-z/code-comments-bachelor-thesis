@@ -84,6 +84,7 @@ const startLineNumber = ref<number | null>(null);
 const endLineNumber = ref<number | null>(null);
 const commentId = ref<number | null>(null);
 const isAddingComment = ref<boolean>(false);
+const addedCommentType = ref<CommentType>(CommentType.Singleline);
 
 function handleSinglelineCommentSelected(payload: { lineNumber: number; filePath: string }) {
 	const { lineNumber, filePath } = payload;
@@ -100,6 +101,7 @@ function handleSinglelineCommentSelected(payload: { lineNumber: number; filePath
 	startLineNumber.value = lineNumber;
 	endLineNumber.value = null;
 	commentId.value = existingComment ? existingComment.id : null;
+	addedCommentType.value = CommentType.Singleline;
 	isAddingComment.value = true;
 }
 
@@ -121,76 +123,25 @@ function handleMultilineCommentSelected(payload: {
 	startLineNumber.value = selectedStartLineNumber;
 	endLineNumber.value = selectedEndLineNumber;
 	commentId.value = existingComment ? existingComment.id : null;
+	addedCommentType.value = CommentType.Multiline;
 	isAddingComment.value = true;
 }
 
-//#region File/Folder comment modal
-const isAddingFileComment = ref(false);
-const fileCommentData = ref<{ filePath: string | null; content: string }>({
-	filePath: null,
-	content: "",
-});
-
-const updateIsAddingFileComment = (value: boolean) => {
-	isAddingFileComment.value = value;
-};
-const updateFileCommentData = (filePath: string, content: string) => {
+const handleFileCommentSelected = (filePath: string) => {
+	console.log("File comment selected:", filePath);
 	const existingComment = allComments.value.find(
 		(comment: ICommentDto) => comment.filePath === filePath && comment.type === CommentType.File
 	);
 
-	// Update existing comment data if found
-	if (existingComment) {
-		fileCommentData.value.filePath = filePath;
-		fileCommentData.value.content = existingComment.content;
-		return;
-	}
-	// Adding new comment data
-	fileCommentData.value.filePath = filePath;
-	fileCommentData.value.content = content;
+	commentId.value = existingComment ? existingComment.id : null;
+	commentFilePath.value = filePath;
+	addedCommentType.value = CommentType.File;
+	isAddingComment.value = true;
 };
 
 provide(fileCommentModalContextKey, {
-	updateIsAddingFileComment,
-	updateFileCommentData,
+	handleFileCommentSelected,
 });
-
-function closeFileCommentModal() {
-	isAddingFileComment.value = false;
-	fileCommentData.value.filePath = null;
-	fileCommentData.value.content = "";
-}
-
-async function handleFileCommentSubmit() {
-	if (!fileCommentData.value.filePath || !fileCommentData.value.content.trim() || !writeApiUrl.value) {
-		console.error("Cannot save comment: missing data or API URL.");
-		return;
-	}
-
-	const commentToSubmit: ICommentDto = {
-		id: 0,
-		filePath: fileCommentData.value.filePath,
-		content: fileCommentData.value.content,
-		type: CommentType.File,
-	};
-
-	// Find the existing comment or create a new one
-	allComments.value.forEach((comment: ICommentDto) => {
-		if (comment.filePath === fileCommentData.value.filePath && comment.type === CommentType.File) {
-			commentToSubmit.id = comment.id;
-		}
-	});
-
-	// Submit the comment
-	try {
-		await repositoryStore.upsertCommentAsync(commentToSubmit, writeApiUrl.value);
-	} catch (e: any) {
-		console.error("Failed to save comment:", e);
-	} finally {
-		closeFileCommentModal();
-	}
-}
-//#endregion
 
 //#region Project comment modal
 const isAddingProjectComment = ref(false);
@@ -435,31 +386,8 @@ watch(
 				:start-line-number="startLineNumber"
 				:end-line-number="endLineNumber"
 				:comment-id="commentId"
+				:comment-type="addedCommentType"
 			/>
-
-			<!-- File/Folder Comment Modal -->
-			<Modal v-if="isAddingFileComment" @close="closeFileCommentModal">
-				<Card :title="'Comment: ' + fileCommentData.filePath" subtitle="Add a comment to the file or folder">
-					<div class="space-y-2">
-						<InputArea
-							label="Comment"
-							v-model="fileCommentData.content"
-							placeholder="Enter your comment here..."
-							:rows="6"
-						/>
-						<div class="flex justify-end space-x-2">
-							<button @click="closeFileCommentModal" class="btn btn-secondary">Cancel</button>
-							<button
-								@click="handleFileCommentSubmit"
-								:disabled="!fileCommentData.content.trim()"
-								class="btn btn-primary"
-							>
-								Add Comment
-							</button>
-						</div>
-					</div>
-				</Card>
-			</Modal>
 
 			<!-- Project Comment Modal -->
 			<Modal v-if="isAddingProjectComment" @close="closeProjectCommentModal">

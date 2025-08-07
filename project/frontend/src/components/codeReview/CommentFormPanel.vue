@@ -20,6 +20,7 @@ interface CommentFormPanelProps {
 	startLineNumber: number | null;
 	endLineNumber: number | null;
 	commentId: number | null;
+	commentType: CommentType;
 }
 
 const props = withDefaults(defineProps<CommentFormPanelProps>(), {
@@ -49,20 +50,18 @@ const isVisible = computed({
 	set: (value: boolean) => emit("update:isVisible", value),
 });
 
-const isSinglelineComment = computed(() => {
-	return props.startLineNumber !== null && props.endLineNumber === null;
-});
-
-const isMultilineComment = computed(() => {
-	return props.startLineNumber !== null && props.endLineNumber !== null;
-});
-
 const getSubtitle = computed(() => {
+	if (props.commentType === CommentType.Project) return "Project-wide comment";
 	if (!props.commentFilePath) return "";
 
-	const lineInfo = isMultilineComment.value
-		? `from line ${props.startLineNumber || 0} to ${props.endLineNumber}`
-		: `on line ${props.startLineNumber || 0}`;
+	const lineInfo =
+		props.commentType === CommentType.Multiline
+			? `from line ${props.startLineNumber || 0} to ${props.endLineNumber}`
+			: props.commentType === CommentType.Singleline
+			? `on line ${props.startLineNumber || 0}`
+			: props.commentType === CommentType.File
+			? "File-level comment"
+			: "";
 
 	return `File: ${props.commentFilePath} ${lineInfo}`;
 });
@@ -76,7 +75,7 @@ watch(
 	() => {
 		if (currentComment.value) {
 			commentText.value = currentComment.value.content || "";
-			commentCategory.value = currentComment.value.categories?.[0].label || "";
+			commentCategory.value = currentComment.value.categories?.[0]?.label || "";
 		} else {
 			commentText.value = "";
 			commentCategory.value = "";
@@ -92,21 +91,20 @@ const handleSubmit = async () => {
 		return;
 	}
 
-	if (!commentCategory.value) {
+	if (!commentCategory.value && props.commentType !== CommentType.Project && props.commentType !== CommentType.File) {
 		alert("Please select a category.");
 		return;
 	}
 
 	const commentData: ICommentDto = {} as ICommentDto;
-
-	if (isSinglelineComment.value) {
+	if (props.commentType === CommentType.Singleline) {
 		commentData.id = props.commentId || 0;
 		commentData.filePath = props.commentFilePath || "";
 		commentData.lineNumber = props.startLineNumber || 0;
 		commentData.content = commentText.value.trim();
 		commentData.type = CommentType.Singleline;
 		commentData.categories = allCategories.value.filter((cat) => cat.label === commentCategory.value);
-	} else if (isMultilineComment.value) {
+	} else if (props.commentType === CommentType.Multiline) {
 		commentData.id = props.commentId || 0;
 		commentData.filePath = props.commentFilePath || "";
 		commentData.startLineNumber = props.startLineNumber || 0;
@@ -114,6 +112,13 @@ const handleSubmit = async () => {
 		commentData.content = commentText.value.trim();
 		commentData.type = CommentType.Multiline;
 		commentData.categories = allCategories.value.filter((cat) => cat.label === commentCategory.value);
+	} else if (props.commentType === CommentType.File) {
+		commentData.id = props.commentId || 0;
+		commentData.filePath = props.commentFilePath || "";
+		commentData.content = commentText.value.trim();
+		commentData.type = CommentType.File;
+	} else if (props.commentType === CommentType.Project) {
+		return;
 	} else {
 		alert("Invalid comment type. Please ensure you are adding a singleline or multiline comment.");
 		return;
@@ -145,6 +150,7 @@ const closeModal = () => {
 	>
 		<!-- Comment Add/Edit Form Content -->
 		<InputSelect
+			v-if="props.commentType !== CommentType.Project && props.commentType !== CommentType.File"
 			v-model="commentCategory"
 			label="Category"
 			:options="allCategories.map((cat) => ({ value: cat.label, label: cat.label }))"
