@@ -126,13 +126,13 @@ class CommentsService {
 			const locationId = Number(locationResult.lastInsertRowid);
 
 			switch (type) {
-				case CommentType.SingleLine:
+				case CommentType.Singleline:
 					db.prepare(`INSERT INTO line_locations (identifier, line_number) VALUES (?, ?)`).run(
 						locationId,
 						lineNumber
 					);
 					break;
-				case CommentType.MultiLine:
+				case CommentType.Multiline:
 					db.prepare(
 						`INSERT INTO line_range_locations (identifier, start_line_number, end_line_number) VALUES (?, ?, ?)`
 					).run(locationId, startLineNumber, endLineNumber);

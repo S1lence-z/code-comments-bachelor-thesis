@@ -28,10 +28,10 @@ function buildDecorations(
 
 	for (const comment of sortedComments) {
 		switch (comment.type) {
-			case CommentType.SingleLine:
+			case CommentType.Singleline:
 				addSingleLineCommentDecoration(comment, state, builder, deleteCommentAction, editCommentAction);
 				break;
-			case CommentType.MultiLine:
+			case CommentType.Multiline:
 				addMultiLineCommentDecoration(comment, state, builder, deleteCommentAction, editCommentAction);
 				break;
 		}
@@ -41,8 +41,8 @@ function buildDecorations(
 
 function sortCommentsByPosition(comments: Readonly<ICommentDto[]>): ICommentDto[] {
 	return [...comments].sort((a, b) => {
-		const aPos = a.type === CommentType.SingleLine ? a.lineNumber : a.startLineNumber;
-		const bPos = b.type === CommentType.SingleLine ? b.lineNumber : b.startLineNumber;
+		const aPos = a.type === CommentType.Singleline ? a.lineNumber : a.startLineNumber;
+		const bPos = b.type === CommentType.Singleline ? b.lineNumber : b.startLineNumber;
 		return aPos! - bPos!;
 	});
 }

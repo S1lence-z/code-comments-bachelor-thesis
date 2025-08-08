@@ -37,14 +37,12 @@ function toggleExpand() {
 }
 
 // File/Folder comment data
-const { updateFileCommentData, updateIsAddingFileComment } = inject(fileCommentModalContextKey, {
-	updateFileCommentData: (_: string, __: string) => console.warn("updateFileCommentData not provided"),
-	updateIsAddingFileComment: (_: boolean) => console.warn("updateIsAddingFileComment not provided"),
+const { handleFileCommentSelected } = inject(fileCommentModalContextKey, {
+	handleFileCommentSelected: (_: string) => console.warn("handleFileCommentSelected not provided"),
 });
 
 function addFileComment() {
-	updateIsAddingFileComment(true);
-	updateFileCommentData(props.item.path, "");
+	handleFileCommentSelected(props.item.path);
 }
 
 // Check if the file contains comments

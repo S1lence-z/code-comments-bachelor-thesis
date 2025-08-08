@@ -19,8 +19,8 @@ const props = withDefaults(defineProps<CommentStatisticsProps>(), {
 const totalComments = computed(() => props.allComments.length);
 const commentTypeStats = computed(() => {
 	const stats = {
-		[CommentType.SingleLine]: 0,
-		[CommentType.MultiLine]: 0,
+		[CommentType.Singleline]: 0,
+		[CommentType.Multiline]: 0,
 		[CommentType.File]: 0,
 		[CommentType.Project]: 0,
 	};
@@ -61,22 +61,22 @@ const shouldShowFileAndFoldersCard = () => {
 const shouldShowSingleLineCard = () => {
 	return (
 		props.commentTypeFilter === null ||
-		props.commentTypeFilter === CommentType.SingleLine ||
+		props.commentTypeFilter === CommentType.Singleline ||
 		props.commentTypeFilter === CommentType.Project
 	);
 };
 const shouldShowMultiLineCard = () => {
 	return (
 		props.commentTypeFilter === null ||
-		props.commentTypeFilter === CommentType.MultiLine ||
+		props.commentTypeFilter === CommentType.Multiline ||
 		props.commentTypeFilter === CommentType.Project
 	);
 };
 const shouldShowCategoryDistributionCard = () => {
 	return (
 		props.commentTypeFilter === null ||
-		props.commentTypeFilter === CommentType.SingleLine ||
-		props.commentTypeFilter === CommentType.MultiLine
+		props.commentTypeFilter === CommentType.Singleline ||
+		props.commentTypeFilter === CommentType.Multiline
 	);
 };
 const shouldShowCards = () => {
@@ -109,10 +109,10 @@ const shouldShowCards = () => {
 			subtitle="Singleline comments in files"
 			class="flex-1"
 		>
-			<h1 class="text-2xl text-white">{{ commentTypeStats[CommentType.SingleLine] }}</h1>
+			<h1 class="text-2xl text-white">{{ commentTypeStats[CommentType.Singleline] }}</h1>
 		</Card>
 		<Card v-if="shouldShowMultiLineCard()" title="Multiline" subtitle="Multiline comments in files" class="flex-1">
-			<h1 class="text-2xl text-white">{{ commentTypeStats[CommentType.MultiLine] }}</h1>
+			<h1 class="text-2xl text-white">{{ commentTypeStats[CommentType.Multiline] }}</h1>
 		</Card>
 		<Card v-if="shouldShowCategoryDistributionCard()" title="Category Distribution" class="flex-1">
 			<div v-for="(count, category) in categoryCounts" :key="category" class="flex items-center justify-between">

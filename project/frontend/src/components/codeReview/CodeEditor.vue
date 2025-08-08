@@ -27,7 +27,7 @@ const props = withDefaults(defineProps<CodeEditorProps>(), {
 
 const emit = defineEmits<{
 	"line-double-clicked": [{ lineNumber: number; filePath: string }];
-	"multiline-selected": [{ startLineNumber: number; endLineNumber: number; filePath: string }];
+	"multiline-selected": [{ selectedStartLineNumber: number; selectedEndLineNumber: number; filePath: string }];
 }>();
 
 const currentContent = ref<string>("");
@@ -101,7 +101,11 @@ const handleSelectionChange = () => {
 		const endLineNumber = editorView.value!.state.doc.lineAt(selection.to).number;
 
 		if (startLineNumber !== endLineNumber && props.filePath) {
-			emit("multiline-selected", { startLineNumber, endLineNumber, filePath: props.filePath });
+			emit("multiline-selected", {
+				selectedStartLineNumber: startLineNumber,
+				selectedEndLineNumber: endLineNumber,
+				filePath: props.filePath,
+			});
 		}
 	}, 300);
 };
