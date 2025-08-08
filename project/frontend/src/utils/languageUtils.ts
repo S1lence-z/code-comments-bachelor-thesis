@@ -7,10 +7,12 @@ import { markdown } from "@codemirror/lang-markdown";
 import { python } from "@codemirror/lang-python";
 import { sql } from "@codemirror/lang-sql";
 import { java } from "@codemirror/lang-java";
+import { csharp } from "@replit/codemirror-lang-csharp";
+import { svelte } from "@replit/codemirror-lang-svelte";
 import type { LanguageSupport } from "@codemirror/language";
 
 export function getLanguageExtension(filePath: string | null): LanguageSupport | LanguageSupport[] {
-	if (!filePath) return javascript(); // Default to JavaScript
+	if (!filePath) return javascript();
 	const extension = filePath.split(".").pop()?.toLowerCase();
 	switch (extension) {
 		case "js":
@@ -35,7 +37,11 @@ export function getLanguageExtension(filePath: string | null): LanguageSupport |
 			return sql();
 		case "java":
 			return java();
+		case "cs":
+			return csharp();
+		case "svelte":
+			return svelte();
 		default:
-			return [];
+			return javascript();
 	}
 }

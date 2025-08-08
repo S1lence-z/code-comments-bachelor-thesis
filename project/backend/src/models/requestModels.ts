@@ -1,5 +1,5 @@
 import { z } from "zod";
-import ISetupProjectBody from "../../../shared/api/ISetupProjectRequest.ts";
+import ISetupProjectBody from "../../../shared/api/ISetupProjectRequest";
 
 export const SetupProjectBodySchema = z.object({
 	repoUrl: z.string().url("Invalid repository URL"),

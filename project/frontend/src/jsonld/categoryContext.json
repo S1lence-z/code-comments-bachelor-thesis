@@ -1,0 +1,9 @@
+{
+	"@context": {
+		"xsd": "http://www.w3.org/2001/XMLSchema#",
+		"@type": "CodeCommentCategory",
+		"id": "xsd:integer",
+		"label": "xsd:string",
+		"description": "xsd:string"
+	}
+}

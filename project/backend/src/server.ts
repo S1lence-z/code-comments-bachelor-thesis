@@ -1,19 +1,19 @@
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import path from "node:path";
 import process from "node:process";
 import { config } from "dotenv";
-import { validateEnv, logEnvironment } from "./utils/envValidator.ts";
-import DatabaseManager from "./services/databaseManager.ts";
-import ProjectService from "./services/projectService.ts";
-import CommentsService from "./services/commentsService.ts";
-import CategoriesService from "./services/categoriesService.ts";
-import ProjectController from "./controllers/projectController.ts";
-import CommentsController from "./controllers/commentsController.ts";
-import CategoriesController from "./controllers/categoriesController.ts";
-import { SetupProjectBodySchema } from "./models/requestModels.ts";
-import { CommentDtoSchema, type ProjectDto } from "./models/dtoModels.ts";
-import { GetCommentsResponse } from "./models/responseModels.ts";
+import { validateEnv, logEnvironment } from "./utils/envValidator";
+import DatabaseManager from "./services/databaseManager";
+import ProjectService from "./services/projectService";
+import CommentsService from "./services/commentsService";
+import CategoriesService from "./services/categoriesService";
+import ProjectController from "./controllers/projectController";
+import CommentsController from "./controllers/commentsController";
+import CategoriesController from "./controllers/categoriesController";
+import { SetupProjectBodySchema } from "./models/requestModels";
+import { CommentDtoSchema, type ProjectDto } from "./models/dtoModels";
+import { GetCommentsResponse } from "./models/responseModels";
 
 // Load environment variables
 config({
@@ -33,7 +33,7 @@ const BACKEND_BASE_URL = `${BACKEND_HOSTNAME}:${BACKEND_API_PORT}`;
 const FRONTEND_BASE_URL = env.FRONTEND_BASE_URL;
 
 // Database setup
-const DB_FILE_PATH = path.join(import.meta.dirname || ".", "../db/main.db");
+const DB_FILE_PATH = path.join(__dirname, "../db/main.db");
 const dbManager = new DatabaseManager(DB_FILE_PATH);
 
 // Services setup
@@ -54,13 +54,13 @@ app.use(
 app.use(express.json({ limit: "10mb" }));
 
 // Routes
-app.get("/", (req: express.Request, res: express.Response) => {
+app.get("/", (req: Request, res: Response) => {
 	console.log(req.method, req.url);
 	res.send("Welcome to the Code Commenting API!");
 });
 
 // Health check endpoint
-app.get("/health", (_req: express.Request, res: express.Response) => {
+app.get("/health", (_req: Request, res: Response) => {
 	const isDbConnected = dbManager.isConnected();
 
 	res.json({
@@ -74,7 +74,7 @@ app.get("/health", (_req: express.Request, res: express.Response) => {
 });
 
 // Setup project endpoint
-app.post("/api/setup", (req: express.Request, res: express.Response) => {
+app.post("/api/setup", (req: Request, res: Response) => {
 	try {
 		// Validate request body
 		const validatedBody = SetupProjectBodySchema.parse(req.body);
@@ -105,11 +105,12 @@ app.post("/api/setup", (req: express.Request, res: express.Response) => {
 });
 
 // Get comments for a project
-app.get("/api/project/:project_id/comments", (req: express.Request, res: express.Response) => {
+app.get("/api/project/:project_id/comments", (req: Request, res: Response) => {
 	try {
 		const projectId = parseInt(req.params.project_id);
 		if (isNaN(projectId)) {
-			return res.status(400).json({ error: "Invalid project ID" });
+			res.status(400).json({ error: "Invalid project ID" });
+			return;
 		}
 
 		const getCommentsResponse: GetCommentsResponse = CommentsController.getComments(
@@ -129,19 +130,20 @@ app.get("/api/project/:project_id/comments", (req: express.Request, res: express
 });
 
 // Add comment to a project
-app.post("/api/project/:project_id/comments", (req: express.Request, res: express.Response) => {
+app.post("/api/project/:project_id/comments", (req: Request, res: Response) => {
 	try {
 		const projectId = parseInt(req.params.project_id);
 		if (isNaN(projectId)) {
-			return res.status(400).json({ error: "Invalid project ID" });
+			res.status(400).json({ error: "Invalid project ID" });
+			return;
 		}
 
 		// Validate comment data
 		const validatedComment = CommentDtoSchema.parse(req.body);
 
-		CommentsController.addComment(commentsService, projectId, validatedComment);
+		const addCommentResponse = CommentsController.addComment(commentsService, projectId, validatedComment);
 
-		res.status(201).json({ success: true });
+		res.status(201).json({ commentId: addCommentResponse.id });
 	} catch (error) {
 		console.error("Error in PUT /api/comments/:project_id:", error);
 
@@ -160,17 +162,19 @@ app.post("/api/project/:project_id/comments", (req: express.Request, res: expres
 });
 
 // Delete comment from a project
-app.delete("/api/project/:project_id/comments/:comment_id", (req: express.Request, res: express.Response) => {
+app.delete("/api/project/:project_id/comments/:comment_id", (req: Request, res: Response) => {
 	try {
 		const projectId = parseInt(req.params.project_id);
 		const commentId = parseInt(req.params.comment_id);
 
 		if (isNaN(projectId)) {
-			return res.status(400).json({ error: "Invalid project ID or comment ID" });
+			res.status(400).json({ error: "Invalid project ID or comment ID" });
+			return;
 		}
 
 		if (isNaN(commentId)) {
-			return res.status(400).json({ error: "Invalid comment ID" });
+			res.status(400).json({ error: "Invalid comment ID" });
+			return;
 		}
 
 		CommentsController.deleteComment(commentsService, projectId, commentId);
@@ -185,13 +189,14 @@ app.delete("/api/project/:project_id/comments/:comment_id", (req: express.Reques
 	}
 });
 
-app.put("/api/project/:project_id/comments/:comment_id", (req: express.Request, res: express.Response) => {
+app.put("/api/project/:project_id/comments/:comment_id", (req: Request, res: Response) => {
 	try {
 		const projectId = parseInt(req.params.project_id);
 		const commentId = parseInt(req.params.comment_id);
 
 		if (isNaN(projectId) || isNaN(commentId)) {
-			return res.status(400).json({ error: "Invalid project ID or comment ID" });
+			res.status(400).json({ error: "Invalid project ID or comment ID" });
+			return;
 		}
 
 		// Validate updated comment data
@@ -210,7 +215,7 @@ app.put("/api/project/:project_id/comments/:comment_id", (req: express.Request, 
 });
 
 // Get all categories
-app.get("/api/categories", (_req: express.Request, res: express.Response) => {
+app.get("/api/categories", (_req: Request, res: Response) => {
 	try {
 		const categories = CategoriesController.getCategories(categoriesService);
 		res.status(200).json(categories);
@@ -224,7 +229,7 @@ app.get("/api/categories", (_req: express.Request, res: express.Response) => {
 });
 
 // 404 handler for undefined routes
-app.use((_req: express.Request, res: express.Response) => {
+app.use((_req: Request, res: Response) => {
 	res.status(404).json({
 		error: "Route not found",
 		message: "The requested endpoint does not exist",
@@ -232,21 +237,23 @@ app.use((_req: express.Request, res: express.Response) => {
 });
 
 // Error handling middleware
-app.use((error: Error, req: express.Request, res: express.Response, _next: express.NextFunction) => {
+app.use((error: Error, req: Request, res: Response, _next: NextFunction) => {
 	console.error(`Error in ${req.method} ${req.url}:`, error);
 
 	if (error.name === "ZodError") {
-		return res.status(400).json({
+		res.status(400).json({
 			error: "Validation error",
 			details: error.message,
 		});
+		return;
 	}
 
 	if (error.message.includes("SQLITE_")) {
-		return res.status(500).json({
+		res.status(500).json({
 			error: "Database error",
 			details: "Internal database error occurred",
 		});
+		return;
 	}
 
 	res.status(500).json({

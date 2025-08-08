@@ -1,11 +1,10 @@
 import { oneDark } from "@codemirror/theme-one-dark";
-import { EditorView, lineNumbers, gutter, keymap } from "@codemirror/view";
+import { EditorView, lineNumbers, keymap } from "@codemirror/view";
 import type ICommentDto from "../../../../shared/dtos/ICommentDto.ts";
 import { getLanguageExtension } from "../../utils/languageUtils.ts";
 import { commentsDisplayExtension } from "../commentsExtension.ts";
 import { getLineNumbersConfig, type LineNumberConfig } from "./lineNumbersConfig.ts";
-import { createGutterConfig, type GutterConfig } from "../configs/gutterConfig.ts";
-import { multilineCommentHighlightExtension, multilineCommentTheme } from "../multilineCommentHighlight.ts";
+import { multilineCommentHighlightExtension, multilineCommentTheme } from "../others/multilineCommentHighlight.ts";
 import { EditorState, type Extension } from "@codemirror/state";
 
 /**
@@ -15,27 +14,42 @@ export function createEditorExtensions(
 	filePath: string | null,
 	comments: ICommentDto[] = [],
 	deleteCommentAction: (commentId: number) => Promise<void>,
+	editCommentAction: (commentId: number) => Promise<void>,
 	isKeyboardMode: boolean,
 	onSingleLineComment: (lineNumber: number, filePath: string) => void
 ) {
 	const langExt = getLanguageExtension(filePath);
 	const currentFileComments = comments || [];
 	const lineNumbersConfig: LineNumberConfig = getLineNumbersConfig(currentFileComments);
-	const guttersConfig: GutterConfig = createGutterConfig(currentFileComments);
 
 	const extensions = [
 		oneDark,
 		lineNumbers(lineNumbersConfig),
-		gutter(guttersConfig),
 		multilineCommentHighlightExtension(currentFileComments),
 		multilineCommentTheme,
 		EditorView.lineWrapping,
 		...(Array.isArray(langExt) ? langExt : [langExt]),
-		commentsDisplayExtension(currentFileComments, deleteCommentAction),
-		addCursorNavigationExtensions(isKeyboardMode, filePath, onSingleLineComment),
+		commentsDisplayExtension(currentFileComments, deleteCommentAction, editCommentAction),
+		addCursorNavigationExtensions(isKeyboardMode),
+		addCustomKeyboardShortcuts(filePath, onSingleLineComment),
+		preventDefaultDragAndDrop(),
 	];
 
 	return extensions;
+}
+
+// Make an extension to prevent the default drag and drop behavior
+export function preventDefaultDragAndDrop(): Extension {
+	return EditorView.domEventHandlers({
+		dragover: (event) => {
+			event.preventDefault();
+			return false;
+		},
+		drop: (event) => {
+			event.preventDefault();
+			return false;
+		},
+	});
 }
 
 function addCustomKeyboardShortcuts(
@@ -63,11 +77,7 @@ function addCustomKeyboardShortcuts(
 	];
 }
 
-function addCursorNavigationExtensions(
-	showCursor: boolean,
-	filePath: string | null,
-	onSingleLineComment: (lineNumber: number, filePath: string) => void
-): Extension[] {
+function addCursorNavigationExtensions(showCursor: boolean): Extension[] {
 	const extensions: Extension[] = [];
 	if (!showCursor) {
 		extensions.push(EditorView.editable.of(showCursor));
@@ -99,9 +109,6 @@ function addCursorNavigationExtensions(
 			tabindex: "0",
 		})
 	);
-
-	// Add custom keyboard shortcuts for single line comments
-	extensions.push(...addCustomKeyboardShortcuts(filePath, onSingleLineComment));
 
 	return extensions;
 }

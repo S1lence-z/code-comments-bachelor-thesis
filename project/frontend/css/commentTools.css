@@ -1,0 +1,37 @@
+/* Comment Tools Shared Styles */
+.comment-tools {
+	display: flex;
+	gap: 12px;
+	align-items: center;
+	margin-bottom: 12px;
+	padding-bottom: 8px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Specific button styles */
+.comment-tools button.edit-button {
+	background: rgba(0, 157, 255, 0.1);
+	border-color: rgba(59, 130, 246, 0.2);
+	color: #2196f3;
+}
+
+.comment-tools button.delete-button {
+	background: rgba(239, 68, 68, 0.1);
+	border-color: rgba(239, 68, 68, 0.2);
+	color: #ef4444;
+}
+
+.comment-tools button {
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
+	border: 1px solid rgba(239, 68, 68, 0.2);
+	padding: 6px 12px;
+	border-radius: 8px;
+	cursor: pointer;
+	font-size: 14px;
+	font-weight: 500;
+}
+
+.comment-tools button:hover {
+	color: #ffffff;
+}

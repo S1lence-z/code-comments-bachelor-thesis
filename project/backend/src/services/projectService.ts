@@ -1,5 +1,5 @@
-import DatabaseManager from "./databaseManager.ts";
-import { Project, Repository } from "../models/databaseModels.ts";
+import DatabaseManager from "./databaseManager";
+import { Project, Repository } from "../models/databaseModels";
 
 class ProjectService {
 	constructor(private dbManager: DatabaseManager) {}

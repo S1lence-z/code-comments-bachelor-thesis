@@ -1,17 +1,38 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { createConfiguration } from "../api/commentsApi.ts";
+import { createConfiguration } from "../services/commentsService.ts";
 import type ISetupProjectRequest from "../../../shared/api/ISetupProjectRequest.ts";
+import InputField from "../lib/InputField.vue";
+import Button from "../lib/Button.vue";
+import Card from "../lib/Card.vue";
+import Icon from "../lib/Icon.vue";
 
 const githubRepoUrl = ref("");
 const branchName = ref("");
 const isLoading = ref(false);
 const errorMessage = ref("");
 const generatedReviewLink = ref("");
+const allFetchedProjects = ref([
+	{
+		id: 1,
+		name: "Sample Project",
+		reviewLink: "https://example.com/review/1",
+	},
+	{
+		id: 2,
+		name: "Another Project",
+		reviewLink: "https://example.com/review/2",
+	},
+	{
+		id: 3,
+		name: "Third Project",
+		reviewLink: "https://example.com/review/3",
+	},
+]);
 
 const createEditRepoUrl = (writeApiUrl: string, repoLandingPageUrl: string, branchName: string) => {
 	const frontendBaseUrl = globalThis.location.origin;
-	return `${frontendBaseUrl}/code-review/?repoUrl=${encodeURIComponent(
+	return `${frontendBaseUrl}/review/code/?repoUrl=${encodeURIComponent(
 		repoLandingPageUrl || ""
 	)}&commentsApiUrl=${encodeURIComponent(writeApiUrl || "")}&branch=${encodeURIComponent(branchName || "")}`;
 };
@@ -43,159 +64,148 @@ const handleCreateConfiguration = async () => {
 		isLoading.value = false;
 	}
 };
+
+const navigateToReviewSession = () => {
+	if (generatedReviewLink.value) {
+		window.open(generatedReviewLink.value, "_blank");
+	}
+};
 </script>
 
 <template>
-	<div class="home-page-container">
-		<div class="form-container">
-			<h2>Setup New Code Review</h2>
-			<p>Enter a public GitHub repository URL to start a new review session.</p>
-			<form @submit.prevent="handleCreateConfiguration">
-				<!-- GitHub Repository URL -->
-				<div class="form-group">
-					<label for="repoUrl">GitHub Repository URL:</label>
-					<input
-						type="url"
-						id="repoUrl"
-						v-model="githubRepoUrl"
-						placeholder="https://github.com/owner/repository"
-						required
-					/>
+	<div class="page">
+		<!-- Header -->
+		<div class="bg-white/5 backdrop-blur-sm border-b border-white/10">
+			<div class="mx-auto px-6 py-8">
+				<div class="text-center">
+					<h1 class="text-4xl font-bold text-white mb-2">Code Review Dashboard</h1>
+					<p class="text-slate-300 text-lg">Manage your code review sessions</p>
 				</div>
-				<!-- Branch Name -->
-				<div class="form-group">
-					<label for="branchName">Branch Name:</label>
-					<input type="text" id="branchName" v-model="branchName" placeholder="master" required />
+			</div>
+		</div>
+
+		<!-- Main Content -->
+		<div class="mx-auto px-6 mt-12">
+			<div class="flex flex-col lg:flex-row gap-12 max-w-7xl mx-auto">
+				<!-- Existing Projects List -->
+				<div class="flex-1 space-y-6">
+					<Card
+						title="Existing Reviews"
+						subtitle="Continue working on your previous code reviews"
+						iconName="archive"
+						iconGradient="blue"
+					>
+						<div v-if="allFetchedProjects.length === 0" class="empty-state">
+							<div class="empty-state-icon">
+								<svg
+									class="w-8 h-8 text-slate-400"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
+								>
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+									/>
+								</svg>
+							</div>
+							<p class="text-slate-400">No existing code reviews found</p>
+							<p class="text-slate-500 text-sm mt-2">Create your first review session to get started</p>
+						</div>
+
+						<div class="space-y-4">
+							<div v-for="project in allFetchedProjects" :key="project.id" class="card-item">
+								<a :href="project.reviewLink" class="block">
+									<div class="flex items-center justify-between">
+										<div class="flex items-center gap-3">
+											<div class="card-icon-sm gradient-icon-green">
+												<Icon srcName="code" />
+											</div>
+											<h3
+												class="text-white font-semibold group-hover:text-blue-300 transition-colors"
+											>
+												{{ project.name }}
+											</h3>
+										</div>
+										<div class="card-icon-sm">
+											<Icon srcName="externalLink" />
+										</div>
+									</div>
+								</a>
+							</div>
+						</div>
+					</Card>
 				</div>
-				<button type="submit" :disabled="isLoading">
-					{{ isLoading ? "Generating Link..." : "Generate Review Link" }}
-				</button>
-			</form>
-			<div v-if="errorMessage" class="error-message-home">{{ errorMessage }}</div>
-			<div v-if="generatedReviewLink" class="generated-link-container">
-				<p>Review session created! Use this link:</p>
-				<a :href="generatedReviewLink" target="_blank">{{ generatedReviewLink }}</a>
+
+				<!-- Setup Form -->
+				<div class="flex-1 space-y-6">
+					<Card
+						title="New Review Session"
+						subtitle="Start a new code review by entering a GitHub repository URL"
+						iconName="plus"
+						iconGradient="emerald"
+					>
+						<form @submit.prevent="handleCreateConfiguration" class="space-y-6">
+							<!-- GitHub Repository URL -->
+							<InputField
+								label="GitHub Repository URL"
+								v-model="githubRepoUrl"
+								type="url"
+								placeholder="https://github.com/owner/repository"
+								:required="true"
+							/>
+
+							<!-- Branch Name -->
+							<InputField
+								label="Branch Name"
+								v-model="branchName"
+								type="text"
+								placeholder="main"
+								:required="true"
+							/>
+
+							<!-- Submit Button -->
+							<Button
+								class="w-full"
+								label="Create Review Session"
+								type="submit"
+								buttonStyle="primary"
+								:disabled="isLoading"
+							/>
+						</form>
+
+						<!-- Messages -->
+						<div class="mt-8 space-y-4">
+							<div v-if="errorMessage" class="status-message error">
+								<div class="flex items-center gap-3">
+									<div class="card-icon-sm">
+										<Icon srcName="error" />
+									</div>
+									<p class="text-red-400">{{ errorMessage }}</p>
+								</div>
+							</div>
+
+							<div v-if="generatedReviewLink" class="status-message success flex flex-col gap-4">
+								<div class="flex items-center gap-3">
+									<div class="card-icon-sm">
+										<Icon srcName="success" />
+									</div>
+									<p class="text-emerald-400 font-semibold">Review session created successfully!</p>
+								</div>
+								<Button
+									class="w-full"
+									type="button"
+									label="Open Review Session"
+									buttonStyle="secondary"
+									:onClick="navigateToReviewSession"
+								/>
+							</div>
+						</div>
+					</Card>
+				</div>
 			</div>
 		</div>
 	</div>
 </template>
-
-<style scoped>
-.home-page-container {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	min-height: 100vh;
-	background-color: #1a202c;
-	padding: 1rem; /* Add some padding for smaller screens */
-}
-
-.form-container {
-	background-color: #2d3748;
-	color: #e2e8f0;
-	padding: 2rem;
-	border-radius: 8px;
-	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-	width: 100%;
-	max-width: 600px;
-}
-
-h2 {
-	color: #a0aec0;
-	margin-top: 0;
-	margin-bottom: 1rem;
-	text-align: center;
-}
-
-p {
-	color: #cbd5e0;
-	margin-bottom: 1.5rem;
-	text-align: center;
-	font-size: 0.95rem;
-}
-
-.form-group {
-	margin-bottom: 1.5rem;
-}
-
-label {
-	display: block;
-	margin-bottom: 0.5rem;
-	color: #a0aec0;
-	font-weight: bold;
-}
-
-input {
-	width: 100%;
-	padding: 0.75rem;
-	border: 1px solid #4a5568;
-	border-radius: 4px;
-	background-color: #1a202c;
-	color: #e2e8f0;
-	font-size: 1rem;
-	box-sizing: border-box;
-}
-
-input:focus {
-	outline: none;
-	border-color: #3182ce;
-	box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.3);
-}
-
-button[type="submit"] {
-	width: 100%;
-	padding: 0.85rem;
-	background-color: #3182ce;
-	color: white;
-	border: none;
-	border-radius: 4px;
-	font-size: 1rem;
-	font-weight: bold;
-	cursor: pointer;
-	transition: background-color 0.2s ease;
-}
-
-button[type="submit"]:hover:not(:disabled) {
-	background-color: #2b6cb0;
-}
-
-button[type="submit"]:disabled {
-	background-color: #4a5568;
-	cursor: not-allowed;
-}
-
-.error-message-home {
-	margin-top: 1.5rem;
-	color: #f56565;
-	background-color: rgba(245, 101, 101, 0.1);
-	border: 1px solid #f56565;
-	padding: 0.75rem;
-	border-radius: 4px;
-	text-align: center;
-}
-
-.generated-link-container {
-	margin-top: 2rem;
-	padding: 1rem;
-	background-color: #1a202c;
-	border: 1px solid #4a5568;
-	border-radius: 4px;
-	text-align: center;
-}
-
-.generated-link-container p {
-	margin-bottom: 0.5rem;
-	color: #a0aec0;
-}
-
-.generated-link-container a {
-	color: #63b3ed;
-	text-decoration: none;
-	font-weight: bold;
-	word-break: break-all;
-}
-
-.generated-link-container a:hover {
-	text-decoration: underline;
-}
-</style>

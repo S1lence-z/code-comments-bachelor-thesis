@@ -1,7 +1,7 @@
-import { SetupProjectBody } from "../models/requestModels.ts";
-import { projectToDto } from "../utils/mappers.ts";
-import { ProjectDto } from "../models/dtoModels.ts";
-import ProjectService from "../services/projectService.ts";
+import { SetupProjectBody } from "../models/requestModels";
+import { projectToDto } from "../utils/mappers";
+import { ProjectDto } from "../models/dtoModels";
+import ProjectService from "../services/projectService";
 
 class ProjectController {
 	public static createProject(

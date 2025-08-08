@@ -1,6 +1,6 @@
-import DatabaseManager from "./databaseManager.ts";
-import { CommentDto, CategoryDto } from "../models/dtoModels.ts";
-import { CommentType } from "../../../shared/enums/CommentType.ts";
+import DatabaseManager from "./databaseManager";
+import { CommentDto, CategoryDto } from "../models/dtoModels";
+import { CommentType } from "../../../shared/enums/CommentType";
 
 class CommentsService {
 	constructor(private dbManager: DatabaseManager) {}
@@ -8,13 +8,13 @@ class CommentsService {
 	/**
 	 * Add a new comment to a project
 	 */
-	public addComment(projectId: number, commentData: CommentDto): void {
+	public addComment(projectId: number, commentData: CommentDto): number {
 		try {
 			const db = this.dbManager.getDb();
 			// Get repository for this project
 			const repositoryRows = db
 				.prepare(`SELECT identifier FROM repositories WHERE project_id = ?`)
-				.all([projectId]);
+				.all(projectId) as { identifier: string }[];
 
 			if (repositoryRows.length === 0) {
 				throw new Error(`No repository found for project ${projectId}`);
@@ -31,10 +31,10 @@ class CommentsService {
 			);
 
 			// Create comment
-			db.prepare(
-				`INSERT INTO comments (project_id, repository_id, location_id, content) VALUES (?, ?, ?, ?)`
-			).run([projectId, repository.identifier, locationId, commentData.content]);
-			const commentId = db.lastInsertRowId;
+			const commentResult = db
+				.prepare(`INSERT INTO comments (project_id, repository_id, location_id, content) VALUES (?, ?, ?, ?)`)
+				.run(projectId, repository.identifier, locationId, commentData.content);
+			const commentId = Number(commentResult.lastInsertRowid);
 
 			// Assign categories to the comment
 			if (commentData.categories && commentData.categories.length > 0) {
@@ -42,6 +42,7 @@ class CommentsService {
 					this.assignCategoryToComment(commentId, category.id);
 				}
 			}
+			return commentId;
 		} catch (error) {
 			console.error("Error adding comment:", error);
 			throw error;
@@ -72,7 +73,7 @@ class CommentsService {
 						LEFT JOIN project_locations pl ON l.identifier = pl.identifier AND l.location_type = 'project'
 						WHERE c.project_id = ? AND l.location_type IN ('line', 'multiline', 'file', 'project')`
 				)
-				.all([projectId]) as CommentDto[];
+				.all(projectId) as CommentDto[];
 
 			for (const comment of comments) {
 				comment.categories = this.getCommentCategories(comment.id);
@@ -95,7 +96,7 @@ class CommentsService {
 					JOIN comment_categories cc ON c.identifier = cc.category_id 
 					WHERE cc.comment_id = ?`
 				)
-				.all([commentId]) as CategoryDto[];
+				.all(commentId) as CategoryDto[];
 
 			return categoryRows;
 		} catch (error) {
@@ -106,10 +107,7 @@ class CommentsService {
 
 	private assignCategoryToComment(commentId: number, categoryId: number): void {
 		const db = this.dbManager.getDb();
-		db.prepare(`INSERT INTO comment_categories (comment_id, category_id) VALUES (?, ?)`).run([
-			commentId,
-			categoryId,
-		]);
+		db.prepare(`INSERT INTO comment_categories (comment_id, category_id) VALUES (?, ?)`).run(commentId, categoryId);
 	}
 
 	private createLocationByCommentType(
@@ -122,28 +120,28 @@ class CommentsService {
 		try {
 			const db = this.dbManager.getDb();
 			const locationStmt = db.prepare(`INSERT INTO locations (location_type, file_path) VALUES (?, ?)`);
-			locationStmt.run([type, filePath]);
+			const locationResult = locationStmt.run(type, filePath);
 
 			// TODO: not concurrent safe, but we don't need it for now
-			const locationId = db.lastInsertRowId;
+			const locationId = Number(locationResult.lastInsertRowid);
 
 			switch (type) {
-				case CommentType.SingleLine:
-					db.prepare(`INSERT INTO line_locations (identifier, line_number) VALUES (?, ?)`).run([
+				case CommentType.Singleline:
+					db.prepare(`INSERT INTO line_locations (identifier, line_number) VALUES (?, ?)`).run(
 						locationId,
-						lineNumber,
-					]);
+						lineNumber
+					);
 					break;
-				case CommentType.MultiLine:
+				case CommentType.Multiline:
 					db.prepare(
 						`INSERT INTO line_range_locations (identifier, start_line_number, end_line_number) VALUES (?, ?, ?)`
-					).run([locationId, startLineNumber, endLineNumber]);
+					).run(locationId, startLineNumber, endLineNumber);
 					break;
 				case CommentType.File:
-					db.prepare(`INSERT INTO file_locations (identifier) VALUES (?)`).run([locationId]);
+					db.prepare(`INSERT INTO file_locations (identifier) VALUES (?)`).run(locationId);
 					break;
 				case CommentType.Project:
-					db.prepare(`INSERT INTO project_locations (identifier) VALUES (?)`).run([locationId]);
+					db.prepare(`INSERT INTO project_locations (identifier) VALUES (?)`).run(locationId);
 					break;
 			}
 
@@ -170,7 +168,7 @@ class CommentsService {
 			// Get the location_id before deleting the comment
 			const commentRows = db
 				.prepare(`SELECT location_id FROM comments WHERE identifier = ? AND project_id = ?`)
-				.all([commentId, projectId]);
+				.all(commentId, projectId) as { location_id: number }[];
 
 			if (commentRows.length === 0) {
 				throw new Error(`Comment with ID ${commentId} does not exist in project ${projectId}.`);
@@ -179,7 +177,7 @@ class CommentsService {
 			const locationId = commentRows[0].location_id;
 
 			// Delete the comment first
-			db.prepare(`DELETE FROM comments WHERE identifier = ? AND project_id = ?`).run([commentId, projectId]);
+			db.prepare(`DELETE FROM comments WHERE identifier = ? AND project_id = ?`).run(commentId, projectId);
 
 			// Delete the associated location (this will cascade to line_locations/line_range_locations)
 			this.deleteLocation(locationId);
@@ -192,7 +190,7 @@ class CommentsService {
 	private deleteLocation(locationId: number): void {
 		try {
 			const db = this.dbManager.getDb();
-			db.prepare(`DELETE FROM locations WHERE identifier = ?`).run([locationId]);
+			db.prepare(`DELETE FROM locations WHERE identifier = ?`).run(locationId);
 		} catch (error) {
 			console.error("Error deleting location:", error);
 			throw error;
@@ -202,11 +200,7 @@ class CommentsService {
 	/**
 	 * Update an existing comment
 	 */
-	public updateComment(
-		projectId: number,
-		commentId: number,
-		updatedComment: CommentDto
-	): void {
+	public updateComment(projectId: number, commentId: number, updatedComment: CommentDto): void {
 		const db = this.dbManager.getDb();
 
 		// Check if the project exists
@@ -218,17 +212,17 @@ class CommentsService {
 		// Check if the comment exists
 		const comment = db
 			.prepare(`SELECT * FROM comments WHERE identifier = ? AND project_id = ?`)
-			.get([commentId, projectId]);
+			.get(commentId, projectId);
 		if (!comment) {
 			throw new Error(`Comment with ID ${commentId} does not exist in project ${projectId}.`);
 		}
 
 		// Update the comment
-		db.prepare(`UPDATE comments SET content = ? WHERE identifier = ? AND project_id = ?`).run([
+		db.prepare(`UPDATE comments SET content = ? WHERE identifier = ? AND project_id = ?`).run(
 			updatedComment.content,
 			commentId,
-			projectId,
-		]);
+			projectId
+		);
 	}
 }
 

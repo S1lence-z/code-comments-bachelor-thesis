@@ -1,5 +1,5 @@
-import DatabaseManager from "./databaseManager.ts";
-import { CategoryDto } from "../models/dtoModels.ts";
+import DatabaseManager from "./databaseManager";
+import { CategoryDto } from "../models/dtoModels";
 
 class CategoriesService {
 	constructor(private dbManager: DatabaseManager) {}

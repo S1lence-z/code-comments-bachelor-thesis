@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { CommentDtoSchema } from "./dtoModels.ts";
-import { RepositoryDtoSchema } from "./dtoModels.ts";
-import IGetCommentsResponse from "../../../shared/api/IGetCommentsResponse.ts";
+import { CommentDtoSchema } from "./dtoModels";
+import { RepositoryDtoSchema } from "./dtoModels";
+import IGetCommentsResponse from "../../../shared/api/IGetCommentsResponse";
 
 export const GetCommentsResponseSchema = z.object({
 	repository: RepositoryDtoSchema,

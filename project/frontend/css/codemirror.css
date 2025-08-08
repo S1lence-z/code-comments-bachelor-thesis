@@ -1,0 +1,4 @@
+/* Import comment widget styles */
+@import url("./singleLineCommentWidget.css");
+@import url("./multilineCommentWidget.css");
+@import url("./commentTools.css");

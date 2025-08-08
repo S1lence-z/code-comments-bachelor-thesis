@@ -12,10 +12,10 @@ export type ValidatedEnv = z.infer<typeof EnvSchema>;
 export function validateEnv(): ValidatedEnv {
 	try {
 		const env = {
-			BACKEND_API_PORT: Deno.env.get("BACKEND_API_PORT") || "3500",
-			BACKEND_HOSTNAME: Deno.env.get("BACKEND_HOSTNAME") || "http://localhost",
-			FRONTEND_BASE_URL: Deno.env.get("FRONTEND_BASE_URL") || "http://localhost:5173",
-			NODE_ENV: Deno.env.get("NODE_ENV") || "development",
+			BACKEND_API_PORT: process.env.BACKEND_API_PORT || "3500",
+			BACKEND_HOSTNAME: process.env.BACKEND_HOSTNAME || "http://localhost",
+			FRONTEND_BASE_URL: process.env.FRONTEND_BASE_URL || "http://localhost:5173",
+			NODE_ENV: process.env.NODE_ENV || "development",
 		};
 
 		return EnvSchema.parse(env);

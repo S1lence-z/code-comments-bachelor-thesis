@@ -11,9 +11,10 @@ export default class MultilineCommentWidget extends BaseCommentWidget {
 		content: string,
 		commentId: number,
 		category: ICategoryDto[],
-		deleteCommentAction: (commentId: number) => Promise<void>
+		deleteCommentAction: (commentId: number) => Promise<void>,
+		editCommentAction: (commentId: number) => Promise<void>
 	) {
-		super(deleteCommentAction);
+		super(deleteCommentAction, editCommentAction);
 		this.content = content;
 		this.commentId = commentId;
 		this.category = category[0] || { id: 0, label: "Uncategorized" };
@@ -30,12 +31,17 @@ export default class MultilineCommentWidget extends BaseCommentWidget {
 		const categoryLabel = this.createCategoryLabel(this.category);
 		tools.appendChild(categoryLabel);
 
+		// Create and append edit button
+		const editButton = this.createEditButton();
+		tools.appendChild(editButton);
+
 		// Create and append delete button
 		const deleteButton = this.createDeleteButton();
 		tools.appendChild(deleteButton);
 
 		// Create and append content div
 		const contentDiv = document.createElement("div");
+		contentDiv.className = "comment-content";
 		contentDiv.textContent = this.content;
 
 		wrap.appendChild(tools);
@@ -44,8 +50,17 @@ export default class MultilineCommentWidget extends BaseCommentWidget {
 		return wrap;
 	}
 
+	protected override createEditButton(): HTMLButtonElement {
+		const editButton = document.createElement("button");
+		editButton.classList.add("edit-button");
+		editButton.textContent = "Edit";
+		editButton.onclick = async () => await this.handleEditComment(this.commentId);
+		return editButton;
+	}
+
 	protected override createDeleteButton(): HTMLButtonElement {
 		const deleteButton = document.createElement("button");
+		deleteButton.classList.add("delete-button");
 		deleteButton.textContent = "Delete";
 		deleteButton.onclick = async () => await this.handleDeleteComment(this.commentId);
 		return deleteButton;
@@ -53,18 +68,8 @@ export default class MultilineCommentWidget extends BaseCommentWidget {
 
 	protected override createCategoryLabel(category: ICategoryDto): HTMLSpanElement {
 		const label = document.createElement("span");
-		label.className = "comment-category comment-category-pill";
+		label.className = "comment-category comment-category-pill comment-category-orange";
 		label.textContent = category.label;
-		label.style.cssText = `
-				display: flex;
-				padding: 2px 8px;
-				border-radius: 12px;
-				background-color: #e0e7ff;
-				color: #3730a3;
-				font-size: 12px;
-				font-weight: 500;
-				border: 1px solid #c7d2fe;
-			`;
 		return label;
 	}
 

@@ -1,8 +1,8 @@
-import { CommentDto } from "../models/dtoModels.ts";
-import { GetCommentsResponse } from "../models/responseModels.ts";
-import CommentsService from "../services/commentsService.ts";
-import ProjectService from "../services/projectService.ts";
-import { createCommentDto } from "../utils/comments.ts";
+import { CommentDto } from "../models/dtoModels";
+import { GetCommentsResponse } from "../models/responseModels";
+import CommentsService from "../services/commentsService";
+import ProjectService from "../services/projectService";
+import { createCommentDto } from "../utils/comments";
 
 export default class CommentsController {
 	public static getComments(
@@ -40,8 +40,13 @@ export default class CommentsController {
 		};
 	}
 
-	public static addComment(commentsService: CommentsService, projectId: number, newComment: CommentDto): void {
-		commentsService.addComment(projectId, newComment);
+	public static addComment(
+		commentsService: CommentsService,
+		projectId: number,
+		newComment: CommentDto
+	): { id: number } {
+		const newCommentId = commentsService.addComment(projectId, newComment);
+		return { id: newCommentId };
 	}
 
 	public static updateComment(
