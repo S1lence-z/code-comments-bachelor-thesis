@@ -37,13 +37,9 @@ const fileContentStore = useFileContentStore();
 const { repositoryUrl, writeApiUrl, repositoryBranch, githubPat } = storeToRefs(projectStore);
 const { fileTree, allComments, isLoadingRepository, isLoadingComments } = storeToRefs(repositoryStore);
 
-// State for file explorer
+// Local state
 const showSideBar = ref<boolean>(true);
-
-// State for save workspace
 const saveWorkspace = ref<boolean>(false);
-
-// Local state for file selection and content
 const selectedFilePath = ref<string | null>(null);
 const processedSelectedFile = ref<ProcessedFile | null>(null);
 const isLoadingFile = ref<boolean>(false);
@@ -149,10 +145,43 @@ provide(projectCommentModalContextKey, {
 	handleProjectCommentSelected,
 });
 
+// Handle edit button for the codemirror widget
+const handleCommentEdit = async (commentId: number) => {
+	// Take the comment ID and open the modal for editing
+	const editedComment = allComments.value.find((comment: ICommentDto) => comment.id === commentId);
+	if (!editedComment) {
+		console.error("Comment not found for ID:", commentId);
+		return;
+	}
+
+	// Get the comment type
+	const commentType: CommentType = editedComment.type;
+	if (commentType === CommentType.Singleline) {
+		handleSinglelineCommentSelected({
+			lineNumber: editedComment.lineNumber || 0,
+			filePath: editedComment.filePath,
+		});
+	} else if (commentType === CommentType.Multiline) {
+		handleMultilineCommentSelected({
+			selectedStartLineNumber: editedComment.startLineNumber || 0,
+			selectedEndLineNumber: editedComment.endLineNumber || 0,
+			filePath: editedComment.filePath,
+		});
+	} else if (commentType === CommentType.File) {
+		handleFileCommentSelected(editedComment.filePath);
+	} else if (commentType === CommentType.Project) {
+		handleProjectCommentSelected();
+	} else {
+		console.error("Unsupported comment type:", commentType);
+	}
+};
+
 // Handle resize events from ResizeHandle component
 const handleSidebarResize = (newWidth: number) => {
 	sidebarWidth.value = Math.max(minSidebarWidth, Math.min(maxSidebarWidth, newWidth));
-}; // TODO: add the handling the line number if applicable
+};
+
+// TODO: add handling the line number if applicable
 const handleFileQueryParam = () => {
 	const filePath = decodeURIComponent((route.query.file as string) || "");
 	if (filePath) {
@@ -183,33 +212,6 @@ const initRepositoryStore = async () => {
 		} catch (error) {
 			console.error("Failed to initialize store data:", error);
 		}
-	}
-};
-
-// Handle edit button for the codemirror widget
-const handleEditComment = async (commentId: number) => {
-	// Take the comment ID and open the modal for editing
-	const editedComment = allComments.value.find((comment: ICommentDto) => comment.id === commentId);
-	if (!editedComment) {
-		console.error("Comment not found for ID:", commentId);
-		return;
-	}
-
-	// Get the comment type
-	const commentType: CommentType = editedComment.type;
-	if (commentType === CommentType.Singleline) {
-		handleSinglelineCommentSelected({
-			lineNumber: editedComment.lineNumber || 0,
-			filePath: editedComment.filePath,
-		});
-	} else if (commentType === CommentType.Multiline) {
-		handleMultilineCommentSelected({
-			selectedStartLineNumber: editedComment.startLineNumber || 0,
-			selectedEndLineNumber: editedComment.endLineNumber || 0,
-			filePath: editedComment.filePath,
-		});
-	} else {
-		console.error("Unsupported comment type:", commentType);
 	}
 };
 
@@ -308,7 +310,7 @@ watch(
 												async (commentId) =>
 													await repositoryStore.deleteCommentAsync(commentId, writeApiUrl)
 											"
-											:edit-comment-action="handleEditComment"
+											:edit-comment-action="handleCommentEdit"
 											@line-double-clicked="handleSinglelineCommentSelected"
 											@multiline-selected="handleMultilineCommentSelected"
 										/>

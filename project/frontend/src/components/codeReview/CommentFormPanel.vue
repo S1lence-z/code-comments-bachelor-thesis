@@ -42,7 +42,8 @@ const { writeApiUrl } = storeToRefs(projectStore) as {
 
 // Computed properties
 const currentComment = computed(() => {
-	return props.commentId ? comments.value.find((comment) => comment.id === props.commentId) : null;
+	const existingComment = props.commentId ? comments.value.find((comment) => comment.id === props.commentId) : null;
+	return existingComment || null;
 });
 
 const isVisible = computed({
@@ -143,8 +144,6 @@ const handleSubmit = async () => {
 };
 
 const closeModal = () => {
-	commentText.value = "";
-	commentCategory.value = "";
 	emit("update:isVisible", false);
 };
 </script>

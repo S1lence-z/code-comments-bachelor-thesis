@@ -6,6 +6,7 @@ import { extractBaseUrl } from "../utils/urlUtils";
 import { fetchRepoTreeAPI } from "../services/githubTreeService";
 import { fetchComments, getAllCategories, addComment, updateComment, deleteComment } from "../services/commentsService";
 import { useServerStore } from "./serverStore";
+import { CommentType } from "../../../shared/enums/CommentType";
 
 export const useRepositoryStore = defineStore("repositoryStore", {
 	state: () => ({
@@ -30,6 +31,9 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 		isCategoriesFetched: (state) => state.categories.length > 0,
 		isRepositorySetup: (state) =>
 			!!state.fileTreeData.length && !!state.comments.length && !!state.categories.length,
+		containsProjectComment: (state) => {
+			return state.comments.some((comment) => comment.type === CommentType.Project);
+		},
 	},
 	actions: {
 		async initializeStoreAsync(repositoryUrl: string, writeApiUrl: string, branch: string, githubPat: string) {

@@ -4,6 +4,9 @@ import FileExplorerItem from "./FileExplorerItem.vue";
 import type { TreeNode } from "../../types/githubTree.ts";
 import { handleToggleExpandInTree } from "../../utils/treeNodeUtils.ts";
 import { projectCommentModalContextKey } from "../../core/keys.ts";
+import { useRepositoryStore } from "../../stores/repositoryStore.ts";
+
+const repositoryStore = useRepositoryStore();
 
 interface FileExplorerProps {
 	treeData: TreeNode[];
@@ -18,6 +21,10 @@ defineEmits<{
 const { handleProjectCommentSelected } = inject(projectCommentModalContextKey, {
 	handleProjectCommentSelected: () => console.warn("updateProjectCommentData not provided"),
 });
+
+const generateCommentButtonLabel = () => {
+	return repositoryStore.containsProjectComment ? "Edit Project Comment" : "Add Project Comment";
+};
 </script>
 
 <template>
@@ -25,7 +32,9 @@ const { handleProjectCommentSelected } = inject(projectCommentModalContextKey, {
 		<!-- Header -->
 		<div class="bg-white/5 backdrop-blur-sm border-b border-white/10 px-4 py-4 flex items-center justify-between">
 			<h2 class="text-white font-semibold uppercase">Explorer</h2>
-			<button class="btn btn-primary text-xs" @click="handleProjectCommentSelected">+ Project Comment</button>
+			<button class="btn btn-primary text-xs" @click="handleProjectCommentSelected">
+				{{ generateCommentButtonLabel() }}
+			</button>
 		</div>
 
 		<!-- File Tree -->

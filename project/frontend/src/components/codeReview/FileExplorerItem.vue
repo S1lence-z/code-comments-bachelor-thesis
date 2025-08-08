@@ -41,10 +41,6 @@ const { handleFileCommentSelected } = inject(fileCommentModalContextKey, {
 	handleFileCommentSelected: (_: string) => console.warn("handleFileCommentSelected not provided"),
 });
 
-function addFileComment() {
-	handleFileCommentSelected(props.item.path);
-}
-
 // Check if the file contains comments
 const repositoryStore = useRepositoryStore();
 function containsComments(filePath: string): boolean {
@@ -135,7 +131,7 @@ function containsComments(filePath: string): boolean {
 			<!-- Item Actions -->
 			<div class="mr-2 duration-200">
 				<button
-					@click="addFileComment"
+					@click="handleFileCommentSelected(props.item.path)"
 					class="w-6 h-6 bg-white/10 hover:bg-white/20 hover:text-white rounded-md flex items-center justify-center transition-all duration-200 text-black cursor-pointer"
 					title="Add comment"
 				>
