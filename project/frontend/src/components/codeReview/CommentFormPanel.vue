@@ -54,14 +54,20 @@ const getSubtitle = computed(() => {
 	if (props.commentType === CommentType.Project) return "Project-wide comment";
 	if (!props.commentFilePath) return "";
 
-	const lineInfo =
-		props.commentType === CommentType.Multiline
-			? `from line ${props.startLineNumber || 0} to ${props.endLineNumber}`
-			: props.commentType === CommentType.Singleline
-			? `on line ${props.startLineNumber || 0}`
-			: props.commentType === CommentType.File
-			? "File-level comment"
-			: "";
+	let lineInfo = "";
+	switch (props.commentType) {
+		case CommentType.Multiline:
+			lineInfo = `from line ${props.startLineNumber || 0} to ${props.endLineNumber}`;
+			break;
+		case CommentType.Singleline:
+			lineInfo = `on line ${props.startLineNumber || 0}`;
+			break;
+		case CommentType.File:
+			lineInfo = "File/Folder Comment";
+			break;
+		default:
+			lineInfo = "";
+	}
 
 	return `File: ${props.commentFilePath} ${lineInfo}`;
 });
@@ -118,7 +124,10 @@ const handleSubmit = async () => {
 		commentData.content = commentText.value.trim();
 		commentData.type = CommentType.File;
 	} else if (props.commentType === CommentType.Project) {
-		return;
+		commentData.id = props.commentId || 0;
+		commentData.filePath = projectStore.getRepositoryName;
+		commentData.content = commentText.value.trim();
+		commentData.type = CommentType.Project;
 	} else {
 		alert("Invalid comment type. Please ensure you are adding a singleline or multiline comment.");
 		return;
@@ -134,9 +143,9 @@ const handleSubmit = async () => {
 };
 
 const closeModal = () => {
-	emit("update:isVisible", false);
 	commentText.value = "";
 	commentCategory.value = "";
+	emit("update:isVisible", false);
 };
 </script>
 

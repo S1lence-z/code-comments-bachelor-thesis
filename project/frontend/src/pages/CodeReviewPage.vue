@@ -10,9 +10,6 @@ import { useRepositoryStore } from "../stores/repositoryStore.ts";
 import { useFileContentStore } from "../stores/fileContentStore.ts";
 import { storeToRefs } from "pinia";
 import type { ProcessedFile } from "../types/githubFile.ts";
-import Modal from "../lib/Modal.vue";
-import Card from "../lib/Card.vue";
-import InputArea from "../lib/InputArea.vue";
 import CodeReviewToolbar from "../components/codeReview/CodeReviewToolbar.vue";
 import { useRoute } from "vue-router";
 import ResizeHandle from "../lib/ResizeHandle.vue";
@@ -127,8 +124,7 @@ function handleMultilineCommentSelected(payload: {
 	isAddingComment.value = true;
 }
 
-const handleFileCommentSelected = (filePath: string) => {
-	console.log("File comment selected:", filePath);
+function handleFileCommentSelected(filePath: string) {
 	const existingComment = allComments.value.find(
 		(comment: ICommentDto) => comment.filePath === filePath && comment.type === CommentType.File
 	);
@@ -137,69 +133,21 @@ const handleFileCommentSelected = (filePath: string) => {
 	commentFilePath.value = filePath;
 	addedCommentType.value = CommentType.File;
 	isAddingComment.value = true;
-};
-
+}
 provide(fileCommentModalContextKey, {
 	handleFileCommentSelected,
 });
 
-//#region Project comment modal
-const isAddingProjectComment = ref(false);
-const projectCommentData = ref<{ content: string }>({
-	content: "",
-});
-const updateIsAddingProjectComment = (value: boolean) => {
-	isAddingProjectComment.value = value;
-};
-const updateProjectCommentData = (content: string) => {
+function handleProjectCommentSelected() {
 	const existingComment = allComments.value.find((comment: ICommentDto) => comment.type === CommentType.Project);
-	if (existingComment) {
-		projectCommentData.value.content = existingComment.content;
-		return;
-	}
-	// Adding new comment data
-	projectCommentData.value.content = content;
-};
+	commentId.value = existingComment ? existingComment.id : null;
+	commentFilePath.value = projectStore.getRepositoryName;
+	addedCommentType.value = CommentType.Project;
+	isAddingComment.value = true;
+}
 provide(projectCommentModalContextKey, {
-	updateIsAddingProjectComment,
-	updateProjectCommentData,
+	handleProjectCommentSelected,
 });
-
-function closeProjectCommentModal() {
-	isAddingProjectComment.value = false;
-	projectCommentData.value.content = "";
-}
-
-async function handleProjectCommentSubmit() {
-	if (!projectCommentData.value.content.trim() || !writeApiUrl.value) {
-		alert("Cannot save project comment: content is empty or API URL is not configured.");
-		return;
-	}
-
-	const commentToSubmit: ICommentDto = {
-		id: 0,
-		filePath: projectStore.getRepositoryName,
-		content: projectCommentData.value.content,
-		type: CommentType.Project,
-	};
-
-	// Find the existing comment or create a new one
-	allComments.value.forEach((comment: ICommentDto) => {
-		if (comment.type === CommentType.Project) {
-			commentToSubmit.id = comment.id;
-		}
-	});
-
-	// Submit the comment
-	try {
-		await repositoryStore.upsertCommentAsync(commentToSubmit, writeApiUrl.value);
-	} catch (e: any) {
-		console.error("Failed to save comment:", e);
-	} finally {
-		closeProjectCommentModal();
-	}
-}
-//#endregion
 
 // Handle resize events from ResizeHandle component
 const handleSidebarResize = (newWidth: number) => {
@@ -388,30 +336,6 @@ watch(
 				:comment-id="commentId"
 				:comment-type="addedCommentType"
 			/>
-
-			<!-- Project Comment Modal -->
-			<Modal v-if="isAddingProjectComment" @close="closeProjectCommentModal">
-				<Card title="Add a Project Comment">
-					<div class="space-y-2">
-						<InputArea
-							label="Comment"
-							v-model="projectCommentData.content"
-							placeholder="Enter your comment here..."
-							:rows="6"
-						/>
-						<div class="flex justify-end space-x-2">
-							<button @click="closeProjectCommentModal" class="btn btn-secondary">Cancel</button>
-							<button
-								@click="handleProjectCommentSubmit"
-								:disabled="!projectCommentData.content.trim()"
-								class="btn btn-primary"
-							>
-								Add Comment
-							</button>
-						</div>
-					</div>
-				</Card>
-			</Modal>
 		</div>
 	</div>
 </template>

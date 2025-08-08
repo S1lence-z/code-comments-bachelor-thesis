@@ -15,15 +15,9 @@ defineEmits<{
 	(event: "update:selectedPath", value: string | null): void;
 }>();
 
-const { updateIsAddingProjectComment, updateProjectCommentData } = inject(projectCommentModalContextKey, {
-	updateIsAddingProjectComment: (_: boolean) => console.warn("updateIsAddingProjectComment not provided"),
-	updateProjectCommentData: (_: string) => console.warn("updateProjectCommentData not provided"),
+const { handleProjectCommentSelected } = inject(projectCommentModalContextKey, {
+	handleProjectCommentSelected: () => console.warn("updateProjectCommentData not provided"),
 });
-
-const handleAddProjectComment = () => {
-	updateIsAddingProjectComment(true);
-	updateProjectCommentData("");
-};
 </script>
 
 <template>
@@ -31,7 +25,7 @@ const handleAddProjectComment = () => {
 		<!-- Header -->
 		<div class="bg-white/5 backdrop-blur-sm border-b border-white/10 px-4 py-4 flex items-center justify-between">
 			<h2 class="text-white font-semibold uppercase">Explorer</h2>
-			<button class="btn btn-primary text-xs" @click="handleAddProjectComment">+ Project Comment</button>
+			<button class="btn btn-primary text-xs" @click="handleProjectCommentSelected">+ Project Comment</button>
 		</div>
 
 		<!-- File Tree -->
