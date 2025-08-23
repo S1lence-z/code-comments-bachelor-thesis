@@ -1,4 +1,9 @@
 
+using Microsoft.EntityFrameworkCore;
+using server.Data;
+using server.Interfaces;
+using server.Services;
+
 namespace server
 {
     public class Program
@@ -7,9 +12,17 @@ namespace server
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            // Add db context
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlite(builder.Configuration.GetConnectionString("localDb"))
+			);
 
-            builder.Services.AddControllers();
+			// Register services
+            builder.Services.AddScoped<IProjectService, ProjectService>();
+
+			// Add services to the container.
+			builder.Services.AddControllers();
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();

@@ -116,3 +116,10 @@ src/.vs/config/applicationhost.config
 
 # JetBrains Rider's auto generated files
 .idea/
+
+# Migrations
+Migrations/
+
+# Sqlite files
+*.db
+*.sqlite
