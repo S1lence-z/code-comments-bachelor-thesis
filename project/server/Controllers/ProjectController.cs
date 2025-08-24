@@ -15,8 +15,7 @@ namespace server.Controllers
         {
             try
             {
-                IEnumerable<Project> projects = await projectService.GetAllProjectsAsync();
-                IEnumerable<ProjectDto> projectDtos = projects.Select(p => ProjectMapper.ToDto(p));
+                IEnumerable<ProjectDto> projectDtos = await projectService.GetAllProjectsAsync();
                 return Ok(projectDtos);
             }
             catch (Exception ex)
@@ -30,8 +29,7 @@ namespace server.Controllers
         {
 			try
             {
-                var (newProject, newRepository) = await projectService.SetupProjectAsync(request);
-                ProjectDto projectDto = ProjectMapper.ToDto(newProject);
+                ProjectDto projectDto = await projectService.SetupProjectAsync(request);
 				return Created(nameof(CreateProject), projectDto);
 			}
             catch (Exception ex)

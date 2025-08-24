@@ -4,6 +4,6 @@ namespace server.Types.Interfaces
 {
 	public interface ICategoryService
 	{
-		Task<IEnumerable<Category>> GetAllCategoriesAsync();
+		Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync();
 	}
 }

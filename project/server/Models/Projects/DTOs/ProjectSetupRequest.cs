@@ -8,7 +8,7 @@ namespace server.Models.Projects.DTOs
         [Required]
         public string RepositoryUrl { get; set; } = string.Empty;
 
-        public string ProjectName { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
 
 		[Required]
         public string Branch { get; set; } = "main";

@@ -3,6 +3,7 @@ using server.Models.Projects.DTOs;
 using server.Models.Projects;
 using Microsoft.EntityFrameworkCore;
 using server.Types.Interfaces;
+using server.Mappers;
 
 namespace server.Services
 {
@@ -16,13 +17,13 @@ namespace server.Services
 			return $"{BASE_BACKEND_URL}/api/v1/project/{projectId}/comments";
 		}
 
-		public async Task<IEnumerable<Project>> GetAllProjectsAsync()
+		public async Task<IEnumerable<ProjectDto>> GetAllProjectsAsync()
 		{
 			IEnumerable<Project> projects = await context.Projects.Include(p => p.Repository).ToListAsync();
-			return projects;
+			return projects.Select(ProjectMapper.ToDto);
 		}
 
-		public async Task<(Project, Repository)> SetupProjectAsync(ProjectSetupRequest request)
+		public async Task<ProjectDto> SetupProjectAsync(ProjectSetupRequest request)
 		{
 			try
 			{
@@ -44,14 +45,20 @@ namespace server.Services
 				Project newProject = new()
 				{
 					Id = newProjectId,
-					Name = request.ProjectName,
+					Name = request.Name,
 					ReadApiUrl = readWriteApiUrl,
 					WriteApiUrl = readWriteApiUrl,
 					RepositoryId = newRepositoryId
 				};
 				await context.Projects.AddAsync(newProject);
 				await context.SaveChangesAsync();
-				return (newProject, newRepository);
+
+				// Fetch the newly created project with its repository
+				newProject = await context.Projects
+					.AsNoTracking()
+					.Include(p => p.Repository)
+					.FirstAsync(p => p.Id == newProjectId);
+				return ProjectMapper.ToDto(newProject);
 			}
 			catch (Exception ex)
 			{

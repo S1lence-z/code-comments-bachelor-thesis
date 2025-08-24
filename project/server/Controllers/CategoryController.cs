@@ -14,8 +14,7 @@ namespace server.Controllers
 		{
 			try
 			{
-				IEnumerable<Category> categories = await categoryService.GetAllCategoriesAsync();
-				IEnumerable<CategoryDto> categoryDtos = categories.Select(CategoryMapper.ToDto);
+				IEnumerable<CategoryDto> categoryDtos = await categoryService.GetAllCategoriesAsync();
 				return Ok(categoryDtos);
 			}
 			catch (Exception ex)

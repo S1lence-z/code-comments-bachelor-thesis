@@ -5,7 +5,7 @@ namespace server.Types.Interfaces
 {
 	public interface IProjectService
 	{
-		Task<(Project, Repository)> SetupProjectAsync(ProjectSetupRequest request);
-		Task<IEnumerable<Project>> GetAllProjectsAsync();
+		Task<ProjectDto> SetupProjectAsync(ProjectSetupRequest request);
+		Task<IEnumerable<ProjectDto>> GetAllProjectsAsync();
 	}
 }
