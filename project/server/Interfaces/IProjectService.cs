@@ -1,9 +1,11 @@
-﻿using server.Models.Projects.DTOs;
+﻿using server.Models.Projects;
+using server.Models.Projects.DTOs;
 
 namespace server.Interfaces
 {
 	public interface IProjectService
 	{
-		Task<ProjectSetupResponse> SetupProjectAsync(ProjectSetupRequest request);
+		Task<(Project, Repository)> SetupProjectAsync(ProjectSetupRequest request);
+		Task<IEnumerable<Project>> GetAllProjectsAsync();
 	}
 }

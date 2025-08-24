@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace server.Models.Projects
 {
@@ -18,5 +19,11 @@ namespace server.Models.Projects
 
 		[Required]
 		public string WriteApiUrl { get; set; } = string.Empty;
+
+		[Required]
+		public Guid RepositoryId { get; set; }
+
+		[ForeignKey("RepositoryId")]
+		public virtual Repository Repository { get; set; } = null!;
 	}
 }

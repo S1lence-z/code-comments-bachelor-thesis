@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using server.Enums;
 
 namespace server.Models.Projects
@@ -8,12 +7,6 @@ namespace server.Models.Projects
 	{
 		[Key]
 		public Guid Id { get; set; } = Guid.NewGuid();
-
-		[Required]
-		public Guid ProjectId { get; set; }
-
-		[ForeignKey("ProjectId")]
-		public virtual Project Project { get; set; } = null!;
 
 		[Required]
 		public RepositoryType RepositoryType { get; set; } = RepositoryType.git;

@@ -16,7 +16,7 @@ namespace server.Models.Projects.DTOs
 
 		public string CommitHash { get; set; } = string.Empty;
 
-		public static RepositoryDto FromRepository(Repository repository)
+		public static RepositoryDto From(Repository repository)
 		{
 			return new RepositoryDto
 			{

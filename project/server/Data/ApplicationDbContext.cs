@@ -87,6 +87,10 @@ namespace server.Data
 				entity.Property(e => e.Version).IsRequired().HasDefaultValue("1.0");
 				entity.Property(e => e.ReadApiUrl).IsRequired();
 				entity.Property(e => e.WriteApiUrl).IsRequired();
+				entity.HasOne(e => e.Repository)
+					.WithMany()
+					.HasForeignKey(e => e.RepositoryId)
+					.OnDelete(DeleteBehavior.Cascade);
 			});
 		}
 
@@ -101,10 +105,6 @@ namespace server.Data
 				entity.Property(e => e.RepositoryUrl).IsRequired();
 				entity.Property(e => e.Branch).IsRequired().HasDefaultValue("main");
 				entity.Property(e => e.CommitHash).IsRequired();
-				entity.HasOne(e => e.Project)
-					.WithMany()
-					.HasForeignKey(e => e.ProjectId)
-					.OnDelete(DeleteBehavior.Cascade);
 			});
 		}
 	}

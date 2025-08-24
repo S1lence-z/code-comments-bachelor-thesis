@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace server.Models.Projects.DTOs
+﻿namespace server.Models.Projects.DTOs
 {
 	public record class ProjectDto
 	{
@@ -14,7 +12,9 @@ namespace server.Models.Projects.DTOs
 
 		public string WriteApiUrl { get; set; } = string.Empty;
 
-		public static ProjectDto FromProject(Project project)
+		public RepositoryDto Repository { get; set; } = null!;
+
+		public static ProjectDto From(Project project, Repository repo)
 		{
 			return new ProjectDto
 			{
@@ -22,7 +22,8 @@ namespace server.Models.Projects.DTOs
 				Version = project.Version,
 				Name = project.Name,
 				ReadApiUrl = project.ReadApiUrl,
-				WriteApiUrl = project.WriteApiUrl
+				WriteApiUrl = project.WriteApiUrl,
+				Repository = RepositoryDto.From(repo)
 			};
 		}
 	}

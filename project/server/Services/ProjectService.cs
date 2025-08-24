@@ -2,6 +2,7 @@
 using server.Interfaces;
 using server.Models.Projects.DTOs;
 using server.Models.Projects;
+using Microsoft.EntityFrameworkCore;
 
 namespace server.Services
 {
@@ -15,10 +16,28 @@ namespace server.Services
 			return $"{BASE_BACKEND_URL}/api/v1/project/{projectId}/comments";
 		}
 
-		public async Task<ProjectSetupResponse> SetupProjectAsync(ProjectSetupRequest request)
+		public async Task<IEnumerable<Project>> GetAllProjectsAsync()
+		{
+			IEnumerable<Project> projects = await context.Projects.Include(p => p.Repository).ToListAsync();
+			return projects;
+		}
+
+		public async Task<(Project, Repository)> SetupProjectAsync(ProjectSetupRequest request)
 		{
 			try
 			{
+				// Create new repository
+				Guid newRepositoryId = Guid.NewGuid();
+				Repository newRepository = new()
+				{
+					Id = newRepositoryId,
+					RepositoryType = request.RepositoryType,
+					RepositoryUrl = request.RepositoryUrl,
+					Branch = request.Branch,
+					CommitHash = request.CommitHash
+				};
+				await context.Repositories.AddAsync(newRepository);
+
 				// Create new project
 				Guid newProjectId = Guid.NewGuid();
 				string readWriteApiUrl = GenerateApiUrl(newProjectId);
@@ -27,28 +46,12 @@ namespace server.Services
 					Id = newProjectId,
 					Name = request.ProjectName,
 					ReadApiUrl = readWriteApiUrl,
-					WriteApiUrl = readWriteApiUrl
+					WriteApiUrl = readWriteApiUrl,
+					RepositoryId = newRepositoryId
 				};
 				await context.Projects.AddAsync(newProject);
-
-				// Create new repository
-				Guid newRepositoryId = Guid.NewGuid();
-				Repository newRepository = new()
-				{
-					Id = newRepositoryId,
-					ProjectId = newProjectId,
-					RepositoryType = request.RepositoryType,
-					RepositoryUrl = request.RepositoryUrl,
-					Branch = request.Branch,
-					CommitHash = request.CommitHash
-				};
-				await context.Repositories.AddAsync(newRepository);
 				await context.SaveChangesAsync();
-				return new ProjectSetupResponse
-				{
-					Project = ProjectDto.FromProject(newProject),
-					Repository = RepositoryDto.FromRepository(newRepository)
-				};
+				return (newProject, newRepository);
 			}
 			catch (Exception ex)
 			{
