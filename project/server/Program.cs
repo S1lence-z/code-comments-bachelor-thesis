@@ -16,15 +16,15 @@ namespace server
             // Add db context
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlite(builder.Configuration.GetConnectionString("localDb"))
-			);
+            );
 
-			// Register services
+            // Register services
             builder.Services.AddScoped<IProjectService, ProjectService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<ICommentService, CommentService>();
 
-			// Add services to the container.
-			builder.Services.AddControllers().AddJsonOptions(options =>
+            // Add services to the container.
+            builder.Services.AddControllers().AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
             });
@@ -44,12 +44,23 @@ namespace server
 
             app.UseHttpsRedirection();
 
-            app.UseAuthorization();
+            EnableCors(app);
 
+            app.UseAuthorization();
 
             app.MapControllers();
 
             app.Run();
+        }
+
+        private static void EnableCors(IApplicationBuilder app)
+        {
+            app.UseCors(builder =>
+            {
+                builder.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+            });
         }
     }
 }
