@@ -1,6 +1,6 @@
 ﻿namespace server.Models.Locations.DTOs
 {
-	public class OtherLocationDto : LocationDto
+	public class ProjectLocationDto : LocationDto
 	{
 		public string Description { get; set; } = string.Empty;
 	}

@@ -1,6 +1,6 @@
-﻿namespace server.Models.Locations
+﻿namespace server.Models.Locations.DTOs
 {
-	public class LineRange : Location
+	public class MultilineLocationDto : LocationDto
 	{
 		public int StartLineNumber { get; set; }
 		public int EndLineNumber { get; set; }

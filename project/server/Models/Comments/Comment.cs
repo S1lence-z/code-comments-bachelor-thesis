@@ -23,11 +23,15 @@ namespace server.Models.Comments
 		public virtual Location Location { get; set; } = null!;
 
 		[Required]
+		public Guid CategoryId { get; set; }
+		[ForeignKey("CategoryId")]
+		public virtual Category Category { get; set; } = null!;
+
+		[Required]
 		public CommentType Type { get; set; }
 
 		[Required]
 		public string Content { get; set; } = string.Empty;
 
-		public ICollection<Category> Categories { get; set; } = [];
 	}
 }

@@ -13,9 +13,10 @@ namespace server.Data
 		public DbSet<Project> Projects { get; set; }
 		public DbSet<Repository> Repositories { get; set; }
 		public DbSet<Location> Locations { get; set; }
-		public DbSet<LineLocation> LineLocations { get; set; }
-		public DbSet<LineRange> LineRanges { get; set; }
-		public DbSet<OtherLocation> OtherLocations { get; set; }
+		public DbSet<SinglelineLocation> SinglelineLocations { get; set; }
+		public DbSet<MultilineLocation> MultilineLocations { get; set; }
+		public DbSet<FileLocation> FileLocations { get; set; }
+		public DbSet<ProjectLocation> ProjectLocations { get; set; }
 		public DbSet<Comment> Comments { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -33,43 +34,43 @@ namespace server.Data
 			modelBuilder.Entity<Category>().HasData(
 				new Category
 				{
-					Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+					Id = Guid.Parse("00000000-0000-0000-0000-000000000001"),
 					Label = "Bug",
 					Description = "A bug in the code"
 				},
 				new Category
 				{
-					Id = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+					Id = Guid.Parse("00000000-0000-0000-0000-000000000002"),
 					Label = "Feature Request",
 					Description = "A request for a new feature"
 				},
 				new Category
 				{
-					Id = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+					Id = Guid.Parse("00000000-0000-0000-0000-000000000003"),
 					Label = "Documentation",
 					Description = "Issues related to documentation"
 				},
 				new Category
 				{
-					Id = Guid.Parse("44444444-4444-4444-4444-444444444444"),
+					Id = Guid.Parse("00000000-0000-0000-0000-000000000004"),
 					Label = "Question",
 					Description = "A question about the code or project"
 				},
 				new Category
 				{
-					Id = Guid.Parse("55555555-5555-5555-5555-555555555555"),
+					Id = Guid.Parse("00000000-0000-0000-0000-000000000005"),
 					Label = "Enhancement",
 					Description = "An enhancement to existing functionality"
 				},
 				new Category
 				{
-					Id = Guid.Parse("66666666-6666-6666-6666-666666666666"),
+					Id = Guid.Parse("00000000-0000-0000-0000-000000000006"),
 					Label = "Performance",
 					Description = "Performance-related issues or improvements"
 				},
 				new Category
 				{
-					Id = Guid.Parse("77777777-7777-7777-7777-777777777777"),
+					Id = Guid.Parse("00000000-0000-0000-0000-000000000007"),
 					Label = "Security",
 					Description = "Security vulnerabilities or concerns"
 				}
@@ -120,9 +121,10 @@ namespace server.Data
 		private static void SetupLocations(ModelBuilder modelBuilder)
 		{
 			modelBuilder.Entity<Location>().ToTable("Locations");
-			modelBuilder.Entity<LineLocation>().ToTable("LineLocations");
-			modelBuilder.Entity<LineRange>().ToTable("LineRanges");
-			modelBuilder.Entity<OtherLocation>().ToTable("OtherLocations");
+			modelBuilder.Entity<SinglelineLocation>().ToTable("SinglelineLocations");
+			modelBuilder.Entity<MultilineLocation>().ToTable("MultilineLocations");
+			modelBuilder.Entity<FileLocation>().ToTable("FileLocations");
+			modelBuilder.Entity<ProjectLocation>().ToTable("ProjectLocations");
 		}
 
 		private static void SetupComments(ModelBuilder modelBuilder)
@@ -131,6 +133,8 @@ namespace server.Data
 			{
 				entity.HasKey(e => e.Id);
 				entity.Property(e => e.Content).IsRequired();
+				entity.Property(e => e.Type).IsRequired()
+					.HasConversion<string>();
 				entity.HasOne(e => e.Project)
 					.WithMany()
 					.HasForeignKey(e => e.ProjectId)
@@ -139,9 +143,10 @@ namespace server.Data
 					.WithOne()
 					.HasForeignKey<Comment>(e => e.LocationId)
 					.OnDelete(DeleteBehavior.Cascade);
-				entity.HasMany(e => e.Categories)
+				entity.HasOne(e => e.Category)
 					.WithMany()
-					.UsingEntity(j => j.ToTable("CommentCategories"));
+					.HasForeignKey(e => e.CategoryId)
+					.OnDelete(DeleteBehavior.Cascade);
 			});
 		}
 	}

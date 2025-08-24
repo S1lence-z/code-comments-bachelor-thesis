@@ -1,7 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using server.Data;
+using server.Mappers;
+using server.Models.Categories;
 using server.Models.Comments;
 using server.Models.Locations;
+using server.Models.Locations.DTOs;
 using server.Types.Enums;
 using server.Types.Interfaces;
 
@@ -9,7 +12,7 @@ namespace server.Services
 {
 	public class CommentService(ApplicationDbContext context) : ICommentService
 	{
-		public async Task<IEnumerable<Comment>> GetAllCommentsForProjectAsync(Guid projectId)
+		public async Task<IEnumerable<CommentDto>> GetAllCommentsForProjectAsync(Guid projectId)
 		{
 			try
 			{
@@ -19,9 +22,9 @@ namespace server.Services
 					.Include(c => c.Project)
 						.ThenInclude(p => p.Repository)
 					.Include(c => c.Location)
-					.Include(c => c.Categories)
+					.Include(c => c.Category)
 					.ToListAsync();
-				return comments;
+				return comments.Select(CommentMapper.ToDto);
 			}
 			catch (Exception ex)
 			{
@@ -29,28 +32,55 @@ namespace server.Services
 			}
 		}
 
-		private static Location CreateLocationByCommentType(CommentType commentType)
+		private static Location CreateLocationFromComment(CommentDto commentDto)
 		{
-			return commentType switch
+			return commentDto.Type switch
 			{
-				CommentType.Singleline => new LineLocation { Id = Guid.NewGuid() },
-				CommentType.Multiline => new LineRange { Id = Guid.NewGuid() },
-				CommentType.File => new OtherLocation { Id = Guid.NewGuid() },
-				CommentType.Project => new OtherLocation { Id = Guid.NewGuid() },
-				_ => throw new ArgumentException($"Unsupported comment type: {commentType}", nameof(commentType))
+				CommentType.Singleline when commentDto.Location is SinglelineLocationDto lineLoc => new SinglelineLocation
+				{
+					Id = Guid.NewGuid(),
+					FilePath = lineLoc.FilePath,
+					LineNumber = lineLoc.LineNumber
+				},
+				CommentType.Multiline when commentDto.Location is MultilineLocationDto rangeLoc => new MultilineLocation
+				{
+					Id = Guid.NewGuid(),
+					FilePath = rangeLoc.FilePath,
+					StartLineNumber = rangeLoc.StartLineNumber,
+					EndLineNumber = rangeLoc.EndLineNumber
+				},
+				CommentType.File when commentDto.Location is FileLocationDto fileLoc => new FileLocation
+				{
+					Id = Guid.NewGuid(),
+					FilePath = fileLoc.FilePath,
+					Description = fileLoc.Description ?? "File Comment"
+				},
+				CommentType.Project when commentDto.Location is FileLocationDto projLoc => new FileLocation
+				{
+					Id = Guid.NewGuid(),
+					FilePath = projLoc.FilePath,
+					Description = projLoc.Description ?? "Project Comment"
+				},
+				_ => throw new ArgumentException("Invalid or unknown comment type or location data")
 			};
 		}
 
-		public async Task<Comment> CreateCommentAsync(Guid projectId, CommentDto newCommentData)
+		public async Task<CommentDto> CreateCommentAsync(Guid projectId, CommentDto newCommentData)
 		{
 			try
 			{
+				// Check if the project exists
 				bool projectExists = await context.Projects.AnyAsync(p => p.Id == projectId);
 				if (!projectExists)
 					throw new ArgumentException($"Project with ID {projectId} does not exist.");
 
+				// Get the category
+				Category? category = await context.Categories.FirstOrDefaultAsync(cat => cat.Id == newCommentData.CategoryId);
+				if (category is null)
+					throw new ArgumentException($"Category with ID {newCommentData.CategoryId} does not exist.");
+
 				// Create and save the new location based on comment type
-				var newLocation = CreateLocationByCommentType(newCommentData.Type);
+				Location newLocation = CreateLocationFromComment(newCommentData);
 				await context.Locations.AddAsync(newLocation);
 
 				// Create and save the new comment
@@ -59,9 +89,9 @@ namespace server.Services
 					Id = Guid.NewGuid(),
 					ProjectId = projectId,
 					LocationId = newLocation.Id,
+					CategoryId = category.Id,
 					Type = newCommentData.Type,
-					Content = newCommentData.Content,
-					Categories = [] // TODO: Handle categories properly
+					Content = newCommentData.Content
 				};
 				await context.Comments.AddAsync(newComment);
 				await context.SaveChangesAsync();
@@ -72,10 +102,10 @@ namespace server.Services
 					.Include(c => c.Project)
 						.ThenInclude(p => p.Repository)
 					.Include(c => c.Location)
-					.Include(c => c.Categories)
+					.Include(c => c.Category)
 					.FirstOrDefaultAsync(c => c.Id == newComment.Id) 
 					?? throw new Exception("Failed to retrieve the newly created comment.");
-				return createdComment;
+				return CommentMapper.ToDto(createdComment);
 			}
 			catch (Exception ex)
 			{
@@ -83,11 +113,37 @@ namespace server.Services
 			}
 		}
 
-		public Task<Comment> UpdateCommentAsync(Guid projectId, Guid commentId, CommentDto updatedComment)
+		public async Task<CommentDto> UpdateCommentAsync(Guid projectId, Guid commentId, CommentDto updatedCommentData)
 		{
 			try
 			{
-				throw new NotImplementedException("UpdateCommentAsync is not implemented yet.");
+				// Ensure the project exists
+				bool projectExists = await context.Projects.AnyAsync(p => p.Id == projectId);
+				if (!projectExists)
+					throw new ArgumentException($"Project with ID {projectId} does not exist.");
+				
+				// Find the existing comment
+				Comment? existingComment = await context.Comments
+					.Include(c => c.Location)
+					.FirstOrDefaultAsync(c => c.Id == commentId && c.ProjectId == projectId);
+				if (existingComment is null)
+					throw new ArgumentException($"Comment with ID {commentId} for project {projectId} does not exist.");
+
+				// Update the comment content
+				// TODO: In the future update other attrs
+				existingComment.Content = updatedCommentData.Content;
+				context.Comments.Update(existingComment);
+				await context.SaveChangesAsync();
+				// Retrieve the updated comment with all related data
+				Comment updatedComment = await context.Comments
+					.AsNoTracking()
+					.Include(c => c.Project)
+						.ThenInclude(p => p.Repository)
+					.Include(c => c.Location)
+					.Include(c => c.Category)
+					.FirstOrDefaultAsync(c => c.Id == existingComment.Id) 
+					?? throw new Exception("Failed to retrieve the updated comment.");
+				return CommentMapper.ToDto(updatedComment);
 			}
 			catch (Exception ex)
 			{

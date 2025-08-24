@@ -15,8 +15,7 @@ namespace server.Controllers
 		{
 			try
 			{
-				IEnumerable<Comment> comments = await commentService.GetAllCommentsForProjectAsync(projectId);
-				IEnumerable<CommentDto> commentDtos = comments.Select(CommentMapper.ToDto);
+				IEnumerable<CommentDto> commentDtos = await commentService.GetAllCommentsForProjectAsync(projectId);
 				return Ok(commentDtos);
 			}
 			catch (Exception ex)
@@ -30,10 +29,8 @@ namespace server.Controllers
 		{
 			try
 			{
-				Console.WriteLine(newComment);
-				Comment createdComment = await commentService.CreateCommentAsync(projectId, newComment);
-				CommentDto commentDto = CommentMapper.ToDto(createdComment);
-				return CreatedAtAction(nameof(GetAllCommentsForProject), new { projectId, commentId = createdComment.Id }, commentDto);
+				CommentDto commentDto = await commentService.CreateCommentAsync(projectId, newComment);
+				return CreatedAtAction(nameof(GetAllCommentsForProject), new { projectId, commentId = commentDto.Id }, commentDto);
 			}
 			catch (Exception ex)
 			{
@@ -46,9 +43,8 @@ namespace server.Controllers
 		{
 			try
 			{
-				Comment updatedComment = await commentService.UpdateCommentAsync(projectId, commentId, updatedCommentData);
-				CommentDto commentDto = CommentMapper.ToDto(updatedComment);
-				return Ok(commentDto);
+				CommentDto updatedComment = await commentService.UpdateCommentAsync(projectId, commentId, updatedCommentData);
+				return Ok(updatedComment);
 			}
 			catch (Exception ex)
 			{
@@ -61,8 +57,8 @@ namespace server.Controllers
 		{
 			try
 			{
-				bool deleted = await commentService.DeleteCommentAsync(projectId, commentId);
-				if (deleted)
+				bool wasDeleted = await commentService.DeleteCommentAsync(projectId, commentId);
+				if (wasDeleted)
 					return NoContent();
 				else
 					return NotFound(new { message = "Comment not found" });

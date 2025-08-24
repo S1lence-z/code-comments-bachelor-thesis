@@ -13,7 +13,8 @@ namespace server.Mappers
 				Location = LocationMapper.ToDto(comment.Location),
 				Type = comment.Type,
 				Content = comment.Content,
-				Categories = comment.Categories.Select(CategoryMapper.ToDto).ToList()
+				CategoryId = comment.CategoryId,
+				Category = CategoryMapper.ToDto(comment.Category),
 			};
 		}
 	}

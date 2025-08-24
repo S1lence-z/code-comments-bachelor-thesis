@@ -9,24 +9,30 @@ namespace server.Mappers
 		{
 			return location switch
 			{
-				LineLocation lineLocation => new LineLocationDto
+				SinglelineLocation lineLocation => new SinglelineLocationDto
 				{
 					Id = lineLocation.Id,
-					Type = nameof(LineLocation),
+					FilePath = lineLocation.FilePath,
 					LineNumber = lineLocation.LineNumber
 				},
-				LineRange lineRange => new LineRangeDto
+				MultilineLocation lineRange => new MultilineLocationDto
 				{
 					Id = lineRange.Id,
-					Type = nameof(LineRange),
+					FilePath = lineRange.FilePath,
 					StartLineNumber = lineRange.StartLineNumber,
 					EndLineNumber = lineRange.EndLineNumber
 				},
-				OtherLocation otherLocation => new OtherLocationDto
+				FileLocation otherLocation => new FileLocationDto
 				{
 					Id = otherLocation.Id,
-					Type = nameof(OtherLocation),
+					FilePath = otherLocation.FilePath,
 					Description = otherLocation.Description
+				},
+				ProjectLocation projectLocation => new ProjectLocationDto
+				{
+					Id = projectLocation.Id,
+					FilePath = projectLocation.FilePath,
+					Description = projectLocation.Description
 				},
 				_ => throw new ArgumentException("Unknown location type")
 			};

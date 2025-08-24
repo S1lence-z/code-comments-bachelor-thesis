@@ -1,6 +1,6 @@
 ﻿namespace server.Models.Locations
 {
-	public class LineLocation : Location
+	public class SinglelineLocation : Location
 	{
 		public int LineNumber { get; set; }
 	}
