@@ -1,4 +1,4 @@
-﻿namespace server.Enums
+﻿namespace server.Types.Enums
 {
 	public enum RepositoryType
 	{

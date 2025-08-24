@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using server.Models.Categories;
 using server.Models.Projects;
-using server.Enums;
+using server.Models.Locations;
+using server.Models.Comments;
+using server.Types.Enums;
 
 namespace server.Data
 {
@@ -10,6 +12,11 @@ namespace server.Data
 		public DbSet<Category> Categories { get; set; }
 		public DbSet<Project> Projects { get; set; }
 		public DbSet<Repository> Repositories { get; set; }
+		public DbSet<Location> Locations { get; set; }
+		public DbSet<LineLocation> LineLocations { get; set; }
+		public DbSet<LineRange> LineRanges { get; set; }
+		public DbSet<OtherLocation> OtherLocations { get; set; }
+		public DbSet<Comment> Comments { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
@@ -17,6 +24,8 @@ namespace server.Data
 			SetupCategories(modelBuilder);
 			SetupProjects(modelBuilder);
 			SetupRepositories(modelBuilder);
+			SetupLocations(modelBuilder);
+			SetupComments(modelBuilder);
 		}
 
 		private static void SeedCategories(ModelBuilder modelBuilder)
@@ -105,6 +114,34 @@ namespace server.Data
 				entity.Property(e => e.RepositoryUrl).IsRequired();
 				entity.Property(e => e.Branch).IsRequired().HasDefaultValue("main");
 				entity.Property(e => e.CommitHash).IsRequired();
+			});
+		}
+
+		private static void SetupLocations(ModelBuilder modelBuilder)
+		{
+			modelBuilder.Entity<Location>().ToTable("Locations");
+			modelBuilder.Entity<LineLocation>().ToTable("LineLocations");
+			modelBuilder.Entity<LineRange>().ToTable("LineRanges");
+			modelBuilder.Entity<OtherLocation>().ToTable("OtherLocations");
+		}
+
+		private static void SetupComments(ModelBuilder modelBuilder)
+		{
+			modelBuilder.Entity<Comment>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+				entity.Property(e => e.Content).IsRequired();
+				entity.HasOne(e => e.Project)
+					.WithMany()
+					.HasForeignKey(e => e.ProjectId)
+					.OnDelete(DeleteBehavior.Cascade);
+				entity.HasOne(e => e.Location)
+					.WithOne()
+					.HasForeignKey<Comment>(e => e.LocationId)
+					.OnDelete(DeleteBehavior.Cascade);
+				entity.HasMany(e => e.Categories)
+					.WithMany()
+					.UsingEntity(j => j.ToTable("CommentCategories"));
 			});
 		}
 	}

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using server.Interfaces;
 using server.Models.Projects;
 using server.Models.Projects.DTOs;
+using server.Types.Interfaces;
 
 namespace server.Controllers
 {

@@ -1,8 +1,9 @@
 
 using Microsoft.EntityFrameworkCore;
 using server.Data;
-using server.Interfaces;
 using server.Services;
+using server.Types.Interfaces;
+using System.Text.Json.Serialization;
 
 namespace server
 {
@@ -24,7 +25,7 @@ namespace server
 			// Add services to the container.
 			builder.Services.AddControllers().AddJsonOptions(options =>
             {
-                options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
             });
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

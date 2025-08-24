@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using server.Interfaces;
 using server.Models.Categories;
+using server.Types.Interfaces;
 
 namespace server.Controllers
 {

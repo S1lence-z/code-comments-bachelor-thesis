@@ -1,8 +1,8 @@
 ﻿using server.Data;
-using server.Interfaces;
 using server.Models.Projects.DTOs;
 using server.Models.Projects;
 using Microsoft.EntityFrameworkCore;
+using server.Types.Interfaces;
 
 namespace server.Services
 {

@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using server.Enums;
+using server.Types.Enums;
 
 namespace server.Models.Projects
 {

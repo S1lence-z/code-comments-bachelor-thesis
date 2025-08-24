@@ -1,7 +1,7 @@
 ﻿using server.Models.Projects;
 using server.Models.Projects.DTOs;
 
-namespace server.Interfaces
+namespace server.Types.Interfaces
 {
 	public interface IProjectService
 	{

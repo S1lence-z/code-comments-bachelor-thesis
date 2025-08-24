@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using server.Enums;
+using server.Types.Enums;
 
 namespace server.Models.Projects.DTOs
 {

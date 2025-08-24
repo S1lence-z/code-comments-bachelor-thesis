@@ -1,6 +1,6 @@
 ﻿using server.Models.Categories;
 
-namespace server.Interfaces
+namespace server.Types.Interfaces
 {
 	public interface ICategoryService
 	{
