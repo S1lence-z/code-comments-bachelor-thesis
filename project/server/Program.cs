@@ -21,6 +21,7 @@ namespace server
 			// Register services
             builder.Services.AddScoped<IProjectService, ProjectService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
+            builder.Services.AddScoped<ICommentService, CommentService>();
 
 			// Add services to the container.
 			builder.Services.AddControllers().AddJsonOptions(options =>

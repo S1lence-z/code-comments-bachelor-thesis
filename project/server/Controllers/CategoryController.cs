@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using server.Mappers;
 using server.Models.Categories;
 using server.Types.Interfaces;
 
@@ -14,7 +15,7 @@ namespace server.Controllers
 			try
 			{
 				IEnumerable<Category> categories = await categoryService.GetAllCategoriesAsync();
-				IEnumerable<CategoryDto> categoryDtos = categories.Select(CategoryDto.From);
+				IEnumerable<CategoryDto> categoryDtos = categories.Select(CategoryMapper.ToDto);
 				return Ok(categoryDtos);
 			}
 			catch (Exception ex)

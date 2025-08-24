@@ -7,7 +7,7 @@ using server.Types.Enums;
 
 namespace server.Models.Comments
 {
-	public class Comment
+	public record class Comment
 	{
 		[Key]
 		public Guid Id { get; set; }

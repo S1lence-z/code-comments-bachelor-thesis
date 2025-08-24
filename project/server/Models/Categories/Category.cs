@@ -2,7 +2,7 @@
 
 namespace server.Models.Categories
 {
-	public class Category
+	public record class Category
 	{
 		[Key]
 		public Guid Id { get; set; } = Guid.NewGuid();

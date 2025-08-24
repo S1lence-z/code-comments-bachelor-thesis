@@ -13,18 +13,5 @@
 		public string WriteApiUrl { get; set; } = string.Empty;
 
 		public RepositoryDto Repository { get; set; } = null!;
-
-		public static ProjectDto From(Project project, Repository repo)
-		{
-			return new ProjectDto
-			{
-				Id = project.Id,
-				Version = project.Version,
-				Name = project.Name,
-				ReadApiUrl = project.ReadApiUrl,
-				WriteApiUrl = project.WriteApiUrl,
-				Repository = RepositoryDto.From(repo)
-			};
-		}
 	}
 }

@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using server.Types.Enums;
+﻿using server.Types.Enums;
 
 namespace server.Models.Projects.DTOs
 {
@@ -15,17 +13,5 @@ namespace server.Models.Projects.DTOs
 		public string Branch { get; set; } = "main";
 
 		public string CommitHash { get; set; } = string.Empty;
-
-		public static RepositoryDto From(Repository repository)
-		{
-			return new RepositoryDto
-			{
-				Id = repository.Id,
-				RepositoryType = repository.RepositoryType,
-				RepositoryUrl = repository.RepositoryUrl,
-				Branch = repository.Branch,
-				CommitHash = repository.CommitHash
-			};
-		}
 	}
 }
