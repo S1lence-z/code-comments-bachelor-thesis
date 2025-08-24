@@ -1,28 +1,26 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using server.Models.Categories;
+using server.Models.Projects;
+using server.Enums;
 
 namespace server.Data
 {
 	public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 	{
 		public DbSet<Category> Categories { get; set; }
+		public DbSet<Project> Projects { get; set; }
+		public DbSet<Repository> Repositories { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			base.OnModelCreating(modelBuilder);
 			SetupCategories(modelBuilder);
+			SetupProjects(modelBuilder);
+			SetupRepositories(modelBuilder);
 		}
 
-		private static void SetupCategories(ModelBuilder modelBuilder)
+		private static void SeedCategories(ModelBuilder modelBuilder)
 		{
-			modelBuilder.Entity<Category>(entity =>
-			{
-				entity.HasKey(e => e.Id);
-				entity.Property(e => e.Label).IsRequired();
-				entity.Property(e => e.Description).HasMaxLength(500);
-			});
-
-			// Seed initial data
 			modelBuilder.Entity<Category>().HasData(
 				new Category
 				{
@@ -67,6 +65,47 @@ namespace server.Data
 					Description = "Security vulnerabilities or concerns"
 				}
 			);
+		}
+
+		private static void SetupCategories(ModelBuilder modelBuilder)
+		{
+			modelBuilder.Entity<Category>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+				entity.Property(e => e.Label).IsRequired();
+				entity.Property(e => e.Description).HasMaxLength(500);
+			});
+			SeedCategories(modelBuilder);
+		}
+
+		private static void SetupProjects(ModelBuilder modelBuilder)
+		{
+			modelBuilder.Entity<Project>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+				entity.Property(e => e.Name).IsRequired();
+				entity.Property(e => e.Version).IsRequired().HasDefaultValue("1.0");
+				entity.Property(e => e.ReadApiUrl).IsRequired();
+				entity.Property(e => e.WriteApiUrl).IsRequired();
+			});
+		}
+
+		private static void SetupRepositories(ModelBuilder modelBuilder)
+		{
+			modelBuilder.Entity<Repository>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+				entity.Property(e => e.RepositoryType).IsRequired()
+					.HasDefaultValue(RepositoryType.git)
+					.HasConversion<string>();
+				entity.Property(e => e.RepositoryUrl).IsRequired();
+				entity.Property(e => e.Branch).IsRequired().HasDefaultValue("main");
+				entity.Property(e => e.CommitHash).IsRequired();
+				entity.HasOne(e => e.Project)
+					.WithMany()
+					.HasForeignKey(e => e.ProjectId)
+					.OnDelete(DeleteBehavior.Cascade);
+			});
 		}
 	}
 }

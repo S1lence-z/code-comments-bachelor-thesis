@@ -2,16 +2,16 @@
 
 namespace server.Models.Projects
 {
-	public class Project
+	public record class Project
 	{
 		[Key]
 		public Guid Id { get; set; } = Guid.NewGuid();
 
 		[Required]
-		public string Version { get; set; } = "1.0";
+		public string Name { get; set; } = string.Empty;
 
 		[Required]
-		public string Name { get; set; } = string.Empty;
+		public string Version { get; set; } = "1.0";
 
 		[Required]
 		public string ReadApiUrl { get; set; } = string.Empty;

@@ -4,6 +4,6 @@ namespace server.Interfaces
 {
 	public interface IProjectService
 	{
-		Task<bool> SetupProjectAsync(ProjectSetupRequest request);
+		Task<ProjectSetupResponse> SetupProjectAsync(ProjectSetupRequest request);
 	}
 }

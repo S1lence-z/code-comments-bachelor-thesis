@@ -4,7 +4,7 @@ using server.Enums;
 
 namespace server.Models.Projects
 {
-	public class Repository
+	public record class Repository
 	{
 		[Key]
 		public Guid Id { get; set; } = Guid.NewGuid();

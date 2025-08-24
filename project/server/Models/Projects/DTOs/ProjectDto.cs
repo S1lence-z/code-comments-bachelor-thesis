@@ -2,7 +2,7 @@
 
 namespace server.Models.Projects.DTOs
 {
-	public class ProjectDto
+	public record class ProjectDto
 	{
 		public Guid Id { get; set; }
 
@@ -13,5 +13,17 @@ namespace server.Models.Projects.DTOs
 		public string ReadApiUrl { get; set; } = string.Empty;
 
 		public string WriteApiUrl { get; set; } = string.Empty;
+
+		public static ProjectDto FromProject(Project project)
+		{
+			return new ProjectDto
+			{
+				Id = project.Id,
+				Version = project.Version,
+				Name = project.Name,
+				ReadApiUrl = project.ReadApiUrl,
+				WriteApiUrl = project.WriteApiUrl
+			};
+		}
 	}
 }
