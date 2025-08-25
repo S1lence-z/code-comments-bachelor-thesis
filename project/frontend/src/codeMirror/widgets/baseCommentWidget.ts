@@ -1,14 +1,14 @@
 import { WidgetType } from "@codemirror/view";
-import type ICategoryDto from "../../types/dtos/ICategoryDto.ts";
+import type ICategoryDto from "../../types/interfaces/ICategoryDto.ts";
 
 export default abstract class BaseCommentWidget extends WidgetType {
 	protected static readonly className: string;
-	protected handleDeleteComment: (commentId: number) => Promise<void>;
-	protected handleEditComment: (updatedComment: number) => Promise<void>;
+	protected handleDeleteComment: (commentId: string) => Promise<void>;
+	protected handleEditComment: (updatedComment: string) => Promise<void>;
 
 	constructor(
-		handleDeleteComment: (commentId: number) => Promise<void>,
-		handleEditComment: (commentId: number) => Promise<void>
+		handleDeleteComment: (commentId: string) => Promise<void>,
+		handleEditComment: (updatedComment: string) => Promise<void>
 	) {
 		super();
 		this.handleDeleteComment = handleDeleteComment;

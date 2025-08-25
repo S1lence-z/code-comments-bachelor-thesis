@@ -1,4 +1,4 @@
-import type { GitHubTreeItem, TreeNode } from "../types/githubTree.ts";
+import type { GitHubTreeItem, TreeNode } from "../types/github/githubTree.ts";
 
 export function buildFileTreeFromGitHub(gitHubItems: GitHubTreeItem[]): TreeNode[] {
 	const rootNodes: TreeNode[] = [];

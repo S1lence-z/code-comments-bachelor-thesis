@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import type { Ref } from "vue";
 import { computed, ref, watch } from "vue";
-import type ICommentDto from "../../types/dtos/ICommentDto";
+import type ICommentDto from "../../types/interfaces/ICommentDto";
+import CommentDto from "../../types/dtos/CommentDto";
 import SlideoutPanel from "../../lib/SlideoutPanel.vue";
 import { useRepositoryStore } from "../../stores/repositoryStore";
 import { useProjectStore } from "../../stores/projectStore";
 import { storeToRefs } from "pinia";
-import type ICategoryDto from "../../types/dtos/ICategoryDto";
+import type ICategoryDto from "../../types/interfaces/ICategoryDto";
 import InputSelect from "../../lib/InputSelect.vue";
 import InputArea from "../../lib/InputArea.vue";
 import { CommentType } from "../../types/enums/CommentType";
@@ -19,13 +20,13 @@ interface CommentFormPanelProps {
 	commentFilePath: string | null;
 	startLineNumber: number | null;
 	endLineNumber: number | null;
-	commentId: number | null;
+	commentId: string | null;
 	commentType: CommentType;
 }
 
 const props = withDefaults(defineProps<CommentFormPanelProps>(), {
 	isVisible: false,
-	commentId: 0,
+	commentId: null,
 	commentFilePath: "",
 });
 
@@ -42,7 +43,9 @@ const { writeApiUrl } = storeToRefs(projectStore) as {
 
 // Computed properties
 const currentComment = computed(() => {
-	const existingComment = props.commentId ? comments.value.find((comment) => comment.id === props.commentId) : null;
+	const existingComment = props.commentId
+		? comments.value.find((comment) => comment.id === props.commentId?.toString())
+		: null;
 	return existingComment || null;
 });
 
@@ -74,18 +77,18 @@ const getSubtitle = computed(() => {
 });
 
 // Form state
-const commentCategory = ref(currentComment.value?.categories?.[0].label || "");
-const commentText = ref(currentComment.value?.content || "");
+const commentCategoryLabel = ref(currentComment.value?.category?.label || "");
+const commentContent = ref(currentComment.value?.content || "");
 
 watch(
 	() => props.commentId,
 	() => {
 		if (currentComment.value) {
-			commentText.value = currentComment.value.content || "";
-			commentCategory.value = currentComment.value.categories?.[0]?.label || "";
+			commentContent.value = currentComment.value.content || "";
+			commentCategoryLabel.value = currentComment.value.category?.label || "";
 		} else {
-			commentText.value = "";
-			commentCategory.value = "";
+			commentContent.value = "";
+			commentCategoryLabel.value = "";
 		}
 	},
 	{ immediate: true }
@@ -93,45 +96,58 @@ watch(
 
 // Methods
 const handleSubmit = async () => {
-	if (!commentText.value.trim()) {
+	if (!commentContent.value.trim()) {
 		alert("Comment cannot be empty.");
 		return;
 	}
 
-	if (!commentCategory.value && props.commentType !== CommentType.Project && props.commentType !== CommentType.File) {
+	if (
+		!commentCategoryLabel.value &&
+		props.commentType !== CommentType.Project &&
+		props.commentType !== CommentType.File
+	) {
 		alert("Please select a category.");
 		return;
 	}
 
-	const commentData: ICommentDto = {} as ICommentDto;
-	if (props.commentType === CommentType.Singleline) {
-		commentData.id = props.commentId || 0;
-		commentData.filePath = props.commentFilePath || "";
-		commentData.lineNumber = props.startLineNumber || 0;
-		commentData.content = commentText.value.trim();
-		commentData.type = CommentType.Singleline;
-		commentData.categories = allCategories.value.filter((cat) => cat.label === commentCategory.value);
-	} else if (props.commentType === CommentType.Multiline) {
-		commentData.id = props.commentId || 0;
-		commentData.filePath = props.commentFilePath || "";
-		commentData.startLineNumber = props.startLineNumber || 0;
-		commentData.endLineNumber = props.endLineNumber || 0;
-		commentData.content = commentText.value.trim();
-		commentData.type = CommentType.Multiline;
-		commentData.categories = allCategories.value.filter((cat) => cat.label === commentCategory.value);
-	} else if (props.commentType === CommentType.File) {
-		commentData.id = props.commentId || 0;
-		commentData.filePath = props.commentFilePath || "";
-		commentData.content = commentText.value.trim();
-		commentData.type = CommentType.File;
-	} else if (props.commentType === CommentType.Project) {
-		commentData.id = props.commentId || 0;
-		commentData.filePath = projectStore.getRepositoryName;
-		commentData.content = commentText.value.trim();
-		commentData.type = CommentType.Project;
-	} else {
-		alert("Invalid comment type. Please ensure you are adding a singleline or multiline comment.");
-		return;
+	let commentData: ICommentDto | null = null;
+	switch (props.commentType) {
+		case CommentType.Singleline:
+			commentData = CommentDto.Singleline(
+				props.commentFilePath || "",
+				props.startLineNumber || 0,
+				commentContent.value.trim(),
+				allCategories.value.find((cat) => cat.label === commentCategoryLabel.value)?.id || "",
+				props.commentId?.toString() || null
+			);
+			break;
+		case CommentType.Multiline:
+			commentData = CommentDto.Multiline(
+				props.commentFilePath || "",
+				props.startLineNumber || 0,
+				props.endLineNumber || 0,
+				commentContent.value.trim(),
+				allCategories.value.find((cat) => cat.label === commentCategoryLabel.value)?.id || "",
+				props.commentId?.toString() || null
+			);
+			break;
+		case CommentType.File:
+			commentData = CommentDto.File(
+				props.commentFilePath || "",
+				commentContent.value.trim(),
+				props.commentId?.toString() || null
+			);
+			break;
+		case CommentType.Project:
+			commentData = CommentDto.Project(
+				props.commentFilePath || "",
+				commentContent.value.trim(),
+				props.commentId?.toString() || null
+			);
+			break;
+		default:
+			alert("Invalid comment type.");
+			return;
 	}
 
 	try {
@@ -159,13 +175,13 @@ const closeModal = () => {
 		<!-- Comment Add/Edit Form Content -->
 		<InputSelect
 			v-if="props.commentType !== CommentType.Project && props.commentType !== CommentType.File"
-			v-model="commentCategory"
+			v-model="commentCategoryLabel"
 			label="Category"
 			:options="allCategories.map((cat) => ({ value: cat.label, label: cat.label }))"
 			placeholder="Select a category"
 		/>
 
-		<InputArea label="Comment" v-model="commentText" placeholder="Enter your comment..." :rows="4" />
+		<InputArea label="Comment" v-model="commentContent" placeholder="Enter your comment..." :rows="4" />
 
 		<div class="flex justify-end space-x-2">
 			<button @click="closeModal" class="btn btn-secondary">Cancel</button>

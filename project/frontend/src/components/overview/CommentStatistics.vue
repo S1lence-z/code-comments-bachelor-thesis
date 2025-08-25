@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type ICommentDto from "../../types/dtos/ICommentDto";
+import type ICommentDto from "../../types/interfaces/ICommentDto";
 import { CommentType } from "../../types/enums/CommentType";
 import Card from "../../lib/Card.vue";
 import { computed } from "vue";
@@ -37,7 +37,7 @@ const totalCommentedFilesAndFolders = computed(() => {
 const categoryCounts = computed(() => {
 	const groupedCategories: Record<string, number> = {};
 	props.allComments.forEach((comment) => {
-		const categories = comment.categories || [];
+		const categories = comment.category ? [comment.category] : [];
 		categories.forEach((category) => {
 			if (!groupedCategories[category.label]) {
 				groupedCategories[category.label] = 0;

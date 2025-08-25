@@ -1,4 +1,4 @@
-import type { ProcessedFile, FileDisplayType, GithubFileContentResponse } from "../types/githubFile";
+import type { ProcessedFile, FileDisplayType, GithubFileContentResponse } from "../types/github/githubFile";
 
 export async function fetchProcessedFile(
 	repoUrl: string,

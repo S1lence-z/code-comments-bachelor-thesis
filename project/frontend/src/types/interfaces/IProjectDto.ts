@@ -1,10 +1,10 @@
 import type IRepositoryDto from "./IRepositoryDto.ts";
 
 export default interface IProjectDto {
-	identifier: number;
+	id: string;
 	version: string;
-	label: string;
+	name: string;
 	readApiUrl: string;
-	writeApiUrl: string | null;
+	writeApiUrl: string;
 	repository: IRepositoryDto;
 }

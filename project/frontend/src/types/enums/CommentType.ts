@@ -1,6 +1,6 @@
 export enum CommentType {
-	Singleline = "line",
-	Multiline = "multiline",
-	File = "file",
-	Project = "project",
+	Singleline = "Singleline",
+	Multiline = "Multiline",
+	File = "File",
+	Project = "Project",
 }

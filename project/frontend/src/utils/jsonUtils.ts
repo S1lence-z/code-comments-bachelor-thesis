@@ -1,5 +1,5 @@
-import type ICommentDto from "../types/dtos/ICommentDto";
-import type ICategoryDto from "../types/dtos/ICategoryDto";
+import type ICommentDto from "../types/interfaces/ICommentDto";
+import type ICategoryDto from "../types/interfaces/ICategoryDto";
 import { transformCommentsToJsonLd, transformCategoriesToJsonLd, type JsonLdOptions } from "./jsonLdTransformers";
 
 export const parseJSON = <T>(jsonString: string): T | null => {

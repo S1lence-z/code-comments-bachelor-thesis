@@ -1,8 +1,8 @@
-import type ISetupProjectRequest from "../types/api/ISetupProjectRequest";
-import type IProjectDto from "../types/dtos/IProjectDto";
+import type IProjectSetupRequest from "../types/interfaces/ISetupProjectRequest";
+import type IProjectDto from "../types/interfaces/IProjectDto";
 
 export async function setupProject(
-	setupProjectRequest: ISetupProjectRequest,
+	setupProjectRequest: IProjectSetupRequest,
 	backendBaseUrl: string
 ): Promise<IProjectDto> {
 	const requestUrl = `${backendBaseUrl}/api/v1/project`;

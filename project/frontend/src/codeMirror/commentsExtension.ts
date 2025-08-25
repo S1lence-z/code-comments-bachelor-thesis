@@ -3,7 +3,7 @@ import { RangeSetBuilder, StateField } from "@codemirror/state";
 import { Decoration } from "@codemirror/view";
 import type { DecorationSet } from "@codemirror/view";
 import { EditorView } from "@codemirror/view";
-import type ICommentDto from "../types/dtos/ICommentDto.ts";
+import type ICommentDto from "../types/interfaces/ICommentDto.ts";
 import { CommentType } from "../types/enums/CommentType.ts";
 import SinglelineCommentWidget from "./widgets/singleLineCommentWidget.ts";
 import MultilineCommentWidget from "./widgets/multilineCommentWidget.ts";
@@ -14,8 +14,8 @@ import MultilineCommentWidget from "./widgets/multilineCommentWidget.ts";
 function buildDecorations(
 	state: EditorState,
 	commentsToDisplay: Readonly<ICommentDto[]>,
-	deleteCommentAction: (commentId: number) => Promise<void>,
-	editCommentAction: (commentId: number) => Promise<void>
+	deleteCommentAction: (commentId: string) => Promise<void>,
+	editCommentAction: (commentId: string) => Promise<void>
 ): DecorationSet {
 	const builder = new RangeSetBuilder<Decoration>();
 
@@ -41,8 +41,8 @@ function buildDecorations(
 
 function sortCommentsByPosition(comments: Readonly<ICommentDto[]>): ICommentDto[] {
 	return [...comments].sort((a, b) => {
-		const aPos = a.type === CommentType.Singleline ? a.lineNumber : a.startLineNumber;
-		const bPos = b.type === CommentType.Singleline ? b.lineNumber : b.startLineNumber;
+		const aPos = a.type === CommentType.Singleline ? a.location.lineNumber : a.location.startLineNumber;
+		const bPos = b.type === CommentType.Singleline ? b.location.lineNumber : b.location.startLineNumber;
 		return aPos! - bPos!;
 	});
 }
@@ -51,18 +51,18 @@ function addMultiLineCommentDecoration(
 	comment: ICommentDto,
 	state: EditorState,
 	builder: RangeSetBuilder<Decoration>,
-	deleteCommentAction: (commentId: number) => Promise<void>,
-	editCommentAction: (commentId: number) => Promise<void>
+	deleteCommentAction: (commentId: string) => Promise<void>,
+	editCommentAction: (commentId: string) => Promise<void>
 ): void {
-	const startLine = state.doc.line(comment.startLineNumber!);
+	const startLine = state.doc.line(comment.location.startLineNumber!);
 	builder.add(
 		startLine.from,
 		startLine.from,
 		Decoration.widget({
 			widget: new MultilineCommentWidget(
 				comment.content,
-				comment.id,
-				comment.categories ? comment.categories : [],
+				comment.id ?? "",
+				comment.category ? [comment.category] : [],
 				deleteCommentAction,
 				editCommentAction
 			),
@@ -76,19 +76,19 @@ function addSingleLineCommentDecoration(
 	comment: ICommentDto,
 	state: EditorState,
 	builder: RangeSetBuilder<Decoration>,
-	deleteCommentAction: (commentId: number) => Promise<void>,
-	editCommentAction: (commentId: number) => Promise<void>
+	deleteCommentAction: (commentId: string) => Promise<void>,
+	editCommentAction: (commentId: string) => Promise<void>
 ): void {
-	if (comment.lineNumber! > 0 && comment.lineNumber! <= state.doc.lines) {
-		const line = state.doc.line(comment.lineNumber!);
+	if (comment.location.lineNumber! > 0 && comment.location.lineNumber! <= state.doc.lines) {
+		const line = state.doc.line(comment.location.lineNumber!);
 		builder.add(
 			line.from,
 			line.from,
 			Decoration.widget({
 				widget: new SinglelineCommentWidget(
 					comment.content,
-					comment.id,
-					comment.categories ? comment.categories : [],
+					comment.id ?? "",
+					comment.category ? [comment.category] : [],
 					deleteCommentAction,
 					editCommentAction
 				),
@@ -104,8 +104,8 @@ function addSingleLineCommentDecoration(
  */
 export function commentsDisplayExtension(
 	currentComments: Readonly<ICommentDto[]>,
-	deleteCommentAction: (commentId: number) => Promise<void>,
-	editCommentAction: (commentId: number) => Promise<void>
+	deleteCommentAction: (commentId: string) => Promise<void>,
+	editCommentAction: (commentId: string) => Promise<void>
 ) {
 	return StateField.define<DecorationSet>({
 		create(state: EditorState) {

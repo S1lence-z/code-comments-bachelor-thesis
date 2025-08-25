@@ -1,6 +1,6 @@
 import { oneDark } from "@codemirror/theme-one-dark";
 import { EditorView, lineNumbers, keymap } from "@codemirror/view";
-import type ICommentDto from "../../types/dtos/ICommentDto.ts";
+import type ICommentDto from "../../types/interfaces/ICommentDto.ts";
 import { getLanguageExtension } from "../../utils/languageUtils.ts";
 import { commentsDisplayExtension } from "../commentsExtension.ts";
 import { getLineNumbersConfig, type LineNumberConfig } from "./lineNumbersConfig.ts";
@@ -13,8 +13,8 @@ import { EditorState, type Extension } from "@codemirror/state";
 export function createEditorExtensions(
 	filePath: string | null,
 	comments: ICommentDto[] = [],
-	deleteCommentAction: (commentId: number) => Promise<void>,
-	editCommentAction: (commentId: number) => Promise<void>,
+	deleteCommentAction: (commentId: string) => Promise<void>,
+	editCommentAction: (commentId: string) => Promise<void>,
 	isKeyboardMode: boolean,
 	onSingleLineComment: (lineNumber: number, filePath: string) => void
 ) {

@@ -1,5 +1,5 @@
 export default interface ICategoryDto {
-	id: number;
+	id: string;
 	label: string;
-	description: string | null;
+	description: string;
 }

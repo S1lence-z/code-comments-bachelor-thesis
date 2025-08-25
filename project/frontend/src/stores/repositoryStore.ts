@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
-import type { TreeNode } from "../types/githubTree";
-import type ICommentDto from "../types/dtos/ICommentDto";
-import type ICategoryDto from "../types/dtos/ICategoryDto";
+import type { TreeNode } from "../types/github/githubTree";
+import type ICommentDto from "../types/interfaces/ICommentDto";
+import type ICategoryDto from "../types/interfaces/ICategoryDto";
 import { extractBaseUrl } from "../utils/urlUtils";
 import { fetchRepoTreeAPI } from "../services/githubTreeService";
 import { fetchComments, addComment, updateComment, deleteComment } from "../services/commentsService";
@@ -25,7 +25,7 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 		allCategories: (state) => state.categories,
 		// Get comments for a specific file
 		getCommentsForFile: (state) => (filePath: string) => {
-			return state.comments.filter((comment: ICommentDto) => comment.filePath === filePath) ?? [];
+			return state.comments.filter((comment: ICommentDto) => comment.location.filePath === filePath) ?? [];
 		},
 		isTreeFetched: (state) => state.fileTreeData.length > 0,
 		isCommentsFetched: (state) => state.comments.length > 0,
@@ -87,12 +87,12 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 				}
 
 				const response = await fetchComments(writeApiUrl);
-				if (!response || !response.comments) {
+				if (!response) {
 					serverStore.setSyncError("No comments found in the response");
 					console.warn("No comments found in the response");
 					return;
 				}
-				this.comments = response.comments || [];
+				this.comments = response || [];
 				serverStore.setSynced();
 			} catch (error: any) {
 				serverStore.setSyncError("Failed to fetch comments");
@@ -141,7 +141,8 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 				this.comments.push(comment);
 			}
 		},
-		deleteCommentLocal(commentId: number) {
+		deleteCommentLocal(commentId: string) {
+			console.log("Deleting comment with ID:", commentId);
 			const index = this.comments.findIndex((c: ICommentDto) => c.id === commentId);
 			if (index !== -1) {
 				this.comments.splice(index, 1);
@@ -152,9 +153,9 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 			try {
 				serverStore.startSyncing();
 				// Update existing comment
-				if (commentData.id > 0) {
+				if (commentData.id) {
 					const response = await updateComment(writeApiUrl, commentData.id, commentData);
-					if (!response.success) {
+					if (!response.id) {
 						throw new Error("Failed to update comment");
 					}
 					// Update local state with the updated comment
@@ -164,25 +165,21 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 				}
 				// Add new comment
 				const response = await addComment(writeApiUrl, commentData);
-				if (!response.commentId) {
+				if (!response.id) {
 					throw new Error("Failed to add comment");
 				}
-				this.upsertCommentLocal({ ...commentData, id: response.commentId });
+				this.upsertCommentLocal({ ...commentData, id: response.id });
 				serverStore.setSynced();
 			} catch (error: any) {
 				serverStore.setSyncError("Failed to upsert comment");
 				throw error;
 			}
 		},
-		async deleteCommentAsync(commentId: number, writeApiUrl: string): Promise<void> {
+		async deleteCommentAsync(commentId: string, writeApiUrl: string): Promise<void> {
 			const serverStore = useServerStore();
 			try {
 				serverStore.startSyncing();
-				const response = await deleteComment(writeApiUrl, commentId);
-				if (!response.success) {
-					serverStore.setSyncError("Failed to delete comment");
-					throw new Error("Failed to delete comment");
-				}
+				await deleteComment(writeApiUrl, commentId);
 				this.deleteCommentLocal(commentId);
 				serverStore.setSynced();
 			} catch (error: any) {
@@ -191,7 +188,7 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 			}
 		},
 		fileContainsComments(filePath: string): boolean {
-			return this.comments.some((comment: ICommentDto) => comment.filePath === filePath);
+			return this.comments.some((comment: ICommentDto) => comment.location.filePath === filePath);
 		},
 	},
 });

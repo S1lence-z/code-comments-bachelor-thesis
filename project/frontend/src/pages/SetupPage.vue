@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { setupProject } from "../services/projectService.ts";
-import type ISetupProjectRequest from "../types/api/ISetupProjectRequest.ts";
+import type IProjectSetupRequest from "../types/interfaces/ISetupProjectRequest.ts";
 import InputField from "../lib/InputField.vue";
 import Button from "../lib/Button.vue";
 import Card from "../lib/Card.vue";
@@ -43,7 +43,7 @@ const handleCreateConfiguration = async () => {
 	errorMessage.value = "";
 	generatedReviewLink.value = "";
 	try {
-		const setupData: ISetupProjectRequest = {
+		const setupData: IProjectSetupRequest = {
 			repositoryUrl: githubRepoUrl.value.trim(),
 			branch: branchName.value.trim(),
 		};
@@ -53,7 +53,7 @@ const handleCreateConfiguration = async () => {
 		if (response.writeApiUrl && response.repository) {
 			generatedReviewLink.value = createEditRepoUrl(
 				response.writeApiUrl,
-				response.repository.repoLandingPageUrl,
+				response.repository.repositoryUrl,
 				response.repository.branch
 			);
 		} else {

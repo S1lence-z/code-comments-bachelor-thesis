@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { fetchProcessedFile } from "../services/githubFileService";
-import type { FileDisplayType, ProcessedFile } from "../types/githubFile";
+import type { FileDisplayType, ProcessedFile } from "../types/github/githubFile";
 
 export const useFileContentStore = defineStore("fileContentStore", {
 	state: () => ({

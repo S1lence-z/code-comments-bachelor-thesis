@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { inject } from "vue";
 import FileExplorerItem from "./FileExplorerItem.vue";
-import type { TreeNode } from "../../types/githubTree.ts";
+import type { TreeNode } from "../../types/github/githubTree.ts";
 import { handleToggleExpandInTree } from "../../utils/treeNodeUtils.ts";
 import { projectCommentModalContextKey } from "../../core/keys.ts";
 import { useRepositoryStore } from "../../stores/repositoryStore.ts";
