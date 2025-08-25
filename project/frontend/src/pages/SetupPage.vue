@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { createConfiguration } from "../services/commentsService.ts";
+import { setupProject } from "../services/projectService.ts";
 import type ISetupProjectRequest from "../../../shared/api/ISetupProjectRequest.ts";
 import InputField from "../lib/InputField.vue";
 import Button from "../lib/Button.vue";
 import Card from "../lib/Card.vue";
 import Icon from "../lib/Icon.vue";
 
+const backendBaseUrl = import.meta.env.VITE_API_BASE_URL;
 const githubRepoUrl = ref("");
 const branchName = ref("");
 const isLoading = ref(false);
@@ -47,7 +48,7 @@ const handleCreateConfiguration = async () => {
 			branch: branchName.value.trim(),
 		};
 
-		const response = await createConfiguration(setupData);
+		const response = await setupProject(setupData, backendBaseUrl);
 
 		if (response.writeApiUrl && response.repository) {
 			generatedReviewLink.value = createEditRepoUrl(

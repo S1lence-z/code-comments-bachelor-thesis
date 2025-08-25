@@ -1,8 +1,5 @@
-import type IProjectDto from "../../../shared/dtos/IProjectDto.ts";
-import type ISetupProjectRequest from "../../../shared/api/ISetupProjectRequest.ts";
 import type IGetCommentsResponse from "../../../shared/api/IGetCommentsResponse.ts";
 import type ICommentDto from "../../../shared/dtos/ICommentDto.ts";
-import type ICategoryDto from "../../../shared/dtos/ICategoryDto.ts";
 
 export async function fetchComments(readApiUrl: string): Promise<IGetCommentsResponse> {
 	try {
@@ -64,33 +61,6 @@ export async function updateComment(
 	}
 }
 
-export async function createConfiguration(setupRequest: ISetupProjectRequest): Promise<IProjectDto> {
-	const requestUrl = "http://localhost:3500/api/setup";
-	try {
-		const response = await fetch(requestUrl, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({
-				repoUrl: setupRequest.repoUrl,
-				branch: setupRequest.branch,
-			}),
-		});
-		if (!response.ok) {
-			const errorData = await response.json().catch(() => ({ message: "Failed to create configuration" }));
-			return Promise.reject(
-				`Failed to create configuration: ${response.status} ${response.statusText} - ${errorData.message}`
-			);
-		}
-		const data = await response.json();
-		return data;
-	} catch (error) {
-		console.error("Error in createConfiguration:", error);
-		throw error;
-	}
-}
-
 export async function deleteComment(writeApiUrl: string, commentId: number): Promise<{ success: boolean }> {
 	try {
 		const response = await fetch(`${writeApiUrl}/${commentId}`, {
@@ -105,20 +75,6 @@ export async function deleteComment(writeApiUrl: string, commentId: number): Pro
 		return await response.json();
 	} catch (error) {
 		console.error("Error in deleteComment:", error);
-		throw error;
-	}
-}
-
-export async function getAllCategories(backendBaseUrl: string): Promise<ICategoryDto[]> {
-	try {
-		const response = await fetch(`${backendBaseUrl}/api/categories`);
-		if (!response.ok) {
-			throw new Error(`Failed to fetch categories: ${response.status} ${response.statusText}`);
-		}
-		const categories: ICategoryDto[] = await response.json();
-		return categories;
-	} catch (error) {
-		console.error("Error in getAllCategories:", error);
 		throw error;
 	}
 }
