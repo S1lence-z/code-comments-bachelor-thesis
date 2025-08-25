@@ -10,7 +10,7 @@ namespace server.Models.Comments
 		public Guid Id { get; set; }
 		public ProjectDto? Project { get; set; }
 		public LocationDto? Location { get; set; }
-		public Guid CategoryId { get; set; }
+		public Guid? CategoryId { get; set; }
 		public CategoryDto? Category { get; set; }
 		public CommentType Type { get; set; }
 		public string Content { get; set; } = string.Empty;

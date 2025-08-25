@@ -54,7 +54,6 @@ export default class CommentDto implements ICommentDto {
 		return {
 			...(id != null ? { id } : {}),
 			location: { type: CommentType.File, filePath } as ILocationDto,
-			categoryId: "",
 			type: CommentType.File,
 			content,
 		} as ICommentDto;
@@ -64,7 +63,6 @@ export default class CommentDto implements ICommentDto {
 		return {
 			...(id != null ? { id } : {}),
 			location: { type: CommentType.Project, filePath: repositoryName } as ILocationDto,
-			categoryId: "",
 			type: CommentType.Project,
 			content,
 		} as ICommentDto;

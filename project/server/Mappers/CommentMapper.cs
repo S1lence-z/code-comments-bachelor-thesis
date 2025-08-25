@@ -14,7 +14,7 @@ namespace server.Mappers
 				Type = comment.Type,
 				Content = comment.Content,
 				CategoryId = comment.CategoryId,
-				Category = CategoryMapper.ToDto(comment.Category),
+				Category = comment.Category is null ? null : CategoryMapper.ToDto(comment.Category),
 			};
 		}
 	}

@@ -7,7 +7,7 @@ export default interface ICommentDto {
 	id: string | null;
 	project?: IProjectDto;
 	location: ILocationDto;
-	categoryId: string;
+	categoryId?: string;
 	category?: ICategoryDto;
 	type: CommentType;
 	content: string;

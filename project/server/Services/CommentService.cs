@@ -55,7 +55,7 @@ namespace server.Services
 					FilePath = fileLoc.FilePath,
 					Description = fileLoc.Description ?? "File Comment"
 				},
-				CommentType.Project when commentDto.Location is FileLocationDto projLoc => new FileLocation
+				CommentType.Project when commentDto.Location is ProjectLocationDto projLoc => new ProjectLocation
 				{
 					Id = Guid.NewGuid(),
 					FilePath = projLoc.FilePath,
@@ -76,8 +76,6 @@ namespace server.Services
 
 				// Get the category
 				Category? category = await context.Categories.FirstOrDefaultAsync(cat => cat.Id == newCommentData.CategoryId);
-				if (category is null)
-					throw new ArgumentException($"Category with ID {newCommentData.CategoryId} does not exist.");
 
 				// Create and save the new location based on comment type
 				Location newLocation = CreateLocationFromComment(newCommentData);
@@ -89,7 +87,7 @@ namespace server.Services
 					Id = Guid.NewGuid(),
 					ProjectId = projectId,
 					LocationId = newLocation.Id,
-					CategoryId = category.Id,
+					CategoryId = category?.Id,
 					Type = newCommentData.Type,
 					Content = newCommentData.Content
 				};

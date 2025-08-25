@@ -22,10 +22,9 @@ namespace server.Models.Comments
 		[ForeignKey("LocationId")]
 		public virtual Location Location { get; set; } = null!;
 
-		[Required]
-		public Guid CategoryId { get; set; }
+		public Guid? CategoryId { get; set; }
 		[ForeignKey("CategoryId")]
-		public virtual Category Category { get; set; } = null!;
+		public virtual Category? Category { get; set; }
 
 		[Required]
 		public CommentType Type { get; set; }
