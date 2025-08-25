@@ -154,8 +154,8 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 				serverStore.startSyncing();
 				// Update existing comment
 				if (commentData.id) {
-					const response = await updateComment(writeApiUrl, commentData.id, commentData);
-					if (!response.id) {
+					const updatedComment = await updateComment(writeApiUrl, commentData.id, commentData);
+					if (!updatedComment.id) {
 						throw new Error("Failed to update comment");
 					}
 					// Update local state with the updated comment
@@ -164,11 +164,11 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 					return;
 				}
 				// Add new comment
-				const response = await addComment(writeApiUrl, commentData);
-				if (!response.id) {
+				const newComment = await addComment(writeApiUrl, commentData);
+				if (!newComment.id) {
 					throw new Error("Failed to add comment");
 				}
-				this.upsertCommentLocal({ ...commentData, id: response.id });
+				this.upsertCommentLocal({ ...newComment, id: newComment.id });
 				serverStore.setSynced();
 			} catch (error: any) {
 				serverStore.setSyncError("Failed to upsert comment");
