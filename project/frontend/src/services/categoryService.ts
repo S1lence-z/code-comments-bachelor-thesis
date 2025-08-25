@@ -1,4 +1,4 @@
-import type ICategoryDto from "../../../shared/dtos/ICategoryDto";
+import type ICategoryDto from "../types/dtos/ICategoryDto";
 
 export async function getAllCategories(backendBaseUrl: string): Promise<ICategoryDto[]> {
 	try {

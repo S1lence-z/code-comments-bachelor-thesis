@@ -1,6 +1,6 @@
 import { EditorView, ViewPlugin, ViewUpdate, Decoration, type DecorationSet } from "@codemirror/view";
 import { Range } from "@codemirror/state";
-import type ICommentDto from "../../../../shared/dtos/ICommentDto.ts";
+import type ICommentDto from "../../types/dtos/ICommentDto.ts";
 
 // Create decorations for line numbers and gutter markers
 const multilineCommentLineNumberDeco = Decoration.line({

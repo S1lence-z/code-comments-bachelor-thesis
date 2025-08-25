@@ -1,5 +1,5 @@
 import { WidgetType } from "@codemirror/view";
-import type ICategoryDto from "../../../../shared/dtos/ICategoryDto.ts";
+import type ICategoryDto from "../../types/dtos/ICategoryDto.ts";
 
 export default abstract class BaseCommentWidget extends WidgetType {
 	protected static readonly className: string;

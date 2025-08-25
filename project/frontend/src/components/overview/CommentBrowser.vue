@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import type ICommentDto from "../../../../shared/dtos/ICommentDto";
-import { CommentType } from "../../../../shared/enums/CommentType";
+import type ICommentDto from "../../types/dtos/ICommentDto";
+import { CommentType } from "../../types/enums/CommentType";
 import { useFileContentStore } from "../../stores/fileContentStore";
 import Card from "../../lib/Card.vue";
 import Button from "../../lib/Button.vue";

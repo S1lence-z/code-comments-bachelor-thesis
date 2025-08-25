@@ -1,5 +1,5 @@
-import type ICommentDto from "../../../shared/dtos/ICommentDto";
-import type ICategoryDto from "../../../shared/dtos/ICategoryDto";
+import type ICommentDto from "../types/dtos/ICommentDto";
+import type ICategoryDto from "../types/dtos/ICategoryDto";
 import commentContext from "../jsonld/commentContext.json";
 import categoryContext from "../jsonld/categoryContext.json";
 

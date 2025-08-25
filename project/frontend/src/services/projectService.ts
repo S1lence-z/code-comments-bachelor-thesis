@@ -1,5 +1,5 @@
-import type ISetupProjectRequest from "../../../shared/api/ISetupProjectRequest";
-import type IProjectDto from "../../../shared/dtos/IProjectDto";
+import type ISetupProjectRequest from "../types/api/ISetupProjectRequest";
+import type IProjectDto from "../types/dtos/IProjectDto";
 
 export async function setupProject(
 	setupProjectRequest: ISetupProjectRequest,
@@ -13,7 +13,7 @@ export async function setupProject(
 				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({
-				repositoryUrl: setupProjectRequest.repoUrl,
+				repositoryUrl: setupProjectRequest.repositoryUrl,
 				branch: setupProjectRequest.branch,
 			}),
 		});

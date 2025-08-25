@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { setupProject } from "../services/projectService.ts";
-import type ISetupProjectRequest from "../../../shared/api/ISetupProjectRequest.ts";
+import type ISetupProjectRequest from "../types/api/ISetupProjectRequest.ts";
 import InputField from "../lib/InputField.vue";
 import Button from "../lib/Button.vue";
 import Card from "../lib/Card.vue";
@@ -44,7 +44,7 @@ const handleCreateConfiguration = async () => {
 	generatedReviewLink.value = "";
 	try {
 		const setupData: ISetupProjectRequest = {
-			repoUrl: githubRepoUrl.value.trim(),
+			repositoryUrl: githubRepoUrl.value.trim(),
 			branch: branchName.value.trim(),
 		};
 

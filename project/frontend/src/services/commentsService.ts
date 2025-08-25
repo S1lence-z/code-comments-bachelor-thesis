@@ -1,5 +1,5 @@
-import type IGetCommentsResponse from "../../../shared/api/IGetCommentsResponse.ts";
-import type ICommentDto from "../../../shared/dtos/ICommentDto.ts";
+import type IGetCommentsResponse from "../types/api/IGetCommentsResponse.ts";
+import type ICommentDto from "../types/dtos/ICommentDto.ts";
 
 export async function fetchComments(readApiUrl: string): Promise<IGetCommentsResponse> {
 	try {

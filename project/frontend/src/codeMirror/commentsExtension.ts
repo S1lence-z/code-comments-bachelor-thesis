@@ -3,8 +3,8 @@ import { RangeSetBuilder, StateField } from "@codemirror/state";
 import { Decoration } from "@codemirror/view";
 import type { DecorationSet } from "@codemirror/view";
 import { EditorView } from "@codemirror/view";
-import type ICommentDto from "../../../shared/dtos/ICommentDto.ts";
-import { CommentType } from "../../../shared/enums/CommentType.ts";
+import type ICommentDto from "../types/dtos/ICommentDto.ts";
+import { CommentType } from "../types/enums/CommentType.ts";
 import SinglelineCommentWidget from "./widgets/singleLineCommentWidget.ts";
 import MultilineCommentWidget from "./widgets/multilineCommentWidget.ts";
 

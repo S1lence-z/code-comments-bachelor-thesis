@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import type { Ref } from "vue";
 import { computed, ref, watch } from "vue";
-import type ICommentDto from "../../../../shared/dtos/ICommentDto";
+import type ICommentDto from "../../types/dtos/ICommentDto";
 import SlideoutPanel from "../../lib/SlideoutPanel.vue";
 import { useRepositoryStore } from "../../stores/repositoryStore";
 import { useProjectStore } from "../../stores/projectStore";
 import { storeToRefs } from "pinia";
-import type ICategoryDto from "../../../../shared/dtos/ICategoryDto";
+import type ICategoryDto from "../../types/dtos/ICategoryDto";
 import InputSelect from "../../lib/InputSelect.vue";
 import InputArea from "../../lib/InputArea.vue";
-import { CommentType } from "../../../../shared/enums/CommentType";
+import { CommentType } from "../../types/enums/CommentType";
 
 const repositoryStore = useRepositoryStore();
 const projectStore = useProjectStore();

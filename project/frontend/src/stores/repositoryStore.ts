@@ -1,13 +1,13 @@
 import { defineStore } from "pinia";
 import type { TreeNode } from "../types/githubTree";
-import type ICommentDto from "../../../shared/dtos/ICommentDto";
-import type ICategoryDto from "../../../shared/dtos/ICategoryDto";
+import type ICommentDto from "../types/dtos/ICommentDto";
+import type ICategoryDto from "../types/dtos/ICategoryDto";
 import { extractBaseUrl } from "../utils/urlUtils";
 import { fetchRepoTreeAPI } from "../services/githubTreeService";
 import { fetchComments, addComment, updateComment, deleteComment } from "../services/commentsService";
 import { getAllCategories } from "../services/categoryService";
 import { useServerStore } from "./serverStore";
-import { CommentType } from "../../../shared/enums/CommentType";
+import { CommentType } from "../types/enums/CommentType";
 
 export const useRepositoryStore = defineStore("repositoryStore", {
 	state: () => ({

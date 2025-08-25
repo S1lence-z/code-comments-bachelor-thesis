@@ -1,6 +1,6 @@
 import { oneDark } from "@codemirror/theme-one-dark";
 import { EditorView, lineNumbers, keymap } from "@codemirror/view";
-import type ICommentDto from "../../../../shared/dtos/ICommentDto.ts";
+import type ICommentDto from "../../types/dtos/ICommentDto.ts";
 import { getLanguageExtension } from "../../utils/languageUtils.ts";
 import { commentsDisplayExtension } from "../commentsExtension.ts";
 import { getLineNumbersConfig, type LineNumberConfig } from "./lineNumbersConfig.ts";

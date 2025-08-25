@@ -1,4 +1,4 @@
-import type ICategoryDto from "../../../../shared/dtos/ICategoryDto";
+import type ICategoryDto from "../../types/dtos/ICategoryDto";
 import BaseCommentWidget from "./baseCommentWidget";
 
 export default class MultilineCommentWidget extends BaseCommentWidget {

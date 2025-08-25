@@ -1,4 +1,4 @@
-import type ICategoryDto from "../../../../shared/dtos/ICategoryDto.ts";
+import type ICategoryDto from "../../types/dtos/ICategoryDto.ts";
 import BaseCommentWidget from "./baseCommentWidget.ts";
 
 /**
