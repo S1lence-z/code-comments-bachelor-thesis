@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { setupProject } from "../services/projectService.ts";
+import { onMounted, ref } from "vue";
+import { setupProject, listProjects } from "../services/projectService.ts";
 import type IProjectSetupRequest from "../types/interfaces/ISetupProjectRequest.ts";
 import InputField from "../lib/InputField.vue";
 import Button from "../lib/Button.vue";
 import Card from "../lib/Card.vue";
 import Icon from "../lib/Icon.vue";
+import type IProjectDto from "../types/interfaces/IProjectDto.ts";
 
 const backendBaseUrl = import.meta.env.VITE_API_BASE_URL;
 const githubRepoUrl = ref("");
@@ -13,25 +14,9 @@ const branchName = ref("");
 const isLoading = ref(false);
 const errorMessage = ref("");
 const generatedReviewLink = ref("");
-const allFetchedProjects = ref([
-	{
-		id: 1,
-		name: "Sample Project",
-		reviewLink: "https://example.com/review/1",
-	},
-	{
-		id: 2,
-		name: "Another Project",
-		reviewLink: "https://example.com/review/2",
-	},
-	{
-		id: 3,
-		name: "Third Project",
-		reviewLink: "https://example.com/review/3",
-	},
-]);
+const allExistingProjects = ref<IProjectDto[]>([]);
 
-const createEditRepoUrl = (writeApiUrl: string, repoLandingPageUrl: string, branchName: string) => {
+const createEditProjectUrl = (writeApiUrl: string, repoLandingPageUrl: string, branchName: string) => {
 	const frontendBaseUrl = globalThis.location.origin;
 	return `${frontendBaseUrl}/review/code/?repoUrl=${encodeURIComponent(
 		repoLandingPageUrl || ""
@@ -51,7 +36,7 @@ const handleCreateConfiguration = async () => {
 		const response = await setupProject(setupData, backendBaseUrl);
 
 		if (response.writeApiUrl && response.repository) {
-			generatedReviewLink.value = createEditRepoUrl(
+			generatedReviewLink.value = createEditProjectUrl(
 				response.writeApiUrl,
 				response.repository.repositoryUrl,
 				response.repository.branch
@@ -71,6 +56,10 @@ const navigateToReviewSession = () => {
 		window.open(generatedReviewLink.value, "_blank");
 	}
 };
+
+onMounted(async () => {
+	allExistingProjects.value = await listProjects(backendBaseUrl);
+});
 </script>
 
 <template>
@@ -79,7 +68,7 @@ const navigateToReviewSession = () => {
 		<div class="bg-white/5 backdrop-blur-sm border-b border-white/10">
 			<div class="mx-auto px-6 py-8">
 				<div class="text-center">
-					<h1 class="text-4xl font-bold text-white mb-2">Code Review Dashboard</h1>
+					<h1 class="text-4xl font-bold text-white mb-2">Code Comments Dashboard</h1>
 					<p class="text-slate-300 text-lg">Manage your code review sessions</p>
 				</div>
 			</div>
@@ -91,12 +80,13 @@ const navigateToReviewSession = () => {
 				<!-- Existing Projects List -->
 				<div class="flex-1 space-y-6">
 					<Card
-						title="Existing Reviews"
+						title="Existing Projects"
 						subtitle="Continue working on your previous code reviews"
 						iconName="archive"
 						iconGradient="blue"
-					>
-						<div v-if="allFetchedProjects.length === 0" class="empty-state">
+						>ˇ
+						<!-- Empty State -->
+						<div v-if="allExistingProjects.length === 0" class="empty-state">
 							<div class="empty-state-icon">
 								<svg
 									class="w-8 h-8 text-slate-400"
@@ -112,13 +102,22 @@ const navigateToReviewSession = () => {
 									/>
 								</svg>
 							</div>
-							<p class="text-slate-400">No existing code reviews found</p>
+							<p class="text-slate-400">No existing projects found</p>
 							<p class="text-slate-500 text-sm mt-2">Create your first review session to get started</p>
 						</div>
-
+						<!-- Existing Projects List -->
 						<div class="space-y-4">
-							<div v-for="project in allFetchedProjects" :key="project.id" class="card-item">
-								<a :href="project.reviewLink" class="block">
+							<div v-for="project in allExistingProjects" :key="project.id" class="card-item">
+								<a
+									:href="
+										createEditProjectUrl(
+											project.writeApiUrl,
+											project.repository.repositoryUrl,
+											project.repository.branch
+										)
+									"
+									class="block"
+								>
 									<div class="flex items-center justify-between">
 										<div class="flex items-center gap-3">
 											<div class="card-icon-sm gradient-icon-green">
@@ -127,7 +126,11 @@ const navigateToReviewSession = () => {
 											<h3
 												class="text-white font-semibold group-hover:text-blue-300 transition-colors"
 											>
-												{{ project.name }}
+												{{
+													project.name.length !== 0
+														? project.name
+														: project.repository.repositoryUrl
+												}}
 											</h3>
 										</div>
 										<div class="card-icon-sm">
