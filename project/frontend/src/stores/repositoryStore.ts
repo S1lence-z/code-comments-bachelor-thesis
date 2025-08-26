@@ -159,7 +159,7 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 						throw new Error("Failed to update comment");
 					}
 					// Update local state with the updated comment
-					this.upsertCommentLocal(commentData);
+					this.upsertCommentLocal(updatedComment);
 					serverStore.setSynced();
 					return;
 				}

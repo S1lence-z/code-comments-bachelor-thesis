@@ -127,11 +127,14 @@ namespace server.Services
 				if (existingComment is null)
 					throw new ArgumentException($"Comment with ID {commentId} for project {projectId} does not exist.");
 
-				// Update the comment content
-				// TODO: In the future update other attrs
+				// Update the comment content and categoryId
 				existingComment.Content = updatedCommentData.Content;
+				existingComment.CategoryId = updatedCommentData.CategoryId;
+
+				// Update the location details based on comment type
 				context.Comments.Update(existingComment);
 				await context.SaveChangesAsync();
+
 				// Retrieve the updated comment with all related data
 				Comment updatedComment = await context.Comments
 					.AsNoTracking()
