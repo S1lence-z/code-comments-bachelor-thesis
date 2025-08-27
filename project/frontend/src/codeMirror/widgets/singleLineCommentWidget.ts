@@ -1,4 +1,4 @@
-import type ICategoryDto from "../../../../shared/dtos/ICategoryDto.ts";
+import type ICategoryDto from "../../types/interfaces/ICategoryDto.ts";
 import BaseCommentWidget from "./baseCommentWidget.ts";
 
 /**
@@ -7,15 +7,15 @@ import BaseCommentWidget from "./baseCommentWidget.ts";
 export default class SingleLineCommentWidget extends BaseCommentWidget {
 	protected static readonly className = "cm-singleline-comment-widget";
 	private content: string;
-	private commentId: number;
+	private commentId: string;
 	private readonly category: ICategoryDto;
 
 	constructor(
 		content: string,
-		commentId: number,
+		commentId: string,
 		category: ICategoryDto[],
-		deleteCommentAction: (commentId: number) => Promise<void>,
-		editCommentAction: (commentId: number) => Promise<void>
+		deleteCommentAction: (commentId: string) => Promise<void>,
+		editCommentAction: (commentId: string) => Promise<void>
 	) {
 		super(deleteCommentAction, editCommentAction);
 		this.content = content;

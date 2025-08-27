@@ -2,29 +2,24 @@ services:
     backend:
         build:
             context: .
-            dockerfile: ./backend/Dockerfile
+            dockerfile: ./server/Dockerfile.compose
         ports:
-            - "3500:3500"
-        environment:
-            NODE_ENV: development
+            - "5234:8080"
         volumes:
-            - backend-db:/app/backend/db
+            - ./server/Data:/app/Data
         networks:
             - codecomments-network
 
     frontend:
         build:
             context: .
-            dockerfile: ./frontend/Dockerfile
+            dockerfile: ./frontend/Dockerfile.compose
         ports:
             - "5000:80"
         depends_on:
             - backend
         networks:
             - codecomments-network
-
-volumes:
-    backend-db:
 
 networks:
     codecomments-network:

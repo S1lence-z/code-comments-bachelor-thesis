@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { inject } from "vue";
 import { getFileIcon, getFileIconColor } from "../../utils/fileUtils";
-import { type TreeNode } from "../../types/githubTree.ts";
+import { type TreeNode } from "../../types/github/githubTree.ts";
 import Icon from "../../lib/Icon.vue";
 import { useRepositoryStore } from "../../stores/repositoryStore.ts";
 import { handleToggleExpandInTree } from "../../utils/treeNodeUtils.ts";

@@ -1,18 +1,18 @@
-import type ICategoryDto from "../../../../shared/dtos/ICategoryDto";
+import type ICategoryDto from "../../types/interfaces/ICategoryDto";
 import BaseCommentWidget from "./baseCommentWidget";
 
 export default class MultilineCommentWidget extends BaseCommentWidget {
 	protected static readonly className = "cm-multiline-comment-widget";
 	private content: string;
-	private commentId: number;
+	private commentId: string;
 	private category: ICategoryDto;
 
 	constructor(
 		content: string,
-		commentId: number,
+		commentId: string,
 		category: ICategoryDto[],
-		deleteCommentAction: (commentId: number) => Promise<void>,
-		editCommentAction: (commentId: number) => Promise<void>
+		deleteCommentAction: (commentId: string) => Promise<void>,
+		editCommentAction: (commentId: string) => Promise<void>
 	) {
 		super(deleteCommentAction, editCommentAction);
 		this.content = content;

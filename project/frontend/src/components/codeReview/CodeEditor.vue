@@ -2,7 +2,7 @@
 import { ref, watch, shallowRef, computed, inject } from "vue";
 import { Codemirror } from "vue-codemirror";
 import { EditorView } from "@codemirror/view";
-import type ICommentDto from "../../../../shared/dtos/ICommentDto";
+import type ICommentDto from "../../types/interfaces/ICommentDto";
 import { createEditorExtensions } from "../../codeMirror/configs/editorConfig";
 import "../../../css/codemirror.css";
 import { keyboardModeContextKey } from "../../core/keys";
@@ -14,8 +14,8 @@ const keyboardModeContext = inject(keyboardModeContextKey, {
 interface CodeEditorProps {
 	filePath: string | null;
 	fileContent: string | null | undefined;
-	deleteCommentAction: (commentId: number) => Promise<void>;
-	editCommentAction: (commentId: number) => Promise<void>;
+	deleteCommentAction: (commentId: string) => Promise<void>;
+	editCommentAction: (commentId: string) => Promise<void>;
 	isLoadingFile?: boolean;
 	comments?: ICommentDto[];
 }

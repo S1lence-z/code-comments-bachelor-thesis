@@ -1,4 +1,5 @@
-.vscode
+.vscode/
+.vs/
 /drafts
 **/other/
 .mypy_cache

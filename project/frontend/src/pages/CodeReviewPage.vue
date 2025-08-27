@@ -3,13 +3,13 @@ import { ref, onMounted, watch, provide } from "vue";
 import FileExplorer from "../components/codeReview/FileExplorer.vue";
 import CodeEditor from "../components/codeReview/CodeEditor.vue";
 import OtherContentViewer from "../components/codeReview/ContentViewer.vue";
-import type ICommentDto from "../../../shared/dtos/ICommentDto";
-import { CommentType } from "../../../shared/enums/CommentType.ts";
+import type ICommentDto from "../types/interfaces/ICommentDto.ts";
+import { CommentType } from "../types/enums/CommentType.ts";
 import SplitPanelManager from "../components/codeReview/SplitPanelManager.vue";
 import { useRepositoryStore } from "../stores/repositoryStore.ts";
 import { useFileContentStore } from "../stores/fileContentStore.ts";
 import { storeToRefs } from "pinia";
-import type { ProcessedFile } from "../types/githubFile.ts";
+import type { ProcessedFile } from "../types/github/githubFile.ts";
 import CodeReviewToolbar from "../components/codeReview/CodeReviewToolbar.vue";
 import { useRoute } from "vue-router";
 import ResizeHandle from "../lib/ResizeHandle.vue";
@@ -75,7 +75,7 @@ async function handleFileSelected(path: string) {
 const commentFilePath = ref<string | null>(null);
 const startLineNumber = ref<number | null>(null);
 const endLineNumber = ref<number | null>(null);
-const commentId = ref<number | null>(null);
+const commentId = ref<string | null>(null);
 const isAddingComment = ref<boolean>(false);
 const addedCommentType = ref<CommentType>(CommentType.Singleline);
 
@@ -86,7 +86,7 @@ function handleSinglelineCommentSelected(payload: { lineNumber: number; filePath
 		return;
 	}
 	const existingComment = allComments.value.find(
-		(c: ICommentDto) => c.filePath === filePath && c.lineNumber === lineNumber
+		(c: ICommentDto) => c.location.filePath === filePath && c.location.lineNumber === lineNumber
 	);
 
 	// Set the form state variables
@@ -109,7 +109,7 @@ function handleMultilineCommentSelected(payload: {
 		return;
 	}
 	const existingComment = allComments.value.find(
-		(c: ICommentDto) => c.filePath === filePath && c.startLineNumber === selectedStartLineNumber
+		(c: ICommentDto) => c.location.filePath === filePath && c.location.startLineNumber === selectedStartLineNumber
 	);
 
 	commentFilePath.value = filePath;
@@ -122,7 +122,7 @@ function handleMultilineCommentSelected(payload: {
 
 function handleFileCommentSelected(filePath: string) {
 	const existingComment = allComments.value.find(
-		(comment: ICommentDto) => comment.filePath === filePath && comment.type === CommentType.File
+		(comment: ICommentDto) => comment.location.filePath === filePath && comment.type === CommentType.File
 	);
 
 	commentId.value = existingComment ? existingComment.id : null;
@@ -146,7 +146,7 @@ provide(projectCommentModalContextKey, {
 });
 
 // Handle edit button for the codemirror widget
-const handleCommentEdit = async (commentId: number) => {
+const handleCommentEdit = async (commentId: string) => {
 	// Take the comment ID and open the modal for editing
 	const editedComment = allComments.value.find((comment: ICommentDto) => comment.id === commentId);
 	if (!editedComment) {
@@ -158,17 +158,17 @@ const handleCommentEdit = async (commentId: number) => {
 	const commentType: CommentType = editedComment.type;
 	if (commentType === CommentType.Singleline) {
 		handleSinglelineCommentSelected({
-			lineNumber: editedComment.lineNumber || 0,
-			filePath: editedComment.filePath,
+			lineNumber: editedComment.location.lineNumber || 0,
+			filePath: editedComment.location.filePath,
 		});
 	} else if (commentType === CommentType.Multiline) {
 		handleMultilineCommentSelected({
-			selectedStartLineNumber: editedComment.startLineNumber || 0,
-			selectedEndLineNumber: editedComment.endLineNumber || 0,
-			filePath: editedComment.filePath,
+			selectedStartLineNumber: editedComment.location.startLineNumber || 0,
+			selectedEndLineNumber: editedComment.location.endLineNumber || 0,
+			filePath: editedComment.location.filePath,
 		});
 	} else if (commentType === CommentType.File) {
-		handleFileCommentSelected(editedComment.filePath);
+		handleFileCommentSelected(editedComment.location.filePath);
 	} else if (commentType === CommentType.Project) {
 		handleProjectCommentSelected();
 	} else {

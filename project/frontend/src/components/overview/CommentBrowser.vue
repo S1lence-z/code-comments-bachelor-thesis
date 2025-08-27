@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import type ICommentDto from "../../../../shared/dtos/ICommentDto";
-import { CommentType } from "../../../../shared/enums/CommentType";
+import type ICommentDto from "../../types/interfaces/ICommentDto";
+import { CommentType } from "../../types/enums/CommentType";
 import { useFileContentStore } from "../../stores/fileContentStore";
 import Card from "../../lib/Card.vue";
 import Button from "../../lib/Button.vue";
@@ -82,11 +82,11 @@ const getCommentTypeIcon = (type: CommentType) => {
 };
 
 const getLineRangeDisplay = (comment: ICommentDto) => {
-	if (comment.type === CommentType.Singleline && comment.lineNumber) {
-		return `Line ${comment.lineNumber}`;
+	if (comment.type === CommentType.Singleline && comment.location.lineNumber) {
+		return `Line ${comment.location.lineNumber}`;
 	}
-	if (comment.type === CommentType.Multiline && comment.startLineNumber && comment.endLineNumber) {
-		return `Lines ${comment.startLineNumber}-${comment.endLineNumber}`;
+	if (comment.type === CommentType.Multiline && comment.location.startLineNumber && comment.location.endLineNumber) {
+		return `Lines ${comment.location.startLineNumber}-${comment.location.endLineNumber}`;
 	}
 	if (comment.type === CommentType.File) {
 		return "File comment";
@@ -109,15 +109,15 @@ const getCodePreview = (filePath: string, comment: ICommentDto) => {
 
 	const lines = cachedFile.content.split("\n");
 
-	if (comment.type === CommentType.Singleline && comment.lineNumber) {
-		const startLine = Math.max(0, comment.lineNumber - showedLineOffset.value);
-		const endLine = Math.min(lines.length, comment.lineNumber + showedLineOffset.value);
+	if (comment.type === CommentType.Singleline && comment.location.lineNumber) {
+		const startLine = Math.max(0, comment.location.lineNumber - showedLineOffset.value);
+		const endLine = Math.min(lines.length, comment.location.lineNumber + showedLineOffset.value);
 		return lines.slice(startLine, endLine).join("\n");
 	}
 
-	if (comment.type === CommentType.Multiline && comment.startLineNumber && comment.endLineNumber) {
-		const startLine = Math.max(0, comment.startLineNumber - showedLineOffset.value);
-		const endLine = Math.min(lines.length, comment.endLineNumber + showedLineOffset.value);
+	if (comment.type === CommentType.Multiline && comment.location.startLineNumber && comment.location.endLineNumber) {
+		const startLine = Math.max(0, comment.location.startLineNumber - showedLineOffset.value);
+		const endLine = Math.min(lines.length, comment.location.endLineNumber + showedLineOffset.value);
 		return lines.slice(startLine, endLine).join("\n");
 	}
 
@@ -142,7 +142,7 @@ const openFileInEditor = (filePath: string, comment: ICommentDto) => {
 		commentsApiUrl: props.commentsApiUrl,
 		branch: props.branch,
 		file: filePath,
-		...(comment.lineNumber ? { line: comment.lineNumber.toString() } : {}),
+		...(comment.location.lineNumber ? { line: comment.location.lineNumber.toString() } : {}),
 	};
 	router.push({ path: "/review/code", query: params });
 };
@@ -194,7 +194,7 @@ onMounted(async () => {
 			<!-- Comments List For the File -->
 			<div v-if="expandedFiles.has(filePath)" class="space-y-4 mt-6">
 				<!-- Comment Cards -->
-				<div v-for="comment in comments" :key="comment.id" class="card-item">
+				<div v-for="comment in comments" :key="comment.id ?? ''" class="card-item">
 					<div class="space-y-3">
 						<!-- Comment Header -->
 						<div class="flex items-center justify-between">
@@ -222,16 +222,9 @@ onMounted(async () => {
 						<!-- Comment Content -->
 						<div class="p-4">
 							<!-- Categories -->
-							<div
-								v-if="comment.categories && comment.categories.length > 0"
-								class="flex flex-wrap gap-2"
-							>
-								<span
-									v-for="category in comment.categories"
-									:key="category.id"
-									class="bg-purple-500/20 text-purple-300 px-2 py-1 rounded text-xs"
-								>
-									{{ category.label }}
+							<div v-if="comment.category" class="flex flex-wrap gap-2">
+								<span class="bg-purple-500/20 text-purple-300 px-2 py-1 rounded text-xs">
+									{{ comment.category.label }}
 								</span>
 							</div>
 							<div class="mt-2 text-lg">

@@ -4,8 +4,8 @@ import { useRepositoryStore } from "../stores/repositoryStore";
 import { storeToRefs } from "pinia";
 import Button from "../lib/Button.vue";
 import Icon from "../lib/Icon.vue";
-import type ICommentDto from "../../../shared/dtos/ICommentDto";
-import { CommentType } from "../../../shared/enums/CommentType";
+import type ICommentDto from "../types/interfaces/ICommentDto";
+import { CommentType } from "../types/enums/CommentType";
 import CommentStatistics from "../components/overview/CommentStatistics.vue";
 import CommentBrowser from "../components/overview/CommentBrowser.vue";
 import { useRouter } from "vue-router";
@@ -39,20 +39,20 @@ const commentsByFile = computed(() => {
 	const grouped: Record<string, ICommentDto[]> = {};
 
 	filteredComments.value.forEach((comment) => {
-		if (!grouped[comment.filePath]) {
-			grouped[comment.filePath] = [];
+		if (!grouped[comment.location.filePath]) {
+			grouped[comment.location.filePath] = [];
 		}
-		grouped[comment.filePath].push(comment);
+		grouped[comment.location.filePath].push(comment);
 	});
 
 	// Sort comments within each file by line number
 	Object.keys(grouped).forEach((filePath) => {
 		grouped[filePath].sort((a, b) => {
-			if (a.lineNumber && b.lineNumber) {
-				return a.lineNumber - b.lineNumber;
+			if (a.location.lineNumber && b.location.lineNumber) {
+				return a.location.lineNumber - b.location.lineNumber;
 			}
-			if (a.startLineNumber && b.startLineNumber) {
-				return a.startLineNumber - b.startLineNumber;
+			if (a.location.startLineNumber && b.location.startLineNumber) {
+				return a.location.startLineNumber - b.location.startLineNumber;
 			}
 			return 0;
 		});

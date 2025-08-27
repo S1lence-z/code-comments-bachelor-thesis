@@ -1,5 +1,5 @@
-import type ICommentDto from "../../../shared/dtos/ICommentDto";
-import type ICategoryDto from "../../../shared/dtos/ICategoryDto";
+import type ICommentDto from "../types/interfaces/ICommentDto";
+import type ICategoryDto from "../types/interfaces/ICategoryDto";
 import commentContext from "../jsonld/commentContext.json";
 import categoryContext from "../jsonld/categoryContext.json";
 
@@ -19,22 +19,19 @@ export function transformCommentsToJsonLd(
 		"@id": `${baseUrl}/comment/${comment.id || index}`,
 		"@type": "CodeComment",
 		id: comment.id,
-		filePath: comment.filePath,
+		filePath: comment.location.filePath,
 		content: comment.content,
 		commentType: comment.type,
-		...(comment.lineNumber && { lineNumber: comment.lineNumber }),
-		...(comment.startLineNumber && { startLineNumber: comment.startLineNumber }),
-		...(comment.endLineNumber && { endLineNumber: comment.endLineNumber }),
-		...(comment.categories &&
-			comment.categories.length > 0 && {
-				categories: comment.categories.map((cat) => ({
-					"@id": `${baseUrl}/category/${cat.id}`,
-					"@type": "Category",
-					id: cat.id,
-					label: cat.label,
-					...(cat.description && { description: cat.description }),
-				})),
-			}),
+		...(comment.location.lineNumber && { lineNumber: comment.location.lineNumber }),
+		...(comment.location.startLineNumber && { startLineNumber: comment.location.startLineNumber }),
+		...(comment.location.endLineNumber && { endLineNumber: comment.location.endLineNumber }),
+		...(comment.category && {
+			"@id": `${baseUrl}/category/${comment.category.id}`,
+			"@type": "Category",
+			id: comment.category.id,
+			label: comment.category.label,
+			...(comment.category.description && { description: comment.category.description }),
+		}),
 	}));
 
 	return {
