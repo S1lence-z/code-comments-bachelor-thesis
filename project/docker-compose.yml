@@ -6,7 +6,7 @@ services:
         ports:
             - "5234:8080"
         volumes:
-            - backend-db:/app/data
+            - ./server/Data:/app/Data
         networks:
             - codecomments-network
 
@@ -20,9 +20,6 @@ services:
             - backend
         networks:
             - codecomments-network
-
-volumes:
-    backend-db:
 
 networks:
     codecomments-network:

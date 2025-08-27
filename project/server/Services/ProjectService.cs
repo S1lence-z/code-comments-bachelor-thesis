@@ -4,13 +4,14 @@ using server.Models.Projects;
 using Microsoft.EntityFrameworkCore;
 using server.Types.Interfaces;
 using server.Mappers;
+using Microsoft.Extensions.Options;
+using server.Configs;
 
 namespace server.Services
 {
-	public class ProjectService(ApplicationDbContext context) : IProjectService
+	public class ProjectService(ApplicationDbContext context, IOptions<ApiUrls> apiUrls) : IProjectService
 	{
-		// TODO: Add this to environment variables
-		private readonly string BASE_BACKEND_URL = "http://localhost:5234";
+		private readonly string BASE_BACKEND_URL = apiUrls.Value.Backend;
 
 		private string GenerateApiUrl(Guid projectId)
 		{

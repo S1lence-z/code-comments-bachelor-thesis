@@ -1,5 +1,6 @@
 
 using Microsoft.EntityFrameworkCore;
+using server.Configs;
 using server.Data;
 using server.Services;
 using server.Types.Interfaces;
@@ -12,6 +13,9 @@ namespace server
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            // Read appsettings.*.json (environment variables)
+            builder.Services.Configure<ApiUrls>(builder.Configuration.GetSection("ApiUrls"));
 
             // Add db context
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
