@@ -81,7 +81,7 @@
 	}
 
 	.file-tab {
-		@apply flex items-center bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 duration-200 hover:bg-white/10;
+		@apply flex items-center bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 duration-200 hover:bg-white/10 text-sm;
 	}
 
 	.file-tab.active {
