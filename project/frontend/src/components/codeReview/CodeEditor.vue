@@ -129,11 +129,7 @@ const handleSelectionChange = () => {
 		>
 			<p class="text-center text-rose-500 p-5">{{ fileContent }}</p>
 		</div>
-		<div
-			v-else-if="filePath && fileContent !== null"
-			class="flex-grow relative overflow-auto scrollbar-hidden"
-			:class="{ 'border-2 border-blue-600': keyboardModeContext.isKeyboardMode.value }"
-		>
+		<div v-else-if="filePath && fileContent !== null" class="flex-grow relative overflow-auto scrollbar-hidden">
 			<div
 				v-if="keyboardModeContext.isKeyboardMode.value"
 				class="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 text-xs font-semibold z-10 pointer-events-none"
