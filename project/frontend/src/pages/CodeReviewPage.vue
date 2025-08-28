@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, provide } from "vue";
+import { ref, onMounted, watch, provide, computed } from "vue";
 import FileExplorer from "../components/codeReview/FileExplorer.vue";
 import CodeEditor from "../components/codeReview/CodeEditor.vue";
 import OtherContentViewer from "../components/codeReview/ContentViewer.vue";
@@ -16,7 +16,8 @@ import ResizeHandle from "../lib/ResizeHandle.vue";
 import { useProjectStore } from "../stores/projectStore.ts";
 import { getFileName } from "../utils/fileUtils.ts";
 import { projectCommentModalContextKey, fileCommentModalContextKey } from "../core/keys.ts";
-import CommentFormPanel from "../components/codeReview/CommentFormPanel.vue";
+import CommentForm from "../components/codeReview/CommentForm.vue";
+import SlideoutPanel from "../lib/SlideoutPanel.vue";
 
 // Router
 const route = useRoute();
@@ -207,6 +208,29 @@ const initRepositoryStore = async () => {
 	}
 };
 
+// Computed
+const getSubtitle = computed(() => {
+	if (addedCommentType.value === CommentType.Project) return "Project-wide comment";
+	if (!commentFilePath.value) return "";
+
+	let lineInfo = "";
+	switch (addedCommentType.value) {
+		case CommentType.Multiline:
+			lineInfo = `from line ${startLineNumber.value || 0} to ${endLineNumber.value || 0}`;
+			break;
+		case CommentType.Singleline:
+			lineInfo = `on line ${startLineNumber.value || 0}`;
+			break;
+		case CommentType.File:
+			lineInfo = "File/Folder Comment";
+			break;
+		default:
+			lineInfo = "";
+	}
+
+	return `File: ${commentFilePath.value} ${lineInfo}`;
+});
+
 onMounted(async () => {
 	await initRepositoryStore();
 });
@@ -325,14 +349,21 @@ watch(
 			</div>
 
 			<!-- Comment Add/Edit Form Component -->
-			<CommentFormPanel
+			<SlideoutPanel
+				:title="(commentId ? 'Edit' : 'Add') + ' Comment'"
+				:subtitle="getSubtitle"
 				v-model:isVisible="isAddingComment"
-				:commentFilePath="selectedFilePath"
-				:start-line-number="startLineNumber"
-				:end-line-number="endLineNumber"
-				:comment-id="commentId"
-				:comment-type="addedCommentType"
-			/>
+				class="w-110"
+			>
+				<CommentForm
+					v-model:isVisible="isAddingComment"
+					:comment-file-path="selectedFilePath"
+					:start-line-number="startLineNumber"
+					:end-line-number="endLineNumber"
+					:comment-id="commentId"
+					:comment-type="addedCommentType"
+				/>
+			</SlideoutPanel>
 		</div>
 	</div>
 </template>
