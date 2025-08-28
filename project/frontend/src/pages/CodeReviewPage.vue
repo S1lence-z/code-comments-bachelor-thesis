@@ -8,22 +8,15 @@ import { CommentType } from "../types/enums/CommentType.ts";
 import SplitPanelManager from "../components/codeReview/SplitPanelManager.vue";
 import { useRepositoryStore } from "../stores/repositoryStore.ts";
 import { useFileContentStore } from "../stores/fileContentStore.ts";
+import { useSettingsStore } from "../stores/settingsStore.ts";
 import { storeToRefs } from "pinia";
 import type { ProcessedFile } from "../types/github/githubFile.ts";
-import CodeReviewToolbar from "../components/codeReview/CodeReviewToolbar.vue";
 import { useRoute } from "vue-router";
 import ResizeHandle from "../lib/ResizeHandle.vue";
 import { useProjectStore } from "../stores/projectStore.ts";
 import { getFileName } from "../utils/fileUtils.ts";
-import { keyboardModeContextKey, projectCommentModalContextKey, fileCommentModalContextKey } from "../core/keys.ts";
+import { projectCommentModalContextKey, fileCommentModalContextKey } from "../core/keys.ts";
 import CommentFormPanel from "../components/codeReview/CommentFormPanel.vue";
-
-// Provide IsKeyboardMode Context
-const isKeyboardMode = ref(false);
-function updateKeyboardModeState(value: boolean) {
-	isKeyboardMode.value = value;
-}
-provide(keyboardModeContextKey, { isKeyboardMode: isKeyboardMode, updateKeyboardModeState });
 
 // Router
 const route = useRoute();
@@ -32,14 +25,13 @@ const route = useRoute();
 const projectStore = useProjectStore();
 const repositoryStore = useRepositoryStore();
 const fileContentStore = useFileContentStore();
+const settingsStore = useSettingsStore();
 
 // Store refs
 const { repositoryUrl, writeApiUrl, repositoryBranch, githubPat } = storeToRefs(projectStore);
 const { fileTree, allComments, isLoadingRepository, isLoadingComments } = storeToRefs(repositoryStore);
 
 // Local state
-const showSideBar = ref<boolean>(true);
-const saveWorkspace = ref<boolean>(false);
 const selectedFilePath = ref<string | null>(null);
 const processedSelectedFile = ref<ProcessedFile | null>(null);
 const isLoadingFile = ref<boolean>(false);
@@ -241,13 +233,15 @@ watch(
 		<div class="flex flex-row h-full w-full">
 			<!-- Code Editor Section-->
 			<div class="flex flex-col h-full w-full">
-				<!-- Code Editor Toolbar -->
-				<CodeReviewToolbar v-model:showSideBar="showSideBar" v-model:saveWorkspace="saveWorkspace" />
-
 				<!-- Code Editor -->
 				<div class="flex h-full w-full overflow-hidden">
 					<!-- Sidebar -->
-					<div ref="sidebar" v-if="showSideBar" class="flex-shrink-0" :style="{ width: sidebarWidth + 'px' }">
+					<div
+						ref="sidebar"
+						v-if="settingsStore.isSidebarOpen"
+						class="flex-shrink-0"
+						:style="{ width: sidebarWidth + 'px' }"
+					>
 						<!-- File Explorer -->
 						<div v-if="isLoadingRepository" class="p-6 text-sm text-center text-slate-300">
 							<div class="inline-flex items-center space-x-2">
@@ -266,7 +260,7 @@ watch(
 
 					<!-- Resize Handle -->
 					<ResizeHandle
-						v-if="showSideBar"
+						v-if="settingsStore.isSidebarOpen"
 						:resizable-element="sidebar"
 						:min-width="minSidebarWidth"
 						:max-width="maxSidebarWidth"
@@ -286,7 +280,8 @@ watch(
 						<SplitPanelManager
 							v-else
 							v-model:selected-file-path="selectedFilePath"
-							v-model:saveWorkspace="saveWorkspace"
+							:saveWorkspace="settingsStore.isSaveWorkspace"
+							@update:save-workspace="settingsStore.toggleSaveWorkspace"
 						>
 							<template #default="{ filePath }">
 								<div v-if="filePath" class="h-full">

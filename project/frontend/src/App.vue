@@ -5,13 +5,17 @@ import AppFooter from "./components/app/AppFooter.vue";
 import Modal from "./lib/Modal.vue";
 import { useRouter, useRoute } from "vue-router";
 import { useProjectStore } from "./stores/projectStore.ts";
+import SlideoutPanel from "./lib/SlideoutPanel.vue";
+import Settings from "./components/app/Settings.vue";
+import { useSettingsStore } from "./stores/settingsStore.ts";
 
 // Router
 const router = useRouter();
 const route = useRoute();
 
-// Project Store
+// Stores
 const projectStore = useProjectStore();
+const settingsStore = useSettingsStore();
 
 onMounted(async () => {
 	await router
@@ -40,6 +44,15 @@ onMounted(async () => {
 		<!-- Footer -->
 		<AppFooter />
 	</div>
+
+	<!-- Settings Slideout Panel -->
+	<SlideoutPanel
+		title="Settings"
+		:isVisible="settingsStore.isSettingsOpen"
+		@update:isVisible="settingsStore.toggleSettingsOpen"
+	>
+		<Settings />
+	</SlideoutPanel>
 
 	<!-- Global Testing Modal -->
 	<Modal v-if="false">

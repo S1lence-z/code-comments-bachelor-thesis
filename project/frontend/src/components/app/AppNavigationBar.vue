@@ -8,10 +8,14 @@ import { useProjectStore } from "../../stores/projectStore";
 import { downloadJSON, downloadJSONLD } from "../../utils/jsonUtils";
 import Dropdown from "../../lib/Dropdown.vue";
 import { useServerStore } from "../../stores/serverStore";
+import Button from "../../lib/Button.vue";
+import { useSettingsStore } from "../../stores/settingsStore";
 
+// Stores
 const repositoryStore = useRepositoryStore();
 const projectStore = useProjectStore();
 const serverStore = useServerStore();
+const settingsStore = useSettingsStore();
 
 // Get the current route to determine which tab should be active
 const route = useRoute();
@@ -98,26 +102,35 @@ watch(
 			</div>
 
 			<!-- Synced Status, Export, Options -->
-			<div class="flex items-center gap-4">
+			<div class="flex items-center gap-8">
 				<!-- Synced Status -->
-				<div class="flex items-center space-x-6">
+				<div class="flex items-center space-x-8">
 					<!-- Synced Status -->
 					<div v-if="serverStatus === 'synced'" class="flex items-center gap-2">
 						<div class="w-2 h-2 bg-emerald-400 rounded-full"></div>
-						<span class="text-emerald-400 font-medium text-sm">Comments Synced</span>
+						<span class="text-emerald-400 font-medium text-md">Comments Synced</span>
 					</div>
 					<div v-else-if="serverStatus === 'syncing'" class="flex items-center gap-2">
 						<div class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
-						<span class="text-yellow-400 font-medium text-sm">Syncing Comments...</span>
+						<span class="text-yellow-400 font-medium text-md">Syncing Comments...</span>
 					</div>
 					<div v-else-if="serverStatus === 'error'" class="flex items-center gap-2">
 						<div class="w-2 h-2 bg-red-400 rounded-full"></div>
-						<span class="text-red-400 font-medium text-sm">Status: {{ serverStore.getErrorMessage }}</span>
+						<span class="text-red-400 font-medium text-md">Status: {{ serverStore.getErrorMessage }}</span>
 					</div>
 				</div>
 
-				<!-- Dropdown for Export Options -->
-				<Dropdown label="Export" :options="exportOptions" />
+				<div class="flex flex-row gap-4">
+					<!-- Dropdown for Export Options -->
+					<Dropdown label="Export" :options="exportOptions" />
+					<!-- Button for Settings slideout panel -->
+					<Button
+						label="Settings"
+						type="button"
+						buttonStyle="secondary"
+						:onClick="settingsStore.toggleSettingsOpen"
+					/>
+				</div>
 			</div>
 		</div>
 	</nav>

@@ -1,15 +1,11 @@
 <script setup lang="ts">
-import { ref, watch, shallowRef, computed, inject } from "vue";
+import "../../../css/codemirror.css";
+import { ref, watch, shallowRef, computed } from "vue";
 import { Codemirror } from "vue-codemirror";
 import { EditorView } from "@codemirror/view";
 import type ICommentDto from "../../types/interfaces/ICommentDto";
 import { createEditorExtensions } from "../../codeMirror/configs/editorConfig";
-import "../../../css/codemirror.css";
-import { keyboardModeContextKey } from "../../core/keys";
-
-const keyboardModeContext = inject(keyboardModeContextKey, {
-	isKeyboardMode: ref(false),
-});
+import { useSettingsStore } from "../../stores/settingsStore";
 
 interface CodeEditorProps {
 	filePath: string | null;
@@ -30,6 +26,10 @@ const emit = defineEmits<{
 	"multiline-selected": [{ selectedStartLineNumber: number; selectedEndLineNumber: number; filePath: string }];
 }>();
 
+// Stores
+const settingsStore = useSettingsStore();
+
+// Local state
 const currentContent = ref<string>("");
 const editorView = shallowRef<EditorView>();
 const lastSelectionTimeout = ref<number | null>(null);
@@ -50,7 +50,7 @@ const extensions = computed(() => {
 		currentFileComments,
 		props.deleteCommentAction,
 		props.editCommentAction,
-		keyboardModeContext.isKeyboardMode.value,
+		settingsStore.isKeyboardMode,
 		handleSingleLineComment
 	);
 });
@@ -131,7 +131,7 @@ const handleSelectionChange = () => {
 		</div>
 		<div v-else-if="filePath && fileContent !== null" class="flex-grow relative overflow-auto scrollbar-hidden">
 			<div
-				v-if="keyboardModeContext.isKeyboardMode.value"
+				v-if="settingsStore.isKeyboardMode"
 				class="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 text-xs font-semibold z-10 pointer-events-none"
 			>
 				🎹 Keyboard Navigation Mode
@@ -140,7 +140,7 @@ const handleSelectionChange = () => {
 				v-model="currentContent"
 				:placeholder="editorPlaceholder"
 				:style="{ height: '100%' }"
-				:autofocus="keyboardModeContext.isKeyboardMode.value"
+				:autofocus="settingsStore.isKeyboardMode"
 				:indent-with-tab="true"
 				:tab-size="2"
 				:extensions="extensions"
