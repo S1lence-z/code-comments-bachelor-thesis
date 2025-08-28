@@ -69,50 +69,55 @@ watch(
 <template>
 	<nav class="bg-modern-black backdrop-blur-sm border-b border-white/10 shadow-lg">
 		<div class="flex items-center justify-between h-full max-w-full px-6 py-4">
-			<!-- Logo and Synced Status -->
-			<div class="flex items-center space-x-6">
-				<!-- Logo -->
-				<div class="flex items-center gap-3">
-					<Icon srcName="appLogo" />
-					<router-link
-						:to="{ path: '/setup', query: preserveQueryParams }"
-						class="text-white text-xl font-bold transition-colors duration-200 hover:text-blue-300 whitespace-nowrap"
+			<!-- Logo and Navigation -->
+			<div class="flex items-center gap-3">
+				<Icon srcName="appLogo" />
+				<router-link
+					:to="{ path: '/setup', query: preserveQueryParams }"
+					class="text-white text-xl font-bold transition-colors duration-200 hover:text-blue-300 whitespace-nowrap"
+				>
+					Code Comments
+				</router-link>
+
+				<!-- Navigation Links -->
+				<div class="nav-tabs">
+					<div
+						v-for="route in navigationRoutes"
+						:key="route.path"
+						class="nav-tab"
+						:class="{
+							active: activeTab === route.path,
+							inactive: activeTab !== route.path,
+						}"
 					>
-						Code Comments
-					</router-link>
+						<router-link :to="{ path: route.path, query: preserveQueryParams }" class="block">
+							{{ route.name }}
+						</router-link>
+					</div>
 				</div>
-				<!-- Synced Status -->
-				<div v-if="serverStatus === 'synced'" class="flex items-center gap-2">
-					<div class="w-2 h-2 bg-emerald-400 rounded-full"></div>
-					<span class="text-emerald-400 font-medium text-sm">Comments Synced</span>
-				</div>
-				<div v-else-if="serverStatus === 'syncing'" class="flex items-center gap-2">
-					<div class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
-					<span class="text-yellow-400 font-medium text-sm">Syncing Comments...</span>
-				</div>
-				<div v-else-if="serverStatus === 'error'" class="flex items-center gap-2">
-					<div class="w-2 h-2 bg-red-400 rounded-full"></div>
-					<span class="text-red-400 font-medium text-sm">Status: {{ serverStore.getErrorMessage }}</span>
-				</div>
-				<!-- Dropdown for Export Options -->
-				<Dropdown label="Export Options" :options="exportOptions" />
 			</div>
 
-			<!-- Navigation Links -->
-			<div class="nav-tabs">
-				<div
-					v-for="route in navigationRoutes"
-					:key="route.path"
-					class="nav-tab"
-					:class="{
-						active: activeTab === route.path,
-						inactive: activeTab !== route.path,
-					}"
-				>
-					<router-link :to="{ path: route.path, query: preserveQueryParams }" class="block">
-						{{ route.name }}
-					</router-link>
+			<!-- Synced Status, Export, Options -->
+			<div class="flex items-center gap-4">
+				<!-- Synced Status -->
+				<div class="flex items-center space-x-6">
+					<!-- Synced Status -->
+					<div v-if="serverStatus === 'synced'" class="flex items-center gap-2">
+						<div class="w-2 h-2 bg-emerald-400 rounded-full"></div>
+						<span class="text-emerald-400 font-medium text-sm">Comments Synced</span>
+					</div>
+					<div v-else-if="serverStatus === 'syncing'" class="flex items-center gap-2">
+						<div class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+						<span class="text-yellow-400 font-medium text-sm">Syncing Comments...</span>
+					</div>
+					<div v-else-if="serverStatus === 'error'" class="flex items-center gap-2">
+						<div class="w-2 h-2 bg-red-400 rounded-full"></div>
+						<span class="text-red-400 font-medium text-sm">Status: {{ serverStore.getErrorMessage }}</span>
+					</div>
 				</div>
+
+				<!-- Dropdown for Export Options -->
+				<Dropdown label="Export" :options="exportOptions" />
 			</div>
 		</div>
 	</nav>
