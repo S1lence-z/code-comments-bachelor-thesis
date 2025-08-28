@@ -31,5 +31,13 @@ const settingsStore = useSettingsStore();
 				@update:isActive="settingsStore.toggleSaveWorkspace"
 			/>
 		</div>
+		<!-- Toggle Button for Compact Comment Mode -->
+		<div class="flex items-center">
+			<ToggleButton
+				label="Compact Comment Widget"
+				:isActive="settingsStore.compactCommentWidgetState"
+				@update:isActive="settingsStore.toggleCompactCommentWidget"
+			/>
+		</div>
 	</div>
 </template>

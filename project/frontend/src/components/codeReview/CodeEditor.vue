@@ -51,7 +51,8 @@ const extensions = computed(() => {
 		props.deleteCommentAction,
 		props.editCommentAction,
 		settingsStore.isKeyboardMode,
-		handleSingleLineComment
+		handleSingleLineComment,
+		settingsStore.isCompactCommentWidget
 	);
 });
 

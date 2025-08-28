@@ -9,11 +9,13 @@ export default class SingleLineCommentWidget extends BaseCommentWidget {
 	private content: string;
 	private commentId: string;
 	private readonly category: ICategoryDto;
+	private readonly isCompact: boolean;
 
 	constructor(
 		content: string,
 		commentId: string,
 		category: ICategoryDto[],
+		isCompactCommentModal: boolean,
 		deleteCommentAction: (commentId: string) => Promise<void>,
 		editCommentAction: (commentId: string) => Promise<void>
 	) {
@@ -21,11 +23,46 @@ export default class SingleLineCommentWidget extends BaseCommentWidget {
 		this.content = content;
 		this.commentId = commentId;
 		this.category = category[0] || { id: 0, label: "Uncategorized" };
+		this.isCompact = isCompactCommentModal;
 	}
 
 	toDOM() {
+		return this.isCompact ? this.createCompactModal() : this.createModal();
+	}
+
+	private createModal(): HTMLDivElement {
 		const wrap = document.createElement("div");
 		wrap.className = SingleLineCommentWidget.className;
+
+		const tools = document.createElement("div");
+		tools.className = "comment-tools";
+
+		// Create and append category label
+		const categoryLabel = this.createCategoryLabel(this.category);
+		tools.appendChild(categoryLabel);
+
+		// Create and append edit button
+		const editButton = this.createEditButton();
+		tools.appendChild(editButton);
+
+		// Create and append delete button
+		const deleteButton = this.createDeleteButton();
+		tools.appendChild(deleteButton);
+
+		// Create and append content div
+		const contentDiv = document.createElement("div");
+		contentDiv.className = "comment-content";
+		contentDiv.textContent = this.content;
+
+		wrap.appendChild(tools);
+		wrap.appendChild(contentDiv);
+
+		return wrap;
+	}
+
+	private createCompactModal(): HTMLDivElement {
+		const wrap = document.createElement("div");
+		wrap.className = `${SingleLineCommentWidget.className} compact`;
 
 		const tools = document.createElement("div");
 		tools.className = "comment-tools";

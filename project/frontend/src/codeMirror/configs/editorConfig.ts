@@ -16,7 +16,8 @@ export function createEditorExtensions(
 	deleteCommentAction: (commentId: string) => Promise<void>,
 	editCommentAction: (commentId: string) => Promise<void>,
 	isKeyboardMode: boolean,
-	onSingleLineComment: (lineNumber: number, filePath: string) => void
+	onSingleLineComment: (lineNumber: number, filePath: string) => void,
+	isCompactCommentModal: boolean
 ) {
 	const langExt = getLanguageExtension(filePath);
 	const currentFileComments = comments || [];
@@ -29,7 +30,7 @@ export function createEditorExtensions(
 		multilineCommentTheme,
 		EditorView.lineWrapping,
 		...(Array.isArray(langExt) ? langExt : [langExt]),
-		commentsDisplayExtension(currentFileComments, deleteCommentAction, editCommentAction),
+		commentsDisplayExtension(currentFileComments, deleteCommentAction, editCommentAction, isCompactCommentModal),
 		addCursorNavigationExtensions(isKeyboardMode),
 		addCustomKeyboardShortcuts(filePath, onSingleLineComment),
 		preventDefaultDragAndDrop(),

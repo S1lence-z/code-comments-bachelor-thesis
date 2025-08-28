@@ -6,12 +6,14 @@ export const useSettingsStore = defineStore("settingsStore", {
 		keyboardModeOnState: false,
 		sidebarOpenState: true,
 		saveWorkspaceState: false,
+		compactCommentWidgetState: true,
 	}),
 	getters: {
 		isSettingsOpen: (state) => state.settingsOpenState,
 		isKeyboardMode: (state) => state.keyboardModeOnState,
 		isSidebarOpen: (state) => state.sidebarOpenState,
 		isSaveWorkspace: (state) => state.saveWorkspaceState,
+		isCompactCommentWidget: (state) => state.compactCommentWidgetState,
 	},
 	actions: {
 		toggleSettingsOpen() {
@@ -25,6 +27,9 @@ export const useSettingsStore = defineStore("settingsStore", {
 		},
 		toggleSaveWorkspace() {
 			this.saveWorkspaceState = !this.saveWorkspaceState;
+		},
+		toggleCompactCommentWidget() {
+			this.compactCommentWidgetState = !this.compactCommentWidgetState;
 		},
 	},
 });
