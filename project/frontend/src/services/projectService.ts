@@ -35,10 +35,7 @@ export async function setupProject(
 			headers: {
 				"Content-Type": "application/json",
 			},
-			body: JSON.stringify({
-				repositoryUrl: setupProjectRequest.repositoryUrl,
-				branch: setupProjectRequest.branch,
-			}),
+			body: JSON.stringify(setupProjectRequest),
 		});
 		if (!response.ok) {
 			const errorData = await response.json().catch(() => ({ message: "Failed to create configuration" }));

@@ -11,6 +11,7 @@ import type IProjectDto from "../types/interfaces/IProjectDto.ts";
 const backendBaseUrl = import.meta.env.VITE_API_BASE_URL;
 const githubRepoUrl = ref("");
 const branchName = ref("");
+const projectName = ref("");
 const isLoading = ref(false);
 const errorMessage = ref("");
 const generatedReviewLink = ref("");
@@ -31,6 +32,7 @@ const handleCreateConfiguration = async () => {
 		const setupData: IProjectSetupRequest = {
 			repositoryUrl: githubRepoUrl.value.trim(),
 			branch: branchName.value.trim(),
+			name: projectName.value.trim(),
 		};
 
 		const response = await setupProject(setupData, backendBaseUrl);
@@ -52,9 +54,8 @@ const handleCreateConfiguration = async () => {
 };
 
 const navigateToReviewSession = () => {
-	if (generatedReviewLink.value) {
-		window.open(generatedReviewLink.value, "_blank");
-	}
+	if (!generatedReviewLink.value) return;
+	window.open(generatedReviewLink.value, "_self");
 };
 
 onMounted(async () => {
@@ -75,7 +76,7 @@ onMounted(async () => {
 		</div>
 
 		<!-- Main Content -->
-		<div class="mx-auto px-6 mt-12">
+		<div class="mx-auto px-6 mt-8">
 			<div class="flex flex-col lg:flex-row gap-12 max-w-7xl mx-auto">
 				<!-- Existing Projects List -->
 				<div class="flex-1 space-y-6">
@@ -144,7 +145,7 @@ onMounted(async () => {
 				</div>
 
 				<!-- Setup Form -->
-				<div class="flex-1 space-y-6">
+				<div class="flex-1 gap-2">
 					<Card
 						title="New Review Session"
 						subtitle="Start a new code review by entering a GitHub repository URL"
@@ -161,14 +162,27 @@ onMounted(async () => {
 								:required="true"
 							/>
 
-							<!-- Branch Name -->
-							<InputField
-								label="Branch Name"
-								v-model="branchName"
-								type="text"
-								placeholder="main"
-								:required="true"
-							/>
+							<span class="flex flex-row mb-4 space-x-6">
+								<!-- Branch Name -->
+								<InputField
+									label="Branch"
+									v-model="branchName"
+									type="text"
+									placeholder="main"
+									:required="true"
+									class="flex-1"
+								/>
+
+								<!-- Project Name -->
+								<InputField
+									label="Project Name"
+									v-model="projectName"
+									type="text"
+									placeholder="My Project"
+									:required="true"
+									class="flex-1"
+								/>
+							</span>
 
 							<!-- Submit Button -->
 							<Button
@@ -181,7 +195,7 @@ onMounted(async () => {
 						</form>
 
 						<!-- Messages -->
-						<div class="mt-8 space-y-4">
+						<div v-if="errorMessage || generatedReviewLink" class="mt-8 space-y-4">
 							<div v-if="errorMessage" class="status-message error">
 								<div class="flex items-center gap-3">
 									<div class="card-icon-sm">
