@@ -143,11 +143,17 @@ const handleSubmit = async () => {
 			placeholder="Select a category"
 		/>
 
-		<InputArea label="Comment" v-model="commentContent" placeholder="Enter your comment..." :rows="4" />
+		<InputArea
+			label="Comment"
+			v-model="commentContent"
+			placeholder="Enter your comment..."
+			:rows="4"
+			@submit="handleSubmit"
+		/>
 
 		<div class="flex justify-end space-x-2">
 			<button @click="emit('update:isVisible', false)" class="btn btn-secondary">Cancel</button>
-			<button @click="handleSubmit" class="btn btn-primary">Save</button>
+			<button @click="handleSubmit" class="btn btn-primary">Save (Ctrl + Enter)</button>
 		</div>
 	</div>
 </template>
