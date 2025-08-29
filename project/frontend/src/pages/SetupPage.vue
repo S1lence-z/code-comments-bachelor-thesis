@@ -79,13 +79,13 @@ onMounted(async () => {
 		<div class="mx-auto px-6 mt-8">
 			<div class="flex flex-col lg:flex-row gap-12 max-w-7xl mx-auto">
 				<!-- Existing Projects List -->
-				<div class="flex-1 space-y-6">
+				<div class="flex-1">
 					<Card
 						title="Existing Projects"
 						subtitle="Continue working on your previous code reviews"
 						iconName="archive"
 						iconGradient="blue"
-						>ˇ
+					>
 						<!-- Empty State -->
 						<div v-if="allExistingProjects.length === 0" class="empty-state">
 							<div class="empty-state-icon">
