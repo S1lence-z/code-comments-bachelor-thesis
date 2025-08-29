@@ -301,12 +301,7 @@ watch(
 								<span>Loading comments...</span>
 							</div>
 						</div>
-						<SplitPanelManager
-							v-else
-							v-model:selected-file-path="selectedFilePath"
-							:saveWorkspace="settingsStore.isSaveWorkspace"
-							@update:save-workspace="settingsStore.toggleSaveWorkspace"
-						>
+						<SplitPanelManager v-else v-model:selected-file-path="selectedFilePath">
 							<template #default="{ filePath }">
 								<div v-if="filePath" class="h-full">
 									<div
