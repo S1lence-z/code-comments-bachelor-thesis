@@ -7,6 +7,7 @@ import { determineDropPosition, generateNewPanel } from "../../utils/panelUtils"
 import { splitPanelContextKey } from "../../core/keys.ts";
 import useLocalStorage from "../../composables/useLocalStorage.ts";
 import { useSettingsStore } from "../../stores/settingsStore.ts";
+import { appSavedWorkspaceKey } from "../../core/keys.ts";
 
 const props = defineProps<{
 	selectedFilePath: string | null;
@@ -20,7 +21,7 @@ const emits = defineEmits<{
 const settingsStore = useSettingsStore();
 
 // Local storage for saving workspace
-const savedWorkspace = useLocalStorage("savedWorkspace", "[]");
+const savedWorkspace = useLocalStorage(appSavedWorkspaceKey.description!, "[]");
 
 // Panel management
 const panels = ref<PanelData[]>([]);

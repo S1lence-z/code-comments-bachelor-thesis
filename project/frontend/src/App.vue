@@ -18,6 +18,9 @@ const projectStore = useProjectStore();
 const settingsStore = useSettingsStore();
 
 onMounted(async () => {
+	// Load settings
+	settingsStore.loadSettings();
+
 	await router
 		.isReady()
 		.then(() => {

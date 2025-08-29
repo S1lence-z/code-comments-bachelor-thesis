@@ -1,4 +1,6 @@
 import { defineStore } from "pinia";
+import type AppSettings from "../types/AppSettings";
+import { appSettingsKey } from "../core/keys";
 
 export const useSettingsStore = defineStore("settingsStore", {
 	state: () => ({
@@ -21,15 +23,52 @@ export const useSettingsStore = defineStore("settingsStore", {
 		},
 		toggleKeyboardMode() {
 			this.keyboardModeOnState = !this.keyboardModeOnState;
+			this.saveSettings();
 		},
 		toggleSidebarOpen() {
 			this.sidebarOpenState = !this.sidebarOpenState;
+			this.saveSettings();
 		},
 		toggleSaveWorkspace() {
 			this.saveWorkspaceState = !this.saveWorkspaceState;
+			this.saveSettings();
 		},
 		toggleCompactCommentWidget() {
 			this.compactCommentWidgetState = !this.compactCommentWidgetState;
+			this.saveSettings();
+		},
+		getPersistentSettings(): AppSettings {
+			return {
+				keyboardModeOnState: this.keyboardModeOnState,
+				sidebarOpenState: this.sidebarOpenState,
+				saveWorkspaceState: this.saveWorkspaceState,
+				compactCommentWidgetState: this.compactCommentWidgetState,
+			};
+		},
+		applySettings(newSettings: AppSettings) {
+			const { keyboardModeOnState, sidebarOpenState, saveWorkspaceState, compactCommentWidgetState } =
+				newSettings;
+
+			this.keyboardModeOnState = keyboardModeOnState;
+			this.sidebarOpenState = sidebarOpenState;
+			this.saveWorkspaceState = saveWorkspaceState;
+			this.compactCommentWidgetState = compactCommentWidgetState;
+		},
+		saveSettings() {
+			const persistentSettings = this.getPersistentSettings();
+			const settings = JSON.stringify(persistentSettings);
+			localStorage.setItem(appSettingsKey.description!, settings);
+		},
+		loadSettings() {
+			const savedSettingsString = localStorage.getItem(appSettingsKey.description!);
+			if (savedSettingsString) {
+				try {
+					const parsedSettings: AppSettings = JSON.parse(savedSettingsString);
+					this.applySettings(parsedSettings);
+				} catch (error) {
+					console.error("Failed to parse saved settings:", error);
+				}
+			}
 		},
 	},
 });
