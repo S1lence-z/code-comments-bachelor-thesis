@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
 import NavigationBar from "./components/app/AppNavigationBar.vue";
-import AppFooter from "./components/app/AppFooter.vue";
 import Modal from "./lib/Modal.vue";
 import { useRouter, useRoute } from "vue-router";
 import { useProjectStore } from "./stores/projectStore.ts";
@@ -45,7 +44,6 @@ onMounted(async () => {
 			<span class="spinner" />
 		</div>
 		<!-- Footer -->
-		<AppFooter />
 	</div>
 
 	<!-- Settings Slideout Panel -->
