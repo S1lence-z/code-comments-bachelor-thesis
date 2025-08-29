@@ -5,7 +5,7 @@ import Icon from "../../lib/Icon.vue";
 import { navigationRoutes } from "../../core/routes";
 import { useRepositoryStore } from "../../stores/repositoryStore";
 import { useProjectStore } from "../../stores/projectStore";
-import { downloadJSON, downloadJSONLD } from "../../utils/jsonUtils";
+import { downloadJSON } from "../../utils/jsonUtils";
 import Dropdown from "../../lib/Dropdown.vue";
 import { useServerStore } from "../../stores/serverStore";
 import Button from "../../lib/Button.vue";
@@ -43,22 +43,8 @@ const exportLocalComments = () => {
 	}
 };
 
-const exportLocalCommentsAsJsonLD = () => {
-	const localComments = repositoryStore.allComments;
-	if (localComments.length === 0) {
-		alert("No comments to export.");
-		return;
-	}
-	// Get the repository name from the project store and confirm export
-	const repositoryName = projectStore.getRepositoryName;
-	if (confirm(`Are you sure you want to export ${localComments.length} comments as JSON-LD for ${repositoryName}?`)) {
-		downloadJSONLD(localComments, repositoryName, `${repositoryName}-comments.jsonld`);
-	}
-};
-
 const exportOptions: Array<{ label: string; value: string; actionCallback: () => void }> = [
 	{ label: "JSON", value: "json", actionCallback: exportLocalComments },
-	{ label: "JSON-LD", value: "jsonld", actionCallback: exportLocalCommentsAsJsonLD },
 ];
 
 // Watch for route changes to update active tab
