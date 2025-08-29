@@ -7,6 +7,7 @@ import Button from "../lib/Button.vue";
 import Card from "../lib/Card.vue";
 import Icon from "../lib/Icon.vue";
 import type IProjectDto from "../types/interfaces/IProjectDto.ts";
+import router from "../core/router.ts";
 
 const backendBaseUrl = import.meta.env.VITE_API_BASE_URL;
 const githubRepoUrl = ref("");
@@ -17,11 +18,10 @@ const errorMessage = ref("");
 const generatedReviewLink = ref("");
 const allExistingProjects = ref<IProjectDto[]>([]);
 
-const createEditProjectUrl = (writeApiUrl: string, repoLandingPageUrl: string, branchName: string) => {
-	const frontendBaseUrl = globalThis.location.origin;
-	return `${frontendBaseUrl}/review/code/?repoUrl=${encodeURIComponent(
-		repoLandingPageUrl || ""
-	)}&commentsApiUrl=${encodeURIComponent(writeApiUrl || "")}&branch=${encodeURIComponent(branchName || "")}`;
+const createCodeRevieweUrlPath = (writeApiUrl: string, repoLandingPageUrl: string, branchName: string) => {
+	return `/review/code?repoUrl=${repoLandingPageUrl || ""}&commentsApiUrl=${writeApiUrl || ""}&branch=${
+		branchName || ""
+	}`;
 };
 
 const handleCreateConfiguration = async () => {
@@ -38,7 +38,7 @@ const handleCreateConfiguration = async () => {
 		const response = await setupProject(setupData, backendBaseUrl);
 
 		if (response.writeApiUrl && response.repository) {
-			generatedReviewLink.value = createEditProjectUrl(
+			generatedReviewLink.value = createCodeRevieweUrlPath(
 				response.writeApiUrl,
 				response.repository.repositoryUrl,
 				response.repository.branch
@@ -55,7 +55,7 @@ const handleCreateConfiguration = async () => {
 
 const navigateToReviewSession = () => {
 	if (!generatedReviewLink.value) return;
-	window.open(generatedReviewLink.value, "_self");
+	router.push(generatedReviewLink.value);
 };
 
 onMounted(async () => {
@@ -79,7 +79,7 @@ onMounted(async () => {
 		<div class="mx-auto px-6 mt-8">
 			<div class="flex flex-col lg:flex-row gap-12 max-w-7xl mx-auto">
 				<!-- Existing Projects List -->
-				<div class="flex-1">
+				<div class="flex-0.5">
 					<Card
 						title="Existing Projects"
 						subtitle="Continue working on your previous code reviews"
@@ -111,7 +111,7 @@ onMounted(async () => {
 							<div v-for="project in allExistingProjects" :key="project.id" class="card-item">
 								<a
 									:href="
-										createEditProjectUrl(
+										createCodeRevieweUrlPath(
 											project.writeApiUrl,
 											project.repository.repositoryUrl,
 											project.repository.branch
@@ -145,13 +145,43 @@ onMounted(async () => {
 				</div>
 
 				<!-- Setup Form -->
-				<div class="flex-1 gap-2">
+				<div class="flex-1">
 					<Card
 						title="New Review Session"
 						subtitle="Start a new code review by entering a GitHub repository URL"
 						iconName="plus"
 						iconGradient="emerald"
 					>
+						<!-- Messages -->
+						<div v-if="errorMessage || generatedReviewLink" class="space-y-6 mb-6">
+							<!-- Error Message -->
+							<div v-if="errorMessage" class="status-message error">
+								<div class="flex items-center gap-3">
+									<div class="card-icon-sm">
+										<Icon srcName="error" />
+									</div>
+									<p class="text-red-400">{{ errorMessage }}</p>
+								</div>
+							</div>
+							<!-- Success Message -->
+							<div v-if="generatedReviewLink" class="status-message success flex flex-col gap-4">
+								<div class="flex items-center gap-3">
+									<div class="card-icon-sm">
+										<Icon srcName="success" />
+									</div>
+									<p class="text-emerald-400 font-semibold">Review session created successfully!</p>
+								</div>
+								<Button
+									class="w-full"
+									type="button"
+									label="Open Review Session"
+									buttonStyle="secondary"
+									:onClick="navigateToReviewSession"
+								/>
+							</div>
+						</div>
+
+						<!-- Setup Form -->
 						<form @submit.prevent="handleCreateConfiguration" class="space-y-6">
 							<!-- GitHub Repository URL -->
 							<InputField
@@ -193,34 +223,6 @@ onMounted(async () => {
 								:disabled="isLoading"
 							/>
 						</form>
-
-						<!-- Messages -->
-						<div v-if="errorMessage || generatedReviewLink" class="mt-8 space-y-4">
-							<div v-if="errorMessage" class="status-message error">
-								<div class="flex items-center gap-3">
-									<div class="card-icon-sm">
-										<Icon srcName="error" />
-									</div>
-									<p class="text-red-400">{{ errorMessage }}</p>
-								</div>
-							</div>
-
-							<div v-if="generatedReviewLink" class="status-message success flex flex-col gap-4">
-								<div class="flex items-center gap-3">
-									<div class="card-icon-sm">
-										<Icon srcName="success" />
-									</div>
-									<p class="text-emerald-400 font-semibold">Review session created successfully!</p>
-								</div>
-								<Button
-									class="w-full"
-									type="button"
-									label="Open Review Session"
-									buttonStyle="secondary"
-									:onClick="navigateToReviewSession"
-								/>
-							</div>
-						</div>
 					</Card>
 				</div>
 			</div>
