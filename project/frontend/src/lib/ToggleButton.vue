@@ -16,9 +16,6 @@ const toggleValue = () => {
 <template>
 	<div>
 		<label class="flex items-center text-base cursor-pointer select-none" @click="toggleValue">
-			<span class="mr-3 text-white text-md">
-				{{ props.label }}
-			</span>
 			<div
 				class="relative w-12 h-6 transition-all duration-300 rounded-full cursor-pointer"
 				:class="props.isActive ? 'bg-blue-500' : 'bg-gray-400'"
@@ -28,6 +25,9 @@ const toggleValue = () => {
 					:class="{ 'translate-x-6': props.isActive }"
 				></div>
 			</div>
+			<span class="ml-4 text-white text-md">
+				{{ props.label }}
+			</span>
 		</label>
 	</div>
 </template>

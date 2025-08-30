@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, provide } from "vue";
+import { ref, onMounted, watch, provide, computed } from "vue";
 import FileExplorer from "../components/codeReview/FileExplorer.vue";
 import CodeEditor from "../components/codeReview/CodeEditor.vue";
 import OtherContentViewer from "../components/codeReview/ContentViewer.vue";
@@ -8,22 +8,16 @@ import { CommentType } from "../types/enums/CommentType.ts";
 import SplitPanelManager from "../components/codeReview/SplitPanelManager.vue";
 import { useRepositoryStore } from "../stores/repositoryStore.ts";
 import { useFileContentStore } from "../stores/fileContentStore.ts";
+import { useSettingsStore } from "../stores/settingsStore.ts";
 import { storeToRefs } from "pinia";
 import type { ProcessedFile } from "../types/github/githubFile.ts";
-import CodeReviewToolbar from "../components/codeReview/CodeReviewToolbar.vue";
 import { useRoute } from "vue-router";
 import ResizeHandle from "../lib/ResizeHandle.vue";
 import { useProjectStore } from "../stores/projectStore.ts";
 import { getFileName } from "../utils/fileUtils.ts";
-import { keyboardModeContextKey, projectCommentModalContextKey, fileCommentModalContextKey } from "../core/keys.ts";
-import CommentFormPanel from "../components/codeReview/CommentFormPanel.vue";
-
-// Provide IsKeyboardMode Context
-const isKeyboardMode = ref(false);
-function updateKeyboardModeState(value: boolean) {
-	isKeyboardMode.value = value;
-}
-provide(keyboardModeContextKey, { isKeyboardMode: isKeyboardMode, updateKeyboardModeState });
+import { projectCommentModalContextKey, fileCommentModalContextKey } from "../core/keys.ts";
+import CommentForm from "../components/codeReview/CommentForm.vue";
+import SlideoutPanel from "../lib/SlideoutPanel.vue";
 
 // Router
 const route = useRoute();
@@ -32,14 +26,13 @@ const route = useRoute();
 const projectStore = useProjectStore();
 const repositoryStore = useRepositoryStore();
 const fileContentStore = useFileContentStore();
+const settingsStore = useSettingsStore();
 
 // Store refs
 const { repositoryUrl, writeApiUrl, repositoryBranch, githubPat } = storeToRefs(projectStore);
 const { fileTree, allComments, isLoadingRepository, isLoadingComments } = storeToRefs(repositoryStore);
 
 // Local state
-const showSideBar = ref<boolean>(true);
-const saveWorkspace = ref<boolean>(false);
 const selectedFilePath = ref<string | null>(null);
 const processedSelectedFile = ref<ProcessedFile | null>(null);
 const isLoadingFile = ref<boolean>(false);
@@ -215,6 +208,29 @@ const initRepositoryStore = async () => {
 	}
 };
 
+// Computed
+const getSubtitle = computed(() => {
+	if (addedCommentType.value === CommentType.Project) return "Project-wide comment";
+	if (!commentFilePath.value) return "";
+
+	let lineInfo = "";
+	switch (addedCommentType.value) {
+		case CommentType.Multiline:
+			lineInfo = `from line ${startLineNumber.value || 0} to ${endLineNumber.value || 0}`;
+			break;
+		case CommentType.Singleline:
+			lineInfo = `on line ${startLineNumber.value || 0}`;
+			break;
+		case CommentType.File:
+			lineInfo = "File/Folder Comment";
+			break;
+		default:
+			lineInfo = "";
+	}
+
+	return `File: ${commentFilePath.value} ${lineInfo}`;
+});
+
 onMounted(async () => {
 	await initRepositoryStore();
 });
@@ -241,13 +257,15 @@ watch(
 		<div class="flex flex-row h-full w-full">
 			<!-- Code Editor Section-->
 			<div class="flex flex-col h-full w-full">
-				<!-- Code Editor Toolbar -->
-				<CodeReviewToolbar v-model:showSideBar="showSideBar" v-model:saveWorkspace="saveWorkspace" />
-
 				<!-- Code Editor -->
 				<div class="flex h-full w-full overflow-hidden">
 					<!-- Sidebar -->
-					<div ref="sidebar" v-if="showSideBar" class="flex-shrink-0" :style="{ width: sidebarWidth + 'px' }">
+					<div
+						ref="sidebar"
+						v-if="settingsStore.isSidebarOpen"
+						class="flex-shrink-0"
+						:style="{ width: sidebarWidth + 'px' }"
+					>
 						<!-- File Explorer -->
 						<div v-if="isLoadingRepository" class="p-6 text-sm text-center text-slate-300">
 							<div class="inline-flex items-center space-x-2">
@@ -266,7 +284,7 @@ watch(
 
 					<!-- Resize Handle -->
 					<ResizeHandle
-						v-if="showSideBar"
+						v-if="settingsStore.isSidebarOpen"
 						:resizable-element="sidebar"
 						:min-width="minSidebarWidth"
 						:max-width="maxSidebarWidth"
@@ -283,11 +301,7 @@ watch(
 								<span>Loading comments...</span>
 							</div>
 						</div>
-						<SplitPanelManager
-							v-else
-							v-model:selected-file-path="selectedFilePath"
-							v-model:saveWorkspace="saveWorkspace"
-						>
+						<SplitPanelManager v-else v-model:selected-file-path="selectedFilePath">
 							<template #default="{ filePath }">
 								<div v-if="filePath" class="h-full">
 									<div
@@ -330,14 +344,21 @@ watch(
 			</div>
 
 			<!-- Comment Add/Edit Form Component -->
-			<CommentFormPanel
+			<SlideoutPanel
+				:title="(commentId ? 'Edit' : 'Add') + ' Comment'"
+				:subtitle="getSubtitle"
 				v-model:isVisible="isAddingComment"
-				:commentFilePath="selectedFilePath"
-				:start-line-number="startLineNumber"
-				:end-line-number="endLineNumber"
-				:comment-id="commentId"
-				:comment-type="addedCommentType"
-			/>
+				class="w-110"
+			>
+				<CommentForm
+					v-model:isVisible="isAddingComment"
+					:comment-file-path="selectedFilePath"
+					:start-line-number="startLineNumber"
+					:end-line-number="endLineNumber"
+					:comment-id="commentId"
+					:comment-type="addedCommentType"
+				/>
+			</SlideoutPanel>
 		</div>
 	</div>
 </template>

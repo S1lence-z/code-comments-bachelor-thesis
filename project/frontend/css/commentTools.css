@@ -8,6 +8,21 @@
 	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* Compact mode comment tools */
+.cm-singleline-comment-widget.compact .comment-tools,
+.cm-multiline-comment-widget.compact .comment-tools {
+	gap: 6px;
+	margin-bottom: 6px;
+	padding-bottom: 4px;
+}
+
+.cm-singleline-comment-widget.compact .comment-tools button,
+.cm-multiline-comment-widget.compact .comment-tools button {
+	padding: 3px 8px;
+	font-size: 12px;
+	border-radius: 6px;
+}
+
 /* Specific button styles */
 .comment-tools button.edit-button {
 	background: rgba(0, 157, 255, 0.1);

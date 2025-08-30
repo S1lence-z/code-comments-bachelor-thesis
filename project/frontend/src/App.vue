@@ -1,19 +1,29 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
 import NavigationBar from "./components/app/AppNavigationBar.vue";
-import AppFooter from "./components/app/AppFooter.vue";
 import Modal from "./lib/Modal.vue";
 import { useRouter, useRoute } from "vue-router";
 import { useProjectStore } from "./stores/projectStore.ts";
+import SlideoutPanel from "./lib/SlideoutPanel.vue";
+import Settings from "./components/app/Settings.vue";
+import { useSettingsStore } from "./stores/settingsStore.ts";
+import { useKeyboardShortcutsStore } from "./stores/keyboardShortcutsStore.ts";
+import KeyboardShortcutsEditor from "./components/app/KeyboardShortcutsEditor.vue";
 
 // Router
 const router = useRouter();
 const route = useRoute();
 
-// Project Store
+// Stores
 const projectStore = useProjectStore();
+const settingsStore = useSettingsStore();
+const keyboardShortcutsStore = useKeyboardShortcutsStore();
 
 onMounted(async () => {
+	// Load settings
+	settingsStore.loadSettings();
+	keyboardShortcutsStore.loadShortcuts();
+
 	await router
 		.isReady()
 		.then(() => {
@@ -38,12 +48,19 @@ onMounted(async () => {
 			<span class="spinner" />
 		</div>
 		<!-- Footer -->
-		<AppFooter />
 	</div>
 
-	<!-- Global Testing Modal -->
-	<Modal v-if="false">
-		<p>Welcome to the Code Review App! Please set up your project to start reviewing code.</p>
-		<button class="btn btn-primary" @click="$router.push('/setup')">Get Started</button>
+	<!-- Settings Slideout Panel -->
+	<SlideoutPanel
+		title="Settings"
+		:isVisible="settingsStore.isSettingsOpen"
+		@update:isVisible="settingsStore.toggleSettingsOpen"
+	>
+		<Settings />
+	</SlideoutPanel>
+
+	<!-- Settings Keyboard Shortcuts Modal -->
+	<Modal v-if="settingsStore.isEditingKeyboardShortcuts" @close="settingsStore.toggleKeyboardShortcutsEditor">
+		<KeyboardShortcutsEditor />
 	</Modal>
 </template>

@@ -13,7 +13,7 @@ defineEmits<{
 </script>
 
 <template>
-	<div class="mb-6">
+	<div class="mb-4">
 		<label :for="props.label" class="block mb-2 font-bold text-gray-400">{{ props.label }}</label>
 		<input
 			:type="props.type"

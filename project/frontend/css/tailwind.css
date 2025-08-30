@@ -60,7 +60,6 @@
 
 	.nav-tab {
 		@apply px-4 py-2 rounded-lg transition-all duration-200;
-		@apply text-gray-300 hover:text-white;
 	}
 
 	.nav-tab a {
@@ -72,7 +71,7 @@
 	}
 
 	.nav-tab.inactive {
-		@apply text-slate-300 hover:text-white hover:bg-white/5;
+		@apply text-gray-200 hover:text-white hover:bg-white/10;
 	}
 
 	/* File Tab Manager Styles */
@@ -81,7 +80,7 @@
 	}
 
 	.file-tab {
-		@apply flex items-center bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 duration-200 hover:bg-white/10;
+		@apply flex items-center bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 duration-200 hover:bg-white/10 text-sm;
 	}
 
 	.file-tab.active {
@@ -194,6 +193,6 @@
 
 	/* Slideout Panel */
 	.panel {
-		@apply bg-white/10 backdrop-blur-lg rounded-tl-xl rounded-bl-xl border border-black p-8 transition-all duration-300;
+		@apply fixed top-0 right-0 bg-white/10 backdrop-blur-sm rounded-tl-xl rounded-bl-xl border border-black p-8 transition-all duration-300;
 	}
 }

@@ -95,7 +95,7 @@ onMounted(async () => {
 		</div>
 
 		<!-- Main Content -->
-		<div class="mx-auto mt-12 mb-8">
+		<div class="mx-auto mt-8 mb-8">
 			<div class="max-w-7xl mx-auto space-y-8">
 				<!-- Filtering Bar -->
 				<div class="flex items-center gap-4">

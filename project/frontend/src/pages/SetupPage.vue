@@ -7,20 +7,21 @@ import Button from "../lib/Button.vue";
 import Card from "../lib/Card.vue";
 import Icon from "../lib/Icon.vue";
 import type IProjectDto from "../types/interfaces/IProjectDto.ts";
+import router from "../core/router.ts";
 
 const backendBaseUrl = import.meta.env.VITE_API_BASE_URL;
 const githubRepoUrl = ref("");
 const branchName = ref("");
+const projectName = ref("");
 const isLoading = ref(false);
 const errorMessage = ref("");
 const generatedReviewLink = ref("");
 const allExistingProjects = ref<IProjectDto[]>([]);
 
-const createEditProjectUrl = (writeApiUrl: string, repoLandingPageUrl: string, branchName: string) => {
-	const frontendBaseUrl = globalThis.location.origin;
-	return `${frontendBaseUrl}/review/code/?repoUrl=${encodeURIComponent(
-		repoLandingPageUrl || ""
-	)}&commentsApiUrl=${encodeURIComponent(writeApiUrl || "")}&branch=${encodeURIComponent(branchName || "")}`;
+const createCodeRevieweUrlPath = (writeApiUrl: string, repoLandingPageUrl: string, branchName: string) => {
+	return `/review/code?repoUrl=${repoLandingPageUrl || ""}&commentsApiUrl=${writeApiUrl || ""}&branch=${
+		branchName || ""
+	}`;
 };
 
 const handleCreateConfiguration = async () => {
@@ -31,12 +32,13 @@ const handleCreateConfiguration = async () => {
 		const setupData: IProjectSetupRequest = {
 			repositoryUrl: githubRepoUrl.value.trim(),
 			branch: branchName.value.trim(),
+			name: projectName.value.trim(),
 		};
 
 		const response = await setupProject(setupData, backendBaseUrl);
 
 		if (response.writeApiUrl && response.repository) {
-			generatedReviewLink.value = createEditProjectUrl(
+			generatedReviewLink.value = createCodeRevieweUrlPath(
 				response.writeApiUrl,
 				response.repository.repositoryUrl,
 				response.repository.branch
@@ -52,9 +54,8 @@ const handleCreateConfiguration = async () => {
 };
 
 const navigateToReviewSession = () => {
-	if (generatedReviewLink.value) {
-		window.open(generatedReviewLink.value, "_blank");
-	}
+	if (!generatedReviewLink.value) return;
+	router.push(generatedReviewLink.value);
 };
 
 onMounted(async () => {
@@ -75,16 +76,16 @@ onMounted(async () => {
 		</div>
 
 		<!-- Main Content -->
-		<div class="mx-auto px-6 mt-12">
+		<div class="mx-auto px-6 mt-8">
 			<div class="flex flex-col lg:flex-row gap-12 max-w-7xl mx-auto">
 				<!-- Existing Projects List -->
-				<div class="flex-1 space-y-6">
+				<div class="flex-0.5">
 					<Card
 						title="Existing Projects"
 						subtitle="Continue working on your previous code reviews"
 						iconName="archive"
 						iconGradient="blue"
-						>ˇ
+					>
 						<!-- Empty State -->
 						<div v-if="allExistingProjects.length === 0" class="empty-state">
 							<div class="empty-state-icon">
@@ -110,7 +111,7 @@ onMounted(async () => {
 							<div v-for="project in allExistingProjects" :key="project.id" class="card-item">
 								<a
 									:href="
-										createEditProjectUrl(
+										createCodeRevieweUrlPath(
 											project.writeApiUrl,
 											project.repository.repositoryUrl,
 											project.repository.branch
@@ -144,44 +145,16 @@ onMounted(async () => {
 				</div>
 
 				<!-- Setup Form -->
-				<div class="flex-1 space-y-6">
+				<div class="flex-1">
 					<Card
 						title="New Review Session"
 						subtitle="Start a new code review by entering a GitHub repository URL"
 						iconName="plus"
 						iconGradient="emerald"
 					>
-						<form @submit.prevent="handleCreateConfiguration" class="space-y-6">
-							<!-- GitHub Repository URL -->
-							<InputField
-								label="GitHub Repository URL"
-								v-model="githubRepoUrl"
-								type="url"
-								placeholder="https://github.com/owner/repository"
-								:required="true"
-							/>
-
-							<!-- Branch Name -->
-							<InputField
-								label="Branch Name"
-								v-model="branchName"
-								type="text"
-								placeholder="main"
-								:required="true"
-							/>
-
-							<!-- Submit Button -->
-							<Button
-								class="w-full"
-								label="Create Review Session"
-								type="submit"
-								buttonStyle="primary"
-								:disabled="isLoading"
-							/>
-						</form>
-
 						<!-- Messages -->
-						<div class="mt-8 space-y-4">
+						<div v-if="errorMessage || generatedReviewLink" class="space-y-6 mb-6">
+							<!-- Error Message -->
 							<div v-if="errorMessage" class="status-message error">
 								<div class="flex items-center gap-3">
 									<div class="card-icon-sm">
@@ -190,7 +163,7 @@ onMounted(async () => {
 									<p class="text-red-400">{{ errorMessage }}</p>
 								</div>
 							</div>
-
+							<!-- Success Message -->
 							<div v-if="generatedReviewLink" class="status-message success flex flex-col gap-4">
 								<div class="flex items-center gap-3">
 									<div class="card-icon-sm">
@@ -207,6 +180,49 @@ onMounted(async () => {
 								/>
 							</div>
 						</div>
+
+						<!-- Setup Form -->
+						<form @submit.prevent="handleCreateConfiguration" class="space-y-6">
+							<!-- GitHub Repository URL -->
+							<InputField
+								label="GitHub Repository URL"
+								v-model="githubRepoUrl"
+								type="url"
+								placeholder="https://github.com/owner/repository"
+								:required="true"
+							/>
+
+							<span class="flex flex-row mb-4 space-x-6">
+								<!-- Branch Name -->
+								<InputField
+									label="Branch"
+									v-model="branchName"
+									type="text"
+									placeholder="main"
+									:required="true"
+									class="flex-1"
+								/>
+
+								<!-- Project Name -->
+								<InputField
+									label="Project Name"
+									v-model="projectName"
+									type="text"
+									placeholder="My Project"
+									:required="true"
+									class="flex-1"
+								/>
+							</span>
+
+							<!-- Submit Button -->
+							<Button
+								class="w-full"
+								label="Create Review Session"
+								type="submit"
+								buttonStyle="primary"
+								:disabled="isLoading"
+							/>
+						</form>
 					</Card>
 				</div>
 			</div>
