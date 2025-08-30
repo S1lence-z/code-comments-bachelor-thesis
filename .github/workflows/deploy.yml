@@ -20,7 +20,7 @@ jobs:
 
             - name: Install dependencies
               working-directory: project/frontend
-              run: npm i
+              run: npm ci
 
             - name: Build Vue app
               working-directory: project/frontend
@@ -31,3 +31,4 @@ jobs:
               with:
                   github_token: ${{ secrets.GITHUB_TOKEN }}
                   publish_dir: project/frontend/dist
+                  force_orphan: true
