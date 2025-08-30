@@ -6,6 +6,7 @@ import { commentsDisplayExtension } from "../commentsExtension.ts";
 import { getLineNumbersConfig, type LineNumberConfig } from "./lineNumbersConfig.ts";
 import { multilineCommentHighlightExtension, multilineCommentTheme } from "../others/multilineCommentHighlight.ts";
 import { EditorState, type Extension } from "@codemirror/state";
+import type { AppKeyboardShortcuts } from "../../types/KeyboardShortcuts.ts";
 
 /**
  * Creates the standard set of CodeMirror extensions for the code editor
@@ -13,11 +14,12 @@ import { EditorState, type Extension } from "@codemirror/state";
 export function createEditorExtensions(
 	filePath: string | null,
 	comments: ICommentDto[] = [],
+	isKeyboardMode: boolean,
+	isCompactCommentModal: boolean,
+	appKeyboardShortcuts: AppKeyboardShortcuts,
 	deleteCommentAction: (commentId: string) => Promise<void>,
 	editCommentAction: (commentId: string) => Promise<void>,
-	isKeyboardMode: boolean,
-	onSingleLineComment: (lineNumber: number, filePath: string) => void,
-	isCompactCommentModal: boolean
+	onSingleLineComment: (lineNumber: number, filePath: string) => void
 ) {
 	const langExt = getLanguageExtension(filePath);
 	const currentFileComments = comments || [];
@@ -32,7 +34,7 @@ export function createEditorExtensions(
 		...(Array.isArray(langExt) ? langExt : [langExt]),
 		commentsDisplayExtension(currentFileComments, deleteCommentAction, editCommentAction, isCompactCommentModal),
 		addCursorNavigationExtensions(isKeyboardMode),
-		addCustomKeyboardShortcuts(filePath, onSingleLineComment),
+		addCustomKeyboardShortcuts(filePath, onSingleLineComment, appKeyboardShortcuts),
 		preventDefaultDragAndDrop(),
 	];
 
@@ -55,13 +57,14 @@ export function preventDefaultDragAndDrop(): Extension {
 
 function addCustomKeyboardShortcuts(
 	filePath: string | null,
-	onSingleLineComment: (lineNumber: number, filePath: string) => void
+	onSingleLineComment: (lineNumber: number, filePath: string) => void,
+	appKeyboardShortcuts: AppKeyboardShortcuts
 ): Extension[] {
 	// Custom keyboard shortcuts for keyboard mode
 	return [
 		keymap.of([
 			{
-				key: "Ctrl-c",
+				key: appKeyboardShortcuts.addComment.binding,
 				preventDefault: true,
 				run: (view) => {
 					const selection = view.state.selection.main;

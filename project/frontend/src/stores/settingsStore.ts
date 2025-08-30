@@ -9,6 +9,7 @@ export const useSettingsStore = defineStore("settingsStore", {
 		sidebarOpenState: true,
 		saveWorkspaceState: false,
 		compactCommentWidgetState: true,
+		keyboardShortcutsEditorState: false,
 	}),
 	getters: {
 		isSettingsOpen: (state) => state.settingsOpenState,
@@ -16,6 +17,7 @@ export const useSettingsStore = defineStore("settingsStore", {
 		isSidebarOpen: (state) => state.sidebarOpenState,
 		isSaveWorkspace: (state) => state.saveWorkspaceState,
 		isCompactCommentWidget: (state) => state.compactCommentWidgetState,
+		isEditingKeyboardShortcuts: (state) => state.keyboardShortcutsEditorState,
 	},
 	actions: {
 		toggleSettingsOpen() {
@@ -35,6 +37,10 @@ export const useSettingsStore = defineStore("settingsStore", {
 		},
 		toggleCompactCommentWidget() {
 			this.compactCommentWidgetState = !this.compactCommentWidgetState;
+			this.saveSettings();
+		},
+		toggleKeyboardShortcutsEditor() {
+			this.keyboardShortcutsEditorState = !this.keyboardShortcutsEditorState;
 			this.saveSettings();
 		},
 		getPersistentSettings(): AppSettings {

@@ -6,6 +6,7 @@ import { EditorView } from "@codemirror/view";
 import type ICommentDto from "../../types/interfaces/ICommentDto";
 import { createEditorExtensions } from "../../codeMirror/configs/editorConfig";
 import { useSettingsStore } from "../../stores/settingsStore";
+import { useKeyboardShortcutsStore } from "../../stores/keyboardShortcutsStore";
 
 interface CodeEditorProps {
 	filePath: string | null;
@@ -28,6 +29,7 @@ const emit = defineEmits<{
 
 // Stores
 const settingsStore = useSettingsStore();
+const keyboardShortcutsStore = useKeyboardShortcutsStore();
 
 // Local state
 const currentContent = ref<string>("");
@@ -48,11 +50,12 @@ const extensions = computed(() => {
 	return createEditorExtensions(
 		props.filePath,
 		currentFileComments,
+		settingsStore.isKeyboardMode,
+		settingsStore.isCompactCommentWidget,
+		keyboardShortcutsStore.getShortcuts,
 		props.deleteCommentAction,
 		props.editCommentAction,
-		settingsStore.isKeyboardMode,
-		handleSingleLineComment,
-		settingsStore.isCompactCommentWidget
+		handleSingleLineComment
 	);
 });
 

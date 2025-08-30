@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Button from "../../lib/Button.vue";
 import ToggleButton from "../../lib/ToggleButton.vue";
 import { useSettingsStore } from "../../stores/settingsStore";
 
@@ -6,6 +7,7 @@ const settingsStore = useSettingsStore();
 </script>
 
 <template>
+	<!-- Toggle Buttons -->
 	<div class="flex flex-col justify-start space-y-6">
 		<!-- Toggle Button for Sidebar -->
 		<div class="flex items-center">
@@ -39,5 +41,14 @@ const settingsStore = useSettingsStore();
 				@update:isActive="settingsStore.toggleCompactCommentWidget"
 			/>
 		</div>
+		<!-- Divider -->
+		<div class="border-t border-gray-200 w-full"></div>
+		<!-- Button for Editing Keyboard Shortcuts -->
+		<Button
+			label="Edit Keyboard Shortcuts"
+			type="button"
+			buttonStyle="primary"
+			:onClick="settingsStore.toggleKeyboardShortcutsEditor"
+		/>
 	</div>
 </template>
