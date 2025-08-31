@@ -1,65 +1,32 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import { setupProject, listProjects } from "../services/projectService.ts";
-import type IProjectSetupRequest from "../types/interfaces/ISetupProjectRequest.ts";
+import { onMounted } from "vue";
+import { useSetupPage } from "../composables/pages/useSetupPage";
 import InputField from "../lib/InputField.vue";
 import Button from "../lib/Button.vue";
 import Card from "../lib/Card.vue";
 import Icon from "../lib/Icon.vue";
-import type IProjectDto from "../types/interfaces/IProjectDto.ts";
-import router from "../core/router.ts";
 
+// Initialize the composable with backend URL
 const backendBaseUrl = import.meta.env.VITE_API_BASE_URL;
-const githubRepoUrl = ref("");
-const branchName = ref("");
-const projectName = ref("");
-const isLoading = ref(false);
-const errorMessage = ref("");
-const generatedReviewLink = ref("");
-const allExistingProjects = ref<IProjectDto[]>([]);
+const {
+	// State
+	githubRepoUrl,
+	branchName,
+	projectName,
+	isLoading,
+	errorMessage,
+	generatedReviewLink,
+	allExistingProjects,
+	// Methods
+	createCodeReviewUrlPath,
+	handleCreateConfiguration,
+	navigateToReviewSession,
+	loadExistingProjects,
+} = useSetupPage(backendBaseUrl);
 
-const createCodeRevieweUrlPath = (writeApiUrl: string, repoLandingPageUrl: string, branchName: string) => {
-	return `/review/code?repoUrl=${repoLandingPageUrl || ""}&commentsApiUrl=${writeApiUrl || ""}&branch=${
-		branchName || ""
-	}`;
-};
-
-const handleCreateConfiguration = async () => {
-	isLoading.value = true;
-	errorMessage.value = "";
-	generatedReviewLink.value = "";
-	try {
-		const setupData: IProjectSetupRequest = {
-			repositoryUrl: githubRepoUrl.value.trim(),
-			branch: branchName.value.trim(),
-			name: projectName.value.trim(),
-		};
-
-		const response = await setupProject(setupData, backendBaseUrl);
-
-		if (response.writeApiUrl && response.repository) {
-			generatedReviewLink.value = createCodeRevieweUrlPath(
-				response.writeApiUrl,
-				response.repository.repositoryUrl,
-				response.repository.branch
-			);
-		} else {
-			throw new Error("Invalid response from server for configuration setup.");
-		}
-	} catch (error: any) {
-		errorMessage.value = `Failed to create review session: ${error.message || "Unknown error"}`;
-	} finally {
-		isLoading.value = false;
-	}
-};
-
-const navigateToReviewSession = () => {
-	if (!generatedReviewLink.value) return;
-	router.push(generatedReviewLink.value);
-};
-
-onMounted(async () => {
-	allExistingProjects.value = await listProjects(backendBaseUrl);
+// Lifecycle
+onMounted(() => {
+	loadExistingProjects();
 });
 </script>
 
@@ -111,7 +78,7 @@ onMounted(async () => {
 							<div v-for="project in allExistingProjects" :key="project.id" class="card-item">
 								<a
 									:href="
-										createCodeRevieweUrlPath(
+										createCodeReviewUrlPath(
 											project.writeApiUrl,
 											project.repository.repositoryUrl,
 											project.repository.branch
