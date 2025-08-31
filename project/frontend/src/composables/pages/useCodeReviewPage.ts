@@ -173,7 +173,6 @@ export function useCodeReviewPage() {
 		sidebarWidth.value = Math.max(minSidebarWidth, Math.min(maxSidebarWidth, newWidth));
 	};
 
-	// TODO: add handling the line number if applicable
 	const handleFileQueryParam = (): void => {
 		const filePath = decodeURIComponent((route.query.file as string) || "");
 		if (filePath) {

@@ -3,7 +3,12 @@ export function getFileName(path: string | null): string {
 	return path.split("/").pop() || path;
 }
 
-export function getFileIcon(fileName?: string | null): string {
+export function getFileDirectory(path: string | null): string {
+	if (!path) return "";
+	return path.split("/").slice(0, -1).join("/") || "/";
+}
+
+export function getFileIcon(fileName: string | null): string {
 	if (!fileName) return "📄"; // Default icon
 	const extension = fileName.split(".").pop()?.toLowerCase();
 	switch (extension) {
