@@ -51,6 +51,8 @@ const {
 	handleFileQueryParam,
 	initRepositoryStore,
 	deleteCommentAction,
+	handleProjectCommentSelected,
+	getProjectCommentButtonLabel,
 
 	// Computed
 	getSubtitle,
@@ -106,6 +108,8 @@ watch(
 							v-else-if="fileTree.length > 0"
 							v-model:selectedPath="selectedFilePath"
 							:treeData="fileTree"
+							:getProjectCommentButtonLabel="getProjectCommentButtonLabel"
+							@onChangeProjectComment="handleProjectCommentSelected"
 						/>
 					</div>
 
