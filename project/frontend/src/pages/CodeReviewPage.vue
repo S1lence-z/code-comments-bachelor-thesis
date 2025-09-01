@@ -9,6 +9,7 @@ import ResizeHandle from "../lib/ResizeHandle.vue";
 import CommentForm from "../components/codeReview/CommentForm.vue";
 import SlideoutPanel from "../lib/SlideoutPanel.vue";
 import { getFileName } from "../utils/fileUtils.ts";
+import { FileDisplayType } from "../types/github/githubFile.ts";
 
 // Initialize the composable
 const {
@@ -132,6 +133,7 @@ watch(
 								<span>Loading comments...</span>
 							</div>
 						</div>
+						<!-- TODO: refactor -->
 						<SplitPanelManager v-else v-model:selected-file-path="selectedFilePath">
 							<template #default="{ filePath }">
 								<div v-if="filePath" class="h-full">
@@ -145,8 +147,11 @@ watch(
 										</div>
 									</div>
 									<template v-else>
+										<!-- TODO: refactor -->
 										<CodeEditor
-											v-if="fileContentStore.getFileDisplayType(filePath) === 'text'"
+											v-if="
+												fileContentStore.getFileDisplayType(filePath) === FileDisplayType.Text
+											"
 											:file-path="filePath"
 											:file-content="fileContentStore.getFileContent(filePath)"
 											:is-loading-file="false"
@@ -156,6 +161,7 @@ watch(
 											@line-double-clicked="handleSinglelineCommentSelected"
 											@multiline-selected="handleMultilineCommentSelected"
 										/>
+										<!-- TODO: refactor -->
 										<OtherContentViewer
 											v-else
 											:display-type="fileContentStore.getFileDisplayType(filePath)"
