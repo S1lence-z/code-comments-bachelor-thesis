@@ -147,7 +147,6 @@ watch(
 										</div>
 									</div>
 									<template v-else>
-										<!-- TODO: refactor -->
 										<CodeEditor
 											v-if="
 												fileContentStore.getFileDisplayType(filePath) === FileDisplayType.Text
@@ -155,7 +154,7 @@ watch(
 											:file-path="filePath"
 											:file-content="fileContentStore.getFileContent(filePath)"
 											:is-loading-file="false"
-											:comments="repositoryStore.getCommentsForFile(filePath)"
+											:comment-for-file="repositoryStore.getCommentsForFile(filePath)"
 											:delete-comment-action="deleteCommentAction"
 											:edit-comment-action="handleCommentEdit"
 											@line-double-clicked="handleSinglelineCommentSelected"
