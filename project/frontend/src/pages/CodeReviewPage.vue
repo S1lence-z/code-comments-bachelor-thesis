@@ -161,7 +161,6 @@ watch(
 											@line-double-clicked="handleSinglelineCommentSelected"
 											@multiline-selected="handleMultilineCommentSelected"
 										/>
-										<!-- TODO: refactor -->
 										<OtherContentViewer
 											v-else
 											:display-type="fileContentStore.getFileDisplayType(filePath)"
