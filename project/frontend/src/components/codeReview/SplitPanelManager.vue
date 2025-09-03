@@ -5,9 +5,8 @@ import ResizeHandle from "../../lib/ResizeHandle.vue";
 import type { PanelData } from "../../utils/panelUtils";
 import { determineDropPosition, generateNewPanel } from "../../utils/panelUtils";
 import { splitPanelContextKey } from "../../core/keys.ts";
-import useLocalStorage from "../../composables/useLocalStorage.ts";
 import { useSettingsStore } from "../../stores/settingsStore.ts";
-import { appSavedWorkspaceKey } from "../../core/keys.ts";
+import { useWorkspaceStore } from "../../stores/workspaceStore.ts";
 
 const props = defineProps<{
 	selectedFilePath: string | null;
@@ -19,9 +18,7 @@ const emits = defineEmits<{
 
 // Stores
 const settingsStore = useSettingsStore();
-
-// Local storage for saving workspace
-const savedWorkspace = useLocalStorage(appSavedWorkspaceKey.description!, "[]");
+const workspaceStore = useWorkspaceStore();
 
 // Panel management
 const panels = ref<PanelData[]>([]);
@@ -31,10 +28,10 @@ watch(
 	[() => settingsStore.isSaveWorkspace, panels],
 	([shouldSaveWorkspace]) => {
 		if (shouldSaveWorkspace) {
-			savedWorkspace.value = JSON.stringify(panels.value);
+			workspaceStore.saveWorkspace(panels.value);
 		}
 	},
-	{ immediate: true, deep: true }
+	{ deep: true }
 );
 
 // Constants
@@ -49,21 +46,9 @@ const leftDropZoneActive = ref(false);
 const rightDropZoneActive = ref(false);
 const panelIdCounter = ref(0);
 
-// Load saved workspace on component mount
-const loadSavedWorkspace = (): PanelData[] | null => {
-	try {
-		const savedData = savedWorkspace.value;
-		if (!savedData || savedData === "[]" || !settingsStore.isSaveWorkspace) {
-			return null;
-		}
-		return JSON.parse(savedData) as PanelData[];
-	} catch (error) {
-		console.error("Failed to parse workspace from localStorage:", error);
-		return null;
-	}
-};
-
+// Utility functions for panels
 const restorePanels = (savedPanels: PanelData[]): void => {
+	console.log("Restoring panels:", savedPanels);
 	savedPanels.forEach((panel) => {
 		const newPanel = generateNewPanel(panelIdCounter);
 		newPanel.openTabs = panel.openTabs;
@@ -94,7 +79,7 @@ const redistributePanelSizes = (): void => {
 
 // Load saved workspace on component mount
 onMounted(() => {
-	const savedPanels = loadSavedWorkspace();
+	const savedPanels = workspaceStore.getSavedWorkspace;
 	if (savedPanels) {
 		restorePanels(savedPanels);
 		restoreTabSelections();
