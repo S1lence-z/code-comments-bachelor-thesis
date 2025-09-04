@@ -1,51 +1,28 @@
 <script setup lang="ts">
-import { inject } from "vue";
 import { getFileIcon, getFileIconColor } from "../../utils/fileUtils";
-import { type TreeNode } from "../../types/github/githubTree.ts";
 import Icon from "../../lib/Icon.vue";
-import { useRepositoryStore } from "../../stores/repositoryStore.ts";
 import { handleToggleExpandInTree } from "../../utils/treeNodeUtils.ts";
-import { fileCommentModalContextKey } from "../../core/keys.ts";
-
-interface FileExplorerItemProps {
-	item: TreeNode;
-	filePath: string | null;
-	depth?: number;
-}
+import {
+	useFileExplorerItem,
+	type FileExplorerItemProps,
+	type FileExplorerItemEmits,
+} from "../../composables/components/useFileExplorerItem";
 
 const props = withDefaults(defineProps<FileExplorerItemProps>(), {
 	depth: 0,
 });
+const emit = defineEmits<FileExplorerItemEmits>();
 
-const emits = defineEmits<{
-	(event: "update:filePath", value: string | null): void;
-	(event: "toggle-expand-item", item: TreeNode): void;
-}>();
+// Initialize the composable
+const {
+	// Store access for template
+	repositoryStore,
 
-function itemClicked() {
-	if (props.item.type === "file") {
-		emits("update:filePath", props.item.path);
-	} else if (props.item.type === "folder") {
-		emits("toggle-expand-item", props.item);
-	}
-}
-
-function toggleExpand() {
-	if (props.item.type === "folder") {
-		emits("toggle-expand-item", props.item);
-	}
-}
-
-// File/Folder comment data
-const { handleFileCommentSelected } = inject(fileCommentModalContextKey, {
-	handleFileCommentSelected: (_: string) => console.warn("handleFileCommentSelected not provided"),
-});
-
-// Check if the file contains comments
-const repositoryStore = useRepositoryStore();
-function containsComments(filePath: string): boolean {
-	return repositoryStore.fileContainsComments(filePath);
-}
+	// Methods
+	handleItemClick,
+	handleToggleExpand,
+	handleFileCommentAction,
+} = useFileExplorerItem(props, emit);
 </script>
 
 <template>
@@ -55,12 +32,13 @@ function containsComments(filePath: string): boolean {
 			class="flex items-center rounded-lg transition-all duration-200"
 			:class="{
 				'bg-white/10 text-white border border-white/20': item.path === filePath && item.type === 'file',
-				'bg-amber-500/10 border border-amber-500/20': containsComments(item.path) && item.path !== filePath,
+				'bg-amber-500/10 border border-amber-500/20':
+					repositoryStore.fileContainsComments(item.path) && item.path !== filePath,
 				'hover:bg-white/5': item.path !== filePath,
 			}"
 		>
 			<div
-				@click="itemClicked"
+				@click="handleItemClick"
 				class="flex flex-grow items-center gap-2 cursor-pointer text-slate-300 min-w-0 py-2 px-3 rounded-lg"
 				:title="item.path"
 				:style="{
@@ -71,7 +49,7 @@ function containsComments(filePath: string): boolean {
 				<span
 					v-if="item.type === 'folder'"
 					class="w-4 h-4 flex items-center justify-center text-slate-400 transition-all duration-200 flex-shrink-0 hover:text-white"
-					@click.stop="toggleExpand"
+					@click.stop="handleToggleExpand"
 				>
 					<Icon
 						srcName="arrow"
@@ -122,7 +100,7 @@ function containsComments(filePath: string): boolean {
 				</span>
 
 				<!-- Contains comments indicator -->
-				<span v-if="containsComments(item.path)" class="flex items-center gap-1 ml-2">
+				<span v-if="repositoryStore.fileContainsComments(item.path)" class="flex items-center gap-1 ml-2">
 					<div class="w-2 h-2 bg-amber-400 rounded-full"></div>
 					<span class="text-xs text-amber-400">💬</span>
 				</span>
@@ -131,7 +109,7 @@ function containsComments(filePath: string): boolean {
 			<!-- Item Actions -->
 			<div class="mr-2 duration-200">
 				<button
-					@click="handleFileCommentSelected(props.item.path)"
+					@click="handleFileCommentAction"
 					class="w-6 h-6 bg-white/10 hover:bg-white/20 hover:text-white rounded-md flex items-center justify-center transition-all duration-200 text-black cursor-pointer"
 					title="Add comment"
 				>
@@ -153,6 +131,7 @@ function containsComments(filePath: string): boolean {
 				:filePath="props.filePath"
 				@update:filePath="$emit('update:filePath', $event)"
 				@toggle-expand-item="handleToggleExpandInTree(child, item.children)"
+				@file-comment-requested="$emit('file-comment-requested', $event)"
 			/>
 		</ul>
 	</li>

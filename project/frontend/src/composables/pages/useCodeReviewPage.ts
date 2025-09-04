@@ -1,4 +1,4 @@
-import { ref, computed, provide } from "vue";
+import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useRepositoryStore } from "../../stores/repositoryStore";
@@ -8,7 +8,6 @@ import { useProjectStore } from "../../stores/projectStore";
 import type { ProcessedFile } from "../../types/github/githubFile";
 import type ICommentDto from "../../types/interfaces/ICommentDto";
 import { CommentType } from "../../types/enums/CommentType";
-import { fileCommentModalContextKey } from "../../core/keys";
 import { getCommentLocationInfoByType } from "../../utils/commentUtils";
 
 export function useCodeReviewPage() {
@@ -128,11 +127,6 @@ export function useCodeReviewPage() {
 		isAddingComment.value = true;
 	};
 
-	// Provide context for child components
-	provide(fileCommentModalContextKey, {
-		handleFileCommentSelected,
-	});
-
 	// Handle edit button for the codemirror widget
 	const handleCommentEdit = async (commentId: string): Promise<void> => {
 		// Take the comment ID and open the modal for editing
@@ -207,11 +201,6 @@ export function useCodeReviewPage() {
 		await repositoryStore.deleteCommentAsync(commentId, writeApiUrl.value);
 	};
 
-	// Get project comment button label
-	const getProjectCommentButtonLabel = () => {
-		return repositoryStore.containsProjectComment ? "Edit Project Comment" : "Add Project Comment";
-	};
-
 	// Computed
 	const getSubtitle = computed(() => {
 		if (addedCommentType.value === CommentType.Project) return "Project-wide comment";
@@ -222,6 +211,10 @@ export function useCodeReviewPage() {
 			endLineNumber.value
 		);
 		return `In file ${commentFilePath.value} ${commentInfo}`;
+	});
+
+	const projectCommentButtonLabel = computed(() => {
+		return repositoryStore.containsProjectComment ? "Edit Project Comment" : "Add Project Comment";
 	});
 
 	return {
@@ -274,9 +267,9 @@ export function useCodeReviewPage() {
 		handleFileQueryParam,
 		initRepositoryStore,
 		deleteCommentAction,
-		getProjectCommentButtonLabel,
 
 		// Computed
 		getSubtitle,
+		projectCommentButtonLabel,
 	};
 }

@@ -47,16 +47,17 @@ const {
 	handleFileSelected,
 	handleSinglelineCommentSelected,
 	handleMultilineCommentSelected,
+	handleFileCommentSelected,
+	handleProjectCommentSelected,
 	handleCommentEdit,
 	handleSidebarResize,
 	handleFileQueryParam,
 	initRepositoryStore,
 	deleteCommentAction,
-	handleProjectCommentSelected,
-	getProjectCommentButtonLabel,
 
 	// Computed
 	getSubtitle,
+	projectCommentButtonLabel,
 } = useCodeReviewPage();
 
 // Lifecycle
@@ -109,8 +110,9 @@ watch(
 							v-else-if="fileTree.length > 0"
 							v-model:selectedPath="selectedFilePath"
 							:treeData="fileTree"
-							:getProjectCommentButtonLabel="getProjectCommentButtonLabel"
-							@onUpdateProjectComment="handleProjectCommentSelected"
+							:projectCommentButtonLabel="projectCommentButtonLabel"
+							@project-comment-requested="handleProjectCommentSelected"
+							@file-comment-requested="handleFileCommentSelected"
 						/>
 					</div>
 
