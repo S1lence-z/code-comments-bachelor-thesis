@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import type AppSettings from "../types/AppSettings";
+import type AppSettings from "../types/others/AppSettings";
 import { appSettingsKey } from "../core/keys";
 
 export const useSettingsStore = defineStore("settingsStore", {

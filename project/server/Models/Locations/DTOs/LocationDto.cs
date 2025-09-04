@@ -9,7 +9,7 @@ namespace server.Models.Locations.DTOs
 	[JsonDerivedType(typeof(ProjectLocationDto), "Project")]
 	public abstract class LocationDto
 	{
-		public Guid Id { get; set; }
+		public Guid? Id { get; set; }
 		public string FilePath { get; set; } = string.Empty;
 	}
 }

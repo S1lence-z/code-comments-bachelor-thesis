@@ -1,7 +1,7 @@
 import { ref } from "vue";
 import { setupProject, listProjects } from "../../services/projectService";
-import type IProjectSetupRequest from "../../types/interfaces/ISetupProjectRequest";
-import type IProjectDto from "../../types/interfaces/IProjectDto";
+import type ProjectSetupRequest from "../../types/dtos/SetupProjectRequest";
+import type ProjectDto from "../../types/dtos/ProjectDto";
 import router from "../../core/router";
 
 export function useSetupPage(backendBaseUrl: string) {
@@ -12,7 +12,7 @@ export function useSetupPage(backendBaseUrl: string) {
 	const isLoading = ref(false);
 	const errorMessage = ref("");
 	const generatedReviewLink = ref("");
-	const allExistingProjects = ref<IProjectDto[]>([]);
+	const allExistingProjects = ref<ProjectDto[]>([]);
 
 	// Business logic methods
 	const createCodeReviewUrlPath = (writeApiUrl: string, repoLandingPageUrl: string, branchName: string): string => {
@@ -27,7 +27,7 @@ export function useSetupPage(backendBaseUrl: string) {
 		generatedReviewLink.value = "";
 
 		try {
-			const setupData: IProjectSetupRequest = {
+			const setupData: ProjectSetupRequest = {
 				repositoryUrl: githubRepoUrl.value.trim(),
 				branch: branchName.value.trim(),
 				name: projectName.value.trim(),

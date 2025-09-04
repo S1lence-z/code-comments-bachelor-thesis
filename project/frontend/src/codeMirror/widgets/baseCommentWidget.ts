@@ -1,5 +1,5 @@
 import { WidgetType } from "@codemirror/view";
-import type ICategoryDto from "../../types/interfaces/ICategoryDto.ts";
+import type CategoryDto from "../../types/dtos/CategoryDto.ts";
 
 export default abstract class BaseCommentWidget extends WidgetType {
 	protected static readonly className: string;
@@ -7,13 +7,13 @@ export default abstract class BaseCommentWidget extends WidgetType {
 	protected handleEditComment: (commentId: string) => Promise<void>;
 	protected content: string;
 	protected commentId: string;
-	protected category: ICategoryDto;
+	protected category: CategoryDto;
 	protected isCompact: boolean;
 
 	constructor(
 		content: string,
 		commentId: string,
-		category: ICategoryDto[],
+		category: CategoryDto[],
 		isCompact: boolean,
 		handleDeleteComment: (commentId: string) => Promise<void>,
 		handleEditComment: (commentId: string) => Promise<void>
@@ -100,7 +100,7 @@ export default abstract class BaseCommentWidget extends WidgetType {
 		return deleteButton;
 	}
 
-	protected createCategoryLabel(category: ICategoryDto): HTMLSpanElement {
+	protected createCategoryLabel(category: CategoryDto): HTMLSpanElement {
 		const label = document.createElement("span");
 		label.className = `comment-category comment-category-pill ${this.getCategoryColorClass()}`;
 		label.textContent = category.label;

@@ -1,19 +1,19 @@
 import { oneDark } from "@codemirror/theme-one-dark";
 import { EditorView, lineNumbers, keymap } from "@codemirror/view";
-import type ICommentDto from "../../types/interfaces/ICommentDto.ts";
+import type CommentDto from "../../types/dtos/CommentDto.ts";
 import { getLanguageExtension } from "../../utils/languageUtils.ts";
 import { commentsDisplayExtension } from "../commentsExtension.ts";
 import { getLineNumbersConfig, type LineNumberConfig } from "./lineNumbersConfig.ts";
 import { multilineCommentHighlightExtension, multilineCommentTheme } from "../others/multilineCommentHighlight.ts";
 import { EditorState, type Extension } from "@codemirror/state";
-import type { AppKeyboardShortcuts } from "../../types/KeyboardShortcuts.ts";
+import type { AppKeyboardShortcuts } from "../../types/others/KeyboardShortcuts.ts";
 
 /**
  * Creates the standard set of CodeMirror extensions for the code editor
  */
 export function createEditorExtensions(
 	filePath: string | null,
-	comments: ICommentDto[] = [],
+	comments: CommentDto[] = [],
 	isKeyboardMode: boolean,
 	isCompactCommentModal: boolean,
 	appKeyboardShortcuts: AppKeyboardShortcuts,

@@ -1,5 +1,5 @@
 import { ref, watch, computed } from "vue";
-import type { PanelData, Workspace, DraggedTabData } from "../../types/Panels";
+import type { PanelData, Workspace, DraggedTabData } from "../../types/others/Panels";
 import { determineDropPosition, generateNewPanel, findPanelById, redistributePanelSizes } from "../../utils/panelUtils";
 import { createTab, findTabInPanel, getTabIndexInPanel } from "../../utils/tabUtils";
 import { useSettingsStore } from "../../stores/settingsStore";

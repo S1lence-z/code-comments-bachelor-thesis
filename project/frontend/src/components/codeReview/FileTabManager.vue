@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, computed } from "vue";
 import { getFileName } from "../../utils/fileUtils";
-import type { DraggedTabData } from "../../types/Panels";
+import type { DraggedTabData } from "../../types/others/Panels";
 
 const props = defineProps<{
 	activeTab: string | null;
