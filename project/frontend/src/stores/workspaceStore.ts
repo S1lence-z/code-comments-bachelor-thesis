@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import type { Workspace } from "../types/Panels";
+import type { Workspace } from "../types/others/Panels";
 import { appSavedWorkspaceKey } from "../core/keys";
 
 export const useWorkspaceStore = defineStore("workspace", {

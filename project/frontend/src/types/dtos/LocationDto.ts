@@ -1,7 +1,7 @@
 import type { CommentType } from "../enums/CommentType";
 
-export default interface ILocationDto {
-	id: string;
+export default interface LocationDto {
+	id: string | null;
 	type: CommentType;
 	filePath: string;
 	// Singleline

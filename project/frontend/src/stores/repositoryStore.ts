@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import type { TreeNode } from "../types/github/githubTree";
-import type ICommentDto from "../types/interfaces/ICommentDto";
-import type ICategoryDto from "../types/interfaces/ICategoryDto";
+import type CommentDto from "../types/dtos/CommentDto";
+import type CategoryDto from "../types/dtos/CategoryDto";
 import { extractBaseUrl } from "../utils/urlUtils";
 import { fetchRepoTreeAPI } from "../services/githubTreeService";
 import { fetchComments, addComment, updateComment, deleteComment } from "../services/commentsService";
@@ -12,8 +12,8 @@ import { CommentType } from "../types/enums/CommentType";
 export const useRepositoryStore = defineStore("repositoryStore", {
 	state: () => ({
 		fileTreeData: [] as TreeNode[],
-		comments: [] as ICommentDto[],
-		categories: [] as ICategoryDto[],
+		comments: [] as CommentDto[],
+		categories: [] as CategoryDto[],
 		// Loading states
 		isLoadingRepository: false,
 		isLoadingComments: false,
@@ -25,7 +25,7 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 		allCategories: (state) => state.categories,
 		// Get comments for a specific file
 		getCommentsForFile: (state) => (filePath: string) => {
-			return state.comments.filter((comment: ICommentDto) => comment.location.filePath === filePath) ?? [];
+			return state.comments.filter((comment: CommentDto) => comment.location.filePath === filePath) ?? [];
 		},
 		isTreeFetched: (state) => state.fileTreeData.length > 0,
 		isCommentsFetched: (state) => state.comments.length > 0,
@@ -133,8 +133,8 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 			}
 		},
 		// Helper methods for local state management
-		upsertCommentLocal(comment: ICommentDto) {
-			const index = this.comments.findIndex((c: ICommentDto) => c.id === comment.id);
+		upsertCommentLocal(comment: CommentDto) {
+			const index = this.comments.findIndex((c: CommentDto) => c.id === comment.id);
 			if (index !== -1) {
 				this.comments[index] = comment;
 			} else {
@@ -143,12 +143,12 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 		},
 		deleteCommentLocal(commentId: string) {
 			console.log("Deleting comment with ID:", commentId);
-			const index = this.comments.findIndex((c: ICommentDto) => c.id === commentId);
+			const index = this.comments.findIndex((c: CommentDto) => c.id === commentId);
 			if (index !== -1) {
 				this.comments.splice(index, 1);
 			}
 		},
-		async upsertCommentAsync(commentData: ICommentDto, writeApiUrl: string): Promise<void> {
+		async upsertCommentAsync(commentData: CommentDto, writeApiUrl: string): Promise<void> {
 			const serverStore = useServerStore();
 			try {
 				serverStore.startSyncing();
@@ -188,7 +188,7 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 			}
 		},
 		fileContainsComments(filePath: string): boolean {
-			return this.comments.some((comment: ICommentDto) => comment.location.filePath === filePath);
+			return this.comments.some((comment: CommentDto) => comment.location.filePath === filePath);
 		},
 	},
 });

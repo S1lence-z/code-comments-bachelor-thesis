@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import { useKeyboardShortcutsStore } from "../../stores/keyboardShortcutsStore";
 import Card from "../../lib/Card.vue";
-import type { AppKeyboardShortcuts, KeyboardShortcut } from "../../types/KeyboardShortcuts";
+import type { AppKeyboardShortcuts, KeyboardShortcut } from "../../types/others/KeyboardShortcuts";
 
 // Variables
 const keyboardShortcutsStore = useKeyboardShortcutsStore();

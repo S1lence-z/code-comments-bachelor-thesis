@@ -1,4 +1,4 @@
-import type ICategoryDto from "../../types/interfaces/ICategoryDto";
+import type CategoryDto from "../../types/dtos/CategoryDto";
 import BaseCommentWidget from "./baseCommentWidget";
 
 export default class MultilineCommentWidget extends BaseCommentWidget {
@@ -7,7 +7,7 @@ export default class MultilineCommentWidget extends BaseCommentWidget {
 	constructor(
 		content: string,
 		commentId: string,
-		category: ICategoryDto[],
+		category: CategoryDto[],
 		isCompactCommentModal: boolean,
 		deleteCommentAction: (commentId: string) => Promise<void>,
 		editCommentAction: (commentId: string) => Promise<void>

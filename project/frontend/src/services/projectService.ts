@@ -1,7 +1,7 @@
-import type IProjectSetupRequest from "../types/interfaces/ISetupProjectRequest";
-import type IProjectDto from "../types/interfaces/IProjectDto";
+import type ProjectSetupRequest from "../types/dtos/SetupProjectRequest";
+import type ProjectDto from "../types/dtos/ProjectDto";
 
-export async function listProjects(backendBaseUrl: string): Promise<IProjectDto[]> {
+export async function listProjects(backendBaseUrl: string): Promise<ProjectDto[]> {
 	const requestUrl = `${backendBaseUrl}/api/v1/project`;
 	try {
 		const response = await fetch(requestUrl, {
@@ -25,9 +25,9 @@ export async function listProjects(backendBaseUrl: string): Promise<IProjectDto[
 }
 
 export async function setupProject(
-	setupProjectRequest: IProjectSetupRequest,
+	setupProjectRequest: ProjectSetupRequest,
 	backendBaseUrl: string
-): Promise<IProjectDto> {
+): Promise<ProjectDto> {
 	const requestUrl = `${backendBaseUrl}/api/v1/project`;
 	try {
 		const response = await fetch(requestUrl, {

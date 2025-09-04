@@ -2,10 +2,10 @@ import { ref, computed, watch, type Ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useRepositoryStore } from "../../stores/repositoryStore";
 import { useProjectStore } from "../../stores/projectStore";
-import type ICommentDto from "../../types/interfaces/ICommentDto";
-import type ICategoryDto from "../../types/interfaces/ICategoryDto";
-import CommentDto from "../../types/dtos/CommentDto";
+import type CommentDto from "../../types/dtos/CommentDto";
+import type CategoryDto from "../../types/dtos/CategoryDto";
 import { CommentType } from "../../types/enums/CommentType";
+import { createCommentByType } from "../../utils/commentUtils";
 
 export interface CommentFormProps {
 	isVisible: boolean;
@@ -27,8 +27,8 @@ export function useCommentForm(props: CommentFormProps, emit: CommentFormEmits) 
 
 	// Store refs
 	const { allCategories, comments } = storeToRefs(repositoryStore) as {
-		allCategories: Ref<ICategoryDto[]>;
-		comments: Ref<ICommentDto[]>;
+		allCategories: Ref<CategoryDto[]>;
+		comments: Ref<CommentDto[]>;
 	};
 	const { writeApiUrl } = storeToRefs(projectStore) as {
 		writeApiUrl: Ref<string>;
@@ -83,38 +83,6 @@ export function useCommentForm(props: CommentFormProps, emit: CommentFormEmits) 
 		return { isValid: true, errorMessage: "" };
 	};
 
-	const createCommentByType = (): ICommentDto | null => {
-		const content = commentContent.value.trim();
-		const categoryId = allCategories.value.find((cat) => cat.label === commentCategoryLabel.value)?.id || "";
-		const commentId = props.commentId?.toString() || null;
-
-		switch (props.commentType) {
-			case CommentType.Singleline:
-				return CommentDto.Singleline(
-					props.commentFilePath || "",
-					props.startLineNumber || 0,
-					content,
-					categoryId,
-					commentId
-				);
-			case CommentType.Multiline:
-				return CommentDto.Multiline(
-					props.commentFilePath || "",
-					props.startLineNumber || 0,
-					props.endLineNumber || 0,
-					content,
-					categoryId,
-					commentId
-				);
-			case CommentType.File:
-				return CommentDto.File(props.commentFilePath || "", content, commentId);
-			case CommentType.Project:
-				return CommentDto.Project(props.commentFilePath || "", content, commentId);
-			default:
-				return null;
-		}
-	};
-
 	const handleSubmit = async (): Promise<void> => {
 		const validation = validateForm();
 		if (!validation.isValid) {
@@ -122,7 +90,16 @@ export function useCommentForm(props: CommentFormProps, emit: CommentFormEmits) 
 			return;
 		}
 
-		const commentData = createCommentByType();
+		const commentData = createCommentByType(
+			props.commentType,
+			allCategories.value,
+			commentCategoryLabel.value,
+			props.commentId,
+			commentContent.value,
+			props.startLineNumber || 0,
+			props.endLineNumber || 0,
+			props.commentFilePath || ""
+		);
 		if (!commentData) {
 			alert("Invalid comment type.");
 			return;

@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import type { AppKeyboardShortcuts, KeyboardShortcut } from "../types/KeyboardShortcuts";
+import type { AppKeyboardShortcuts, KeyboardShortcut } from "../types/others/KeyboardShortcuts";
 import { appKeyboardShortcutsKey } from "../core/keys";
 
 const defaultKeyBoardShortcuts: AppKeyboardShortcuts = {

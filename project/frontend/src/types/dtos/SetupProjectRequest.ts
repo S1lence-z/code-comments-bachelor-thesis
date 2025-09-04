@@ -1,6 +1,6 @@
 import type { RepositoryType } from "../enums/RepositoryType";
 
-export default interface IProjectSetupRequest {
+export default interface ProjectSetupRequest {
 	repositoryUrl: string;
 	name: string;
 	branch: string;

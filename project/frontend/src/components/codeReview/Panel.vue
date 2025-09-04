@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import FileTabManager from "./FileTabManager.vue";
-import type { TabData, DraggedTabData } from "../../types/Panels";
+import type { TabData, DraggedTabData } from "../../types/others/Panels";
 
 const props = defineProps<{
 	panelId: number;

@@ -1,4 +1,4 @@
-import type { TabData, PanelData } from "../types/Panels";
+import type { TabData, PanelData } from "../types/others/Panels";
 
 /**
  * Creates a new TabData object with the given file path and panel ID

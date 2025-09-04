@@ -1,4 +1,4 @@
-import type ICategoryDto from "../../types/interfaces/ICategoryDto.ts";
+import type CategoryDto from "../../types/dtos/CategoryDto.ts";
 import BaseCommentWidget from "./baseCommentWidget.ts";
 
 /**
@@ -10,7 +10,7 @@ export default class SingleLineCommentWidget extends BaseCommentWidget {
 	constructor(
 		content: string,
 		commentId: string,
-		category: ICategoryDto[],
+		category: CategoryDto[],
 		isCompactCommentModal: boolean,
 		deleteCommentAction: (commentId: string) => Promise<void>,
 		editCommentAction: (commentId: string) => Promise<void>
