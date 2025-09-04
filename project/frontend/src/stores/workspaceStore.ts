@@ -1,35 +1,60 @@
 import { defineStore } from "pinia";
-import type { PanelData } from "../types/Panels";
+import type { Workspace } from "../types/Panels";
 import { appSavedWorkspaceKey } from "../core/keys";
 
 export const useWorkspaceStore = defineStore("workspace", {
 	state: () => ({
-		savedWorkspace: [] as PanelData[],
+		savedWorkspaces: [] as Workspace[],
 	}),
 	getters: {
-		getSavedWorkspace: (state): PanelData[] => state.savedWorkspace,
+		getAllSavedWorkspaces: (state): Workspace[] => state.savedWorkspaces,
+		getWorkspaceByRepository:
+			(state) =>
+			(repoUrl: string, repoBranch: string): Workspace | undefined => {
+				return state.savedWorkspaces.find(
+					(ws) => ws.repositoryUrl === repoUrl && ws.repositoryBranch === repoBranch
+				);
+			},
 	},
 	actions: {
-		applyWorkspace(workspace: PanelData[]) {
-			this.savedWorkspace = workspace;
+		hasWorkspace(workspace: Workspace): boolean {
+			return this.savedWorkspaces.some(
+				(ws) =>
+					ws.repositoryUrl === workspace.repositoryUrl && ws.repositoryBranch === workspace.repositoryBranch
+			);
 		},
-		saveWorkspace(newWorkspace: PanelData[]) {
-			localStorage.setItem(appSavedWorkspaceKey.description!, JSON.stringify(newWorkspace));
+		applyWorkspaces(workspaces: Workspace[]) {
+			this.savedWorkspaces = workspaces;
 		},
-		loadWorkspace(): PanelData[] {
+		saveWorkspace(newWorkspace: Workspace) {
+			if (this.hasWorkspace(newWorkspace)) {
+				// Update existing workspace
+				this.savedWorkspaces = this.savedWorkspaces.map((ws) =>
+					ws.repositoryUrl === newWorkspace.repositoryUrl &&
+					ws.repositoryBranch === newWorkspace.repositoryBranch
+						? newWorkspace
+						: ws
+				);
+			} else {
+				// Add new workspace
+				this.savedWorkspaces.push(newWorkspace);
+			}
+			localStorage.setItem(appSavedWorkspaceKey.description!, JSON.stringify(this.savedWorkspaces));
+		},
+		loadWorkspace(): Workspace[] {
 			const savedData = localStorage.getItem(appSavedWorkspaceKey.description!);
 
 			if (savedData) {
 				try {
-					const parsedWorkspace: PanelData[] = JSON.parse(savedData);
-					this.applyWorkspace(parsedWorkspace);
+					const parsedWorkspace: Workspace[] = JSON.parse(savedData);
+					this.applyWorkspaces(parsedWorkspace);
 					return parsedWorkspace;
 				} catch (error) {
 					console.error("Failed to parse workspace data:", error);
 					return [];
 				}
 			} else {
-				console.warn("No saved workspace found.");
+				console.warn("No saved workspaces found.");
 				return [];
 			}
 		},

@@ -4,6 +4,7 @@ import { determineDropPosition, generateNewPanel, findPanelById, redistributePan
 import { createTab, findTabInPanel, getTabIndexInPanel } from "../../utils/tabUtils";
 import { useSettingsStore } from "../../stores/settingsStore";
 import { useWorkspaceStore } from "../../stores/workspaceStore";
+import { useProjectStore } from "../../stores/projectStore";
 
 export interface SplitPanelManagerProps {
 	selectedFilePath: string | null;
@@ -24,6 +25,7 @@ export function useSplitPanelManager(props: SplitPanelManagerProps, emit: SplitP
 	// Stores
 	const settingsStore = useSettingsStore();
 	const workspaceStore = useWorkspaceStore();
+	const projectStore = useProjectStore();
 
 	// Workspace state
 	const currentWorkspace = ref<Workspace>({
@@ -52,7 +54,7 @@ export function useSplitPanelManager(props: SplitPanelManagerProps, emit: SplitP
 		[() => settingsStore.isSaveWorkspace, () => currentWorkspace.value.panels],
 		([shouldSaveWorkspace]) => {
 			if (shouldSaveWorkspace) {
-				workspaceStore.saveWorkspace(currentWorkspace.value.panels);
+				workspaceStore.saveWorkspace(currentWorkspace.value);
 			}
 		},
 		{ deep: true }
@@ -335,14 +337,27 @@ export function useSplitPanelManager(props: SplitPanelManagerProps, emit: SplitP
 
 	// Workspace initialization
 	const initializeWorkspace = (): void => {
-		const savedPanels = workspaceStore.getSavedWorkspace;
+		// Ensure project info is available
+		if (!projectStore.repositoryUrl || !projectStore.repositoryBranch) {
+			console.warn("Project repository info not available for workspace initialization");
+			return;
+		}
 
-		// Apply the loaded panels form the store
-		if (savedPanels && savedPanels.length > 0) {
-			// Restore panels with proper IDs
-			currentWorkspace.value.panels = savedPanels.map((panel) => ({
-				...panel,
-			}));
+		const savedWorkspace = workspaceStore.getWorkspaceByRepository(
+			projectStore.repositoryUrl,
+			projectStore.repositoryBranch
+		);
+
+		// Apply the loaded panels from the store
+		if (savedWorkspace && savedWorkspace.panels.length > 0) {
+			// Restore panels with proper IDs and update counter
+			currentWorkspace.value.panels = savedWorkspace.panels.map((panel) => {
+				// Update the counter to avoid ID conflicts
+				if (panel.id >= panelIdCounter.value) {
+					panelIdCounter.value = panel.id + 1;
+				}
+				return { ...panel };
+			});
 			redistributePanelSizes(panels.value, FULL_WIDTH_PERCENTAGE);
 
 			// Restore active tab selection
@@ -354,6 +369,10 @@ export function useSplitPanelManager(props: SplitPanelManagerProps, emit: SplitP
 				});
 			});
 		}
+
+		// Assign project info
+		currentWorkspace.value.repositoryUrl = projectStore.repositoryUrl;
+		currentWorkspace.value.repositoryBranch = projectStore.repositoryBranch;
 	};
 
 	// Watch for selectedFilePath changes to add files to panels
