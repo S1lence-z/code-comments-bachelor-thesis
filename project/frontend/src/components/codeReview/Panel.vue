@@ -67,11 +67,6 @@ const handleTabUpdate = (filePath: string | null) => {
 	}
 };
 
-const handleClosePanel = () => {
-	if (props.isSinglePanel) return;
-	splitPanelFunctionality.closePanel(props.panelId);
-};
-
 const handleCloseFileTab = (filePath: string) => {
 	emits("tab-closed", filePath, props.panelId);
 };
@@ -79,26 +74,7 @@ const handleCloseFileTab = (filePath: string) => {
 
 <template>
 	<div class="relative" @dragover="handleDragOver" @dragleave="handleDragLeave" @drop="handleDrop">
-		<!-- Panel Header with Controls -->
-		<div class="flex items-center justify-between px-2 py-1 bg-white/5 border-b border-white/10">
-			<div class="flex items-center space-x-2">
-				<span class="text-xs text-slate-400">{{ panelId }}</span>
-			</div>
-
-			<div class="flex items-center">
-				<!-- Close Panel Button -->
-				<button
-					v-if="!isSinglePanel"
-					@click="handleClosePanel"
-					class="text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors cursor-pointer"
-					title="Close Panel"
-				>
-					X
-				</button>
-			</div>
-		</div>
-
-		<!-- Enhanced FileTabManager -->
+		<!-- FileTabManager -->
 		<FileTabManager
 			:model-value="currentActiveTab"
 			:open-tabs="currentTabs"
