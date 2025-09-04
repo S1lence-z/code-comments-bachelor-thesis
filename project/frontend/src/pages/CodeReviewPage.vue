@@ -2,14 +2,10 @@
 import { onMounted, watch } from "vue";
 import { useCodeReviewPage } from "../composables/pages/useCodeReviewPage.ts";
 import FileExplorer from "../components/codeReview/FileExplorer.vue";
-import CodeEditor from "../components/codeReview/CodeEditor.vue";
-import OtherContentViewer from "../components/codeReview/ContentViewer.vue";
 import SplitPanelManager from "../components/codeReview/SplitPanelManager.vue";
 import ResizeHandle from "../lib/ResizeHandle.vue";
 import CommentForm from "../components/codeReview/CommentForm.vue";
 import SlideoutPanel from "../lib/SlideoutPanel.vue";
-import { getFileName } from "../utils/fileUtils.ts";
-import { FileDisplayType } from "../types/github/githubFile.ts";
 
 // Initialize the composable
 const {
@@ -19,8 +15,6 @@ const {
 	isLoadingComments,
 
 	// Stores
-	repositoryStore,
-	fileContentStore,
 	settingsStore,
 
 	// Route
@@ -138,44 +132,15 @@ watch(
 								<span>Loading comments...</span>
 							</div>
 						</div>
-						<!-- TODO: refactor -->
-						<SplitPanelManager v-else v-model:selected-file-path="selectedFilePath">
-							<template #default="{ filePath }">
-								<div v-if="filePath" class="h-full">
-									<div
-										v-if="!fileContentStore.isFileCached(filePath)"
-										class="p-6 text-sm text-center text-slate-300"
-									>
-										<div class="inline-flex items-center space-x-2">
-											<span class="spinner"></span>
-											<span>Loading file...</span>
-										</div>
-									</div>
-									<template v-else>
-										<CodeEditor
-											v-if="
-												fileContentStore.getFileDisplayType(filePath) === FileDisplayType.Text
-											"
-											:file-path="filePath"
-											:file-content="fileContentStore.getFileContent(filePath)"
-											:is-loading-file="false"
-											:comment-for-file="repositoryStore.getCommentsForFile(filePath)"
-											:delete-comment-action="deleteCommentAction"
-											:edit-comment-action="handleCommentEdit"
-											@line-double-clicked="handleSinglelineCommentSelected"
-											@multiline-selected="handleMultilineCommentSelected"
-										/>
-										<OtherContentViewer
-											v-else
-											:display-type="fileContentStore.getFileDisplayType(filePath)"
-											:download-url="fileContentStore.getFileDownloadUrl(filePath)"
-											:file-name="getFileName(filePath)"
-											:selected-file-path="filePath"
-										/>
-									</template>
-								</div>
-							</template>
-						</SplitPanelManager>
+						<!-- SplitPanelManager -->
+						<SplitPanelManager
+							v-else
+							v-model:selected-file-path="selectedFilePath"
+							@line-double-clicked="handleSinglelineCommentSelected"
+							@multiline-selected="handleMultilineCommentSelected"
+							@delete-comment="deleteCommentAction"
+							@edit-comment="handleCommentEdit"
+						/>
 					</div>
 				</div>
 			</div>

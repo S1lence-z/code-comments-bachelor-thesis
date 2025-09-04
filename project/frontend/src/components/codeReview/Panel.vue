@@ -1,26 +1,23 @@
 <script setup lang="ts">
-import { ref, inject, computed } from "vue";
+import { ref, computed } from "vue";
 import FileTabManager from "./FileTabManager.vue";
-import { splitPanelContextKey } from "../../core/keys.ts";
 
 const props = defineProps<{
 	panelId: string;
 	openTabs: string[];
 	activeTab: string | null;
 	isSinglePanel: boolean;
+	draggedTab: { fromPanelId: string; filePath: string } | null;
 }>();
 
-const emits = defineEmits<{
+const emit = defineEmits<{
 	(event: "tab-selected", filePath: string, panelId: string): void;
 	(event: "tab-closed", filePath: string, panelId: string): void;
+	(event: "tab-drop", panelId: string): void;
+	(event: "tab-drag-start", filePath: string, panelId: string): void;
+	(event: "tab-drag-end"): void;
+	(event: "tab-drop-with-index", panelId: string, insertIndex: number): void;
 }>();
-
-// Inject context from SplitPanelManager
-const splitPanelFunctionality = inject<{
-	handleTabDrop: (panelId: string) => void;
-	closePanel: (panelId: string) => void;
-	draggedTab: () => { fromPanelId: string; filePath: string } | null;
-}>(splitPanelContextKey)!;
 
 const isDragOver = ref(false);
 const showDropZone = ref(false);
@@ -31,8 +28,7 @@ const handleDragOver = (event: DragEvent) => {
 	event.dataTransfer!.dropEffect = "move";
 
 	// Only show drop zone if dragging from another panel
-	const draggedTab = splitPanelFunctionality.draggedTab?.();
-	if (draggedTab && draggedTab.fromPanelId !== props.panelId) {
+	if (props.draggedTab && props.draggedTab.fromPanelId !== props.panelId) {
 		isDragOver.value = true;
 		showDropZone.value = true;
 	}
@@ -54,7 +50,7 @@ const handleDrop = (event: DragEvent) => {
 	showDropZone.value = false;
 
 	// Drop at the end of the panel's tabs
-	splitPanelFunctionality?.handleTabDrop(props.panelId);
+	emit("tab-drop", props.panelId);
 };
 
 // Enhanced FileTabManager that supports the panel's tabs
@@ -63,12 +59,24 @@ const currentActiveTab = computed(() => props.activeTab);
 
 const handleTabUpdate = (filePath: string | null) => {
 	if (filePath) {
-		emits("tab-selected", filePath, props.panelId);
+		emit("tab-selected", filePath, props.panelId);
 	}
 };
 
 const handleCloseFileTab = (filePath: string) => {
-	emits("tab-closed", filePath, props.panelId);
+	emit("tab-closed", filePath, props.panelId);
+};
+
+const handleTabDragStart = (filePath: string, panelId: string) => {
+	emit("tab-drag-start", filePath, panelId);
+};
+
+const handleTabDragEnd = () => {
+	emit("tab-drag-end");
+};
+
+const handleTabDropWithIndex = (panelId: string, insertIndex: number) => {
+	emit("tab-drop-with-index", panelId, insertIndex);
 };
 </script>
 
@@ -76,11 +84,15 @@ const handleCloseFileTab = (filePath: string) => {
 	<div class="relative" @dragover="handleDragOver" @dragleave="handleDragLeave" @drop="handleDrop">
 		<!-- FileTabManager -->
 		<FileTabManager
-			:model-value="currentActiveTab"
+			:active-tab="currentActiveTab"
 			:open-tabs="currentTabs"
 			:panel-id="panelId"
-			@update:model-value="handleTabUpdate"
+			:dragged-tab="draggedTab"
+			@update:active-tab="handleTabUpdate"
 			@tab-closed="handleCloseFileTab"
+			@tab-drag-start="handleTabDragStart"
+			@tab-drag-end="handleTabDragEnd"
+			@tab-drop="handleTabDropWithIndex"
 		>
 			<slot></slot>
 		</FileTabManager>

@@ -1,47 +1,43 @@
 <script setup lang="ts">
-import { ref, watch, computed, inject } from "vue";
-import { splitPanelContextKey } from "../../core/keys.ts";
+import { ref, watch, computed } from "vue";
+import { getFileName } from "../../utils/fileUtils";
 
 const props = defineProps<{
-	modelValue: string | null;
+	activeTab: string | null;
 	panelId?: string;
 	openTabs?: string[];
+	draggedTab?: { fromPanelId: string; filePath: string } | null;
 }>();
 
-const emits = defineEmits<{
-	(event: "update:modelValue", value: string | null): void;
-	(event: "tab-closed", filePath: string): void; // For split panel mode
+const emit = defineEmits<{
+	(event: "update:activeTab", value: string | null): void;
+	(event: "tab-closed", filePath: string): void;
+	(event: "tab-drag-start", filePath: string, panelId: string): void;
+	(event: "tab-drag-end"): void;
+	(event: "tab-drop", panelId: string, insertIndex: number): void;
 }>();
-
-// Inject context from SplitPanelManager (if available)
-const splitPanelContext = inject(splitPanelContextKey, null) as any;
 
 // Use external tabs if provided, otherwise manage internal tabs
 const openFileTabs = ref<string[]>([]);
 
-// Function to extract filename from full path
-const getFileName = (filePath: string): string => {
-	return filePath.split("/").pop() || filePath;
-};
-
 const setActiveFileTab = (filePath: string) => {
 	const currentTabs = props.openTabs || openFileTabs.value;
 	if (currentTabs.includes(filePath)) {
-		emits("update:modelValue", filePath);
+		emit("update:activeTab", filePath);
 	}
 };
 
 const removeFileTab = (filePath: string) => {
 	if (props.openTabs) {
 		// In split panel mode, emit to parent
-		emits("tab-closed", filePath);
+		emit("tab-closed", filePath);
 	} else {
 		// In classic mode, manage internal tabs
 		const index = openFileTabs.value.indexOf(filePath);
 		if (index !== -1) {
 			openFileTabs.value.splice(index, 1);
-			if (props.modelValue === filePath) {
-				emits("update:modelValue", openFileTabs.value[0] || null);
+			if (props.activeTab === filePath) {
+				emit("update:activeTab", openFileTabs.value[0] || null);
 			}
 		}
 	}
@@ -49,7 +45,7 @@ const removeFileTab = (filePath: string) => {
 
 // Only manage internal tabs in classic mode
 watch(
-	() => props.modelValue,
+	() => props.activeTab,
 	(newFilePath: string | null) => {
 		if (!props.openTabs && newFilePath && !openFileTabs.value.includes(newFilePath)) {
 			openFileTabs.value.push(newFilePath);
@@ -59,45 +55,39 @@ watch(
 
 // Drag and drop functionality
 const handleDragStart = (event: DragEvent, filePath: string) => {
-	if (!splitPanelContext || !props.panelId) return;
+	if (!props.panelId) return;
 
 	event.dataTransfer!.effectAllowed = "move";
 	event.dataTransfer!.setData("text/plain", filePath);
 
 	// Add a slight delay to ensure the drag image is set
 	setTimeout(() => {
-		splitPanelContext?.handleTabDragStart(filePath, props.panelId);
+		emit("tab-drag-start", filePath, props.panelId!);
 	}, 0);
 };
 
 const handleDragEnd = () => {
-	if (!splitPanelContext) return;
-	splitPanelContext?.handleTabDragEnd();
+	emit("tab-drag-end");
 };
 
 const handleDragOver = (event: DragEvent) => {
 	event.preventDefault();
-	if (!splitPanelContext) return;
 	event.dataTransfer!.dropEffect = "move";
 };
 
 const handleDrop = (event: DragEvent, insertIndex: number) => {
 	event.preventDefault();
-	if (!splitPanelContext || !props.panelId) return;
-	splitPanelContext?.handleTabDrop(props.panelId, insertIndex);
+	if (!props.panelId) return;
+	emit("tab-drop", props.panelId, insertIndex);
 };
 
 // Check if a tab is being dragged
 const isDragging = computed(() => {
-	if (!splitPanelContext) return false;
-	const draggedTab = splitPanelContext?.draggedTab?.();
-	return draggedTab?.fromPanelId === props.panelId;
+	return props.draggedTab?.fromPanelId === props.panelId;
 });
 
 const draggedFilePath = computed(() => {
-	if (!splitPanelContext) return null;
-	const draggedTab = splitPanelContext?.draggedTab?.();
-	return draggedTab?.filePath;
+	return props.draggedTab?.filePath;
 });
 
 // Get the current tabs to display
@@ -118,24 +108,24 @@ const currentTabs = computed(() => props.openTabs || openFileTabs.value);
 						:key="file"
 						class="file-tab"
 						:class="{
-							active: file === modelValue,
-							dragging: isDragging && file === draggedFilePath,
+							active: file === activeTab,
+							'opacity-50 scale-95': isDragging && file === draggedFilePath,
 						}"
 						@dragover="handleDragOver"
 						@drop="handleDrop($event, index)"
 					>
 						<button
-							:draggable="splitPanelContext ? true : false"
+							:draggable="props.panelId ? true : false"
 							@dragstart="handleDragStart($event, file)"
 							@dragend="handleDragEnd"
 							@click="setActiveFileTab(file)"
 							:title="file"
 							class="flex items-center gap-2 px-3 py-2 duration-200 cursor-pointer"
 							:class="{
-								'text-white': file === modelValue,
-								'text-slate-300 hover:text-white': file !== modelValue,
+								'text-white': file === activeTab,
+								'text-slate-300 hover:text-white': file !== activeTab,
 								'opacity-50': isDragging && file === draggedFilePath,
-								'select-none': splitPanelContext,
+								'select-none cursor-grab active:cursor-grabbing': props.panelId,
 							}"
 						>
 							<span class="truncate max-w-32">{{ getFileName(file) }}</span>
@@ -146,7 +136,7 @@ const currentTabs = computed(() => props.openTabs || openFileTabs.value);
 							class="flex items-center justify-center w-6 h-6 text-slate-400 hover:text-white hover:bg-white/10 rounded-md duration-200 mr-1 cursor-pointer"
 							title="Close file"
 						>
-							x
+							X
 						</button>
 					</div>
 				</div>
@@ -159,18 +149,3 @@ const currentTabs = computed(() => props.openTabs || openFileTabs.value);
 		</div>
 	</div>
 </template>
-
-<style scoped>
-.file-tab.dragging {
-	opacity: 0.5;
-	transform: scale(0.95);
-}
-
-.file-tab button[draggable="true"] {
-	cursor: grab;
-}
-
-.file-tab button[draggable="true"]:active {
-	cursor: grabbing;
-}
-</style>
