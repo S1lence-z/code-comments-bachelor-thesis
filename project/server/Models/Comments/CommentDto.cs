@@ -7,7 +7,7 @@ namespace server.Models.Comments
 {
 	public record class CommentDto
 	{
-		public Guid Id { get; set; }
+		public Guid? Id { get; set; }
 		public ProjectDto? Project { get; set; }
 		public LocationDto? Location { get; set; }
 		public Guid? CategoryId { get; set; }
