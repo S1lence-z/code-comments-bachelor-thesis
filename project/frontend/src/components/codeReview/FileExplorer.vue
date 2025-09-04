@@ -12,7 +12,7 @@ defineProps<FileExplorerProps>();
 
 const emit = defineEmits<{
 	(event: "update:selectedPath", value: string | null): void;
-	(event: "onChangeProjectComment"): void;
+	(event: "onUpdateProjectComment"): void;
 }>();
 </script>
 
@@ -21,7 +21,7 @@ const emit = defineEmits<{
 		<!-- Header -->
 		<div class="bg-white/5 backdrop-blur-sm border-b border-white/10 px-4 py-4 flex items-center justify-between">
 			<h2 class="text-white font-semibold uppercase">Explorer</h2>
-			<button class="btn btn-primary text-xs" @click="emit('onChangeProjectComment')">
+			<button class="btn btn-primary text-xs" @click="emit('onUpdateProjectComment')">
 				{{ getProjectCommentButtonLabel() }}
 			</button>
 		</div>

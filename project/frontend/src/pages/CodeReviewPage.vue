@@ -110,7 +110,7 @@ watch(
 							v-model:selectedPath="selectedFilePath"
 							:treeData="fileTree"
 							:getProjectCommentButtonLabel="getProjectCommentButtonLabel"
-							@onChangeProjectComment="handleProjectCommentSelected"
+							@onUpdateProjectComment="handleProjectCommentSelected"
 						/>
 					</div>
 
