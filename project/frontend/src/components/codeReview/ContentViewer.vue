@@ -1,117 +1,33 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import type { FileDisplayType } from "../../types/github/githubFile";
+import { useContentViewer } from "../../composables/components/useContentViewer";
+import { FileDisplayType } from "../../types/github/githubFile";
 
-interface Props {
-	displayType: FileDisplayType;
-	downloadUrl: string;
-	fileName: string;
+interface ContentViewerProps {
 	selectedFilePath: string | null;
+	fileName: string;
+	downloadUrl: string;
+	displayType: FileDisplayType;
 }
+defineProps<ContentViewerProps>();
 
-defineProps<Props>();
+// Initialize the composable
+const {
+	// State
+	isDragging,
+	containerRef,
 
-// Zoom and pan state
-const zoom = ref<number>(1);
-const panX = ref<number>(0);
-const panY = ref<number>(0);
-const isDragging = ref<boolean>(false);
-const dragStart = ref<{ x: number; y: number }>({ x: 0, y: 0 });
-const containerRef = ref<HTMLElement | null>(null);
+	// Computed
+	contentStyle,
+	zoomPercentage,
 
-// Zoom constraints
-const minZoom = 0.1;
-const maxZoom = 5;
-const zoomStep = 0.1;
-
-// Computed styles for transform
-const contentStyle = computed(() => ({
-	transform: `translate(${panX.value}px, ${panY.value}px) scale(${zoom.value})`,
-}));
-
-const resetZoom = () => {
-	zoom.value = 1;
-	panX.value = 0;
-	panY.value = 0;
-};
-
-// Mouse wheel zoom
-const handleWheel = (event: WheelEvent) => {
-	event.preventDefault();
-
-	const delta = event.deltaY > 0 ? -zoomStep : zoomStep;
-	const newZoom = Math.max(minZoom, Math.min(maxZoom, zoom.value + delta));
-
-	if (newZoom !== zoom.value) {
-		// Calculate zoom center based on mouse position
-		const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-		const centerX = event.clientX - rect.left - rect.width / 2;
-		const centerY = event.clientY - rect.top - rect.height / 2;
-
-		// Adjust pan to zoom around mouse cursor
-		const zoomRatio = newZoom / zoom.value;
-		panX.value = panX.value * zoomRatio + centerX * (1 - zoomRatio);
-		panY.value = panY.value * zoomRatio + centerY * (1 - zoomRatio);
-
-		zoom.value = newZoom;
-	}
-};
-
-// Drag functionality
-const startDrag = (event: MouseEvent) => {
-	isDragging.value = true;
-	dragStart.value = {
-		x: event.clientX - panX.value,
-		y: event.clientY - panY.value,
-	};
-
-	document.addEventListener("mousemove", handleDrag);
-	document.addEventListener("mouseup", stopDrag);
-	document.body.style.cursor = "grabbing";
-	document.body.style.userSelect = "none";
-};
-
-const handleDrag = (event: MouseEvent) => {
-	if (!isDragging.value) return;
-
-	panX.value = event.clientX - dragStart.value.x;
-	panY.value = event.clientY - dragStart.value.y;
-};
-
-const stopDrag = () => {
-	isDragging.value = false;
-	document.removeEventListener("mousemove", handleDrag);
-	document.removeEventListener("mouseup", stopDrag);
-	document.body.style.cursor = "";
-	document.body.style.userSelect = "";
-};
-
-// Touch support for mobile
-const handleTouchStart = (event: TouchEvent) => {
-	if (event.touches.length === 1) {
-		const touch = event.touches[0];
-		startDrag({
-			clientX: touch.clientX,
-			clientY: touch.clientY,
-			preventDefault: () => event.preventDefault(),
-		} as MouseEvent);
-	}
-};
-
-const handleTouchMove = (event: TouchEvent) => {
-	if (event.touches.length === 1 && isDragging.value) {
-		event.preventDefault();
-		const touch = event.touches[0];
-		handleDrag({
-			clientX: touch.clientX,
-			clientY: touch.clientY,
-		} as MouseEvent);
-	}
-};
-
-const handleTouchEnd = () => {
-	stopDrag();
-};
+	// Methods
+	resetZoom,
+	handleWheel,
+	startDrag,
+	handleTouchStart,
+	handleTouchMove,
+	handleTouchEnd,
+} = useContentViewer();
 </script>
 
 <template>
@@ -126,7 +42,7 @@ const handleTouchEnd = () => {
 	>
 		<!-- Zoom Level Display -->
 		<div class="absolute top-4 left-4 z-10 bg-[#0e639c] rounded px-3 py-1 text-white text-sm">
-			{{ Math.round(zoom * 100) }}%
+			{{ zoomPercentage }}%
 		</div>
 
 		<!-- Control Panel -->
@@ -147,7 +63,7 @@ const handleTouchEnd = () => {
 			@mousedown="startDrag"
 		>
 			<!-- Image Content -->
-			<template v-if="displayType === 'image'">
+			<template v-if="displayType === FileDisplayType.Image">
 				<img
 					:src="downloadUrl ?? ''"
 					:alt="`Image: ${selectedFilePath}`"
@@ -158,7 +74,7 @@ const handleTouchEnd = () => {
 			</template>
 
 			<!-- PDF Content -->
-			<template v-else-if="displayType === 'pdf'">
+			<template v-else-if="displayType === FileDisplayType.PDF">
 				<div :style="contentStyle" class="w-full h-full max-w-none max-h-none">
 					<iframe
 						:src="downloadUrl ?? undefined"
@@ -171,7 +87,7 @@ const handleTouchEnd = () => {
 			</template>
 
 			<!-- Binary File Content -->
-			<template v-else-if="displayType === 'binary'">
+			<template v-else-if="displayType === FileDisplayType.Binary">
 				<div class="p-8 text-center">
 					<div class="text-6xl text-gray-600 mb-4">📄</div>
 					<div class="text-gray-400 text-lg mb-2">Binary File</div>
@@ -196,16 +112,13 @@ const handleTouchEnd = () => {
 					<div class="text-6xl text-gray-600 mb-4">❓</div>
 					<div class="text-gray-400 text-lg mb-2">Unsupported File Type</div>
 					<div class="text-gray-500 text-sm">{{ fileName }}</div>
-					<div class="text-gray-500 text-lg mt-1">
+					<div v-if="downloadUrl" class="text-gray-500 text-lg mt-1">
 						You can take a look at it
-						<a
-							:href="downloadUrl ?? ''"
-							class="text-blue-500 hover:underline"
-							target="_blank"
-							rel="noopener"
+						<a :href="downloadUrl" class="text-blue-500 hover:underline" target="_blank" rel="noopener"
 							>here</a
 						>.
 					</div>
+					<div v-else class="text-gray-500 text-sm mt-1">No download link available</div>
 				</div>
 			</template>
 		</div>

@@ -9,6 +9,7 @@ import Settings from "./components/app/Settings.vue";
 import { useSettingsStore } from "./stores/settingsStore.ts";
 import { useKeyboardShortcutsStore } from "./stores/keyboardShortcutsStore.ts";
 import KeyboardShortcutsEditor from "./components/app/KeyboardShortcutsEditor.vue";
+import { useWorkspaceStore } from "./stores/workspaceStore.ts";
 
 // Router
 const router = useRouter();
@@ -18,11 +19,13 @@ const route = useRoute();
 const projectStore = useProjectStore();
 const settingsStore = useSettingsStore();
 const keyboardShortcutsStore = useKeyboardShortcutsStore();
+const workspaceStore = useWorkspaceStore();
 
 onMounted(async () => {
 	// Load settings
 	settingsStore.loadSettings();
 	keyboardShortcutsStore.loadShortcuts();
+	workspaceStore.loadWorkspace();
 
 	await router
 		.isReady()

@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { fetchProcessedFile } from "../services/githubFileService";
-import type { FileDisplayType, ProcessedFile } from "../types/github/githubFile";
+import { FileDisplayType, type ProcessedFile } from "../types/github/githubFile";
 
 export const useFileContentStore = defineStore("fileContentStore", {
 	state: () => ({
@@ -27,7 +27,7 @@ export const useFileContentStore = defineStore("fileContentStore", {
 			if (cachedFile) {
 				return cachedFile.displayType;
 			}
-			return "binary";
+			return FileDisplayType.Binary;
 		},
 		getFileContent(filePath: string): string {
 			const cachedFile = this.fileContentCache.get(filePath);

@@ -1,177 +1,42 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
 import type ICommentDto from "../../types/interfaces/ICommentDto";
 import { CommentType } from "../../types/enums/CommentType";
-import { useFileContentStore } from "../../stores/fileContentStore";
 import Card from "../../lib/Card.vue";
 import Button from "../../lib/Button.vue";
 import Icon from "../../lib/Icon.vue";
-import { useRouter } from "vue-router";
+import { getFileName, getFileDirectory } from "../../utils/fileUtils";
+import { getCommentTypeIcon, getCommentLocationInfo } from "../../utils/commentUtils";
+import {
+	useCommentBrowser,
+	type CommentBrowserEmits,
+	type CommentBrowserProps,
+} from "../../composables/components/useCommentBrowser";
 
-interface CommentBrowserProps {
-	allComments: ICommentDto[];
-	repositoryUrl: string;
-	branch: string;
-	commentsApiUrl: string;
-	githubPersonalAccessToken: string;
-	isLoadingComments: boolean;
-	commentsByFile: Record<string, ICommentDto[]>;
-	errorMessage?: string;
-}
 const props = withDefaults(defineProps<CommentBrowserProps>(), {
-	allComments: () => [] as ICommentDto[],
+	allCommentsByFile: () => ({} as Record<string, ICommentDto[]>),
+	commentTypeFilter: null,
 });
 
-// Router
-const router = useRouter();
+const emit = defineEmits<CommentBrowserEmits>();
 
-// Stores
-const fileContentStore = useFileContentStore();
+// Initialize the composable
+const {
+	// State
+	expandedFiles,
 
-// Local state
-// TODO: for expanded files use a pinia store or session storage to persist the state of opened files
-const expandedFiles = ref<Set<string>>(new Set());
-const showedLineOffset = ref(3);
+	// Computed
+	filteredComments,
 
-// Helper functions
-const getFileName = (filePath: string) => {
-	return filePath.split("/").pop() || filePath;
-};
-
-const getFileDirectory = (filePath: string) => {
-	const parts = filePath.split("/");
-	return parts.slice(0, -1).join("/") || "/";
-};
-
-const toggleFileExpanded = (filePath: string) => {
-	if (expandedFiles.value.has(filePath)) {
-		expandedFiles.value.delete(filePath);
-	} else {
-		expandedFiles.value.add(filePath);
-	}
-};
-
-const getCommentTypeLabel = (type: CommentType) => {
-	switch (type) {
-		case CommentType.Singleline:
-			return "Line";
-		case CommentType.Multiline:
-			return "MultiLine";
-		case CommentType.File:
-			return "File";
-		case CommentType.Project:
-			return "Project";
-		default:
-			return "Unknown";
-	}
-};
-
-const getCommentTypeIcon = (type: CommentType) => {
-	switch (type) {
-		case CommentType.Singleline:
-			return "arrow";
-		case CommentType.Multiline:
-			return "code";
-		case CommentType.File:
-			return "closedFolder";
-		case CommentType.Project:
-			return "archive";
-		default:
-			return "code";
-	}
-};
-
-const getLineRangeDisplay = (comment: ICommentDto) => {
-	if (comment.type === CommentType.Singleline && comment.location.lineNumber) {
-		return `Line ${comment.location.lineNumber}`;
-	}
-	if (comment.type === CommentType.Multiline && comment.location.startLineNumber && comment.location.endLineNumber) {
-		return `Lines ${comment.location.startLineNumber}-${comment.location.endLineNumber}`;
-	}
-	if (comment.type === CommentType.File) {
-		return "File comment";
-	}
-	if (comment.type === CommentType.Project) {
-		return "Whole Project comment";
-	}
-	return "Unknown";
-};
-
-const getCodePreview = (filePath: string, comment: ICommentDto) => {
-	if (!fileContentStore.isFileCached(filePath)) {
-		return "Loading...";
-	}
-
-	const cachedFile = fileContentStore.fileContentCache.get(filePath);
-	if (!cachedFile || !cachedFile.content) {
-		return "Content not available";
-	}
-
-	const lines = cachedFile.content.split("\n");
-
-	if (comment.type === CommentType.Singleline && comment.location.lineNumber) {
-		const startLine = Math.max(0, comment.location.lineNumber - showedLineOffset.value);
-		const endLine = Math.min(lines.length, comment.location.lineNumber + showedLineOffset.value);
-		return lines.slice(startLine, endLine).join("\n");
-	}
-
-	if (comment.type === CommentType.Multiline && comment.location.startLineNumber && comment.location.endLineNumber) {
-		const startLine = Math.max(0, comment.location.startLineNumber - showedLineOffset.value);
-		const endLine = Math.min(lines.length, comment.location.endLineNumber + showedLineOffset.value);
-		return lines.slice(startLine, endLine).join("\n");
-	}
-
-	return "No preview available";
-};
-
-const hasCodePreview = (comment: ICommentDto) => {
-	switch (comment.type) {
-		case CommentType.Singleline:
-		case CommentType.Multiline:
-			return true;
-		case CommentType.File:
-		case CommentType.Project:
-		default:
-			return false;
-	}
-};
-
-const openFileInEditor = (filePath: string, comment: ICommentDto) => {
-	const params = {
-		repoUrl: props.repositoryUrl,
-		commentsApiUrl: props.commentsApiUrl,
-		branch: props.branch,
-		file: filePath,
-		...(comment.location.lineNumber ? { line: comment.location.lineNumber.toString() } : {}),
-	};
-	router.push({ path: "/review/code", query: params });
-};
-
-const loadAllFilePreviewContent = async () => {
-	const filePaths = Object.keys(props.commentsByFile);
-	for (const filePath of filePaths) {
-		if (!fileContentStore.isFileCached(filePath)) {
-			try {
-				await fileContentStore.getFileContentAsync(
-					filePath,
-					props.repositoryUrl,
-					props.branch,
-					props.githubPersonalAccessToken
-				);
-			} catch (error) {
-				console.error(`Failed to load content for ${filePath}:`, error);
-			}
-		}
-	}
-};
-
-onMounted(async () => {
-	await loadAllFilePreviewContent();
-});
+	// Methods
+	toggleFileExpanded,
+	getCodePreview,
+	hasCodePreview,
+	handleOpenFileInEditor,
+} = useCommentBrowser(props, emit);
 </script>
 
 <template>
-	<div v-for="(comments, filePath) in commentsByFile" :key="filePath" class="space-y-4">
+	<div v-for="(comments, filePath) in filteredComments" :key="filePath" class="space-y-4">
 		<Card>
 			<!-- File Header -->
 			<div class="flex items-center justify-between cursor-pointer" @click="toggleFileExpanded(filePath)">
@@ -203,10 +68,10 @@ onMounted(async () => {
 									<Icon :srcName="getCommentTypeIcon(comment.type)" />
 								</div>
 								<div>
-									<span class="text-white font-medium"
-										>{{ getCommentTypeLabel(comment.type) }} Comment</span
-									>
-									<span class="text-slate-400 text-sm ml-2">{{ getLineRangeDisplay(comment) }}</span>
+									<span class="text-white font-medium">{{ comment.type }} Comment</span>
+									<span class="text-slate-400 text-sm ml-2">{{
+										getCommentLocationInfo(comment)
+									}}</span>
 								</div>
 							</div>
 							<div v-if="comment.type !== CommentType.Project" class="flex items-center gap-2">
@@ -214,7 +79,7 @@ onMounted(async () => {
 									label="View in Editor"
 									buttonStyle="primary"
 									type="button"
-									:onClick="() => openFileInEditor(filePath, comment)"
+									:onClick="() => handleOpenFileInEditor(filePath)"
 								/>
 							</div>
 						</div>

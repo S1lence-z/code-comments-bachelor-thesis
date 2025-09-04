@@ -1,4 +1,9 @@
-export type FileDisplayType = "text" | "image" | "pdf" | "binary";
+export enum FileDisplayType {
+	Text = "text",
+	Image = "image",
+	PDF = "pdf",
+	Binary = "binary",
+}
 
 export interface ProcessedFile {
 	displayType: FileDisplayType;

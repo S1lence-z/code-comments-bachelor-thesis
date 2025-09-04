@@ -2,120 +2,61 @@
 import type ICommentDto from "../../types/interfaces/ICommentDto";
 import { CommentType } from "../../types/enums/CommentType";
 import Card from "../../lib/Card.vue";
-import { computed } from "vue";
 import Icon from "../../lib/Icon.vue";
-
-interface CommentStatisticsProps {
-	allComments: ICommentDto[];
-	commentTypeFilter: CommentType | null;
-	commentsGroupedByFile: Record<string, ICommentDto[]>;
-}
+import { useCommentStatistics, type CommentStatisticsProps } from "../../composables/components/useCommentStatistics";
 
 const props = withDefaults(defineProps<CommentStatisticsProps>(), {
 	allComments: () => [] as ICommentDto[],
 	commentsGroupedByFile: () => ({} as Record<string, ICommentDto[]>),
 });
 
-const totalComments = computed(() => props.allComments.length);
-const commentTypeStats = computed(() => {
-	const stats = {
-		[CommentType.Singleline]: 0,
-		[CommentType.Multiline]: 0,
-		[CommentType.File]: 0,
-		[CommentType.Project]: 0,
-	};
+// Initialize the composable
+const {
+	// Statistics
+	totalCommentCount,
+	commentTypeStats,
+	totalCategoryCounts,
 
-	props.allComments.forEach((comment) => {
-		stats[comment.type]++;
-	});
-
-	return stats;
-});
-const totalCommentedFilesAndFolders = computed(() => {
-	return Object.keys(props.commentsGroupedByFile).length;
-});
-const categoryCounts = computed(() => {
-	const groupedCategories: Record<string, number> = {};
-	props.allComments.forEach((comment) => {
-		const categories = comment.category ? [comment.category] : [];
-		categories.forEach((category) => {
-			if (!groupedCategories[category.label]) {
-				groupedCategories[category.label] = 0;
-			}
-			groupedCategories[category.label]++;
-		});
-	});
-	return groupedCategories;
-});
-
-const shouldShowTotalCard = () => {
-	return props.commentTypeFilter === null || props.commentTypeFilter === CommentType.Project;
-};
-const shouldShowFileAndFoldersCard = () => {
-	return (
-		props.commentTypeFilter === null ||
-		props.commentTypeFilter === CommentType.File ||
-		props.commentTypeFilter === CommentType.Project
-	);
-};
-const shouldShowSingleLineCard = () => {
-	return (
-		props.commentTypeFilter === null ||
-		props.commentTypeFilter === CommentType.Singleline ||
-		props.commentTypeFilter === CommentType.Project
-	);
-};
-const shouldShowMultiLineCard = () => {
-	return (
-		props.commentTypeFilter === null ||
-		props.commentTypeFilter === CommentType.Multiline ||
-		props.commentTypeFilter === CommentType.Project
-	);
-};
-const shouldShowCategoryDistributionCard = () => {
-	return (
-		props.commentTypeFilter === null ||
-		props.commentTypeFilter === CommentType.Singleline ||
-		props.commentTypeFilter === CommentType.Multiline
-	);
-};
-const shouldShowCards = () => {
-	return (
-		shouldShowTotalCard() ||
-		shouldShowFileAndFoldersCard() ||
-		shouldShowSingleLineCard() ||
-		shouldShowMultiLineCard() ||
-		shouldShowCategoryDistributionCard()
-	);
-};
+	// Visibility
+	showTotalCommentsCard,
+	showFileCommentsCard,
+	showSinglelineCommentsCard,
+	showMultilineCommentsCard,
+	showCategoryDistributionCard,
+	showCards,
+} = useCommentStatistics(props);
 </script>
 
 <template>
-	<div v-if="shouldShowCards()" class="flex space-x-8">
-		<Card v-if="shouldShowTotalCard()" title="Total" subtitle="All comments in the codebase" class="flex-1">
-			<h1 class="text-2xl text-white">{{ totalComments }}</h1>
+	<div v-if="showCards" class="flex space-x-8">
+		<Card v-if="showTotalCommentsCard" title="Total" subtitle="All comments in the codebase" class="flex-1">
+			<h1 class="text-2xl text-white">{{ totalCommentCount }}</h1>
+		</Card>
+		<Card v-if="showFileCommentsCard" title="File Comments" subtitle="Total file comments" class="flex-1">
+			<h1 class="text-2xl text-white">{{ commentTypeStats[CommentType.File] }}</h1>
 		</Card>
 		<Card
-			v-if="shouldShowFileAndFoldersCard()"
-			title="Files/Folders"
-			subtitle="Commented files and folders"
-			class="flex-1"
-		>
-			<h1 class="text-2xl text-white">{{ totalCommentedFilesAndFolders }}</h1>
-		</Card>
-		<Card
-			v-if="shouldShowSingleLineCard()"
-			title="Singleline"
-			subtitle="Singleline comments in files"
+			v-if="showSinglelineCommentsCard"
+			title="Singleline Comments"
+			subtitle="Total singleline comments"
 			class="flex-1"
 		>
 			<h1 class="text-2xl text-white">{{ commentTypeStats[CommentType.Singleline] }}</h1>
 		</Card>
-		<Card v-if="shouldShowMultiLineCard()" title="Multiline" subtitle="Multiline comments in files" class="flex-1">
+		<Card
+			v-if="showMultilineCommentsCard"
+			title="Multiline Comments"
+			subtitle="Total multiline comments"
+			class="flex-1"
+		>
 			<h1 class="text-2xl text-white">{{ commentTypeStats[CommentType.Multiline] }}</h1>
 		</Card>
-		<Card v-if="shouldShowCategoryDistributionCard()" title="Category Distribution" class="flex-1">
-			<div v-for="(count, category) in categoryCounts" :key="category" class="flex items-center justify-between">
+		<Card v-if="showCategoryDistributionCard" title="Category Distribution" class="flex-1">
+			<div
+				v-for="(count, category) in totalCategoryCounts"
+				:key="category"
+				class="flex items-center justify-between"
+			>
 				<span class="text-white">{{ category }}</span>
 				<span class="text-white">{{ count }}</span>
 			</div>

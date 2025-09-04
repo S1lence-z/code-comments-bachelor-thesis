@@ -1,240 +1,65 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, provide, computed } from "vue";
+import { onMounted, watch } from "vue";
+import { useCodeReviewPage } from "../composables/pages/useCodeReviewPage.ts";
 import FileExplorer from "../components/codeReview/FileExplorer.vue";
-import CodeEditor from "../components/codeReview/CodeEditor.vue";
-import OtherContentViewer from "../components/codeReview/ContentViewer.vue";
-import type ICommentDto from "../types/interfaces/ICommentDto.ts";
-import { CommentType } from "../types/enums/CommentType.ts";
 import SplitPanelManager from "../components/codeReview/SplitPanelManager.vue";
-import { useRepositoryStore } from "../stores/repositoryStore.ts";
-import { useFileContentStore } from "../stores/fileContentStore.ts";
-import { useSettingsStore } from "../stores/settingsStore.ts";
-import { storeToRefs } from "pinia";
-import type { ProcessedFile } from "../types/github/githubFile.ts";
-import { useRoute } from "vue-router";
 import ResizeHandle from "../lib/ResizeHandle.vue";
-import { useProjectStore } from "../stores/projectStore.ts";
-import { getFileName } from "../utils/fileUtils.ts";
-import { projectCommentModalContextKey, fileCommentModalContextKey } from "../core/keys.ts";
 import CommentForm from "../components/codeReview/CommentForm.vue";
 import SlideoutPanel from "../lib/SlideoutPanel.vue";
 
-// Router
-const route = useRoute();
+// Initialize the composable
+const {
+	// Store refs
+	fileTree,
+	isLoadingRepository,
+	isLoadingComments,
 
-// Stores
-const projectStore = useProjectStore();
-const repositoryStore = useRepositoryStore();
-const fileContentStore = useFileContentStore();
-const settingsStore = useSettingsStore();
+	// Stores
+	settingsStore,
 
-// Store refs
-const { repositoryUrl, writeApiUrl, repositoryBranch, githubPat } = storeToRefs(projectStore);
-const { fileTree, allComments, isLoadingRepository, isLoadingComments } = storeToRefs(repositoryStore);
+	// Route
+	route,
 
-// Local state
-const selectedFilePath = ref<string | null>(null);
-const processedSelectedFile = ref<ProcessedFile | null>(null);
-const isLoadingFile = ref<boolean>(false);
+	// Local state
+	selectedFilePath,
+	isLoadingFile,
 
-// Resizable sidebar state
-const sidebarWidth = ref(280);
-const minSidebarWidth = 200;
-const maxSidebarWidth = 450;
-const sidebar = ref<HTMLElement | null>(null);
+	// Sidebar state
+	sidebarWidth,
+	minSidebarWidth,
+	maxSidebarWidth,
+	sidebar,
 
-// Handle file selection and loading
-async function handleFileSelected(path: string) {
-	if (!path) return;
+	// Comment form state
+	startLineNumber,
+	endLineNumber,
+	commentId,
+	isAddingComment,
+	addedCommentType,
 
-	selectedFilePath.value = path;
-	isLoadingFile.value = true;
-	try {
-		processedSelectedFile.value = await fileContentStore.getFileContentAsync(
-			path,
-			repositoryUrl.value,
-			repositoryBranch.value,
-			githubPat.value
-		);
-	} catch (e: any) {
-		processedSelectedFile.value = null;
-		console.error("Error fetching file content:", e);
-	} finally {
-		isLoadingFile.value = false;
-	}
-}
-
-// Comment form state
-const commentFilePath = ref<string | null>(null);
-const startLineNumber = ref<number | null>(null);
-const endLineNumber = ref<number | null>(null);
-const commentId = ref<string | null>(null);
-const isAddingComment = ref<boolean>(false);
-const addedCommentType = ref<CommentType>(CommentType.Singleline);
-
-function handleSinglelineCommentSelected(payload: { lineNumber: number; filePath: string }) {
-	const { lineNumber, filePath } = payload;
-	if (!filePath || !writeApiUrl.value) {
-		console.error("Cannot add comment: comments API URL is not configured.");
-		return;
-	}
-	const existingComment = allComments.value.find(
-		(c: ICommentDto) => c.location.filePath === filePath && c.location.lineNumber === lineNumber
-	);
-
-	// Set the form state variables
-	commentFilePath.value = filePath;
-	startLineNumber.value = lineNumber;
-	endLineNumber.value = null;
-	commentId.value = existingComment ? existingComment.id : null;
-	addedCommentType.value = CommentType.Singleline;
-	isAddingComment.value = true;
-}
-
-function handleMultilineCommentSelected(payload: {
-	selectedStartLineNumber: number;
-	selectedEndLineNumber: number;
-	filePath: string;
-}) {
-	const { selectedStartLineNumber, selectedEndLineNumber, filePath } = payload;
-	if (!filePath || !writeApiUrl.value) {
-		console.error("Cannot add comment: comments API URL is not configured.");
-		return;
-	}
-	const existingComment = allComments.value.find(
-		(c: ICommentDto) => c.location.filePath === filePath && c.location.startLineNumber === selectedStartLineNumber
-	);
-
-	commentFilePath.value = filePath;
-	startLineNumber.value = selectedStartLineNumber;
-	endLineNumber.value = selectedEndLineNumber;
-	commentId.value = existingComment ? existingComment.id : null;
-	addedCommentType.value = CommentType.Multiline;
-	isAddingComment.value = true;
-}
-
-function handleFileCommentSelected(filePath: string) {
-	const existingComment = allComments.value.find(
-		(comment: ICommentDto) => comment.location.filePath === filePath && comment.type === CommentType.File
-	);
-
-	commentId.value = existingComment ? existingComment.id : null;
-	commentFilePath.value = filePath;
-	addedCommentType.value = CommentType.File;
-	isAddingComment.value = true;
-}
-provide(fileCommentModalContextKey, {
+	// Methods
+	handleFileSelected,
+	handleSinglelineCommentSelected,
+	handleMultilineCommentSelected,
 	handleFileCommentSelected,
-});
-
-function handleProjectCommentSelected() {
-	const existingComment = allComments.value.find((comment: ICommentDto) => comment.type === CommentType.Project);
-	commentId.value = existingComment ? existingComment.id : null;
-	commentFilePath.value = projectStore.getRepositoryName;
-	addedCommentType.value = CommentType.Project;
-	isAddingComment.value = true;
-}
-provide(projectCommentModalContextKey, {
 	handleProjectCommentSelected,
-});
+	handleCommentEdit,
+	handleSidebarResize,
+	handleFileQueryParam,
+	initRepositoryStore,
+	deleteCommentAction,
 
-// Handle edit button for the codemirror widget
-const handleCommentEdit = async (commentId: string) => {
-	// Take the comment ID and open the modal for editing
-	const editedComment = allComments.value.find((comment: ICommentDto) => comment.id === commentId);
-	if (!editedComment) {
-		console.error("Comment not found for ID:", commentId);
-		return;
-	}
+	// Computed
+	getSubtitle,
+	projectCommentButtonLabel,
+} = useCodeReviewPage();
 
-	// Get the comment type
-	const commentType: CommentType = editedComment.type;
-	if (commentType === CommentType.Singleline) {
-		handleSinglelineCommentSelected({
-			lineNumber: editedComment.location.lineNumber || 0,
-			filePath: editedComment.location.filePath,
-		});
-	} else if (commentType === CommentType.Multiline) {
-		handleMultilineCommentSelected({
-			selectedStartLineNumber: editedComment.location.startLineNumber || 0,
-			selectedEndLineNumber: editedComment.location.endLineNumber || 0,
-			filePath: editedComment.location.filePath,
-		});
-	} else if (commentType === CommentType.File) {
-		handleFileCommentSelected(editedComment.location.filePath);
-	} else if (commentType === CommentType.Project) {
-		handleProjectCommentSelected();
-	} else {
-		console.error("Unsupported comment type:", commentType);
-	}
-};
-
-// Handle resize events from ResizeHandle component
-const handleSidebarResize = (newWidth: number) => {
-	sidebarWidth.value = Math.max(minSidebarWidth, Math.min(maxSidebarWidth, newWidth));
-};
-
-// TODO: add handling the line number if applicable
-const handleFileQueryParam = () => {
-	const filePath = decodeURIComponent((route.query.file as string) || "");
-	if (filePath) {
-		selectedFilePath.value = filePath;
-	} else {
-		selectedFilePath.value = null;
-		processedSelectedFile.value = null;
-	}
-};
-
-// Setup function
-const initRepositoryStore = async () => {
-	// If project is already set up, initialize immediately
-	if (projectStore.isProjectSetup) {
-		// Prevent multiple initialization attempts
-		if (repositoryStore.isRepositorySetup) {
-			return;
-		}
-
-		try {
-			await repositoryStore.initializeStoreAsync(
-				repositoryUrl.value,
-				writeApiUrl.value,
-				repositoryBranch.value,
-				githubPat.value
-			);
-			handleFileQueryParam();
-		} catch (error) {
-			console.error("Failed to initialize store data:", error);
-		}
-	}
-};
-
-// Computed
-const getSubtitle = computed(() => {
-	if (addedCommentType.value === CommentType.Project) return "Project-wide comment";
-	if (!commentFilePath.value) return "";
-
-	let lineInfo = "";
-	switch (addedCommentType.value) {
-		case CommentType.Multiline:
-			lineInfo = `from line ${startLineNumber.value || 0} to ${endLineNumber.value || 0}`;
-			break;
-		case CommentType.Singleline:
-			lineInfo = `on line ${startLineNumber.value || 0}`;
-			break;
-		case CommentType.File:
-			lineInfo = "File/Folder Comment";
-			break;
-		default:
-			lineInfo = "";
-	}
-
-	return `File: ${commentFilePath.value} ${lineInfo}`;
-});
-
+// Lifecycle
 onMounted(async () => {
 	await initRepositoryStore();
 });
 
+// Watchers
 watch(
 	() => selectedFilePath.value,
 	() => {
@@ -279,7 +104,13 @@ watch(
 							v-else-if="fileTree.length > 0"
 							v-model:selectedPath="selectedFilePath"
 							:treeData="fileTree"
+							:projectCommentButtonLabel="projectCommentButtonLabel"
+							@project-comment-requested="handleProjectCommentSelected"
+							@file-comment-requested="handleFileCommentSelected"
 						/>
+						<div v-else class="p-6 text-sm text-center text-slate-300">
+							No files found in the repository.
+						</div>
 					</div>
 
 					<!-- Resize Handle -->
@@ -301,44 +132,15 @@ watch(
 								<span>Loading comments...</span>
 							</div>
 						</div>
-						<SplitPanelManager v-else v-model:selected-file-path="selectedFilePath">
-							<template #default="{ filePath }">
-								<div v-if="filePath" class="h-full">
-									<div
-										v-if="!fileContentStore.isFileCached(filePath)"
-										class="p-6 text-sm text-center text-slate-300"
-									>
-										<div class="inline-flex items-center space-x-2">
-											<span class="spinner"></span>
-											<span>Loading file...</span>
-										</div>
-									</div>
-									<template v-else>
-										<CodeEditor
-											v-if="fileContentStore.getFileDisplayType(filePath) === 'text'"
-											:file-path="filePath"
-											:file-content="fileContentStore.getFileContent(filePath)"
-											:is-loading-file="false"
-											:comments="repositoryStore.getCommentsForFile(filePath)"
-											:delete-comment-action="
-												async (commentId) =>
-													await repositoryStore.deleteCommentAsync(commentId, writeApiUrl)
-											"
-											:edit-comment-action="handleCommentEdit"
-											@line-double-clicked="handleSinglelineCommentSelected"
-											@multiline-selected="handleMultilineCommentSelected"
-										/>
-										<OtherContentViewer
-											v-else
-											:display-type="fileContentStore.getFileDisplayType(filePath)"
-											:download-url="fileContentStore.getFileDownloadUrl(filePath)"
-											:file-name="getFileName(filePath)"
-											:selected-file-path="filePath"
-										/>
-									</template>
-								</div>
-							</template>
-						</SplitPanelManager>
+						<!-- SplitPanelManager -->
+						<SplitPanelManager
+							v-else
+							v-model:selected-file-path="selectedFilePath"
+							@line-double-clicked="handleSinglelineCommentSelected"
+							@multiline-selected="handleMultilineCommentSelected"
+							@delete-comment="deleteCommentAction"
+							@edit-comment="handleCommentEdit"
+						/>
 					</div>
 				</div>
 			</div>

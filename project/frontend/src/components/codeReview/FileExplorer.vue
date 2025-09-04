@@ -1,30 +1,22 @@
 <script setup lang="ts">
-import { inject } from "vue";
 import FileExplorerItem from "./FileExplorerItem.vue";
-import type { TreeNode } from "../../types/github/githubTree.ts";
 import { handleToggleExpandInTree } from "../../utils/treeNodeUtils.ts";
-import { projectCommentModalContextKey } from "../../core/keys.ts";
-import { useRepositoryStore } from "../../stores/repositoryStore.ts";
+import {
+	useFileExplorer,
+	type FileExplorerProps,
+	type FileExplorerEmits,
+} from "../../composables/components/useFileExplorer";
 
-const repositoryStore = useRepositoryStore();
+const props = defineProps<FileExplorerProps>();
+const emit = defineEmits<FileExplorerEmits>();
 
-interface FileExplorerProps {
-	treeData: TreeNode[];
-	selectedPath: string | null;
-}
-defineProps<FileExplorerProps>();
-
-defineEmits<{
-	(event: "update:selectedPath", value: string | null): void;
-}>();
-
-const { handleProjectCommentSelected } = inject(projectCommentModalContextKey, {
-	handleProjectCommentSelected: () => console.warn("updateProjectCommentData not provided"),
-});
-
-const generateCommentButtonLabel = () => {
-	return repositoryStore.containsProjectComment ? "Edit Project Comment" : "Add Project Comment";
-};
+// Initialize the composable
+const {
+	// Methods
+	handleProjectCommentAction,
+	handleFileCommentAction,
+	handleFileSelection,
+} = useFileExplorer(props, emit);
 </script>
 
 <template>
@@ -32,8 +24,8 @@ const generateCommentButtonLabel = () => {
 		<!-- Header -->
 		<div class="bg-white/5 backdrop-blur-sm border-b border-white/10 px-4 py-4 flex items-center justify-between">
 			<h2 class="text-white font-semibold uppercase">Explorer</h2>
-			<button class="btn btn-primary text-xs" @click="handleProjectCommentSelected">
-				{{ generateCommentButtonLabel() }}
+			<button class="btn btn-primary text-xs" @click="handleProjectCommentAction">
+				{{ props.projectCommentButtonLabel }}
 			</button>
 		</div>
 
@@ -41,12 +33,13 @@ const generateCommentButtonLabel = () => {
 		<div class="flex-1 overflow-y-auto scrollbar-hidden">
 			<ul class="p-2 space-y-1">
 				<FileExplorerItem
-					v-for="item in treeData"
+					v-for="item in props.treeData"
 					:key="item.path"
 					:item="item"
-					:filePath="selectedPath"
-					@update:filePath="$emit('update:selectedPath', $event)"
-					@toggle-expand-item="handleToggleExpandInTree(item, treeData)"
+					:filePath="props.selectedPath"
+					@update:filePath="handleFileSelection"
+					@toggle-expand-item="handleToggleExpandInTree(item, props.treeData)"
+					@file-comment-requested="handleFileCommentAction"
 				/>
 			</ul>
 		</div>

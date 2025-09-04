@@ -1,84 +1,36 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
-import { useRepositoryStore } from "../stores/repositoryStore";
-import { storeToRefs } from "pinia";
+import { onMounted } from "vue";
+import { useOverviewPage } from "../composables/pages/useOverviewPage";
 import Button from "../lib/Button.vue";
 import Icon from "../lib/Icon.vue";
-import type ICommentDto from "../types/interfaces/ICommentDto";
-import { CommentType } from "../types/enums/CommentType";
 import CommentStatistics from "../components/overview/CommentStatistics.vue";
 import CommentBrowser from "../components/overview/CommentBrowser.vue";
-import { useRouter } from "vue-router";
-import { useProjectStore } from "../stores/projectStore";
+import { CommentType } from "../types/enums/CommentType";
 
-// Router
-const router = useRouter();
+const {
+	// Store refs
+	isLoadingComments,
+	allComments,
 
-// Stores
-const projectStore = useProjectStore();
-const repositoryStore = useRepositoryStore();
+	// Local state
+	selectedCommentTypeFilter,
 
-// Store refs
-const { repositoryUrl, writeApiUrl, repositoryBranch, githubPat } = storeToRefs(projectStore);
-const { allComments, isLoadingComments } = storeToRefs(repositoryStore);
+	// Computed
+	totalCommentCount,
+	groupedCommentsByFile,
 
-// Filtering state
-const selectedCommentTypeFilter = ref<CommentType | null>(null);
+	// Methods
+	navigateToCodeReview,
+	openFileInEditor,
+	setCommentTypeFilter,
+	initializeRepositoryData,
+	loadCommentedFilesContent,
+} = useOverviewPage();
 
-// Computed properties
-const filteredComments = computed(() => {
-	if (!selectedCommentTypeFilter.value) {
-		return allComments.value;
-	}
-	return allComments.value.filter((comment) => comment.type === selectedCommentTypeFilter.value);
-});
-
-const totalComments = computed(() => allComments.value.length);
-
-const commentsByFile = computed(() => {
-	const grouped: Record<string, ICommentDto[]> = {};
-
-	filteredComments.value.forEach((comment) => {
-		if (!grouped[comment.location.filePath]) {
-			grouped[comment.location.filePath] = [];
-		}
-		grouped[comment.location.filePath].push(comment);
-	});
-
-	// Sort comments within each file by line number
-	Object.keys(grouped).forEach((filePath) => {
-		grouped[filePath].sort((a, b) => {
-			if (a.location.lineNumber && b.location.lineNumber) {
-				return a.location.lineNumber - b.location.lineNumber;
-			}
-			if (a.location.startLineNumber && b.location.startLineNumber) {
-				return a.location.startLineNumber - b.location.startLineNumber;
-			}
-			return 0;
-		});
-	});
-
-	return grouped;
-});
-
-const navigateToCodeReview = () => {
-	router.push({
-		path: "/review/code",
-		query: router.currentRoute.value.query,
-	});
-};
-
+// Lifecycle
 onMounted(async () => {
-	try {
-		await repositoryStore.initializeStoreAsync(
-			repositoryUrl.value,
-			writeApiUrl.value,
-			repositoryBranch.value,
-			githubPat.value
-		);
-	} catch (error) {
-		console.error("Failed to initialize repository data:", error);
-	}
+	await initializeRepositoryData();
+	await loadCommentedFilesContent();
 });
 </script>
 
@@ -100,15 +52,17 @@ onMounted(async () => {
 				<!-- Filtering Bar -->
 				<div class="flex items-center gap-4">
 					<label class="text-slate-300 font-semibold uppercase text-lg mr-6">Filter By Comment Type:</label>
+					<!-- All Comment Types Options -->
 					<div
 						class="flex items-center backdrop-blur-sm rounded-lg border border-white/10 duration-200 hover:bg-white/10 text-lg uppercase px-4 py-2 cursor-pointer text-white"
 						:class="{
 							'bg-white/20': selectedCommentTypeFilter === null,
 						}"
-						@click="selectedCommentTypeFilter = null"
+						@click="setCommentTypeFilter(null)"
 					>
 						All
 					</div>
+					<!-- Options by Comment Type -->
 					<div
 						v-for="commentType in Object.values(CommentType)"
 						:key="commentType"
@@ -120,7 +74,7 @@ onMounted(async () => {
 							' text-purple-200': commentType === CommentType.Project,
 							'bg-white/20': selectedCommentTypeFilter === commentType,
 						}"
-						@click="selectedCommentTypeFilter = selectedCommentTypeFilter = commentType"
+						@click="setCommentTypeFilter(commentType)"
 					>
 						{{ commentType }}
 					</div>
@@ -128,9 +82,9 @@ onMounted(async () => {
 
 				<!-- Statistics Cards -->
 				<CommentStatistics
-					:allComments="filteredComments"
+					:allComments="allComments"
 					:commentTypeFilter="selectedCommentTypeFilter"
-					:commentsGroupedByFile="commentsByFile"
+					:commentsGroupedByFile="groupedCommentsByFile"
 				/>
 
 				<!-- Loading State -->
@@ -144,7 +98,7 @@ onMounted(async () => {
 				</div>
 
 				<!-- Empty State -->
-				<div v-else-if="totalComments === 0" class="text-center mt-16">
+				<div v-else-if="totalCommentCount === 0" class="text-center mt-16">
 					<div class="empty-state">
 						<div class="empty-state-icon">
 							<Icon srcName="archive" size="32px" />
@@ -163,13 +117,11 @@ onMounted(async () => {
 				<!-- Comments by File -->
 				<div v-else class="flex flex-col flex-1 space-y-6">
 					<CommentBrowser
-						:allComments="filteredComments"
-						:repositoryUrl="repositoryUrl"
-						:branch="repositoryBranch"
-						:commentsApiUrl="writeApiUrl"
-						:githubPersonalAccessToken="githubPat"
-						:isLoadingComments="isLoadingComments"
-						:commentsByFile="commentsByFile"
+						:allCommentsByFile="groupedCommentsByFile"
+						:commentTypeFilter="selectedCommentTypeFilter"
+						@openFileInEditor="(filePath: string) => {
+							openFileInEditor(filePath);
+						}"
 					/>
 				</div>
 			</div>

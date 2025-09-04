@@ -1,4 +1,5 @@
-import type { ProcessedFile, FileDisplayType, GithubFileContentResponse } from "../types/github/githubFile";
+import type { ProcessedFile, GithubFileContentResponse } from "../types/github/githubFile";
+import { FileDisplayType } from "../types/github/githubFile";
 
 export async function fetchProcessedFile(
 	repoUrl: string,
@@ -32,15 +33,15 @@ export async function fetchProcessedFile(
 
 function processFileContent(file: GithubFileContentResponse): ProcessedFile {
 	const { name, content, download_url } = file;
-	let displayType: FileDisplayType = "text";
+	let displayType: FileDisplayType = FileDisplayType.Text;
 	let fileContent: string | null = null;
 
 	if (name.endsWith(".jpg") || name.endsWith(".png")) {
-		displayType = "image";
+		displayType = FileDisplayType.Image;
 	} else if (name.endsWith(".pdf")) {
-		displayType = "pdf";
+		displayType = FileDisplayType.PDF;
 	} else if (!content) {
-		displayType = "binary";
+		displayType = FileDisplayType.Binary;
 	} else {
 		// Github API returns base64 encoded content for text files
 		fileContent = atob(content);
