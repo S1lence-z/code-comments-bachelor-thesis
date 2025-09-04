@@ -1,6 +1,7 @@
-import { ref, watch } from "vue";
-import type { PanelData } from "../../utils/panelUtils";
-import { determineDropPosition, generateNewPanel } from "../../utils/panelUtils";
+import { ref, watch, computed } from "vue";
+import type { PanelData, Workspace, DraggedTabData } from "../../types/Panels";
+import { determineDropPosition, generateNewPanel, findPanelById, redistributePanelSizes } from "../../utils/panelUtils";
+import { createTab, findTabInPanel, getTabIndexInPanel } from "../../utils/tabUtils";
 import { useSettingsStore } from "../../stores/settingsStore";
 import { useWorkspaceStore } from "../../stores/workspaceStore";
 
@@ -24,161 +25,147 @@ export function useSplitPanelManager(props: SplitPanelManagerProps, emit: SplitP
 	const settingsStore = useSettingsStore();
 	const workspaceStore = useWorkspaceStore();
 
-	// Panel management
-	const panels = ref<PanelData[]>([]);
+	// Workspace state
+	const currentWorkspace = ref<Workspace>({
+		repositoryUrl: "",
+		repositoryBranch: "",
+		panels: [],
+	});
 	const panelIdCounter = ref(0);
 
 	// Constants
 	const DROPZONE_WIDTH = 200;
 	const MIN_PANEL_WIDTH_PX = 100;
 	const FULL_WIDTH_PERCENTAGE = 100;
-	const DEFAULT_PANEL_SIZE_PERCENTAGE = 50;
 
 	// Drag and drop state
-	const draggedTab = ref<{ filePath: string; fromPanelId: string } | null>(null);
+	const draggedTab = ref<DraggedTabData | null>(null);
 	const leftDropZoneActive = ref(false);
 	const rightDropZoneActive = ref(false);
 	const containerElement = ref<HTMLElement>();
 
+	// Computed properties
+	const panels = computed(() => currentWorkspace.value.panels);
+
 	// Save workspace watcher
 	watch(
-		[() => settingsStore.isSaveWorkspace, panels],
+		[() => settingsStore.isSaveWorkspace, () => currentWorkspace.value.panels],
 		([shouldSaveWorkspace]) => {
 			if (shouldSaveWorkspace) {
-				workspaceStore.saveWorkspace(panels.value);
+				workspaceStore.saveWorkspace(currentWorkspace.value.panels);
 			}
 		},
 		{ deep: true }
 	);
 
-	// Utility functions for panels
-	const restorePanels = (savedPanels: PanelData[]): void => {
-		console.log("Restoring panels:", savedPanels);
-		savedPanels.forEach((panel) => {
-			const newPanel = generateNewPanel(panelIdCounter);
-			newPanel.openTabs = panel.openTabs;
-			newPanel.activeTab = panel.activeTab || panel.openTabs[0] || null;
-			panels.value.push(newPanel);
-		});
+	// Utility functions
+	const createNewPanel = (initialFilePath?: string): PanelData => {
+		const newPanel = generateNewPanel(panelIdCounter, initialFilePath);
+		currentWorkspace.value.panels.push(newPanel);
+		redistributePanelSizes(panels.value, FULL_WIDTH_PERCENTAGE);
+		return newPanel;
 	};
 
-	const restoreTabSelections = (): void => {
-		panels.value.forEach((panel) => {
-			if (panel.openTabs.length > 0) {
-				setTimeout(() => {
-					emit("update:selectedFilePath", panel.activeTab);
-				}, 1000);
-			}
-		});
-	};
+	const closePanel = (panelId: number): void => {
+		if (panels.value.length <= 1) return;
 
-	const redistributePanelSizes = (): void => {
-		if (panels.value.length > 0) {
-			const equalSize = FULL_WIDTH_PERCENTAGE / panels.value.length;
-			panels.value.forEach((panel) => {
-				panel.size = equalSize;
-			});
-		}
-	};
-
-	// Load saved workspace on component mount
-	const initializeWorkspace = (): void => {
-		const savedPanels = workspaceStore.getSavedWorkspace;
-		if (savedPanels) {
-			restorePanels(savedPanels);
-			restoreTabSelections();
-			redistributePanelSizes();
-		}
-	};
-
-	// Panel management methods
-	const closePanel = (panelId: string): void => {
-		if (panels.value.length === 1) return;
-
-		const panelIndex = panels.value.findIndex((p) => p.id === panelId);
+		const panelIndex = panels.value.findIndex((p: PanelData) => p.id === panelId);
 		if (panelIndex === -1) return;
 
 		const panelToClose = panels.value[panelIndex];
 
 		// If this panel has the active tab, switch to another panel
-		if (panelToClose.activeTab === props.selectedFilePath) {
-			const remainingPanels = panels.value.filter((p) => p.id !== panelId);
+		if (panelToClose.activeTab?.filePath === props.selectedFilePath) {
+			const remainingPanels = panels.value.filter((p: PanelData) => p.id !== panelId);
 			const nextActivePanel = remainingPanels[0];
-			if (nextActivePanel && nextActivePanel.activeTab) {
-				emit("update:selectedFilePath", nextActivePanel.activeTab);
+			if (nextActivePanel?.activeTab) {
+				emit("update:selectedFilePath", nextActivePanel.activeTab.filePath);
 			} else {
 				emit("update:selectedFilePath", null);
 			}
 		}
 
-		// Remove panel
-		panels.value.splice(panelIndex, 1);
-
-		// Redistribute sizes
-		if (panels.value.length > 0) {
-			const remainingSize = FULL_WIDTH_PERCENTAGE / panels.value.length;
-			panels.value.forEach((panel) => {
-				panel.size = remainingSize;
-			});
-		}
-
-		// If a panel does not have any tabs, close it
-		panels.value = panels.value.filter((panel) => panel.openTabs.length > 0);
-		if (panels.value.length === 0) {
-			panels.value.push(generateNewPanel(panelIdCounter));
-			panels.value[0].size = FULL_WIDTH_PERCENTAGE;
-			emit("update:selectedFilePath", null);
-		}
+		// Remove panel and redistribute sizes
+		currentWorkspace.value.panels.splice(panelIndex, 1);
+		redistributePanelSizes(panels.value, FULL_WIDTH_PERCENTAGE);
 	};
 
-	const addFileToPanel = (newFilePath: string): void => {
-		const activePanel = panels.value[0];
-		if (!activePanel) return;
+	const addFileToPanel = (filePath: string, targetPanelId?: number): void => {
+		let targetPanel: PanelData;
 
-		if (!activePanel.openTabs.includes(newFilePath)) {
-			activePanel.openTabs.push(newFilePath);
+		if (targetPanelId) {
+			const panel = findPanelById(panels.value, targetPanelId);
+			if (!panel) return;
+			targetPanel = panel;
+		} else {
+			// Use first panel or create one if none exists
+			if (panels.value.length === 0) {
+				targetPanel = createNewPanel();
+			} else {
+				targetPanel = panels.value[0];
+			}
 		}
-		activePanel.activeTab = newFilePath;
-	};
 
-	// Tab management methods
-	const handleTabSelected = (filePath: string, panelId: string): void => {
-		const panel = panels.value.find((p) => p.id === panelId);
-		if (!panel) return;
+		// Check if tab already exists
+		const existingTab = findTabInPanel(targetPanel, filePath);
+		if (existingTab) {
+			targetPanel.activeTab = existingTab;
+		} else {
+			// Create new tab
+			const newTab = createTab(filePath, targetPanel.id);
+			targetPanel.openTabs.push(newTab);
+			targetPanel.activeTab = newTab;
+		}
 
-		panel.activeTab = filePath;
 		emit("update:selectedFilePath", filePath);
 	};
 
-	const handleTabClosed = (filePath: string, panelId: string): void => {
-		const panel = panels.value.find((p) => p.id === panelId);
-		if (!panel) {
-			console.error("Panel not found for closed tab:", panelId);
-			return;
-		}
+	// Tab management methods
+	const handleTabSelected = (filePath: string, panelId: number): void => {
+		const panel = findPanelById(panels.value, panelId);
+		if (!panel) return;
 
-		const tabIndex = panel.openTabs.indexOf(filePath);
-		if (tabIndex === -1) {
-			console.error("Tab not found in panel:", filePath, panelId);
-			return;
+		const tab = findTabInPanel(panel, filePath);
+		if (tab) {
+			panel.activeTab = tab;
+			emit("update:selectedFilePath", filePath);
 		}
+	};
 
-		// Remove the tab from the panel
+	const handleTabClosed = (filePath: string, panelId: number): void => {
+		const panel = findPanelById(panels.value, panelId);
+		if (!panel) return;
+
+		const tabIndex = getTabIndexInPanel(panel, filePath);
+		if (tabIndex === -1) return;
+
+		// Remove the tab
 		panel.openTabs.splice(tabIndex, 1);
+
+		// If panel has no tabs left, close it
 		if (panel.openTabs.length === 0) {
 			closePanel(panelId);
 			return;
 		}
-		// If the closed tab was the active tab, switch to the first tab
-		if (panel.activeTab === filePath) {
-			panel.activeTab = panel.openTabs[0];
-			emit("update:selectedFilePath", panel.activeTab);
+
+		// If the closed tab was active, switch to another tab
+		if (panel.activeTab?.filePath === filePath) {
+			panel.activeTab = panel.openTabs[0] || null;
+			emit("update:selectedFilePath", panel.activeTab?.filePath || null);
 		}
 	};
 
 	// Drag and drop methods
-	const handleTabDragStart = (filePath: string, panelId: string): void => {
-		draggedTab.value = { filePath, fromPanelId: panelId };
+	const handleTabDragStart = (filePath: string, panelId: number): void => {
+		const panel = findPanelById(panels.value, panelId);
+		const tab = panel ? findTabInPanel(panel, filePath) : null;
+
+		if (tab) {
+			draggedTab.value = {
+				...tab,
+				fromPanelId: panelId,
+			};
+		}
 	};
 
 	const handleTabDragEnd = (): void => {
@@ -187,7 +174,7 @@ export function useSplitPanelManager(props: SplitPanelManagerProps, emit: SplitP
 		rightDropZoneActive.value = false;
 	};
 
-	const handleTabDrop = (targetPanelId: string, insertIndex?: number): void => {
+	const handleTabDrop = (targetPanelId: number, insertIndex?: number): void => {
 		if (!draggedTab.value) return;
 
 		const { filePath, fromPanelId } = draggedTab.value;
@@ -198,32 +185,38 @@ export function useSplitPanelManager(props: SplitPanelManagerProps, emit: SplitP
 			return;
 		}
 
-		const sourcePanel = panels.value.find((p) => p.id === fromPanelId);
-		const targetPanel = panels.value.find((p) => p.id === targetPanelId);
+		const sourcePanel = findPanelById(panels.value, fromPanelId);
+		const targetPanel = findPanelById(panels.value, targetPanelId);
 
 		if (!sourcePanel || !targetPanel) return;
 
-		// Remove from source panel
-		const sourceIndex = sourcePanel.openTabs.indexOf(filePath);
-		if (sourceIndex !== -1) {
-			sourcePanel.openTabs.splice(sourceIndex, 1);
+		// Remove tab from source panel
+		const sourceTabIndex = getTabIndexInPanel(sourcePanel, filePath);
+		if (sourceTabIndex !== -1) {
+			sourcePanel.openTabs.splice(sourceTabIndex, 1);
 
-			// If this was the active tab in source panel, switch to another tab
-			if (sourcePanel.activeTab === filePath) {
+			// Update active tab in source panel
+			if (sourcePanel.activeTab?.filePath === filePath) {
 				sourcePanel.activeTab = sourcePanel.openTabs[0] || null;
 			}
 		}
 
-		// Add to target panel
-		if (insertIndex !== undefined) {
-			targetPanel.openTabs.splice(insertIndex, 0, filePath);
+		// Add tab to target panel
+		const newTab = createTab(filePath, targetPanelId);
+		if (insertIndex !== undefined && insertIndex >= 0) {
+			targetPanel.openTabs.splice(insertIndex, 0, newTab);
 		} else {
-			targetPanel.openTabs.push(filePath);
+			targetPanel.openTabs.push(newTab);
 		}
 
 		// Make it active in target panel
-		targetPanel.activeTab = filePath;
+		targetPanel.activeTab = newTab;
 		emit("update:selectedFilePath", filePath);
+
+		// Close source panel if it has no tabs left
+		if (sourcePanel.openTabs.length === 0) {
+			closePanel(fromPanelId);
+		}
 
 		draggedTab.value = null;
 	};
@@ -236,9 +229,9 @@ export function useSplitPanelManager(props: SplitPanelManagerProps, emit: SplitP
 			const container = event.currentTarget as HTMLElement;
 			const containerRect = container.getBoundingClientRect();
 			const relativeX = event.clientX - containerRect.left;
-			// Show left drop zone
+
+			// Show appropriate drop zones
 			leftDropZoneActive.value = relativeX <= DROPZONE_WIDTH;
-			// Show right drop zone
 			rightDropZoneActive.value = relativeX >= containerRect.width - DROPZONE_WIDTH;
 		}
 	};
@@ -257,50 +250,49 @@ export function useSplitPanelManager(props: SplitPanelManagerProps, emit: SplitP
 		leftDropZoneActive.value = false;
 		rightDropZoneActive.value = false;
 
-		// Only handle internal tab drops
-		if (draggedTab.value) {
-			const { filePath, fromPanelId } = draggedTab.value;
-			const container = event.currentTarget as HTMLElement;
-			const containerRect = container.getBoundingClientRect();
-			const relativeX = event.clientX - containerRect.left;
+		if (!draggedTab.value) return;
 
-			const sourcePanel = panels.value.find((p) => p.id === fromPanelId);
-			if (!sourcePanel) return;
+		const { filePath, fromPanelId } = draggedTab.value;
+		const container = event.currentTarget as HTMLElement;
+		const containerRect = container.getBoundingClientRect();
+		const relativeX = event.clientX - containerRect.left;
 
-			// Determine drop position
-			let insertPosition = determineDropPosition(
-				relativeX,
-				containerRect.width,
-				DROPZONE_WIDTH,
-				panels.value.length
-			);
-			if (insertPosition === null) return;
+		// Determine drop position
+		const insertPosition = determineDropPosition(
+			relativeX,
+			containerRect.width,
+			DROPZONE_WIDTH,
+			panels.value.length
+		);
 
-			// Remove from source panel
-			const sourceIndex = sourcePanel.openTabs.indexOf(filePath);
-			if (sourceIndex !== -1) {
-				sourcePanel.openTabs.splice(sourceIndex, 1);
-				if (sourcePanel.activeTab === filePath) {
+		if (insertPosition === null) return;
+
+		// Remove tab from source panel
+		const sourcePanel = findPanelById(panels.value, fromPanelId);
+		if (sourcePanel) {
+			const sourceTabIndex = getTabIndexInPanel(sourcePanel, filePath);
+			if (sourceTabIndex !== -1) {
+				sourcePanel.openTabs.splice(sourceTabIndex, 1);
+				if (sourcePanel.activeTab?.filePath === filePath) {
 					sourcePanel.activeTab = sourcePanel.openTabs[0] || null;
 				}
 			}
-
-			// Create new panel
-			const newPanel: PanelData = generateNewPanel(panelIdCounter, filePath);
-
-			// Insert new panel at the determined position
-			panels.value.splice(insertPosition, 0, newPanel);
-
-			// Redistribute sizes
-			const equalSize = FULL_WIDTH_PERCENTAGE / panels.value.length;
-			panels.value.forEach((panel) => {
-				panel.size = equalSize;
-			});
-
-			// Make the moved file active
-			emit("update:selectedFilePath", filePath);
-			draggedTab.value = null;
 		}
+
+		// Create new panel
+		const newPanel = generateNewPanel(panelIdCounter, filePath);
+		currentWorkspace.value.panels.splice(insertPosition, 0, newPanel);
+		redistributePanelSizes(panels.value, FULL_WIDTH_PERCENTAGE);
+
+		// Make the moved file active
+		emit("update:selectedFilePath", filePath);
+
+		// Close source panel if empty
+		if (sourcePanel && sourcePanel.openTabs.length === 0) {
+			closePanel(fromPanelId);
+		}
+
+		draggedTab.value = null;
 	};
 
 	// Panel resizing functionality
@@ -314,18 +306,16 @@ export function useSplitPanelManager(props: SplitPanelManagerProps, emit: SplitP
 
 		if (!currentPanel || !nextPanel) return;
 
-		// Calculate cumulative width up to current panel
+		// Calculate current positions
 		let cumulativeWidth = 0;
 		for (let i = 0; i <= panelIndex; i++) {
-			cumulativeWidth +=
-				((panels.value[i].size || DEFAULT_PANEL_SIZE_PERCENTAGE) / FULL_WIDTH_PERCENTAGE) * containerWidth;
+			const panel = panels.value[i];
+			cumulativeWidth += (panel.size / FULL_WIDTH_PERCENTAGE) * containerWidth;
 		}
 
 		// Calculate total width of current + next panel
-		const currentWidthPx =
-			((currentPanel.size || DEFAULT_PANEL_SIZE_PERCENTAGE) / FULL_WIDTH_PERCENTAGE) * containerWidth;
-		const nextWidthPx =
-			((nextPanel.size || DEFAULT_PANEL_SIZE_PERCENTAGE) / FULL_WIDTH_PERCENTAGE) * containerWidth;
+		const currentWidthPx = (currentPanel.size / FULL_WIDTH_PERCENTAGE) * containerWidth;
+		const nextWidthPx = (nextPanel.size / FULL_WIDTH_PERCENTAGE) * containerWidth;
 		const totalWidthPx = currentWidthPx + nextWidthPx;
 
 		// Desired width for current panel
@@ -343,59 +333,49 @@ export function useSplitPanelManager(props: SplitPanelManagerProps, emit: SplitP
 		nextPanel.size = (clampedNextWidthPx / containerWidth) * FULL_WIDTH_PERCENTAGE;
 	};
 
-	// Selected file path handling
-	const handleSelectedFilePathChange = (newFilePath: string | null): void => {
-		if (!newFilePath) return;
-		if (panels.value.length === 0) {
-			// If no panels exist, create a new one
-			panels.value.push(generateNewPanel(panelIdCounter));
-			// Set the first panel to take full width
-			panels.value[0].size = FULL_WIDTH_PERCENTAGE;
-		}
+	// Workspace initialization
+	const initializeWorkspace = (): void => {
+		const savedPanels = workspaceStore.getSavedWorkspace;
 
-		// Check if file is already open in any panel
-		const existingPanel = panels.value.find((panel) => panel.openTabs.includes(newFilePath));
+		// Apply the loaded panels form the store
+		if (savedPanels && savedPanels.length > 0) {
+			// Restore panels with proper IDs
+			currentWorkspace.value.panels = savedPanels.map((panel) => ({
+				...panel,
+			}));
+			redistributePanelSizes(panels.value, FULL_WIDTH_PERCENTAGE);
 
-		if (existingPanel) {
-			// File is already open, just make it active
-			existingPanel.activeTab = newFilePath;
-		} else {
-			// File is not open, add it to active panel
-			addFileToPanel(newFilePath);
+			// Restore active tab selection
+			panels.value.forEach((panel) => {
+				panel.openTabs.forEach((tab) => {
+					setTimeout(() => {
+						emit("update:selectedFilePath", tab.filePath);
+					}, 100);
+				});
+			});
 		}
 	};
 
-	// Watch for selectedFilePath changes
-	watch(() => props.selectedFilePath, handleSelectedFilePathChange);
-
-	// Watch for selectedFilePath changes
+	// Watch for selectedFilePath changes to add files to panels
 	watch(
 		() => props.selectedFilePath,
 		(newFilePath: string | null) => {
 			if (!newFilePath) return;
 
-			if (panels.value.length === 0) {
-				// If no panels exist, create a new one
-				const newPanel = generateNewPanel(panelIdCounter);
-				newPanel.size = FULL_WIDTH_PERCENTAGE;
-				panels.value.push(newPanel);
-			}
-
 			// Check if file is already open in any panel
-			const existingPanel = panels.value.find((panel) => panel.openTabs.includes(newFilePath));
+			const existingPanel = panels.value.find((panel: PanelData) =>
+				panel.openTabs.some((tab) => tab.filePath === newFilePath)
+			);
 
 			if (existingPanel) {
 				// File is already open, just make it active
-				existingPanel.activeTab = newFilePath;
-			} else {
-				// File is not open, add it to the first panel
-				const activePanel = panels.value[0];
-				if (activePanel) {
-					if (!activePanel.openTabs.includes(newFilePath)) {
-						activePanel.openTabs.push(newFilePath);
-					}
-					activePanel.activeTab = newFilePath;
+				const existingTab = findTabInPanel(existingPanel, newFilePath);
+				if (existingTab) {
+					existingPanel.activeTab = existingTab;
 				}
+			} else {
+				// File is not open, add it to a panel
+				addFileToPanel(newFilePath);
 			}
 		}
 	);

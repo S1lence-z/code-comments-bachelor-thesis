@@ -120,30 +120,30 @@ onMounted(() => {
 				<!-- Content for the active tab -->
 				<div v-if="panel.activeTab" class="h-full w-full">
 					<!-- Loading state -->
-					<div v-if="!isFileCached(panel.activeTab)" class="flex items-center justify-center h-full">
+					<div v-if="!isFileCached(panel.activeTab.filePath)" class="flex items-center justify-center h-full">
 						<div class="text-slate-400">Loading file content...</div>
 					</div>
 
 					<!-- Text files (code) -->
 					<CodeEditor
-						v-else-if="isTextFile(panel.activeTab)"
-						:file-path="panel.activeTab"
-						:file-content="getFileContent(panel.activeTab)"
+						v-else-if="isTextFile(panel.activeTab.filePath)"
+						:file-path="panel.activeTab.filePath"
+						:file-content="getFileContent(panel.activeTab.filePath)"
 						:is-loading-file="false"
-						:comment-for-file="getCommentsForFile(panel.activeTab)"
+						:comment-for-file="getCommentsForFile(panel.activeTab.filePath)"
 						:delete-comment-action="handleDeleteComment"
 						:edit-comment-action="handleEditComment"
 						@line-double-clicked="handleLineDoubleClicked"
 						@multiline-selected="handleMultilineSelected"
 					/>
 
-					<!-- Non-text files (images, documents, etc.) -->
+					<!-- Non-text files (images, documents, ...) -->
 					<ContentViewer
 						v-else
-						:selected-file-path="panel.activeTab"
-						:file-name="getFileName(panel.activeTab)"
-						:display-type="getFileDisplayType(panel.activeTab)"
-						:download-url="getFileDownloadUrl(panel.activeTab)"
+						:selected-file-path="panel.activeTab.filePath"
+						:file-name="getFileName(panel.activeTab.filePath)"
+						:display-type="getFileDisplayType(panel.activeTab.filePath)"
+						:download-url="getFileDownloadUrl(panel.activeTab.filePath)"
 					/>
 				</div>
 

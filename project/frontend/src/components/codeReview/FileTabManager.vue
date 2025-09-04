@@ -1,20 +1,21 @@
 <script setup lang="ts">
 import { ref, watch, computed } from "vue";
 import { getFileName } from "../../utils/fileUtils";
+import type { DraggedTabData } from "../../types/Panels";
 
 const props = defineProps<{
 	activeTab: string | null;
-	panelId?: string;
+	panelId?: number;
 	openTabs?: string[];
-	draggedTab?: { fromPanelId: string; filePath: string } | null;
+	draggedTab?: DraggedTabData | null;
 }>();
 
 const emit = defineEmits<{
 	(event: "update:activeTab", value: string | null): void;
 	(event: "tab-closed", filePath: string): void;
-	(event: "tab-drag-start", filePath: string, panelId: string): void;
+	(event: "tab-drag-start", filePath: string, panelId: number): void;
 	(event: "tab-drag-end"): void;
-	(event: "tab-drop", panelId: string, insertIndex: number): void;
+	(event: "tab-drop", panelId: number, insertIndex: number): void;
 }>();
 
 // Use external tabs if provided, otherwise manage internal tabs

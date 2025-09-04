@@ -1,22 +1,22 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import FileTabManager from "./FileTabManager.vue";
+import type { TabData, DraggedTabData } from "../../types/Panels";
 
 const props = defineProps<{
-	panelId: string;
-	openTabs: string[];
-	activeTab: string | null;
-	isSinglePanel: boolean;
-	draggedTab: { fromPanelId: string; filePath: string } | null;
+	panelId: number;
+	openTabs: TabData[];
+	activeTab: TabData | null;
+	draggedTab: DraggedTabData | null;
 }>();
 
 const emit = defineEmits<{
-	(event: "tab-selected", filePath: string, panelId: string): void;
-	(event: "tab-closed", filePath: string, panelId: string): void;
-	(event: "tab-drop", panelId: string): void;
-	(event: "tab-drag-start", filePath: string, panelId: string): void;
+	(event: "tab-selected", filePath: string, panelId: number): void;
+	(event: "tab-closed", filePath: string, panelId: number): void;
+	(event: "tab-drop", panelId: number): void;
+	(event: "tab-drag-start", filePath: string, panelId: number): void;
 	(event: "tab-drag-end"): void;
-	(event: "tab-drop-with-index", panelId: string, insertIndex: number): void;
+	(event: "tab-drop-with-index", panelId: number, insertIndex: number): void;
 }>();
 
 const isDragOver = ref(false);
@@ -54,8 +54,8 @@ const handleDrop = (event: DragEvent) => {
 };
 
 // Enhanced FileTabManager that supports the panel's tabs
-const currentTabs = computed(() => props.openTabs);
-const currentActiveTab = computed(() => props.activeTab);
+const currentTabs = computed(() => props.openTabs.map((tab) => tab.filePath));
+const currentActiveTab = computed(() => props.activeTab?.filePath || null);
 
 const handleTabUpdate = (filePath: string | null) => {
 	if (filePath) {
@@ -67,7 +67,7 @@ const handleCloseFileTab = (filePath: string) => {
 	emit("tab-closed", filePath, props.panelId);
 };
 
-const handleTabDragStart = (filePath: string, panelId: string) => {
+const handleTabDragStart = (filePath: string, panelId: number) => {
 	emit("tab-drag-start", filePath, panelId);
 };
 
@@ -75,7 +75,7 @@ const handleTabDragEnd = () => {
 	emit("tab-drag-end");
 };
 
-const handleTabDropWithIndex = (panelId: string, insertIndex: number) => {
+const handleTabDropWithIndex = (panelId: number, insertIndex: number) => {
 	emit("tab-drop-with-index", panelId, insertIndex);
 };
 </script>
