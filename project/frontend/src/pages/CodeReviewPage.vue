@@ -114,6 +114,9 @@ watch(
 							@project-comment-requested="handleProjectCommentSelected"
 							@file-comment-requested="handleFileCommentSelected"
 						/>
+						<div v-else class="p-6 text-sm text-center text-slate-300">
+							No files found in the repository.
+						</div>
 					</div>
 
 					<!-- Resize Handle -->
