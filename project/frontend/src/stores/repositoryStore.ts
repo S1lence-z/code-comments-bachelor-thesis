@@ -9,6 +9,13 @@ import { getAllCategories } from "../services/categoryService";
 import { useServerStore } from "./serverStore";
 import { CommentType } from "../types/enums/CommentType";
 
+// Dummy category to ensure at least one category exists
+const dummyCategoryDto: CategoryDto = {
+	id: "dummy-id",
+	label: "Uncategorized",
+	description: "A default category for uncategorized comments",
+};
+
 export const useRepositoryStore = defineStore("repositoryStore", {
 	state: () => ({
 		fileTreeData: [] as TreeNode[],
@@ -124,10 +131,10 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 				}
 
 				const response = await getAllCategories(baseUrl);
-				this.categories = response;
+				this.categories = response || [dummyCategoryDto];
 			} catch (error: any) {
 				console.error("Error fetching categories:", error);
-				this.categories = [];
+				this.categories = [dummyCategoryDto];
 			} finally {
 				this.isLoadingCategories = false;
 			}
