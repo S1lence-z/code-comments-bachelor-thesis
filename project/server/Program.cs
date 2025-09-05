@@ -39,21 +39,16 @@ namespace server
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+            // TODO: automatically apply migrations
 
-            app.UseHttpsRedirection();
-
+            // Middleware
             EnableCors(app);
+            app.UseSwagger();
+            app.UseSwaggerUI();
+
 
             app.UseAuthorization();
-
             app.MapControllers();
-
             app.Run();
         }
 
