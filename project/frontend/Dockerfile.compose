@@ -1,5 +1,5 @@
 FROM node:20-alpine AS builder
-WORKDIR /app/frontend
+WORKDIR /app
 
 # Accept build arguments
 ARG VITE_GITHUB_PAT
@@ -18,12 +18,15 @@ ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
 
 RUN npm run build
 
-# Final stage: Nginx
-FROM nginx:alpine
-WORKDIR /usr/share/nginx/html
+# Production stage: Use serve to host static files
+FROM node:20-alpine
+WORKDIR /app
 
-# Copy build artifacts (Vue builds to dist/)
-COPY --from=builder /app/frontend/dist .
+# Install serve globally
+RUN npm install -g serve
+
+# Copy build artifacts
+COPY --from=builder /app/dist ./dist
 
 EXPOSE 3000
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["serve", "-s", "dist", "-l", "3000"]
