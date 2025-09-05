@@ -1,23 +1,29 @@
 FROM node:20-alpine AS builder
 WORKDIR /app/frontend
 
+# Accept build arguments
+ARG VITE_GITHUB_PAT
+ARG VITE_API_BASE_URL
+
 # Install deps
-COPY frontend/package*.json ./
+COPY package*.json ./
 RUN npm install
 
 # Copy source
-COPY frontend/ ./
+COPY . ./
+
+# Set environment variables for build
+ENV VITE_GITHUB_PAT=${VITE_GITHUB_PAT}
+ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
+
 RUN npm run build
 
 # Final stage: Nginx
 FROM nginx:alpine
 WORKDIR /usr/share/nginx/html
 
-# Copy build artifacts
+# Copy build artifacts (Vue builds to dist/)
 COPY --from=builder /app/frontend/dist .
 
-# Copy nginx config
-COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
-
-EXPOSE 80
+EXPOSE 3000
 CMD ["nginx", "-g", "daemon off;"]
