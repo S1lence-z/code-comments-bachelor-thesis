@@ -6,7 +6,7 @@ import { useFileContentStore } from "../../stores/fileContentStore";
 import { useSettingsStore } from "../../stores/settingsStore";
 import { useProjectStore } from "../../stores/projectStore";
 import type { ProcessedFile } from "../../types/github/githubFile";
-import type ICommentDto from "../../types/interfaces/ICommentDto";
+import type CommentDto from "../../types/dtos/CommentDto";
 import { CommentType } from "../../types/enums/CommentType";
 import { getCommentLocationInfoByType } from "../../utils/commentUtils";
 
@@ -73,7 +73,7 @@ export function useCodeReviewPage() {
 			return;
 		}
 		const existingComment = allComments.value.find(
-			(c: ICommentDto) => c.location.filePath === filePath && c.location.lineNumber === lineNumber
+			(c: CommentDto) => c.location.filePath === filePath && c.location.lineNumber === lineNumber
 		);
 
 		// Set the form state variables
@@ -96,7 +96,7 @@ export function useCodeReviewPage() {
 			return;
 		}
 		const existingComment = allComments.value.find(
-			(c: ICommentDto) =>
+			(c: CommentDto) =>
 				c.location.filePath === filePath && c.location.startLineNumber === selectedStartLineNumber
 		);
 
@@ -110,7 +110,7 @@ export function useCodeReviewPage() {
 
 	const handleFileCommentSelected = (filePath: string): void => {
 		const existingComment = allComments.value.find(
-			(comment: ICommentDto) => comment.location.filePath === filePath && comment.type === CommentType.File
+			(comment: CommentDto) => comment.location.filePath === filePath && comment.type === CommentType.File
 		);
 
 		commentId.value = existingComment ? existingComment.id : null;
@@ -120,7 +120,7 @@ export function useCodeReviewPage() {
 	};
 
 	const handleProjectCommentSelected = (): void => {
-		const existingComment = allComments.value.find((comment: ICommentDto) => comment.type === CommentType.Project);
+		const existingComment = allComments.value.find((comment: CommentDto) => comment.type === CommentType.Project);
 		commentId.value = existingComment ? existingComment.id : null;
 		commentFilePath.value = projectStore.getRepositoryName;
 		addedCommentType.value = CommentType.Project;
@@ -130,7 +130,7 @@ export function useCodeReviewPage() {
 	// Handle edit button for the codemirror widget
 	const handleCommentEdit = async (commentId: string): Promise<void> => {
 		// Take the comment ID and open the modal for editing
-		const editedComment = allComments.value.find((comment: ICommentDto) => comment.id === commentId);
+		const editedComment = allComments.value.find((comment: CommentDto) => comment.id === commentId);
 		if (!editedComment) {
 			console.error("Comment not found for ID:", commentId);
 			return;

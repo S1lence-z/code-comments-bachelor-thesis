@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type ICommentDto from "../../types/interfaces/ICommentDto";
+import type CommentDto from "../../types/dtos/CommentDto";
 import { CommentType } from "../../types/enums/CommentType";
 import Card from "../../lib/Card.vue";
 import Button from "../../lib/Button.vue";
@@ -13,7 +13,7 @@ import {
 } from "../../composables/components/useCommentBrowser";
 
 const props = withDefaults(defineProps<CommentBrowserProps>(), {
-	allCommentsByFile: () => ({} as Record<string, ICommentDto[]>),
+	allCommentsByFile: () => ({} as Record<string, CommentDto[]>),
 	commentTypeFilter: null,
 });
 

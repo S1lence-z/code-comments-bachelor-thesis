@@ -1,10 +1,10 @@
 import { computed, ref } from "vue";
-import type ICommentDto from "../../types/interfaces/ICommentDto";
+import type CommentDto from "../../types/dtos/CommentDto";
 import { CommentType } from "../../types/enums/CommentType";
 import { useFileContentStore } from "../../stores/fileContentStore";
 
 export interface CommentBrowserProps {
-	allCommentsByFile: Record<string, ICommentDto[]>;
+	allCommentsByFile: Record<string, CommentDto[]>;
 	commentTypeFilter: CommentType | null;
 }
 
@@ -45,7 +45,7 @@ export function useCommentBrowser(props: CommentBrowserProps, emit: CommentBrows
 		}
 	};
 
-	const getCodePreview = (filePath: string, comment: ICommentDto): string => {
+	const getCodePreview = (filePath: string, comment: CommentDto): string => {
 		if (!fileContentStore.isFileCached(filePath)) {
 			return "Loading...";
 		}
@@ -76,7 +76,7 @@ export function useCommentBrowser(props: CommentBrowserProps, emit: CommentBrows
 		return "No preview available";
 	};
 
-	const hasCodePreview = (comment: ICommentDto): boolean => {
+	const hasCodePreview = (comment: CommentDto): boolean => {
 		switch (comment.type) {
 			case CommentType.Singleline:
 			case CommentType.Multiline:

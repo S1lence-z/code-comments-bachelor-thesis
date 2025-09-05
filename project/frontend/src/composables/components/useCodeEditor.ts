@@ -3,14 +3,14 @@ import { EditorView } from "@codemirror/view";
 import { createEditorExtensions } from "../../codeMirror/configs/editorConfig";
 import { useSettingsStore } from "../../stores/settingsStore";
 import { useKeyboardShortcutsStore } from "../../stores/keyboardShortcutsStore";
-import type ICommentDto from "../../types/interfaces/ICommentDto";
+import type CommentDto from "../../types/dtos/CommentDto";
 
 interface CodeEditorProps {
 	filePath: string | null;
 	fileContent: string | null | undefined;
 	deleteCommentAction: (commentId: string) => Promise<void>;
 	editCommentAction: (commentId: string) => Promise<void>;
-	commentForFile: ICommentDto[];
+	commentForFile: CommentDto[];
 }
 
 interface CodeEditorEmits {
@@ -25,7 +25,7 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 	// Store access
 	const settingsStore = useSettingsStore();
 	const keyboardShortcutsStore = useKeyboardShortcutsStore();
-    
+
 	// Local state
 	const currentContent = ref<string>("");
 	const editorView = shallowRef<EditorView>();

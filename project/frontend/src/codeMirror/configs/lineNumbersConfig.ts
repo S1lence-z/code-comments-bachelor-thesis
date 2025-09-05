@@ -1,5 +1,5 @@
 import type { EditorState } from "@codemirror/state";
-import type ICommentDto from "../../types/interfaces/ICommentDto.ts";
+import type CommentDto from "../../types/dtos/CommentDto";
 import type { BlockInfo, EditorView } from "@codemirror/view";
 
 export interface LineNumberConfig {
@@ -9,7 +9,7 @@ export interface LineNumberConfig {
 	};
 }
 
-export function getLineNumbersConfig(_comments: ICommentDto[]): LineNumberConfig {
+export function getLineNumbersConfig(_comments: CommentDto[]): LineNumberConfig {
 	return {
 		formatNumber: (lineNo: number, _state: EditorState) => {
 			return lineNo.toString();

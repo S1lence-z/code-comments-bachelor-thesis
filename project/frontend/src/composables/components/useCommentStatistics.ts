@@ -1,11 +1,11 @@
 import { computed } from "vue";
-import type ICommentDto from "../../types/interfaces/ICommentDto";
+import type CommentDto from "../../types/dtos/CommentDto";
 import { CommentType } from "../../types/enums/CommentType";
 
 export interface CommentStatisticsProps {
-	allComments: ICommentDto[];
+	allComments: CommentDto[];
 	commentTypeFilter: CommentType | null;
-	commentsGroupedByFile: Record<string, ICommentDto[]>;
+	commentsGroupedByFile: Record<string, CommentDto[]>;
 }
 
 export function useCommentStatistics(props: CommentStatisticsProps) {

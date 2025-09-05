@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import "../../../css/codemirror.css";
 import { Codemirror } from "vue-codemirror";
-import type ICommentDto from "../../types/interfaces/ICommentDto";
+import type CommentDto from "../../types/dtos/CommentDto";
 import { useCodeEditor } from "../../composables/components/useCodeEditor";
 
 interface CodeEditorProps {
 	filePath: string | null;
 	fileContent: string | null | undefined;
 	isLoadingFile: boolean;
-	commentForFile: ICommentDto[];
+	commentForFile: CommentDto[];
 	deleteCommentAction: (commentId: string) => Promise<void>;
 	editCommentAction: (commentId: string) => Promise<void>;
 }

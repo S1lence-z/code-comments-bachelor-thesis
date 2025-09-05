@@ -3,7 +3,7 @@ import { RangeSetBuilder, StateField } from "@codemirror/state";
 import { Decoration } from "@codemirror/view";
 import type { DecorationSet } from "@codemirror/view";
 import { EditorView } from "@codemirror/view";
-import type ICommentDto from "../types/interfaces/ICommentDto.ts";
+import type CommentDto from "../types/dtos/CommentDto.ts";
 import { CommentType } from "../types/enums/CommentType.ts";
 import SinglelineCommentWidget from "./widgets/singleLineCommentWidget.ts";
 import MultilineCommentWidget from "./widgets/multilineCommentWidget.ts";
@@ -13,7 +13,7 @@ import MultilineCommentWidget from "./widgets/multilineCommentWidget.ts";
  */
 function buildDecorations(
 	state: EditorState,
-	commentsToDisplay: Readonly<ICommentDto[]>,
+	commentsToDisplay: Readonly<CommentDto[]>,
 	isCompactCommentModal: boolean,
 	deleteCommentAction: (commentId: string) => Promise<void>,
 	editCommentAction: (commentId: string) => Promise<void>
@@ -54,7 +54,7 @@ function buildDecorations(
 	return builder.finish();
 }
 
-function sortCommentsByPosition(comments: Readonly<ICommentDto[]>): ICommentDto[] {
+function sortCommentsByPosition(comments: Readonly<CommentDto[]>): CommentDto[] {
 	return [...comments].sort((a, b) => {
 		const aPos = a.type === CommentType.Singleline ? a.location.lineNumber : a.location.startLineNumber;
 		const bPos = b.type === CommentType.Singleline ? b.location.lineNumber : b.location.startLineNumber;
@@ -63,7 +63,7 @@ function sortCommentsByPosition(comments: Readonly<ICommentDto[]>): ICommentDto[
 }
 
 function addMultiLineCommentDecoration(
-	comment: ICommentDto,
+	comment: CommentDto,
 	isCompactCommentModal: boolean,
 	state: EditorState,
 	builder: RangeSetBuilder<Decoration>,
@@ -90,7 +90,7 @@ function addMultiLineCommentDecoration(
 }
 
 function addSingleLineCommentDecoration(
-	comment: ICommentDto,
+	comment: CommentDto,
 	isCompactCommentModal: boolean,
 	state: EditorState,
 	builder: RangeSetBuilder<Decoration>,
@@ -122,7 +122,7 @@ function addSingleLineCommentDecoration(
  * Creates a CodeMirror extension for displaying comments
  */
 export function commentsDisplayExtension(
-	currentComments: Readonly<ICommentDto[]>,
+	currentComments: Readonly<CommentDto[]>,
 	deleteCommentAction: (commentId: string) => Promise<void>,
 	editCommentAction: (commentId: string) => Promise<void>,
 	isCompactCommentModal: boolean

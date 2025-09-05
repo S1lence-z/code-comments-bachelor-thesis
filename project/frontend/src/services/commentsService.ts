@@ -1,12 +1,12 @@
-import type ICommentDto from "../types/interfaces/ICommentDto.ts";
+import type CommentDto from "../types/dtos/CommentDto";
 
-export async function fetchComments(readApiUrl: string): Promise<ICommentDto[]> {
+export async function fetchComments(readApiUrl: string): Promise<CommentDto[]> {
 	try {
 		const response = await fetch(readApiUrl);
 		if (!response.ok) {
 			throw new Error(`Failed to fetch comments: ${response.status} ${response.statusText}`);
 		}
-		const allComments: ICommentDto[] = await response.json();
+		const allComments: CommentDto[] = await response.json();
 		return allComments;
 	} catch (error) {
 		console.error("Error in fetchComments:", error);
@@ -14,7 +14,7 @@ export async function fetchComments(readApiUrl: string): Promise<ICommentDto[]> 
 	}
 }
 
-export async function addComment(writeApiUrl: string, commentData: ICommentDto): Promise<ICommentDto> {
+export async function addComment(writeApiUrl: string, commentData: CommentDto): Promise<CommentDto> {
 	try {
 		const response = await fetch(writeApiUrl, {
 			method: "POST",
@@ -37,8 +37,8 @@ export async function addComment(writeApiUrl: string, commentData: ICommentDto):
 export async function updateComment(
 	writeApiUrl: string,
 	commentId: string,
-	commentData: ICommentDto
-): Promise<ICommentDto> {
+	commentData: CommentDto
+): Promise<CommentDto> {
 	try {
 		const response = await fetch(`${writeApiUrl}/${commentId}`, {
 			method: "PUT",

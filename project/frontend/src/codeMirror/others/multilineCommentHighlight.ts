@@ -1,6 +1,6 @@
 import { EditorView, ViewPlugin, ViewUpdate, Decoration, type DecorationSet } from "@codemirror/view";
 import { Range } from "@codemirror/state";
-import type ICommentDto from "../../types/interfaces/ICommentDto.ts";
+import type CommentDto from "../../types/dtos/CommentDto";
 
 // Create decorations for line numbers and gutter markers
 const multilineCommentLineNumberDeco = Decoration.line({
@@ -8,7 +8,7 @@ const multilineCommentLineNumberDeco = Decoration.line({
 });
 
 // Plugin to apply multiline comment highlighting
-export function multilineCommentHighlightExtension(comments: ICommentDto[]) {
+export function multilineCommentHighlightExtension(comments: CommentDto[]) {
 	return ViewPlugin.fromClass(
 		class {
 			decorations: DecorationSet;
@@ -29,7 +29,11 @@ export function multilineCommentHighlightExtension(comments: ICommentDto[]) {
 				const doc = view.state.doc;
 
 				comments.forEach((comment) => {
-					for (let lineNum = comment.location.startLineNumber!; lineNum <= comment.location.endLineNumber!; lineNum++) {
+					for (
+						let lineNum = comment.location.startLineNumber!;
+						lineNum <= comment.location.endLineNumber!;
+						lineNum++
+					) {
 						try {
 							const line = doc.line(lineNum);
 							// Add decoration for this line
