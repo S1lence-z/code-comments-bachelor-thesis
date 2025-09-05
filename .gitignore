@@ -5,3 +5,4 @@
 .mypy_cache
 package-lock.json
 *.local
+.env
