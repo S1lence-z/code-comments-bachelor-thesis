@@ -1,7 +1,7 @@
 import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
-import { useRepositoryStore } from "../../stores/repositoryStore";
+import { useProjectDataStore } from "../../stores/projectDataStore";
 import { useFileContentStore } from "../../stores/fileContentStore";
 import { useSettingsStore } from "../../stores/settingsStore";
 import { useProjectStore } from "../../stores/projectStore";
@@ -16,19 +16,18 @@ export function useCodeReviewPage() {
 
 	// Stores
 	const projectStore = useProjectStore();
-	const repositoryStore = useRepositoryStore();
+	const projectDataStore = useProjectDataStore();
 	const fileContentStore = useFileContentStore();
 	const settingsStore = useSettingsStore();
 
 	// Store refs
 	const { repositoryUrl, writeApiUrl, repositoryBranch, githubPat } = storeToRefs(projectStore);
-	const { fileTree, allComments, isLoadingRepository, isLoadingComments } = storeToRefs(repositoryStore);
+	const { fileTree, allComments, isLoadingRepository, isLoadingComments } = storeToRefs(projectDataStore);
 
 	// Local state
 	const selectedFilePath = ref<string | null>(null);
 	const processedSelectedFile = ref<ProcessedFile | null>(null);
 	const isLoadingFile = ref<boolean>(false);
-	const backendBaseUrl = import.meta.env.VITE_API_BASE_URL || "";
 
 	// Resizable sidebar state
 	const sidebarWidth = ref(280);
@@ -174,33 +173,9 @@ export function useCodeReviewPage() {
 		}
 	};
 
-	// Setup function
-	const initRepositoryStore = async (): Promise<void> => {
-		// If project is already set up, initialize immediately
-		if (projectStore.isProjectSetup) {
-			// Prevent multiple initialization attempts
-			if (repositoryStore.isRepositorySetup) {
-				return;
-			}
-
-			try {
-				await repositoryStore.initializeStoreAsync(
-					repositoryUrl.value,
-					writeApiUrl.value,
-					repositoryBranch.value,
-					githubPat.value,
-					backendBaseUrl
-				);
-				handleFileQueryParam();
-			} catch (error) {
-				console.error("Failed to initialize store data:", error);
-			}
-		}
-	};
-
 	// Delete comment action
 	const deleteCommentAction = async (commentId: string): Promise<void> => {
-		await repositoryStore.deleteCommentAsync(commentId, writeApiUrl.value);
+		await projectDataStore.deleteCommentAsync(commentId, writeApiUrl.value);
 	};
 
 	// Computed
@@ -216,7 +191,7 @@ export function useCodeReviewPage() {
 	});
 
 	const projectCommentButtonLabel = computed(() => {
-		return repositoryStore.containsProjectComment ? "Edit Project Comment" : "Add Project Comment";
+		return projectDataStore.containsProjectComment ? "Edit Project Comment" : "Add Project Comment";
 	});
 
 	return {
@@ -232,7 +207,7 @@ export function useCodeReviewPage() {
 
 		// Stores (for direct access if needed)
 		projectStore,
-		repositoryStore,
+		projectDataStore,
 		fileContentStore,
 		settingsStore,
 
@@ -267,7 +242,6 @@ export function useCodeReviewPage() {
 		handleCommentEdit,
 		handleSidebarResize,
 		handleFileQueryParam,
-		initRepositoryStore,
 		deleteCommentAction,
 
 		// Computed

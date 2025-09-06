@@ -1,6 +1,6 @@
 import { ref, computed, watch, type Ref } from "vue";
 import { storeToRefs } from "pinia";
-import { useRepositoryStore } from "../../stores/repositoryStore";
+import { useProjectDataStore } from "../../stores/projectDataStore";
 import { useProjectStore } from "../../stores/projectStore";
 import type CommentDto from "../../types/dtos/CommentDto";
 import type CategoryDto from "../../types/dtos/CategoryDto";
@@ -23,11 +23,11 @@ export interface CommentFormEmits {
 
 export function useCommentForm(props: CommentFormProps, emit: CommentFormEmits) {
 	// Stores
-	const repositoryStore = useRepositoryStore();
+	const projectDataStore = useProjectDataStore();
 	const projectStore = useProjectStore();
 
 	// Store refs
-	const { allCategories, comments } = storeToRefs(repositoryStore) as {
+	const { allCategories, comments } = storeToRefs(projectDataStore) as {
 		allCategories: Ref<CategoryDto[]>;
 		comments: Ref<CommentDto[]>;
 	};
@@ -109,7 +109,7 @@ export function useCommentForm(props: CommentFormProps, emit: CommentFormEmits) 
 		}
 
 		try {
-			await repositoryStore.upsertCommentAsync(commentData, writeApiUrl.value);
+			await projectDataStore.upsertCommentAsync(commentData, writeApiUrl.value);
 			emit("update:isVisible", false);
 		} catch (error) {
 			console.error("Failed to save comment:", error);

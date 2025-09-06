@@ -16,7 +16,7 @@ const emit = defineEmits<FileExplorerItemEmits>();
 // Initialize the composable
 const {
 	// Store access for template
-	repositoryStore,
+	projectDataStore,
 
 	// Methods
 	handleItemClick,
@@ -33,7 +33,7 @@ const {
 			:class="{
 				'bg-white/10 text-white border border-white/20': item.path === filePath && item.type === 'file',
 				'bg-amber-500/10 border border-amber-500/20':
-					repositoryStore.fileContainsComments(item.path) && item.path !== filePath,
+					projectDataStore.fileContainsComments(item.path) && item.path !== filePath,
 				'hover:bg-white/5': item.path !== filePath,
 			}"
 		>
@@ -100,7 +100,7 @@ const {
 				</span>
 
 				<!-- Contains comments indicator -->
-				<span v-if="repositoryStore.fileContainsComments(item.path)" class="flex items-center gap-1 ml-2">
+				<span v-if="projectDataStore.fileContainsComments(item.path)" class="flex items-center gap-1 ml-2">
 					<div class="w-2 h-2 bg-amber-400 rounded-full"></div>
 					<span class="text-xs text-amber-400">💬</span>
 				</span>

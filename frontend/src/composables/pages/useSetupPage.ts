@@ -3,12 +3,17 @@ import { setupProject, listProjects } from "../../services/projectService";
 import type ProjectSetupRequest from "../../types/dtos/SetupProjectRequest";
 import type ProjectDto from "../../types/dtos/ProjectDto";
 import router from "../../core/router";
+import { useProjectStore } from "../../stores/projectStore";
 
 export function useSetupPage() {
+	// Stores
+	const projectStore = useProjectStore();
+
 	// Form input values
 	const formGithubRepoUrl = ref("");
 	const formBranchName = ref("");
 	const formProjectName = ref("");
+	const formWriteApiUrl = ref("");
 
 	// UI state
 	const isCreatingProject = ref(false);
@@ -17,9 +22,6 @@ export function useSetupPage() {
 
 	// Data
 	const existingProjects = ref<ProjectDto[]>([]);
-
-	// Configuration
-	const backendBaseUrl = import.meta.env.VITE_API_BASE_URL || "";
 
 	// Create new project from form
 	const createProject = async (): Promise<void> => {
@@ -34,10 +36,11 @@ export function useSetupPage() {
 				name: formProjectName.value.trim(),
 			};
 
-			const response = await setupProject(setupData, backendBaseUrl);
+			const response = await setupProject(setupData, projectStore.getBackendBaseUrl);
 
 			if (response.writeApiUrl && response.repository) {
 				isProjectCreated.value = true;
+				formWriteApiUrl.value = response.writeApiUrl;
 			} else {
 				throw new Error("Invalid response from server");
 			}
@@ -56,7 +59,7 @@ export function useSetupPage() {
 			name: "Code Review",
 			query: {
 				repoUrl: formGithubRepoUrl.value.trim(),
-				commentsApiUrl: backendBaseUrl,
+				commentsApiUrl: formWriteApiUrl.value.trim(),
 				branch: formBranchName.value.trim(),
 			},
 		});
@@ -77,7 +80,7 @@ export function useSetupPage() {
 	// Load existing projects
 	const loadExistingProjects = async (): Promise<void> => {
 		try {
-			existingProjects.value = await listProjects(backendBaseUrl);
+			existingProjects.value = await listProjects(projectStore.getBackendBaseUrl);
 		} catch (error) {
 			console.error("Failed to load existing projects:", error);
 		}

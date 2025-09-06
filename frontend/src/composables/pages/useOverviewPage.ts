@@ -1,7 +1,7 @@
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
-import { useRepositoryStore } from "../../stores/repositoryStore";
+import { useProjectDataStore } from "../../stores/projectDataStore";
 import { useProjectStore } from "../../stores/projectStore";
 import { useFileContentStore } from "../../stores/fileContentStore";
 import { CommentType } from "../../types/enums/CommentType";
@@ -13,15 +13,12 @@ export function useOverviewPage() {
 
 	// Stores
 	const projectStore = useProjectStore();
-	const repositoryStore = useRepositoryStore();
+	const projectDataStore = useProjectDataStore();
 	const fileContentStore = useFileContentStore();
 
 	// Store refs
 	const { repositoryUrl, writeApiUrl, repositoryBranch, githubPat } = storeToRefs(projectStore);
-	const { allComments, isLoadingComments } = storeToRefs(repositoryStore);
-
-	// Local state
-	const backendBaseUrl = import.meta.env.VITE_API_BASE_URL || "";
+	const { allComments, isLoadingComments } = storeToRefs(projectDataStore);
 
 	// Filtering state
 	const selectedCommentTypeFilter = ref<CommentType | null>(null);
@@ -50,20 +47,6 @@ export function useOverviewPage() {
 
 	const setCommentTypeFilter = (commentType: CommentType | null): void => {
 		selectedCommentTypeFilter.value = commentType;
-	};
-
-	const initializeRepositoryData = async (): Promise<void> => {
-		try {
-			await repositoryStore.initializeStoreAsync(
-				repositoryUrl.value,
-				writeApiUrl.value,
-				repositoryBranch.value,
-				githubPat.value,
-				backendBaseUrl
-			);
-		} catch (error) {
-			console.error("Failed to initialize repository data:", error);
-		}
 	};
 
 	const loadCommentedFilesContent = async (): Promise<void> => {
@@ -102,7 +85,7 @@ export function useOverviewPage() {
 
 		// Stores (for direct access if needed)
 		projectStore,
-		repositoryStore,
+		projectDataStore,
 
 		// Router
 		router,
@@ -118,7 +101,6 @@ export function useOverviewPage() {
 		navigateToCodeReview,
 		openFileInEditor,
 		setCommentTypeFilter,
-		initializeRepositoryData,
 		loadCommentedFilesContent,
 	};
 }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, watch } from "vue";
 import NavigationBar from "./components/app/AppNavigationBar.vue";
 import Modal from "./lib/Modal.vue";
 import { useRouter, useRoute } from "vue-router";
@@ -10,6 +10,7 @@ import { useSettingsStore } from "./stores/settingsStore.ts";
 import { useKeyboardShortcutsStore } from "./stores/keyboardShortcutsStore.ts";
 import KeyboardShortcutsEditor from "./components/app/KeyboardShortcutsEditor.vue";
 import { useWorkspaceStore } from "./stores/workspaceStore.ts";
+import { useProjectDataStore } from "./stores/projectDataStore.ts";
 
 // Router
 const router = useRouter();
@@ -17,6 +18,7 @@ const route = useRoute();
 
 // Stores
 const projectStore = useProjectStore();
+const projectDataStore = useProjectDataStore();
 const settingsStore = useSettingsStore();
 const keyboardShortcutsStore = useKeyboardShortcutsStore();
 const workspaceStore = useWorkspaceStore();
@@ -30,12 +32,35 @@ onMounted(async () => {
 	await router
 		.isReady()
 		.then(() => {
-			projectStore.initializeStore(route.query);
+			projectStore.syncStateWithRoute(route.query);
 		})
 		.catch((error) => {
 			console.error("Router is not ready:", error);
 		});
 });
+
+watch(
+	() => route.query,
+	async (newQuery, oldQuery) => {
+		const relevantParams = ["repoUrl", "commentsApiUrl", "branch"];
+		const hasRelevantChanges = relevantParams.some((param) => newQuery[param] !== oldQuery[param]);
+
+		if (hasRelevantChanges) {
+			// Sync the project store state
+			projectStore.syncStateWithRoute(route.query);
+
+			// Load the synced project data
+			await projectDataStore.loadProjectDataAsync(
+				projectStore.repositoryUrl,
+				projectStore.writeApiUrl,
+				projectStore.repositoryBranch,
+				projectStore.githubPat,
+				projectStore.getBackendBaseUrl
+			);
+		}
+	},
+	{ deep: true }
+);
 </script>
 
 <template>

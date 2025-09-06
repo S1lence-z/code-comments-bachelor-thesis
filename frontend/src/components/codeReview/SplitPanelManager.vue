@@ -10,7 +10,7 @@ import {
 	type SplitPanelManagerEmits,
 } from "../../composables/components/useSplitPanelManager";
 import { useFileContentStore } from "../../stores/fileContentStore";
-import { useRepositoryStore } from "../../stores/repositoryStore";
+import { useProjectDataStore } from "../../stores/projectDataStore";
 import { FileDisplayType } from "../../types/github/githubFile";
 import { getFileName } from "../../utils/fileUtils";
 
@@ -19,7 +19,7 @@ const emit = defineEmits<SplitPanelManagerEmits>();
 
 // Stores
 const fileContentStore = useFileContentStore();
-const repositoryStore = useRepositoryStore();
+const projectDataStore = useProjectDataStore();
 
 // Use the split panel manager composable
 const {
@@ -51,7 +51,7 @@ const getFileContent = (filePath: string) => {
 };
 
 const getCommentsForFile = (filePath: string) => {
-	return repositoryStore.getCommentsForFile(filePath);
+	return projectDataStore.getCommentsForFile(filePath);
 };
 
 const isFileCached = (filePath: string) => {

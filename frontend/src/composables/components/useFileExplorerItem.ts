@@ -1,4 +1,4 @@
-import { useRepositoryStore } from "../../stores/repositoryStore";
+import { useProjectDataStore } from "../../stores/projectDataStore";
 import type { TreeNode } from "../../types/github/githubTree";
 
 export interface FileExplorerItemProps {
@@ -15,7 +15,7 @@ export interface FileExplorerItemEmits {
 
 export function useFileExplorerItem(props: FileExplorerItemProps, emit: FileExplorerItemEmits) {
 	// Store access
-	const repositoryStore = useRepositoryStore();
+	const projectDataStore = useProjectDataStore();
 
 	// Methods
 	const handleItemClick = (): void => {
@@ -38,7 +38,7 @@ export function useFileExplorerItem(props: FileExplorerItemProps, emit: FileExpl
 
 	return {
 		// Store access for template
-		repositoryStore,
+		projectDataStore,
 
 		// Methods
 		handleItemClick,
