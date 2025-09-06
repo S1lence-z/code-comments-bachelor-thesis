@@ -3,8 +3,6 @@
 ![Vue.js](https://img.shields.io/badge/vuejs-%2335495e.svg?style=for-the-badge&logo=vuedotjs&logoColor=%234FC08D)
 ![ASP.NET](https://img.shields.io/badge/ASP.NET-5C2D91?style=for-the-badge&logo=.net&logoColor=white)
 
----
-
 ## Running Project Locally
 
 To run the project locally, you will need [Docker](https://www.docker.com/products/docker-desktop/) and [Docker Compose](https://docs.docker.com/compose/).
@@ -23,7 +21,7 @@ Next, create a `.env` file in the root of the project with the following content
 CLIENT_PORT=3000
 SERVER_PORT=5000
 
-# Client configuration
+# Client/Server configuration
 VITE_GITHUB_PAT=ghp_asdfsf78787878asdfsfas98ffdafFDFfdsf
 VITE_API_BASE_URL=http://localhost/server
 ```
