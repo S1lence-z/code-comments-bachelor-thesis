@@ -20,17 +20,17 @@ jobs:
                   node-version: 18
 
             - name: Install dependencies
-              working-directory: project/frontend
+              working-directory: frontend
               run: npm ci
 
             - name: Build Vue app
-              working-directory: project/frontend
+              working-directory: frontend
               run: npm run build
 
             - name: Deploy to GitHub Pages
               uses: peaceiris/actions-gh-pages@v3
               with:
                   github_token: ${{ secrets.GITHUB_TOKEN }}
-                  publish_dir: project/frontend/dist
+                  publish_dir: frontend/dist
                   publish_branch: gh-pages
                   force_orphan: true
