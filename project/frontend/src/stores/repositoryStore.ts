@@ -2,7 +2,6 @@ import { defineStore } from "pinia";
 import type { TreeNode } from "../types/github/githubTree";
 import type CommentDto from "../types/dtos/CommentDto";
 import type CategoryDto from "../types/dtos/CategoryDto";
-import { extractBaseUrl } from "../utils/urlUtils";
 import { fetchRepoTreeAPI } from "../services/githubTreeService";
 import { fetchComments, addComment, updateComment, deleteComment } from "../services/commentsService";
 import { getAllCategories } from "../services/categoryService";
@@ -44,7 +43,13 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 		},
 	},
 	actions: {
-		async initializeStoreAsync(repositoryUrl: string, writeApiUrl: string, branch: string, githubPat: string) {
+		async initializeStoreAsync(
+			repositoryUrl: string,
+			writeApiUrl: string,
+			branch: string,
+			githubPat: string,
+			backendBaseUrl: string
+		) {
 			const serverStore = useServerStore();
 			serverStore.startSyncing();
 
@@ -53,7 +58,7 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 				this.fetchAllCommentsAsync(writeApiUrl).catch(() => {
 					serverStore.setSyncError("Failed to fetch comments");
 				}),
-				this.fetchAllCategoriesAsync(writeApiUrl),
+				this.fetchAllCategoriesAsync(backendBaseUrl),
 			];
 
 			if (!this.isCommentsFetched || !this.isTreeFetched || !this.isCategoriesFetched) {
@@ -109,7 +114,7 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 				this.isLoadingComments = false;
 			}
 		},
-		async fetchAllCategoriesAsync(writeApiUrl: string) {
+		async fetchAllCategoriesAsync(backendBaseUrl: string) {
 			this.isLoadingCategories = true;
 			try {
 				if (this.isCategoriesFetched) {
@@ -117,20 +122,13 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 					return;
 				}
 
-				if (!writeApiUrl || !writeApiUrl.trim()) {
+				if (!backendBaseUrl || !backendBaseUrl.trim()) {
 					console.warn("Cannot fetch categories: writeApiUrl is empty or invalid");
 					this.categories = [];
 					return;
 				}
 
-				const baseUrl = extractBaseUrl(writeApiUrl);
-				if (!baseUrl) {
-					console.warn("Cannot fetch categories: invalid writeApiUrl format");
-					this.categories = [];
-					return;
-				}
-
-				const response = await getAllCategories(baseUrl);
+				const response = await getAllCategories(backendBaseUrl);
 				this.categories = response || [dummyCategoryDto];
 			} catch (error: any) {
 				console.error("Error fetching categories:", error);

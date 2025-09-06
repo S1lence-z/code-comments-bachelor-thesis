@@ -28,6 +28,7 @@ export function useCodeReviewPage() {
 	const selectedFilePath = ref<string | null>(null);
 	const processedSelectedFile = ref<ProcessedFile | null>(null);
 	const isLoadingFile = ref<boolean>(false);
+	const backendBaseUrl = import.meta.env.VITE_API_BASE_URL || "";
 
 	// Resizable sidebar state
 	const sidebarWidth = ref(280);
@@ -187,7 +188,8 @@ export function useCodeReviewPage() {
 					repositoryUrl.value,
 					writeApiUrl.value,
 					repositoryBranch.value,
-					githubPat.value
+					githubPat.value,
+					backendBaseUrl
 				);
 				handleFileQueryParam();
 			} catch (error) {

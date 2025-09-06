@@ -20,6 +20,9 @@ export function useOverviewPage() {
 	const { repositoryUrl, writeApiUrl, repositoryBranch, githubPat } = storeToRefs(projectStore);
 	const { allComments, isLoadingComments } = storeToRefs(repositoryStore);
 
+	// Local state
+	const backendBaseUrl = import.meta.env.VITE_API_BASE_URL || "";
+
 	// Filtering state
 	const selectedCommentTypeFilter = ref<CommentType | null>(null);
 
@@ -55,7 +58,8 @@ export function useOverviewPage() {
 				repositoryUrl.value,
 				writeApiUrl.value,
 				repositoryBranch.value,
-				githubPat.value
+				githubPat.value,
+				backendBaseUrl
 			);
 		} catch (error) {
 			console.error("Failed to initialize repository data:", error);
