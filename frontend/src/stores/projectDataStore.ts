@@ -15,8 +15,10 @@ const dummyCategoryDto: CategoryDto = {
 	description: "A default category for uncategorized comments",
 };
 
-export const useRepositoryStore = defineStore("repositoryStore", {
+export const useProjectDataStore = defineStore("projectDataStore", {
 	state: () => ({
+		// Data
+		githubUrlForTree: "",
 		fileTreeData: [] as TreeNode[],
 		comments: [] as CommentDto[],
 		categories: [] as CategoryDto[],
@@ -29,24 +31,19 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 		fileTree: (state) => state.fileTreeData,
 		allComments: (state) => state.comments,
 		allCategories: (state) => state.categories,
-		// Get comments for a specific file
 		getCommentsForFile: (state) => (filePath: string) => {
 			return state.comments.filter((comment: CommentDto) => comment.location.filePath === filePath) ?? [];
 		},
-		isTreeFetched: (state) => state.fileTreeData.length > 0,
-		isCommentsFetched: (state) => state.comments.length > 0,
 		isCategoriesFetched: (state) => state.categories.length > 0,
-		isRepositorySetup: (state) =>
-			!!state.fileTreeData.length && !!state.comments.length && !!state.categories.length,
 		containsProjectComment: (state) => {
 			return state.comments.some((comment) => comment.type === CommentType.Project);
 		},
 	},
 	actions: {
-		async initializeStoreAsync(
-			repositoryUrl: string,
-			writeApiUrl: string,
-			branch: string,
+		async loadProjectDataAsync(
+			newRepositoryUrl: string,
+			newWriteApiUrl: string,
+			newBranch: string,
 			githubPat: string,
 			backendBaseUrl: string
 		) {
@@ -54,21 +51,18 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 			serverStore.startSyncing();
 
 			const promises = [
-				this.fetchRepositoryTree(repositoryUrl, branch, githubPat),
-				this.fetchAllCommentsAsync(writeApiUrl).catch(() => {
+				this.fetchRepositoryTree(newRepositoryUrl, newBranch, githubPat),
+				this.fetchAllCommentsAsync(newWriteApiUrl).catch(() => {
 					serverStore.setSyncError("Failed to fetch comments");
 				}),
 				this.fetchAllCategoriesAsync(backendBaseUrl),
 			];
-
-			if (!this.isCommentsFetched || !this.isTreeFetched || !this.isCategoriesFetched) {
-				await Promise.all(promises);
-			}
+			await Promise.all(promises);
 		},
 		async fetchRepositoryTree(repositoryUrl: string, branch: string, githubPat: string) {
 			this.isLoadingRepository = true;
 			try {
-				if (this.isTreeFetched) {
+				if (this.githubUrlForTree === repositoryUrl) {
 					console.log("File tree already fetched, skipping API call.");
 					return;
 				}
@@ -80,6 +74,7 @@ export const useRepositoryStore = defineStore("repositoryStore", {
 				}
 
 				this.fileTreeData = await fetchRepoTreeAPI(repositoryUrl, branch, githubPat);
+				this.githubUrlForTree = repositoryUrl;
 			} catch (error: any) {
 				this.fileTreeData = [];
 				throw error;

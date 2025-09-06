@@ -23,13 +23,11 @@ const {
 	navigateToCodeReview,
 	openFileInEditor,
 	setCommentTypeFilter,
-	initializeRepositoryData,
 	loadCommentedFilesContent,
 } = useOverviewPage();
 
 // Lifecycle
 onMounted(async () => {
-	await initializeRepositoryData();
 	await loadCommentedFilesContent();
 });
 </script>

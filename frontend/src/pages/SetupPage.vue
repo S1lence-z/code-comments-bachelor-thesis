@@ -6,23 +6,26 @@ import Button from "../lib/Button.vue";
 import Card from "../lib/Card.vue";
 import Icon from "../lib/Icon.vue";
 
-// Initialize the composable with backend URL
-const backendBaseUrl = import.meta.env.VITE_API_BASE_URL;
 const {
-	// State
-	githubRepoUrl,
-	branchName,
-	projectName,
-	isLoading,
+	// Form inputs
+	formGithubRepoUrl,
+	formBranchName,
+	formProjectName,
+
+	// UI state
+	isCreatingProject,
+	isProjectCreated,
 	errorMessage,
-	generatedReviewLink,
-	allExistingProjects,
-	// Methods
-	createCodeReviewUrlPath,
-	handleCreateConfiguration,
-	navigateToReviewSession,
+
+	// Data
+	existingProjects,
+
+	// Actions
+	createProject,
+	navigateToNewProject,
+	navigateToExistingProject,
 	loadExistingProjects,
-} = useSetupPage(backendBaseUrl);
+} = useSetupPage();
 
 // Lifecycle
 onMounted(() => {
@@ -54,7 +57,7 @@ onMounted(() => {
 						iconGradient="blue"
 					>
 						<!-- Empty State -->
-						<div v-if="allExistingProjects.length === 0" class="empty-state">
+						<div v-if="existingProjects.length === 0" class="empty-state">
 							<div class="empty-state-icon">
 								<svg
 									class="w-8 h-8 text-slate-400"
@@ -75,37 +78,31 @@ onMounted(() => {
 						</div>
 						<!-- Existing Projects List -->
 						<div class="space-y-4">
-							<div v-for="project in allExistingProjects" :key="project.id" class="card-item">
-								<a
-									:href="
-										createCodeReviewUrlPath(
-											project.writeApiUrl,
-											project.repository.repositoryUrl,
-											project.repository.branch
-										)
-									"
-									class="block"
-								>
-									<div class="flex items-center justify-between">
-										<div class="flex items-center gap-3">
-											<div class="card-icon-sm gradient-icon-green">
-												<Icon srcName="code" />
-											</div>
-											<h3
-												class="text-white font-semibold group-hover:text-blue-300 transition-colors"
-											>
-												{{
-													project.name.length !== 0
-														? project.name
-														: project.repository.repositoryUrl
-												}}
-											</h3>
+							<div
+								v-for="project in existingProjects"
+								:key="project.id"
+								class="card-item cursor-pointer"
+								@click="navigateToExistingProject(project)"
+							>
+								<div class="flex items-center justify-between">
+									<div class="flex items-center gap-3">
+										<div class="card-icon-sm gradient-icon-green">
+											<Icon srcName="code" />
 										</div>
-										<div class="card-icon-sm">
-											<Icon srcName="externalLink" />
-										</div>
+										<h3
+											class="text-white font-semibold group-hover:text-blue-300 transition-colors"
+										>
+											{{
+												project.name.length !== 0
+													? project.name
+													: project.repository.repositoryUrl
+											}}
+										</h3>
 									</div>
-								</a>
+									<div class="card-icon-sm">
+										<Icon srcName="externalLink" />
+									</div>
+								</div>
 							</div>
 						</div>
 					</Card>
@@ -120,7 +117,7 @@ onMounted(() => {
 						iconGradient="emerald"
 					>
 						<!-- Messages -->
-						<div v-if="errorMessage || generatedReviewLink" class="space-y-6 mb-6">
+						<div v-if="errorMessage || isProjectCreated" class="space-y-6 mb-6">
 							<!-- Error Message -->
 							<div v-if="errorMessage" class="status-message error">
 								<div class="flex items-center gap-3">
@@ -131,7 +128,7 @@ onMounted(() => {
 								</div>
 							</div>
 							<!-- Success Message -->
-							<div v-if="generatedReviewLink" class="status-message success flex flex-col gap-4">
+							<div v-if="isProjectCreated" class="status-message success flex flex-col gap-4">
 								<div class="flex items-center gap-3">
 									<div class="card-icon-sm">
 										<Icon srcName="success" />
@@ -143,17 +140,17 @@ onMounted(() => {
 									type="button"
 									label="Open Review Session"
 									buttonStyle="secondary"
-									:onClick="navigateToReviewSession"
+									:onClick="navigateToNewProject"
 								/>
 							</div>
 						</div>
 
 						<!-- Setup Form -->
-						<form @submit.prevent="handleCreateConfiguration" class="space-y-6">
+						<form @submit.prevent="createProject" class="space-y-6">
 							<!-- GitHub Repository URL -->
 							<InputField
 								label="GitHub Repository URL"
-								v-model="githubRepoUrl"
+								v-model="formGithubRepoUrl"
 								type="url"
 								placeholder="https://github.com/owner/repository"
 								:required="true"
@@ -163,7 +160,7 @@ onMounted(() => {
 								<!-- Branch Name -->
 								<InputField
 									label="Branch"
-									v-model="branchName"
+									v-model="formBranchName"
 									type="text"
 									placeholder="main"
 									:required="true"
@@ -173,7 +170,7 @@ onMounted(() => {
 								<!-- Project Name -->
 								<InputField
 									label="Project Name"
-									v-model="projectName"
+									v-model="formProjectName"
 									type="text"
 									placeholder="My Project"
 									:required="true"
@@ -187,7 +184,7 @@ onMounted(() => {
 								label="Create Review Session"
 								type="submit"
 								buttonStyle="primary"
-								:disabled="isLoading"
+								:disabled="isCreatingProject"
 							/>
 						</form>
 					</Card>

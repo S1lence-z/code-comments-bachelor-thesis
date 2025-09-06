@@ -3,80 +3,107 @@ import { setupProject, listProjects } from "../../services/projectService";
 import type ProjectSetupRequest from "../../types/dtos/SetupProjectRequest";
 import type ProjectDto from "../../types/dtos/ProjectDto";
 import router from "../../core/router";
+import { useProjectStore } from "../../stores/projectStore";
 
-export function useSetupPage(backendBaseUrl: string) {
-	// Reactive state
-	const githubRepoUrl = ref("");
-	const branchName = ref("");
-	const projectName = ref("");
-	const isLoading = ref(false);
+export function useSetupPage() {
+	// Stores
+	const projectStore = useProjectStore();
+
+	// Form input values
+	const formGithubRepoUrl = ref("");
+	const formBranchName = ref("");
+	const formProjectName = ref("");
+	const formWriteApiUrl = ref("");
+
+	// UI state
+	const isCreatingProject = ref(false);
+	const isProjectCreated = ref(false);
 	const errorMessage = ref("");
-	const generatedReviewLink = ref("");
-	const allExistingProjects = ref<ProjectDto[]>([]);
 
-	// Business logic methods
-	const createCodeReviewUrlPath = (writeApiUrl: string, repoLandingPageUrl: string, branchName: string): string => {
-		return `/review/code?repoUrl=${repoLandingPageUrl || ""}&commentsApiUrl=${writeApiUrl || ""}&branch=${
-			branchName || ""
-		}`;
-	};
+	// Data
+	const existingProjects = ref<ProjectDto[]>([]);
 
-	const handleCreateConfiguration = async (): Promise<void> => {
-		isLoading.value = true;
+	// Create new project from form
+	const createProject = async (): Promise<void> => {
+		isCreatingProject.value = true;
+		isProjectCreated.value = false;
 		errorMessage.value = "";
-		generatedReviewLink.value = "";
 
 		try {
 			const setupData: ProjectSetupRequest = {
-				repositoryUrl: githubRepoUrl.value.trim(),
-				branch: branchName.value.trim(),
-				name: projectName.value.trim(),
+				repositoryUrl: formGithubRepoUrl.value.trim(),
+				branch: formBranchName.value.trim(),
+				name: formProjectName.value.trim(),
 			};
 
-			const response = await setupProject(setupData, backendBaseUrl);
+			const response = await setupProject(setupData, projectStore.getBackendBaseUrl);
 
 			if (response.writeApiUrl && response.repository) {
-				generatedReviewLink.value = createCodeReviewUrlPath(
-					response.writeApiUrl,
-					response.repository.repositoryUrl,
-					response.repository.branch
-				);
+				isProjectCreated.value = true;
+				formWriteApiUrl.value = response.writeApiUrl;
 			} else {
-				throw new Error("Invalid response from server for configuration setup.");
+				throw new Error("Invalid response from server");
 			}
 		} catch (error: any) {
 			errorMessage.value = `Failed to create review session: ${error.message || "Unknown error"}`;
 		} finally {
-			isLoading.value = false;
+			isCreatingProject.value = false;
 		}
 	};
 
-	const navigateToReviewSession = (): void => {
-		if (!generatedReviewLink.value) return;
-		router.push(generatedReviewLink.value);
+	// Navigate to newly created project
+	const navigateToNewProject = (): void => {
+		if (!isProjectCreated.value) return;
+
+		router.push({
+			name: "Code Review",
+			query: {
+				repoUrl: formGithubRepoUrl.value.trim(),
+				commentsApiUrl: formWriteApiUrl.value.trim(),
+				branch: formBranchName.value.trim(),
+			},
+		});
 	};
 
+	// Navigate to existing project
+	const navigateToExistingProject = (project: ProjectDto): void => {
+		router.push({
+			name: "Code Review",
+			query: {
+				repoUrl: project.repository.repositoryUrl,
+				commentsApiUrl: project.writeApiUrl,
+				branch: project.repository.branch,
+			},
+		});
+	};
+
+	// Load existing projects
 	const loadExistingProjects = async (): Promise<void> => {
 		try {
-			allExistingProjects.value = await listProjects(backendBaseUrl);
+			existingProjects.value = await listProjects(projectStore.getBackendBaseUrl);
 		} catch (error) {
 			console.error("Failed to load existing projects:", error);
 		}
 	};
 
 	return {
-		// State
-		githubRepoUrl,
-		branchName,
-		projectName,
-		isLoading,
+		// Form inputs
+		formGithubRepoUrl,
+		formBranchName,
+		formProjectName,
+
+		// UI state
+		isCreatingProject,
+		isProjectCreated,
 		errorMessage,
-		generatedReviewLink,
-		allExistingProjects,
-		// Methods
-		createCodeReviewUrlPath,
-		handleCreateConfiguration,
-		navigateToReviewSession,
+
+		// Data
+		existingProjects,
+
+		// Actions
+		createProject,
+		navigateToNewProject,
+		navigateToExistingProject,
 		loadExistingProjects,
 	};
 }

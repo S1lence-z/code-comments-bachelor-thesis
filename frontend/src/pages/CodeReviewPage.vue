@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, watch } from "vue";
+import { watch } from "vue";
 import { useCodeReviewPage } from "../composables/pages/useCodeReviewPage.ts";
 import FileExplorer from "../components/codeReview/FileExplorer.vue";
 import SplitPanelManager from "../components/codeReview/SplitPanelManager.vue";
@@ -46,18 +46,12 @@ const {
 	handleCommentEdit,
 	handleSidebarResize,
 	handleFileQueryParam,
-	initRepositoryStore,
 	deleteCommentAction,
 
 	// Computed
 	getSubtitle,
 	projectCommentButtonLabel,
 } = useCodeReviewPage();
-
-// Lifecycle
-onMounted(async () => {
-	await initRepositoryStore();
-});
 
 // Watchers
 watch(
@@ -69,6 +63,7 @@ watch(
 	}
 );
 
+// Watch for changes in the "file" query parameter to update the selected file
 watch(
 	() => route.query.file,
 	() => {

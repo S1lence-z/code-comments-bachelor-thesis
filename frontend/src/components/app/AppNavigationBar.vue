@@ -3,7 +3,7 @@ import { ref, watch, computed } from "vue";
 import { useRoute } from "vue-router";
 import Icon from "../../lib/Icon.vue";
 import { navigationRoutes } from "../../core/routes";
-import { useRepositoryStore } from "../../stores/repositoryStore";
+import { useProjectDataStore } from "../../stores/projectDataStore";
 import { useProjectStore } from "../../stores/projectStore";
 import { downloadJSON } from "../../utils/jsonUtils";
 import Dropdown from "../../lib/Dropdown.vue";
@@ -12,7 +12,7 @@ import Button from "../../lib/Button.vue";
 import { useSettingsStore } from "../../stores/settingsStore";
 
 // Stores
-const repositoryStore = useRepositoryStore();
+const projectDataStore = useProjectDataStore();
 const projectStore = useProjectStore();
 const serverStore = useServerStore();
 const settingsStore = useSettingsStore();
@@ -31,7 +31,7 @@ const preserveQueryParams = computed(() => {
 
 // Exporting functionality
 const exportLocalComments = () => {
-	const localComments = repositoryStore.allComments;
+	const localComments = projectDataStore.allComments;
 	if (localComments.length === 0) {
 		alert("No comments to export.");
 		return;
