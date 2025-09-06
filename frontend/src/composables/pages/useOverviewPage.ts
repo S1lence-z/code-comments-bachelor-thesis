@@ -3,7 +3,6 @@ import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useProjectDataStore } from "../../stores/projectDataStore";
 import { useProjectStore } from "../../stores/projectStore";
-import { useFileContentStore } from "../../stores/fileContentStore";
 import { CommentType } from "../../types/enums/CommentType";
 import { groupCommentsByFile, sortCommentsByLineNumber } from "../../utils/commentUtils";
 
@@ -14,10 +13,9 @@ export function useOverviewPage() {
 	// Stores
 	const projectStore = useProjectStore();
 	const projectDataStore = useProjectDataStore();
-	const fileContentStore = useFileContentStore();
 
 	// Store refs
-	const { repositoryUrl, writeApiUrl, repositoryBranch, githubPat } = storeToRefs(projectStore);
+	const { repositoryUrl, writeApiUrl, repositoryBranch } = storeToRefs(projectStore);
 	const { allComments, isLoadingComments } = storeToRefs(projectDataStore);
 
 	// Filtering state
@@ -47,25 +45,6 @@ export function useOverviewPage() {
 
 	const setCommentTypeFilter = (commentType: CommentType | null): void => {
 		selectedCommentTypeFilter.value = commentType;
-	};
-
-	const loadCommentedFilesContent = async (): Promise<void> => {
-		const filePaths = Object.keys(groupCommentsByFile(allComments.value));
-		// Load content for all commented files
-		for (const filePath of filePaths) {
-			if (!fileContentStore.isFileCached(filePath)) {
-				try {
-					await fileContentStore.getFileContentAsync(
-						filePath,
-						repositoryUrl.value,
-						repositoryBranch.value,
-						githubPat.value
-					);
-				} catch (error) {
-					console.error(`Failed to load content for ${filePath}:`, error);
-				}
-			}
-		}
 	};
 
 	const openFileInEditor = (filePath: string) => {
@@ -101,6 +80,5 @@ export function useOverviewPage() {
 		navigateToCodeReview,
 		openFileInEditor,
 		setCommentTypeFilter,
-		loadCommentedFilesContent,
 	};
 }

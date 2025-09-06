@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { fetchProcessedFile } from "../services/githubFileService";
 import { FileDisplayType, type ProcessedFile } from "../types/github/githubFile";
+import type CommentDto from "../types/dtos/CommentDto";
 
 export const useFileContentStore = defineStore("fileContentStore", {
 	state: () => ({
@@ -36,6 +37,17 @@ export const useFileContentStore = defineStore("fileContentStore", {
 			}
 			return "";
 		},
+		async cacheFileAsync(filePath: string, repoUrl: string, branch: string, githubPat?: string): Promise<void> {
+			if (this.isFileCached(filePath)) {
+				return;
+			}
+			try {
+				const processedFile = await fetchProcessedFile(repoUrl, branch, filePath, githubPat);
+				this.cacheFile(filePath, processedFile);
+			} catch (error) {
+				console.error(`Failed to cache file ${filePath}:`, error);
+			}
+		},
 		async getFileContentAsync(
 			filePath: string,
 			repoUrl: string,
@@ -53,6 +65,18 @@ export const useFileContentStore = defineStore("fileContentStore", {
 			const processedFile = await fetchProcessedFile(repoUrl, branch, filePath, githubPat);
 			this.cacheFile(filePath, processedFile);
 			return processedFile;
+		},
+		async loadCommentedFilesContent(comments: CommentDto[], repoUrl: string, branch: string, githubPat?: string) {
+			const filePaths = Array.from(
+				new Set(
+					comments
+						.filter((comment) => comment.location.filePath)
+						.map((comment) => comment.location.filePath as string)
+				)
+			);
+			for (const filePath of filePaths) {
+				await this.cacheFileAsync(filePath, repoUrl, branch, githubPat);
+			}
 		},
 	},
 });

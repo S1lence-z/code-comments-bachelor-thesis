@@ -5,6 +5,7 @@ import { createTab, findTabInPanel, getTabIndexInPanel } from "../../utils/tabUt
 import { useSettingsStore } from "../../stores/settingsStore";
 import { useWorkspaceStore } from "../../stores/workspaceStore";
 import { useProjectStore } from "../../stores/projectStore";
+import { useFileContentStore } from "../../stores/fileContentStore";
 
 export interface SplitPanelManagerProps {
 	selectedFilePath: string | null;
@@ -26,6 +27,7 @@ export function useSplitPanelManager(props: SplitPanelManagerProps, emit: SplitP
 	const settingsStore = useSettingsStore();
 	const workspaceStore = useWorkspaceStore();
 	const projectStore = useProjectStore();
+	const fileContentStore = useFileContentStore();
 
 	// Workspace state
 	const currentWorkspace = ref<Workspace>({
@@ -362,10 +364,13 @@ export function useSplitPanelManager(props: SplitPanelManagerProps, emit: SplitP
 
 			// Restore active tab selection
 			panels.value.forEach((panel) => {
-				panel.openTabs.forEach((tab) => {
-					setTimeout(() => {
-						emit("update:selectedFilePath", tab.filePath);
-					}, 100);
+				panel.openTabs.forEach(async (tab) => {
+					await fileContentStore.cacheFileAsync(
+						tab.filePath,
+						projectStore.repositoryUrl,
+						projectStore.repositoryBranch,
+						projectStore.githubPat
+					);
 				});
 			});
 		}

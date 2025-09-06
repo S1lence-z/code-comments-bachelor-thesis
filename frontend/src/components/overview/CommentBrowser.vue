@@ -25,7 +25,8 @@ const {
 	expandedFiles,
 
 	// Computed
-	filteredComments,
+	projectComments,
+	fileBasedComments,
 
 	// Methods
 	toggleFileExpanded,
@@ -36,7 +37,29 @@ const {
 </script>
 
 <template>
-	<div v-for="(comments, filePath) in filteredComments" :key="filePath" class="space-y-4">
+	<!-- Project Comments -->
+	<div v-for="comment in projectComments" :key="comment.id ?? ''" class="">
+		<Card>
+			<!-- Comment Header -->
+			<div class="flex items-center justify-between">
+				<div class="flex items-center gap-3">
+					<div class="card-icon-sm">
+						<Icon :srcName="getCommentTypeIcon(comment.type)" />
+					</div>
+					<div>
+						<span class="text-white font-medium">{{ comment.type }} Comment</span>
+						<span class="text-slate-400 text-sm ml-2">{{ getCommentLocationInfo(comment) }}</span>
+					</div>
+				</div>
+			</div>
+			<!-- Comment Content -->
+			<div class="p-4 text-lg">
+				<p class="text-slate-200 whitespace-pre-wrap">{{ comment.content }}</p>
+			</div>
+		</Card>
+	</div>
+	<!-- File-Based Comments -->
+	<div v-for="(comments, filePath) in fileBasedComments" :key="filePath" class="space-y-4">
 		<Card>
 			<!-- File Header -->
 			<div class="flex items-center justify-between cursor-pointer" @click="toggleFileExpanded(filePath)">

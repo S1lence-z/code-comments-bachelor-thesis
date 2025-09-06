@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
 import { useOverviewPage } from "../composables/pages/useOverviewPage";
 import Button from "../lib/Button.vue";
 import Icon from "../lib/Icon.vue";
@@ -23,13 +22,7 @@ const {
 	navigateToCodeReview,
 	openFileInEditor,
 	setCommentTypeFilter,
-	loadCommentedFilesContent,
 } = useOverviewPage();
-
-// Lifecycle
-onMounted(async () => {
-	await loadCommentedFilesContent();
-});
 </script>
 
 <template>
@@ -117,9 +110,7 @@ onMounted(async () => {
 					<CommentBrowser
 						:allCommentsByFile="groupedCommentsByFile"
 						:commentTypeFilter="selectedCommentTypeFilter"
-						@openFileInEditor="(filePath: string) => {
-							openFileInEditor(filePath);
-						}"
+						@openFileInEditor="(filePath) => openFileInEditor(filePath)"
 					/>
 				</div>
 			</div>

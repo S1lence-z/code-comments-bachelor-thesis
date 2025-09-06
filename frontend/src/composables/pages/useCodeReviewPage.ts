@@ -164,9 +164,9 @@ export function useCodeReviewPage() {
 	};
 
 	const handleFileQueryParam = (): void => {
-		const filePath = decodeURIComponent((route.query.file as string) || "");
-		if (filePath) {
-			selectedFilePath.value = filePath;
+		const filePathToOpen = decodeURIComponent((route.query.file as string) || "");
+		if (filePathToOpen) {
+			selectedFilePath.value = filePathToOpen;
 		} else {
 			selectedFilePath.value = null;
 			processedSelectedFile.value = null;
@@ -210,9 +210,6 @@ export function useCodeReviewPage() {
 		projectDataStore,
 		fileContentStore,
 		settingsStore,
-
-		// Route
-		route,
 
 		// Local state
 		selectedFilePath,

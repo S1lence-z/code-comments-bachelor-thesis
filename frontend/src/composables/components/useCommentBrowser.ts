@@ -36,6 +36,33 @@ export function useCommentBrowser(props: CommentBrowserProps, emit: CommentBrows
 		return Object.fromEntries(Object.entries(tempFilteredComments).filter(([, comments]) => comments.length > 0));
 	});
 
+	// Project comment
+	const projectComments = computed((): CommentDto[] => {
+		const projectCommentsList: CommentDto[] = [];
+
+		Object.entries(filteredComments.value).forEach(([, comments]) => {
+			comments.forEach((comment) => {
+				if (comment.type === CommentType.Project) {
+					projectCommentsList.push(comment);
+				}
+			});
+		});
+
+		return projectCommentsList;
+	});
+
+	// Filtered file-based comments excluding the project comment
+	const fileBasedComments = computed((): Record<string, CommentDto[]> => {
+		return Object.fromEntries(
+			Object.entries(filteredComments.value)
+				.map(([filePath, comments]) => [
+					filePath,
+					comments.filter((comment) => comment.type !== CommentType.Project),
+				])
+				.filter(([, comments]) => comments.length > 0)
+		);
+	});
+
 	// Methods
 	const toggleFileExpanded = (filePath: string): void => {
 		if (expandedFiles.value.has(filePath)) {
@@ -99,6 +126,8 @@ export function useCommentBrowser(props: CommentBrowserProps, emit: CommentBrows
 
 		// Computed
 		filteredComments,
+		projectComments,
+		fileBasedComments,
 
 		// Methods
 		toggleFileExpanded,

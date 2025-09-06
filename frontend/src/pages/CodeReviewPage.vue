@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { watch } from "vue";
+import { onMounted, watch } from "vue";
 import { useCodeReviewPage } from "../composables/pages/useCodeReviewPage.ts";
 import FileExplorer from "../components/codeReview/FileExplorer.vue";
 import SplitPanelManager from "../components/codeReview/SplitPanelManager.vue";
@@ -16,10 +16,7 @@ const {
 
 	// Stores
 	settingsStore,
-
-	// Route
-	route,
-
+	
 	// Local state
 	selectedFilePath,
 	isLoadingFile,
@@ -53,6 +50,10 @@ const {
 	projectCommentButtonLabel,
 } = useCodeReviewPage();
 
+onMounted(() => {
+	handleFileQueryParam();
+});
+
 // Watchers
 watch(
 	() => selectedFilePath.value,
@@ -60,15 +61,8 @@ watch(
 		if (selectedFilePath.value) {
 			handleFileSelected(selectedFilePath.value);
 		}
-	}
-);
-
-// Watch for changes in the "file" query parameter to update the selected file
-watch(
-	() => route.query.file,
-	() => {
-		handleFileQueryParam();
-	}
+	},
+	{ deep: true }
 );
 </script>
 
