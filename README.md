@@ -1,8 +1,8 @@
 # Bachelor Thesis
 
-## Repo Wiki
+## Project Setup
 
-For detailed documentation, visit the **[wiki](https://github.com/S1lence-z/bachelor-thesis/wiki)** section which contains all the sections which are below in a more presentable format.
+For detailed setup instructions, visit the [Project README.md](./project/README.md). To run the project locally, you need to have Docker and Docker Compose installed.
 
 ## Bachelor Thesis Specification
 
