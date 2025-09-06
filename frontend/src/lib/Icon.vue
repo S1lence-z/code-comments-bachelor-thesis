@@ -16,7 +16,7 @@ const props = defineProps({
 	},
 });
 
-const iconSrc = computed(() => `/assets/${props.srcName}.svg`);
+const iconSrc = computed(() => `/code-comments-bachelor-thesis/assets/${props.srcName}.svg`);
 const iconSize = computed(() => `w-[${props.size}] h-[${props.size}]`);
 </script>
 
