@@ -11,6 +11,7 @@ import { useKeyboardShortcutsStore } from "./stores/keyboardShortcutsStore.ts";
 import KeyboardShortcutsEditor from "./components/app/KeyboardShortcutsEditor.vue";
 import { useWorkspaceStore } from "./stores/workspaceStore.ts";
 import { useProjectDataStore } from "./stores/projectDataStore.ts";
+import { useFileContentStore } from "./stores/fileContentStore.ts";
 
 // Router
 const router = useRouter();
@@ -22,6 +23,7 @@ const projectDataStore = useProjectDataStore();
 const settingsStore = useSettingsStore();
 const keyboardShortcutsStore = useKeyboardShortcutsStore();
 const workspaceStore = useWorkspaceStore();
+const fileContentStore = useFileContentStore();
 
 onMounted(async () => {
 	// Load settings
@@ -31,8 +33,23 @@ onMounted(async () => {
 
 	await router
 		.isReady()
-		.then(() => {
+		.then(async () => {
 			projectStore.syncStateWithRoute(route.query);
+			// Load the synced project data
+			await projectDataStore.loadProjectDataAsync(
+				projectStore.repositoryUrl,
+				projectStore.writeApiUrl,
+				projectStore.repositoryBranch,
+				projectStore.githubPat,
+				projectStore.getBackendBaseUrl
+			);
+			// Load commented files content
+			await fileContentStore.loadCommentedFilesContent(
+				projectDataStore.allComments,
+				projectStore.repositoryUrl,
+				projectStore.repositoryBranch,
+				projectStore.githubPat
+			);
 		})
 		.catch((error) => {
 			console.error("Router is not ready:", error);
