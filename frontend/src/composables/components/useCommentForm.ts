@@ -18,6 +18,7 @@ export interface CommentFormProps {
 
 export interface CommentFormEmits {
 	(event: "update:isVisible", value: boolean): void;
+	(event: "deleteComment", commentId: string): void;
 }
 
 export function useCommentForm(props: CommentFormProps, emit: CommentFormEmits) {
@@ -46,7 +47,9 @@ export function useCommentForm(props: CommentFormProps, emit: CommentFormEmits) 
 		return existingComment || null;
 	});
 
-	const isEditMode = computed(() => !!props.commentId);
+	const showDeleteButton = computed(() => {
+		return props.commentId !== null;
+	});
 
 	const showCategorySelect = computed(() => {
 		return props.commentType !== CommentType.Project && props.commentType !== CommentType.File;
@@ -118,6 +121,13 @@ export function useCommentForm(props: CommentFormProps, emit: CommentFormEmits) 
 		emit("update:isVisible", false);
 	};
 
+	const handleDelete = (): void => {
+		if (props.commentId) {
+			emit("deleteComment", props.commentId);
+			emit("update:isVisible", false);
+		}
+	};
+
 	// Watchers
 	watch(
 		() => props.commentId,
@@ -138,13 +148,14 @@ export function useCommentForm(props: CommentFormProps, emit: CommentFormEmits) 
 
 		// Computed
 		currentComment,
-		isEditMode,
+		showDeleteButton,
 		showCategorySelect,
 		availableCategories,
 
 		// Methods
 		handleSubmit,
 		handleCancel,
+		handleDelete,
 		resetForm,
 		syncFormWithComment,
 		validateForm,

@@ -159,6 +159,7 @@ watch(
 					:end-line-number="endLineNumber"
 					:comment-id="commentId"
 					:comment-type="addedCommentType"
+					@delete-comment="deleteCommentAction"
 				/>
 			</SlideoutPanel>
 		</div>
