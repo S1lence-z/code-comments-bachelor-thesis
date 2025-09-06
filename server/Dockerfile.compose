@@ -21,5 +21,11 @@ FROM base AS final
 ARG BACKEND_URL
 WORKDIR /app
 COPY --from=publish /app/publish .
+
+# Create Data directory and ensure proper permissions for app user
+USER root
+RUN mkdir -p /app/Data && chown app:app /app/Data
+USER app
+
 ENV ApiUrls__Backend=${BACKEND_URL}
 ENTRYPOINT ["dotnet", "server.dll"]
