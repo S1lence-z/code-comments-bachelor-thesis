@@ -117,9 +117,7 @@ onMounted(async () => {
 					<CommentBrowser
 						:allCommentsByFile="groupedCommentsByFile"
 						:commentTypeFilter="selectedCommentTypeFilter"
-						@openFileInEditor="(filePath: string) => {
-							openFileInEditor(filePath);
-						}"
+						@openFileInEditor="(filePath) => openFileInEditor(filePath)"
 					/>
 				</div>
 			</div>

@@ -36,6 +36,14 @@ export const useFileContentStore = defineStore("fileContentStore", {
 			}
 			return "";
 		},
+		async cacheFileAsync(filePath: string, repoUrl: string, branch: string, githubPat?: string): Promise<void> {
+			if (this.isFileCached(filePath)) {
+				return;
+			}
+
+			const processedFile = await fetchProcessedFile(repoUrl, branch, filePath, githubPat);
+			this.cacheFile(filePath, processedFile);
+		},
 		async getFileContentAsync(
 			filePath: string,
 			repoUrl: string,
