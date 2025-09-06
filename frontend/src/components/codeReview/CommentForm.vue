@@ -20,11 +20,13 @@ const {
 
 	// Computed
 	showCategorySelect,
+	showDeleteButton,
 	availableCategories,
 
 	// Methods
 	handleSubmit,
 	handleCancel,
+	handleDelete,
 } = useCommentForm(props, emit);
 </script>
 
@@ -49,6 +51,7 @@ const {
 
 		<div class="flex justify-end space-x-2">
 			<button @click="handleCancel" class="btn btn-secondary">Cancel</button>
+			<button v-if="showDeleteButton" @click="handleDelete" class="btn bg-red-500 text-white">Delete</button>
 			<button @click="handleSubmit" class="btn btn-primary">Save (Ctrl + Enter)</button>
 		</div>
 	</div>
