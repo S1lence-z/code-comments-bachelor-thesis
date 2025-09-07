@@ -26,12 +26,8 @@ const emit = defineEmits<{
 	>
 		<!-- Server URL Input Form -->
 		<div class="flex flex-col space-y-3 mb-4">
-			<p class="text-slate-400 text-xl">
-				Don't have a server yet?
-				<span class="text-blue-500 underline cursor-pointer" @click="() => emit('useDefaultServerUrl')"
-					>Use default server URL</span
-				>
-				and follow the
+			<p class="text-slate-400 text-lg">
+				Don't have your own server setup? Follow this
 				<a
 					href="https://github.com/S1lence-z/code-comments-bachelor-thesis"
 					class="text-blue-500 underline"
@@ -39,12 +35,17 @@ const emit = defineEmits<{
 					rel="noopener noreferrer"
 					>setup guide</a
 				>
-				to run the server locally with Docker.
+				to run the server locally with Docker and then
+				<span class="text-blue-500 underline cursor-pointer" @click="() => emit('useDefaultServerUrl')"
+					>use its URL</span
+				>.
 			</p>
-			<p class="text-slate-400 text-xl">
-				Alternatively, you can run the application in offline mode when added comments will be shown until you
-				refresh the page. All comments will be lost after a page refresh.
-			</p>
+			<div class="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-300/30 rounded-lg p-4">
+				<p class="text-purple-300 text-lg font-medium">
+					✨ You can also run the application in offline mode! Added comments will be shown in real-time until
+					you refresh the page. Perfect for quick prototyping and testing.
+				</p>
+			</div>
 		</div>
 		<form @submit.prevent="() => emit('submitServerBaseUrl')" class="flex flex-col space-y-4">
 			<InputField
