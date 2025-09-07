@@ -140,7 +140,6 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 			}
 		},
 		deleteCommentLocal(commentId: string) {
-			console.log("Deleting comment with ID:", commentId);
 			const index = this.comments.findIndex((c: CommentDto) => c.id === commentId);
 			if (index !== -1) {
 				this.comments.splice(index, 1);
@@ -148,6 +147,20 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 		},
 		async upsertCommentAsync(commentData: CommentDto, writeApiUrl: string): Promise<void> {
 			const serverStore = useServerStore();
+
+			// Offline mode
+			if (!writeApiUrl || !writeApiUrl.trim()) {
+				// Generate a unique ID for new comments in offline mode
+				if (!commentData.id) {
+					commentData.id = `offline-${Date.now()}-${Math.random().toString(36)}`;
+				}
+				// Populate the category
+				commentData.category =
+					this.categories.find((cat) => cat.id === commentData.category?.id) || dummyCategoryDto;
+				this.upsertCommentLocal(commentData);
+				return;
+			}
+
 			try {
 				serverStore.startSyncing();
 				// Update existing comment
@@ -175,6 +188,14 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 		},
 		async deleteCommentAsync(commentId: string, writeApiUrl: string): Promise<void> {
 			const serverStore = useServerStore();
+
+			// Offline mode
+			if (!writeApiUrl || !writeApiUrl.trim()) {
+				console.log("Operating in offline mode - deleting comment locally only");
+				this.deleteCommentLocal(commentId);
+				return;
+			}
+
 			try {
 				serverStore.startSyncing();
 				await deleteComment(writeApiUrl, commentId);
