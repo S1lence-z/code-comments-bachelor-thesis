@@ -1,17 +1,20 @@
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { setupProject, listProjects } from "../../services/projectService";
 import type ProjectSetupRequest from "../../types/dtos/SetupProjectRequest";
 import type ProjectDto from "../../types/dtos/ProjectDto";
 import router from "../../core/router";
 import { useProjectStore } from "../../stores/projectStore";
 import { extractBaseBackendUrl } from "../../utils/urlUtils";
+import { useSettingsStore } from "../../stores/settingsStore";
+import type { LocationQueryValue } from "vue-router";
 
 export function useSetupPage() {
 	// Stores
 	const projectStore = useProjectStore();
+	const settingsStore = useSettingsStore();
 
 	// Form input values
-	const formGithubRepoUrl = ref("");
+	const formGithubRepositoryUrl = ref("");
 	const formBranchName = ref("");
 	const formProjectName = ref("");
 	const formWriteApiUrl = ref("");
@@ -23,8 +26,22 @@ export function useSetupPage() {
 	const isServerUrlConfigured = ref(false);
 	const errorMessage = ref("");
 
+	// Computed
+	const isOfflineMode = computed(() => settingsStore.isOfflineMode);
+
 	// Data
 	const existingProjects = ref<ProjectDto[]>([]);
+
+	// Handle new project creation
+	const handleNewProjectCreation = () => {
+		if (!isOfflineMode.value) {
+			createProject();
+			return;
+		}
+		// In offline mode, simulate project creation without server interaction
+		isProjectCreated.value = true;
+		errorMessage.value = "";
+	};
 
 	// Create new project from form
 	const createProject = async (): Promise<void> => {
@@ -34,7 +51,7 @@ export function useSetupPage() {
 
 		try {
 			const setupData: ProjectSetupRequest = {
-				repositoryUrl: formGithubRepoUrl.value.trim(),
+				repositoryUrl: formGithubRepositoryUrl.value.trim(),
 				branch: formBranchName.value.trim(),
 				name: formProjectName.value.trim(),
 			};
@@ -62,8 +79,8 @@ export function useSetupPage() {
 			name: "Code Review",
 			query: {
 				backendBaseUrl: formServerBaseUrl.value.trim(),
-				repoUrl: formGithubRepoUrl.value.trim(),
-				commentsApiUrl: formWriteApiUrl.value.trim(),
+				repositoryUrl: formGithubRepositoryUrl.value.trim(),
+				writeApiUrl: formWriteApiUrl.value.trim(),
 				branch: formBranchName.value.trim(),
 			},
 		});
@@ -75,8 +92,8 @@ export function useSetupPage() {
 			name: "Code Review",
 			query: {
 				backendBaseUrl: extractBaseBackendUrl(project.writeApiUrl),
-				repoUrl: project.repository.repositoryUrl,
-				commentsApiUrl: project.writeApiUrl,
+				repositoryUrl: project.repository.repositoryUrl,
+				writeApiUrl: project.writeApiUrl,
 				branch: project.repository.branch,
 			},
 		});
@@ -85,6 +102,10 @@ export function useSetupPage() {
 	// Load existing projects
 	const loadExistingProjects = async (): Promise<void> => {
 		try {
+			if (!formServerBaseUrl.value || !formServerBaseUrl.value.trim()) {
+				console.warn("Server base URL is not set. Cannot load existing projects.");
+				return;
+			}
 			existingProjects.value = await listProjects(formServerBaseUrl.value.trim());
 		} catch (error) {
 			console.error("Failed to load existing projects:", error);
@@ -103,16 +124,38 @@ export function useSetupPage() {
 		isServerUrlConfigured.value = true;
 	};
 
+	// Use default server URL
 	const useDefaultServerUrl = () => {
 		formServerBaseUrl.value = projectStore.getDefaultBackendBaseUrl();
 	};
 
+	// Handle offline mode (skip server URL configuration)
+	const setOfflineMode = () => {
+		isServerUrlConfigured.value = true;
+		settingsStore.toggleOfflineMode(true);
+	};
+
+	// Handle offline mode changes from route query
+	const handleOfflineModeSwitch = (
+		backendBaseUrl?: LocationQueryValue | LocationQueryValue[],
+		offlineMode?: boolean
+	) => {
+		if (backendBaseUrl || offlineMode) {
+			isServerUrlConfigured.value = true;
+		} else {
+			isServerUrlConfigured.value = false;
+		}
+	};
+
 	return {
 		// Form inputs
-		formGithubRepoUrl,
+		formGithubRepositoryUrl,
 		formBranchName,
 		formProjectName,
 		formServerBaseUrl,
+
+		// Computed
+		isOfflineMode,
 
 		// UI state
 		isCreatingProject,
@@ -124,11 +167,13 @@ export function useSetupPage() {
 		existingProjects,
 
 		// Actions
-		createProject,
+		handleNewProjectCreation,
 		navigateToNewProject,
 		navigateToExistingProject,
 		loadExistingProjects,
 		submitServerBaseUrl,
 		useDefaultServerUrl,
+		setOfflineMode,
+		handleOfflineModeSwitch,
 	};
 }

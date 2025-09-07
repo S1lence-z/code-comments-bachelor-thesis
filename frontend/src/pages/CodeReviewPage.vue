@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, watch } from "vue";
+import { onMounted } from "vue";
 import { useCodeReviewPage } from "../composables/pages/useCodeReviewPage.ts";
 import FileExplorer from "../components/codeReview/FileExplorer.vue";
 import SplitPanelManager from "../components/codeReview/SplitPanelManager.vue";
@@ -16,7 +16,7 @@ const {
 
 	// Stores
 	settingsStore,
-	
+
 	// Local state
 	selectedFilePath,
 	isLoadingFile,
@@ -53,17 +53,6 @@ const {
 onMounted(() => {
 	handleFileQueryParam();
 });
-
-// Watchers
-watch(
-	() => selectedFilePath.value,
-	() => {
-		if (selectedFilePath.value) {
-			handleFileSelected(selectedFilePath.value);
-		}
-	},
-	{ deep: true }
-);
 </script>
 
 <template>
@@ -91,7 +80,8 @@ watch(
 						</div>
 						<FileExplorer
 							v-else-if="fileTree.length > 0"
-							v-model:selectedPath="selectedFilePath"
+							:selectedPath="selectedFilePath"
+							@update:selected-path="handleFileSelected"
 							:treeData="fileTree"
 							:projectCommentButtonLabel="projectCommentButtonLabel"
 							@project-comment-requested="handleProjectCommentSelected"
@@ -124,7 +114,8 @@ watch(
 						<!-- SplitPanelManager -->
 						<SplitPanelManager
 							v-else
-							v-model:selected-file-path="selectedFilePath"
+							:selected-file-path="selectedFilePath"
+							@update:selected-file-path="handleFileSelected"
 							@line-double-clicked="handleSinglelineCommentSelected"
 							@multiline-selected="handleMultilineCommentSelected"
 							@delete-comment="deleteCommentAction"

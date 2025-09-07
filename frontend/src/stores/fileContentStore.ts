@@ -37,12 +37,17 @@ export const useFileContentStore = defineStore("fileContentStore", {
 			}
 			return "";
 		},
-		async cacheFileAsync(filePath: string, repoUrl: string, branch: string, githubPat?: string): Promise<void> {
+		async cacheFileAsync(
+			filePath: string,
+			repositoryUrl: string,
+			branch: string,
+			githubPat?: string
+		): Promise<void> {
 			if (this.isFileCached(filePath)) {
 				return;
 			}
 			try {
-				const processedFile = await fetchProcessedFile(repoUrl, branch, filePath, githubPat);
+				const processedFile = await fetchProcessedFile(repositoryUrl, branch, filePath, githubPat);
 				this.cacheFile(filePath, processedFile);
 			} catch (error) {
 				console.error(`Failed to cache file ${filePath}:`, error);
@@ -50,7 +55,7 @@ export const useFileContentStore = defineStore("fileContentStore", {
 		},
 		async getFileContentAsync(
 			filePath: string,
-			repoUrl: string,
+			repositoryUrl: string,
 			branch: string,
 			githubPat?: string
 		): Promise<ProcessedFile> {
@@ -62,11 +67,16 @@ export const useFileContentStore = defineStore("fileContentStore", {
 				}
 			}
 
-			const processedFile = await fetchProcessedFile(repoUrl, branch, filePath, githubPat);
+			const processedFile = await fetchProcessedFile(repositoryUrl, branch, filePath, githubPat);
 			this.cacheFile(filePath, processedFile);
 			return processedFile;
 		},
-		async loadCommentedFilesContent(comments: CommentDto[], repoUrl: string, branch: string, githubPat?: string) {
+		async loadCommentedFilesContent(
+			comments: CommentDto[],
+			repositoryUrl: string,
+			branch: string,
+			githubPat?: string
+		) {
 			const filePaths = Array.from(
 				new Set(
 					comments
@@ -75,7 +85,7 @@ export const useFileContentStore = defineStore("fileContentStore", {
 				)
 			);
 			for (const filePath of filePaths) {
-				await this.cacheFileAsync(filePath, repoUrl, branch, githubPat);
+				await this.cacheFileAsync(filePath, repositoryUrl, branch, githubPat);
 			}
 		},
 	},

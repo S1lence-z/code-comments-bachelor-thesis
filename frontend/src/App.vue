@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, watch } from "vue";
+import { onMounted, watch, ref } from "vue";
 import NavigationBar from "./components/app/AppNavigationBar.vue";
 import Modal from "./lib/Modal.vue";
 import { useRouter, useRoute } from "vue-router";
@@ -16,6 +16,7 @@ import { useFileContentStore } from "./stores/fileContentStore.ts";
 // Router
 const router = useRouter();
 const route = useRoute();
+const isRouterReady = ref(false);
 
 // Stores
 const projectStore = useProjectStore();
@@ -24,6 +25,16 @@ const settingsStore = useSettingsStore();
 const keyboardShortcutsStore = useKeyboardShortcutsStore();
 const workspaceStore = useWorkspaceStore();
 const fileContentStore = useFileContentStore();
+
+// Methods
+// TODO: consider creating the useAppController composable for app-level methods - have not done it yet since there is only one method for now
+const handleSwitchOfflineMode = () => {
+	if (confirm("Switching offline mode will reload the application. Continue?")) {
+		settingsStore.toggleOfflineMode();
+		router.push({ name: "Home" });
+	}
+	settingsStore.toggleSettingsOpen(false);
+};
 
 onMounted(async () => {
 	// Load settings
@@ -34,7 +45,9 @@ onMounted(async () => {
 	await router
 		.isReady()
 		.then(async () => {
+			isRouterReady.value = true;
 			projectStore.syncStateWithRoute(route.query);
+			// TODO: consider moving this to a route guard if only some routes need project data
 			// Load the synced project data
 			await projectDataStore.loadProjectDataAsync(
 				projectStore.repositoryUrl,
@@ -59,7 +72,7 @@ onMounted(async () => {
 watch(
 	() => route.query,
 	async (newQuery, oldQuery) => {
-		const relevantParams = ["repoUrl", "commentsApiUrl", "branch"];
+		const relevantParams = ["backendBaseUrl", "repositoryUrl", "writeApiUrl", "branch"];
 		const hasRelevantChanges = relevantParams.some((param) => newQuery[param] !== oldQuery[param]);
 
 		if (hasRelevantChanges) {
@@ -76,7 +89,7 @@ watch(
 			);
 		}
 	},
-	{ deep: true }
+	{ immediate: false }
 );
 </script>
 
@@ -85,10 +98,10 @@ watch(
 		<!-- Navigation Bar -->
 		<NavigationBar class="z-10" />
 		<!-- Main Content -->
-		<main v-if="projectStore.isProjectSetup" class="flex-1 overflow-hidden">
+		<main v-if="isRouterReady" class="flex-1 overflow-hidden">
 			<router-view />
 		</main>
-		<!-- Fallback for when project is not set up -->
+		<!-- Fallback for when router is not ready -->
 		<div v-else class="flex flex-1 items-center justify-center">
 			<span class="spinner" />
 		</div>
@@ -101,7 +114,7 @@ watch(
 		:isVisible="settingsStore.isSettingsOpen"
 		@update:isVisible="settingsStore.toggleSettingsOpen"
 	>
-		<Settings />
+		<Settings @handleSwitchOfflineMode="handleSwitchOfflineMode" />
 	</SlideoutPanel>
 
 	<!-- Settings Keyboard Shortcuts Modal -->
