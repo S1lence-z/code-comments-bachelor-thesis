@@ -65,3 +65,22 @@ export function extractBaseUrl(url: string): string {
 		return "";
 	}
 }
+
+export function extractBaseBackendUrl(writeApiUrl: string): string {
+	try {
+		const parsedUrl = new URL(writeApiUrl);
+		let baseUrl = `${parsedUrl.protocol}//${parsedUrl.host}`;
+
+		// Handle cases where the API path includes /server
+		if (parsedUrl.pathname.includes("/server")) {
+			const serverIndex = parsedUrl.pathname.indexOf("/server");
+			const serverPath = parsedUrl.pathname.substring(0, serverIndex + "/server".length);
+			baseUrl += serverPath;
+		}
+
+		return baseUrl;
+	} catch (e) {
+		console.error("Error extracting base backend URL:", e);
+		return "";
+	}
+}

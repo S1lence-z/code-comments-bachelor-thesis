@@ -1,9 +1,6 @@
-import { ref, computed, watch, type Ref } from "vue";
-import { storeToRefs } from "pinia";
+import { ref, computed, watch } from "vue";
 import { useProjectDataStore } from "../../stores/projectDataStore";
 import { useProjectStore } from "../../stores/projectStore";
-import type CommentDto from "../../types/dtos/CommentDto";
-import type CategoryDto from "../../types/dtos/CategoryDto";
 import { CommentType } from "../../types/enums/CommentType";
 import { createCommentByType } from "../../utils/commentUtils";
 
@@ -26,15 +23,6 @@ export function useCommentForm(props: CommentFormProps, emit: CommentFormEmits) 
 	const projectDataStore = useProjectDataStore();
 	const projectStore = useProjectStore();
 
-	// Store refs
-	const { allCategories, comments } = storeToRefs(projectDataStore) as {
-		allCategories: Ref<CategoryDto[]>;
-		comments: Ref<CommentDto[]>;
-	};
-	const { writeApiUrl } = storeToRefs(projectStore) as {
-		writeApiUrl: Ref<string>;
-	};
-
 	// Form state
 	const commentContent = ref("");
 	const commentCategoryLabel = ref("");
@@ -42,7 +30,7 @@ export function useCommentForm(props: CommentFormProps, emit: CommentFormEmits) 
 	// Computed properties
 	const currentComment = computed(() => {
 		const existingComment = props.commentId
-			? comments.value.find((comment) => comment.id === props.commentId?.toString())
+			? projectDataStore.comments.find((comment) => comment.id === props.commentId?.toString())
 			: null;
 		return existingComment || null;
 	});
@@ -56,7 +44,7 @@ export function useCommentForm(props: CommentFormProps, emit: CommentFormEmits) 
 	});
 
 	const availableCategories = computed(() => {
-		return allCategories.value.map((cat) => ({ value: cat.label, label: cat.label }));
+		return projectDataStore.allCategories.map((cat) => ({ value: cat.label, label: cat.label }));
 	});
 
 	// Methods
@@ -95,7 +83,7 @@ export function useCommentForm(props: CommentFormProps, emit: CommentFormEmits) 
 
 		const commentData = createCommentByType(
 			props.commentType,
-			allCategories.value,
+			projectDataStore.allCategories,
 			commentCategoryLabel.value,
 			props.commentId,
 			commentContent.value,
@@ -109,7 +97,7 @@ export function useCommentForm(props: CommentFormProps, emit: CommentFormEmits) 
 		}
 
 		try {
-			await projectDataStore.upsertCommentAsync(commentData, writeApiUrl.value);
+			await projectDataStore.upsertCommentAsync(commentData, projectStore.getWriteApiUrl);
 			emit("update:isVisible", false);
 		} catch (error) {
 			console.error("Failed to save comment:", error);
@@ -138,10 +126,6 @@ export function useCommentForm(props: CommentFormProps, emit: CommentFormEmits) 
 	);
 
 	return {
-		// Store refs (if needed in template)
-		allCategories,
-		writeApiUrl,
-
 		// Form state
 		commentContent,
 		commentCategoryLabel,

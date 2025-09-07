@@ -1,20 +1,25 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { watch } from "vue";
 import { useSetupPage } from "../composables/pages/useSetupPage";
 import InputField from "../lib/InputField.vue";
 import Button from "../lib/Button.vue";
 import Card from "../lib/Card.vue";
 import Icon from "../lib/Icon.vue";
+import { useRoute } from "vue-router";
+
+const route = useRoute();
 
 const {
 	// Form inputs
 	formGithubRepoUrl,
 	formBranchName,
 	formProjectName,
+	formServerBaseUrl,
 
 	// UI state
 	isCreatingProject,
 	isProjectCreated,
+	isServerUrlConfigured,
 	errorMessage,
 
 	// Data
@@ -25,12 +30,31 @@ const {
 	navigateToNewProject,
 	navigateToExistingProject,
 	loadExistingProjects,
+	submitServerBaseUrl,
+	useDefaultServerUrl,
 } = useSetupPage();
 
-// Lifecycle
-onMounted(() => {
-	loadExistingProjects();
-});
+// Watch the isServerBaseUrlSubmitted and reload existing projects when it changes
+watch(
+	() => isServerUrlConfigured.value,
+	(newValue) => {
+		if (newValue) {
+			loadExistingProjects();
+		}
+	},
+	{ immediate: true }
+);
+
+// Initialize formServerBaseUrl from the router query if available
+watch(
+	() => route.query.backendBaseUrl,
+	(newValue) => {
+		if (newValue) {
+			isServerUrlConfigured.value = true;
+		}
+	},
+	{ immediate: true }
+);
 </script>
 
 <template>
@@ -44,10 +68,50 @@ onMounted(() => {
 				</div>
 			</div>
 		</div>
-
 		<!-- Main Content -->
 		<div class="mx-auto px-6 mt-8">
-			<div class="flex flex-col lg:flex-row gap-12 max-w-7xl mx-auto">
+			<!-- Server URL Setup Card -->
+			<div v-if="!isServerUrlConfigured" class="flex flex-col lg:flex-row gap-12 max-w-7xl mx-auto">
+				<Card
+					class="flex-1"
+					title="Comments Server URL"
+					subtitle="Please enter your comments server URL"
+					iconName="plus"
+					iconGradient="emerald"
+				>
+					<div class="flex flex-row space-x-6 items-center">
+						<p class="mb-4 text-slate-400 text-lg">
+							Enter the URL of your backend server. If you haven't set up a backend server yet, you can
+							use the default URL:
+						</p>
+						<Button
+							class="mb-4"
+							label="Use Default URL"
+							type="button"
+							buttonStyle="secondary"
+							:onClick="useDefaultServerUrl"
+						/>
+					</div>
+					<form @submit.prevent="submitServerBaseUrl" class="flex flex-col space-y-4">
+						<InputField
+							label="Comments Server URL"
+							v-model="formServerBaseUrl"
+							type="url"
+							placeholder="http://localhost:3000"
+							:required="true"
+						/>
+						<Button
+							label="Save and Continue"
+							type="submit"
+							buttonStyle="primary"
+							:disabled="!formServerBaseUrl || formServerBaseUrl.trim() === ''"
+						/>
+					</form>
+				</Card>
+			</div>
+
+			<!-- Main Setup Cards -->
+			<div v-else class="flex flex-col lg:flex-row gap-12 max-w-7xl mx-auto">
 				<!-- Existing Projects List -->
 				<div class="flex-0.5">
 					<Card
@@ -107,7 +171,6 @@ onMounted(() => {
 						</div>
 					</Card>
 				</div>
-
 				<!-- Setup Form -->
 				<div class="flex-1">
 					<Card
@@ -146,7 +209,7 @@ onMounted(() => {
 						</div>
 
 						<!-- Setup Form -->
-						<form @submit.prevent="createProject" class="space-y-6">
+						<form @submit.prevent="createProject">
 							<!-- GitHub Repository URL -->
 							<InputField
 								label="GitHub Repository URL"
@@ -155,7 +218,6 @@ onMounted(() => {
 								placeholder="https://github.com/owner/repository"
 								:required="true"
 							/>
-
 							<span class="flex flex-row mb-4 space-x-6">
 								<!-- Branch Name -->
 								<InputField
@@ -166,7 +228,6 @@ onMounted(() => {
 									:required="true"
 									class="flex-1"
 								/>
-
 								<!-- Project Name -->
 								<InputField
 									label="Project Name"
@@ -177,7 +238,6 @@ onMounted(() => {
 									class="flex-1"
 								/>
 							</span>
-
 							<!-- Submit Button -->
 							<Button
 								class="w-full"
