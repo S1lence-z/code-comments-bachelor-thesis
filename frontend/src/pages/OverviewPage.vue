@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useOverviewPage } from "../composables/pages/useOverviewPage";
-import Button from "../lib/Button.vue";
 import Icon from "../lib/Icon.vue";
 import CommentStatistics from "../components/overview/CommentStatistics.vue";
 import CommentBrowser from "../components/overview/CommentBrowser.vue";
@@ -19,7 +18,6 @@ const {
 	groupedCommentsByFile,
 
 	// Methods
-	navigateToCodeReview,
 	openFileInEditor,
 	setCommentTypeFilter,
 } = useOverviewPage();
@@ -89,19 +87,13 @@ const {
 				</div>
 
 				<!-- Empty State -->
-				<div v-else-if="totalCommentCount === 0" class="text-center mt-16">
+				<div v-else-if="totalCommentCount === 0" class="text-center">
 					<div class="empty-state">
 						<div class="empty-state-icon">
 							<Icon srcName="archive" size="32px" />
 						</div>
 						<h3 class="text-xl font-semibold text-white mb-2">No Comments Found</h3>
 						<p class="text-slate-400 mb-4">Start adding comments to your code review session</p>
-						<Button
-							label="Go to Code Review"
-							buttonStyle="primary"
-							type="button"
-							:onClick="navigateToCodeReview"
-						/>
 					</div>
 				</div>
 

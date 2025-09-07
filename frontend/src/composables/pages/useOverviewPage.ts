@@ -35,25 +35,16 @@ export function useOverviewPage() {
 	});
 
 	// Methods
-	const navigateToCodeReview = (): void => {
-		router.push({
-			path: "/review/code",
-			query: router.currentRoute.value.query,
-		});
-	};
-
 	const setCommentTypeFilter = (commentType: CommentType | null): void => {
 		selectedCommentTypeFilter.value = commentType;
 	};
 
 	const openFileInEditor = (filePath: string) => {
-		const params = {
-			repoUrl: projectStore.repositoryUrl,
-			commentsApiUrl: projectStore.writeApiUrl,
-			branch: projectStore.repositoryBranch,
+		const updatedParams = {
+			...router.currentRoute.value.query,
 			file: filePath,
 		};
-		router.push({ path: "/review/code", query: params });
+		router.push({ name: "Code Review", query: updatedParams });
 	};
 
 	return {
@@ -76,7 +67,6 @@ export function useOverviewPage() {
 		groupedCommentsByFile,
 
 		// Methods
-		navigateToCodeReview,
 		openFileInEditor,
 		setCommentTypeFilter,
 	};
