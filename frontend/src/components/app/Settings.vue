@@ -3,6 +3,10 @@ import Button from "../../lib/Button.vue";
 import ToggleButton from "../../lib/ToggleButton.vue";
 import { useSettingsStore } from "../../stores/settingsStore";
 
+const emit = defineEmits<{
+	(event: "handleSwitchOfflineMode"): void;
+}>();
+
 const settingsStore = useSettingsStore();
 </script>
 
@@ -37,7 +41,7 @@ const settingsStore = useSettingsStore();
 		<ToggleButton
 			label="Offline Mode"
 			:isActive="settingsStore.offlineModeState"
-			@update:isActive="settingsStore.toggleOfflineMode"
+			@update:isActive="emit('handleSwitchOfflineMode')"
 		/>
 		<!-- Divider -->
 		<div class="border-t border-gray-200 w-full"></div>

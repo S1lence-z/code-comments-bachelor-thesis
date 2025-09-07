@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
 import type AppSettings from "../types/others/AppSettings";
 import { appSettingsKey, offlineModeKey } from "../core/keys";
-import router from "../core/router";
 
 export const useSettingsStore = defineStore("settingsStore", {
 	state: () => ({
@@ -49,10 +48,6 @@ export const useSettingsStore = defineStore("settingsStore", {
 		toggleOfflineMode(newState?: boolean) {
 			this.offlineModeState = newState !== undefined ? newState : !this.offlineModeState;
 			this.saveOfflineMode();
-			if (!this.offlineModeState && confirm("Switching to offline mode will reload the application. Continue?")) {
-				router.push({ name: "Home" });
-			}
-			this.toggleSettingsOpen(false);
 		},
 		getPersistentSettings(): AppSettings {
 			return {
