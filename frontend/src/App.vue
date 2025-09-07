@@ -29,9 +29,7 @@ const fileContentStore = useFileContentStore();
 // Methods
 // TODO: consider creating the useAppController composable for app-level methods - have not done it yet since there is only one method for now
 const handleSwitchOfflineMode = () => {
-	if (!settingsStore.isOfflineMode) {
-		settingsStore.toggleOfflineMode();
-	} else if (confirm("Switching to offline mode will reload the application. Continue?")) {
+	if (confirm("Switching offline mode will reload the application. Continue?")) {
 		settingsStore.toggleOfflineMode();
 		router.push({ name: "Home" });
 	}

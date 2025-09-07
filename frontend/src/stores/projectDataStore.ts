@@ -34,7 +34,6 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 		getCommentsForFile: (state) => (filePath: string) => {
 			return state.comments.filter((comment: CommentDto) => comment.location.filePath === filePath) ?? [];
 		},
-		isCategoriesFetched: (state) => state.categories.length > 0,
 		containsProjectComment: (state) => {
 			return state.comments.some((comment) => comment.type === CommentType.Project);
 		},
@@ -111,11 +110,6 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 		async fetchAllCategoriesAsync(backendBaseUrl: string) {
 			this.isLoadingCategories = true;
 			try {
-				if (this.isCategoriesFetched) {
-					console.log("Categories already fetched, skipping API call.");
-					return;
-				}
-
 				if (!backendBaseUrl || !backendBaseUrl.trim()) {
 					console.warn("Cannot fetch categories: writeApiUrl is empty or invalid");
 					return;

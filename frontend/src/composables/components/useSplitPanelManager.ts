@@ -1,4 +1,4 @@
-import { ref, watch, computed } from "vue";
+import { ref, watch, computed, nextTick } from "vue";
 import type { PanelData, Workspace, DraggedTabData } from "../../types/others/Panels";
 import { determineDropPosition, generateNewPanel, findPanelById, redistributePanelSizes } from "../../utils/panelUtils";
 import { createTab, findTabInPanel, getTabIndexInPanel } from "../../utils/tabUtils";
@@ -379,8 +379,9 @@ export function useSplitPanelManager(props: SplitPanelManagerProps, emit: SplitP
 				panel.activeTab = panel.openTabs[panel.openTabs.length - 1];
 			});
 
-			// Set the selected file to the active tab of the first panel
-			emit("update:selectedFilePath", panels.value[0].activeTab?.filePath || null);
+			nextTick(() => {
+				emit("update:selectedFilePath", panels.value[0].activeTab?.filePath || null);
+			});
 		}
 
 		// Assign project info

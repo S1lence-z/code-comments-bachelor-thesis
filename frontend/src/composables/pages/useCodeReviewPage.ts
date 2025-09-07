@@ -43,7 +43,7 @@ export function useCodeReviewPage() {
 	const addedCommentType = ref<CommentType>(CommentType.Singleline);
 
 	// Handle file selection and loading
-	const handleFileSelected = async (path: string): Promise<void> => {
+	const handleFileSelected = async (path: string | null): Promise<void> => {
 		if (!path) return;
 
 		selectedFilePath.value = path;
