@@ -42,8 +42,12 @@ export function buildFileTreeFromGitHub(gitHubItems: GitHubTreeItem[]): TreeNode
 	return rootNodes;
 }
 
-export async function fetchRepoTreeAPI(repoUrl: string, branch: string, GITHUB_PAT?: string): Promise<TreeNode[]> {
-	const url = new URL(repoUrl);
+export async function fetchRepoTreeAPI(
+	repositoryUrl: string,
+	branch: string,
+	GITHUB_PAT?: string
+): Promise<TreeNode[]> {
+	const url = new URL(repositoryUrl);
 	// Extract owner and repo name from URL
 	const [owner, repo] = url.pathname.split("/").filter(Boolean);
 	if (!owner || !repo) {

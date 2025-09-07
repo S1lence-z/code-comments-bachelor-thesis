@@ -10,10 +10,13 @@ const route = useRoute();
 
 const {
 	// Form inputs
-	formGithubRepoUrl,
+	formGithubRepositoryUrl,
 	formBranchName,
 	formProjectName,
 	formServerBaseUrl,
+
+	// Computed
+	isOfflineMode,
 
 	// UI state
 	isCreatingProject,
@@ -25,7 +28,7 @@ const {
 	existingProjects,
 
 	// Actions
-	createProject,
+	handleNewProjectCreation,
 	navigateToNewProject,
 	navigateToExistingProject,
 	loadExistingProjects,
@@ -80,7 +83,7 @@ watch(
 					@runInOfflineMode="handleOfflineMode"
 				/>
 				<!-- Existing Projects List -->
-				<div v-if="isServerUrlConfigured" class="flex-0.5">
+				<div v-if="isServerUrlConfigured && !isOfflineMode" class="flex-0.5">
 					<ProjectList
 						:existingProjects="existingProjects"
 						@navigateToExistingProject="navigateToExistingProject"
@@ -92,10 +95,10 @@ watch(
 						:errorMessage="errorMessage"
 						:isCreatingProject="isCreatingProject"
 						:isProjectCreated="isProjectCreated"
-						v-model:formGithubRepoUrl="formGithubRepoUrl"
+						v-model:formGithubRepositoryUrl="formGithubRepositoryUrl"
 						v-model:formBranchName="formBranchName"
 						v-model:formProjectName="formProjectName"
-						@createProject="createProject"
+						@createProject="handleNewProjectCreation"
 						@navigateToNewProject="navigateToNewProject"
 					/>
 				</div>

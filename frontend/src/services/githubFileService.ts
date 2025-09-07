@@ -2,12 +2,12 @@ import type { ProcessedFile, GithubFileContentResponse } from "../types/github/g
 import { FileDisplayType } from "../types/github/githubFile";
 
 export async function fetchProcessedFile(
-	repoUrl: string,
+	repositoryUrl: string,
 	branch: string,
 	path: string,
 	GITHUB_PAT?: string
 ): Promise<ProcessedFile> {
-	const url = new URL(repoUrl);
+	const url = new URL(repositoryUrl);
 	const [owner, repo] = url.pathname.split("/").filter(Boolean);
 	if (!owner || !repo) {
 		throw new Error("Invalid repository URL for API construction.");

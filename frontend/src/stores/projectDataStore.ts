@@ -21,7 +21,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 		githubUrlForTree: "",
 		fileTreeData: [] as TreeNode[],
 		comments: [] as CommentDto[],
-		categories: [] as CategoryDto[],
+		categories: [dummyCategoryDto] as CategoryDto[],
 		// Loading states
 		isLoadingRepository: false,
 		isLoadingComments: false,
@@ -118,7 +118,6 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 
 				if (!backendBaseUrl || !backendBaseUrl.trim()) {
 					console.warn("Cannot fetch categories: writeApiUrl is empty or invalid");
-					this.categories = [];
 					return;
 				}
 

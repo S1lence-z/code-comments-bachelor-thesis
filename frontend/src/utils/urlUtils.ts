@@ -1,11 +1,11 @@
-export interface RepoUrlInfo {
-	repoUrl: string;
+export interface RepositoryUrlInfo {
+	repositoryUrl: string;
 	branch: string;
 	owner: string;
 	repoName: string;
 }
 
-export function parseGitHubRepoUrl(url: string, defaultBranch: string = "main"): RepoUrlInfo | null {
+export function parseGitHubRepositoryUrl(url: string, defaultBranch: string = "main"): RepositoryUrlInfo | null {
 	if (!url || !url.startsWith("https://github.com/")) {
 		return null;
 	}
@@ -19,7 +19,7 @@ export function parseGitHubRepoUrl(url: string, defaultBranch: string = "main"):
 		const repoName = pathParts[1];
 		// Basic parsing, branch might be part of URL or a separate param, this assumes simple repo URL
 		return {
-			repoUrl: `https://github.com/${owner}/${repoName}`,
+			repositoryUrl: `https://github.com/${owner}/${repoName}`,
 			branch: defaultBranch, // Placeholder, actual branch might be determined differently
 			owner,
 			repoName,
@@ -30,7 +30,7 @@ export function parseGitHubRepoUrl(url: string, defaultBranch: string = "main"):
 	}
 }
 
-export function parseRepoAndBranchFromLocation(): { repoUrl: string; branch: string } | { error: string } {
+export function parseRepoAndBranchFromLocation(): { repositoryUrl: string; branch: string } | { error: string } {
 	try {
 		const params = new URLSearchParams(globalThis.location.search);
 		const urlParam = params.get("repo_url");
@@ -48,7 +48,7 @@ export function parseRepoAndBranchFromLocation(): { repoUrl: string; branch: str
 		}
 
 		return {
-			repoUrl: urlParam,
+			repositoryUrl: urlParam,
 			branch: params.get("branch") || "main",
 		};
 	} catch (_e) {

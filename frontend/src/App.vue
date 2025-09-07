@@ -62,7 +62,7 @@ onMounted(async () => {
 watch(
 	() => route.query,
 	async (newQuery, oldQuery) => {
-		const relevantParams = ["backendBaseUrl", "repoUrl", "commentsApiUrl", "branch"];
+		const relevantParams = ["backendBaseUrl", "repositoryUrl", "writeApiUrl", "branch"];
 		const hasRelevantChanges = relevantParams.some((param) => newQuery[param] !== oldQuery[param]);
 
 		if (hasRelevantChanges) {
@@ -79,7 +79,7 @@ watch(
 			);
 		}
 	},
-	{ deep: true }
+	{ immediate: false }
 );
 </script>
 

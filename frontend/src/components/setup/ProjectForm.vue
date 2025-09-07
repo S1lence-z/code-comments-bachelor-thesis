@@ -6,7 +6,7 @@ import Card from "../../lib/Card.vue";
 import Icon from "../../lib/Icon.vue";
 
 interface ProjectFormProps {
-	formGithubRepoUrl: string;
+	formGithubRepositoryUrl: string;
 	formBranchName: string;
 	formProjectName: string;
 	isCreatingProject: boolean;
@@ -16,7 +16,7 @@ interface ProjectFormProps {
 const props = defineProps<ProjectFormProps>();
 
 const emit = defineEmits<{
-	(event: "update:formGithubRepoUrl", value: string): void;
+	(event: "update:formGithubRepositoryUrl", value: string): void;
 	(event: "update:formBranchName", value: string): void;
 	(event: "update:formProjectName", value: string): void;
 	(event: "createProject"): void;
@@ -65,8 +65,8 @@ const emit = defineEmits<{
 			<!-- GitHub Repository URL -->
 			<InputField
 				label="GitHub Repository URL"
-				v-bind:modelValue="formGithubRepoUrl"
-                @update:modelValue="(value: string) => emit('update:formGithubRepoUrl', value)"
+				v-bind:modelValue="formGithubRepositoryUrl"
+				@update:modelValue="(value: string) => emit('update:formGithubRepositoryUrl', value)"
 				type="url"
 				placeholder="https://github.com/owner/repository"
 				:required="true"
@@ -86,7 +86,7 @@ const emit = defineEmits<{
 				<InputField
 					label="Project Name"
 					v-bind:modelValue="formProjectName"
-                    @update:modelValue="(value: string) => emit('update:formProjectName', value)"
+					@update:modelValue="(value: string) => emit('update:formProjectName', value)"
 					type="text"
 					placeholder="My Project"
 					:required="true"

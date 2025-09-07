@@ -1,17 +1,19 @@
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { setupProject, listProjects } from "../../services/projectService";
 import type ProjectSetupRequest from "../../types/dtos/SetupProjectRequest";
 import type ProjectDto from "../../types/dtos/ProjectDto";
 import router from "../../core/router";
 import { useProjectStore } from "../../stores/projectStore";
 import { extractBaseBackendUrl } from "../../utils/urlUtils";
+import { useSettingsStore } from "../../stores/settingsStore";
 
 export function useSetupPage() {
 	// Stores
 	const projectStore = useProjectStore();
+	const settingsStore = useSettingsStore();
 
 	// Form input values
-	const formGithubRepoUrl = ref("");
+	const formGithubRepositoryUrl = ref("");
 	const formBranchName = ref("");
 	const formProjectName = ref("");
 	const formWriteApiUrl = ref("");
@@ -23,8 +25,22 @@ export function useSetupPage() {
 	const isServerUrlConfigured = ref(false);
 	const errorMessage = ref("");
 
+	// Computed
+	const isOfflineMode = computed(() => settingsStore.isOfflineMode);
+
 	// Data
 	const existingProjects = ref<ProjectDto[]>([]);
+
+	// Handle new project creation
+	const handleNewProjectCreation = () => {
+		if (!isOfflineMode.value) {
+			createProject();
+			return;
+		}
+		// In offline mode, simulate project creation without server interaction
+		isProjectCreated.value = true;
+		errorMessage.value = "";
+	};
 
 	// Create new project from form
 	const createProject = async (): Promise<void> => {
@@ -34,7 +50,7 @@ export function useSetupPage() {
 
 		try {
 			const setupData: ProjectSetupRequest = {
-				repositoryUrl: formGithubRepoUrl.value.trim(),
+				repositoryUrl: formGithubRepositoryUrl.value.trim(),
 				branch: formBranchName.value.trim(),
 				name: formProjectName.value.trim(),
 			};
@@ -62,8 +78,8 @@ export function useSetupPage() {
 			name: "Code Review",
 			query: {
 				backendBaseUrl: formServerBaseUrl.value.trim(),
-				repoUrl: formGithubRepoUrl.value.trim(),
-				commentsApiUrl: formWriteApiUrl.value.trim(),
+				repositoryUrl: formGithubRepositoryUrl.value.trim(),
+				writeApiUrl: formWriteApiUrl.value.trim(),
 				branch: formBranchName.value.trim(),
 			},
 		});
@@ -75,8 +91,8 @@ export function useSetupPage() {
 			name: "Code Review",
 			query: {
 				backendBaseUrl: extractBaseBackendUrl(project.writeApiUrl),
-				repoUrl: project.repository.repositoryUrl,
-				commentsApiUrl: project.writeApiUrl,
+				repositoryUrl: project.repository.repositoryUrl,
+				writeApiUrl: project.writeApiUrl,
 				branch: project.repository.branch,
 			},
 		});
@@ -115,14 +131,18 @@ export function useSetupPage() {
 	// Handle offline mode (skip server URL configuration)
 	const handleOfflineMode = () => {
 		isServerUrlConfigured.value = true;
+		settingsStore.toggleOfflineMode(true);
 	};
 
 	return {
 		// Form inputs
-		formGithubRepoUrl,
+		formGithubRepositoryUrl,
 		formBranchName,
 		formProjectName,
 		formServerBaseUrl,
+
+		// Computed
+		isOfflineMode,
 
 		// UI state
 		isCreatingProject,
@@ -134,7 +154,7 @@ export function useSetupPage() {
 		existingProjects,
 
 		// Actions
-		createProject,
+		handleNewProjectCreation,
 		navigateToNewProject,
 		navigateToExistingProject,
 		loadExistingProjects,

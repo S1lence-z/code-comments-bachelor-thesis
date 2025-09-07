@@ -10,9 +10,9 @@ export const useWorkspaceStore = defineStore("workspace", {
 		getAllSavedWorkspaces: (state): Workspace[] => state.savedWorkspaces,
 		getWorkspaceByRepository:
 			(state) =>
-			(repoUrl: string, repoBranch: string): Workspace | undefined => {
+			(repositoryUrl: string, repoBranch: string): Workspace | undefined => {
 				return state.savedWorkspaces.find(
-					(ws) => ws.repositoryUrl === repoUrl && ws.repositoryBranch === repoBranch
+					(ws) => ws.repositoryUrl === repositoryUrl && ws.repositoryBranch === repoBranch
 				);
 			},
 	},

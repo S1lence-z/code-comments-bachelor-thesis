@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import type AppSettings from "../types/others/AppSettings";
 import { appSettingsKey } from "../core/keys";
+import router from "../core/router";
 
 export const useSettingsStore = defineStore("settingsStore", {
 	state: () => ({
@@ -10,6 +11,7 @@ export const useSettingsStore = defineStore("settingsStore", {
 		saveWorkspaceState: false,
 		compactCommentWidgetState: true,
 		keyboardShortcutsEditorState: false,
+		offlineModeState: false,
 	}),
 	getters: {
 		isSettingsOpen: (state) => state.settingsOpenState,
@@ -18,6 +20,7 @@ export const useSettingsStore = defineStore("settingsStore", {
 		isSaveWorkspace: (state) => state.saveWorkspaceState,
 		isCompactCommentWidget: (state) => state.compactCommentWidgetState,
 		isEditingKeyboardShortcuts: (state) => state.keyboardShortcutsEditorState,
+		isOfflineMode: (state) => state.offlineModeState,
 	},
 	actions: {
 		toggleSettingsOpen() {
@@ -42,6 +45,13 @@ export const useSettingsStore = defineStore("settingsStore", {
 		toggleKeyboardShortcutsEditor() {
 			this.keyboardShortcutsEditorState = !this.keyboardShortcutsEditorState;
 			this.saveSettings();
+		},
+		toggleOfflineMode(newState?: boolean) {
+			this.offlineModeState = newState !== undefined ? newState : !this.offlineModeState;
+			this.saveSettings();
+			if (!this.offlineModeState && confirm("Switching to offline mode will reload the application. Continue?")) {
+				router.push({ name: "Home" });
+			}
 		},
 		getPersistentSettings(): AppSettings {
 			return {

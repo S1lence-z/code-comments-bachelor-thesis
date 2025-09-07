@@ -67,8 +67,8 @@ export function useCodeReviewPage() {
 	// Comment handling functions
 	const handleSinglelineCommentSelected = (payload: { lineNumber: number; filePath: string }): void => {
 		const { lineNumber, filePath } = payload;
-		if (!filePath || !projectStore.getWriteApiUrl) {
-			console.error("Cannot add comment: comments API URL is not configured.");
+		if (!filePath) {
+			console.error("Cannot add comment: no file path provided.");
 			return;
 		}
 		const existingComment = allComments.value.find(
@@ -90,8 +90,8 @@ export function useCodeReviewPage() {
 		filePath: string;
 	}): void => {
 		const { selectedStartLineNumber, selectedEndLineNumber, filePath } = payload;
-		if (!filePath || !projectStore.getWriteApiUrl) {
-			console.error("Cannot add comment: comments API URL is not configured.");
+		if (!filePath) {
+			console.error("Cannot add comment: no file path provided.");
 			return;
 		}
 		const existingComment = allComments.value.find(
@@ -108,6 +108,11 @@ export function useCodeReviewPage() {
 	};
 
 	const handleFileCommentSelected = (filePath: string): void => {
+		if (!filePath) {
+			console.error("Cannot add comment: no file path provided.");
+			return;
+		}
+
 		const existingComment = allComments.value.find(
 			(comment: CommentDto) => comment.location.filePath === filePath && comment.type === CommentType.File
 		);
@@ -119,6 +124,11 @@ export function useCodeReviewPage() {
 	};
 
 	const handleProjectCommentSelected = (): void => {
+		if (!projectStore.getRepositoryName) {
+			console.error("Cannot add project comment: repository name is not set.");
+			return;
+		}
+
 		const existingComment = allComments.value.find((comment: CommentDto) => comment.type === CommentType.Project);
 		commentId.value = existingComment ? existingComment.id : null;
 		commentFilePath.value = projectStore.getRepositoryName;
