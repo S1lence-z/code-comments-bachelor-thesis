@@ -340,7 +340,7 @@ export function useSplitPanelManager(props: SplitPanelManagerProps, emit: SplitP
 	// Workspace initialization
 	const initializeWorkspace = (): void => {
 		// Ensure project info is available
-		if (!projectStore.repositoryUrl || !projectStore.repositoryBranch) {
+		if (!projectStore.getRepositoryUrl || !projectStore.getInitialBranch) {
 			console.warn("Project repository info not available for workspace initialization");
 			return;
 		}

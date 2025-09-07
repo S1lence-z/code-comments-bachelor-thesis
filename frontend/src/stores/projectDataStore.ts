@@ -52,9 +52,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 
 			const promises = [
 				this.fetchRepositoryTree(newRepositoryUrl, newBranch, githubPat),
-				this.fetchAllCommentsAsync(newWriteApiUrl).catch(() => {
-					serverStore.setSyncError("Failed to fetch comments");
-				}),
+				this.fetchAllCommentsAsync(newWriteApiUrl),
 				this.fetchAllCategoriesAsync(backendBaseUrl),
 			];
 			await Promise.all(promises);
@@ -62,14 +60,14 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 		async fetchRepositoryTree(repositoryUrl: string, branch: string, githubPat: string) {
 			this.isLoadingRepository = true;
 			try {
-				if (this.githubUrlForTree === repositoryUrl) {
-					console.log("File tree already fetched, skipping API call.");
-					return;
-				}
-
 				if (!repositoryUrl || !repositoryUrl.trim()) {
 					console.warn("Cannot fetch repository tree: repositoryUrl is empty or invalid");
 					this.fileTreeData = [];
+					return;
+				}
+
+				if (this.githubUrlForTree === repositoryUrl) {
+					console.log("File tree already fetched, skipping API call.");
 					return;
 				}
 
@@ -88,6 +86,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 			this.isLoadingComments = true;
 			try {
 				if (!writeApiUrl || !writeApiUrl.trim()) {
+					serverStore.setSyncError("Failed to fetch comments");
 					console.warn("Cannot fetch comments: writeApiUrl is empty or invalid");
 					this.comments = [];
 					return;

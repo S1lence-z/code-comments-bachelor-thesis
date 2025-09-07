@@ -44,10 +44,12 @@ export function buildFileTreeFromGitHub(gitHubItems: GitHubTreeItem[]): TreeNode
 
 export async function fetchRepoTreeAPI(repoUrl: string, branch: string, GITHUB_PAT?: string): Promise<TreeNode[]> {
 	const url = new URL(repoUrl);
+	// Extract owner and repo name from URL
 	const [owner, repo] = url.pathname.split("/").filter(Boolean);
 	if (!owner || !repo) {
 		throw new Error("Invalid repository URL for API construction.");
 	}
+	// Construct the API URL
 	const apiBase = `https://api.github.com/repos/${owner}/${repo}`;
 
 	const headers: HeadersInit = {
@@ -57,6 +59,7 @@ export async function fetchRepoTreeAPI(repoUrl: string, branch: string, GITHUB_P
 		headers["Authorization"] = `Bearer ${GITHUB_PAT}`;
 	}
 
+	// Fetch the repository tree from GitHub API
 	const res = await fetch(`${apiBase}/git/trees/${branch}?recursive=1`, {
 		headers,
 	});

@@ -31,6 +31,7 @@ const {
 	loadExistingProjects,
 	submitServerBaseUrl,
 	useDefaultServerUrl,
+	handleOfflineMode,
 } = useSetupPage();
 
 // Watch the isServerBaseUrlSubmitted and reload existing projects when it changes
@@ -76,6 +77,7 @@ watch(
 					v-model:serverBaseUrl="formServerBaseUrl"
 					@submitServerBaseUrl="submitServerBaseUrl"
 					@useDefaultServerUrl="useDefaultServerUrl"
+					@runInOfflineMode="handleOfflineMode"
 				/>
 				<!-- Existing Projects List -->
 				<div v-if="isServerUrlConfigured" class="flex-0.5">

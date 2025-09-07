@@ -15,7 +15,7 @@ export function useSetupPage() {
 	const formBranchName = ref("");
 	const formProjectName = ref("");
 	const formWriteApiUrl = ref("");
-	const formServerBaseUrl = ref(projectStore.getBackendBaseUrl || "");
+	const formServerBaseUrl = ref<string>(projectStore.getBackendBaseUrl || "");
 
 	// UI state
 	const isCreatingProject = ref(false);
@@ -85,6 +85,10 @@ export function useSetupPage() {
 	// Load existing projects
 	const loadExistingProjects = async (): Promise<void> => {
 		try {
+			if (!formServerBaseUrl.value || !formServerBaseUrl.value.trim()) {
+				console.warn("Server base URL is not set. Cannot load existing projects.");
+				return;
+			}
 			existingProjects.value = await listProjects(formServerBaseUrl.value.trim());
 		} catch (error) {
 			console.error("Failed to load existing projects:", error);
@@ -103,8 +107,14 @@ export function useSetupPage() {
 		isServerUrlConfigured.value = true;
 	};
 
+	// Use default server URL
 	const useDefaultServerUrl = () => {
 		formServerBaseUrl.value = projectStore.getDefaultBackendBaseUrl();
+	};
+
+	// Handle offline mode (skip server URL configuration)
+	const handleOfflineMode = () => {
+		isServerUrlConfigured.value = true;
 	};
 
 	return {
@@ -130,5 +140,6 @@ export function useSetupPage() {
 		loadExistingProjects,
 		submitServerBaseUrl,
 		useDefaultServerUrl,
+		handleOfflineMode,
 	};
 }
