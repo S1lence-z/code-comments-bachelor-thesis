@@ -23,8 +23,8 @@ export const useSettingsStore = defineStore("settingsStore", {
 		isOfflineMode: (state) => state.offlineModeState,
 	},
 	actions: {
-		toggleSettingsOpen() {
-			this.settingsOpenState = !this.settingsOpenState;
+		toggleSettingsOpen(newState?: boolean) {
+			this.settingsOpenState = newState !== undefined ? newState : !this.settingsOpenState;
 		},
 		toggleKeyboardMode() {
 			this.keyboardModeOnState = !this.keyboardModeOnState;
@@ -52,7 +52,7 @@ export const useSettingsStore = defineStore("settingsStore", {
 			if (!this.offlineModeState && confirm("Switching to offline mode will reload the application. Continue?")) {
 				router.push({ name: "Home" });
 			}
-			this.toggleSettingsOpen();
+			this.toggleSettingsOpen(false);
 		},
 		getPersistentSettings(): AppSettings {
 			return {

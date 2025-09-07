@@ -34,7 +34,8 @@ const {
 	loadExistingProjects,
 	submitServerBaseUrl,
 	useDefaultServerUrl,
-	handleOfflineMode,
+	setOfflineMode,
+	handleOfflineModeSwitch,
 } = useSetupPage();
 
 // Watch the isServerBaseUrlSubmitted and reload existing projects when it changes
@@ -52,12 +53,7 @@ watch(
 watch(
 	[() => route.query.backendBaseUrl, () => isOfflineMode.value],
 	([newBackendBaseUrl, newOfflineMode]) => {
-		console.log("Route query changed:", newBackendBaseUrl, newOfflineMode);
-		if (!newBackendBaseUrl && !newOfflineMode) {
-			isServerUrlConfigured.value = false;
-		} else if (newBackendBaseUrl || newOfflineMode) {
-			isServerUrlConfigured.value = true;
-		}
+		handleOfflineModeSwitch(newBackendBaseUrl, newOfflineMode);
 	},
 	{ immediate: true, deep: true }
 );
@@ -83,7 +79,7 @@ watch(
 					v-model:serverBaseUrl="formServerBaseUrl"
 					@submitServerBaseUrl="submitServerBaseUrl"
 					@useDefaultServerUrl="useDefaultServerUrl"
-					@runInOfflineMode="handleOfflineMode"
+					@runInOfflineMode="setOfflineMode"
 				/>
 				<!-- Existing Projects List -->
 				<div v-if="isServerUrlConfigured && !isOfflineMode" class="flex-0.5">

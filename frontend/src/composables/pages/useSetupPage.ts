@@ -6,6 +6,7 @@ import router from "../../core/router";
 import { useProjectStore } from "../../stores/projectStore";
 import { extractBaseBackendUrl } from "../../utils/urlUtils";
 import { useSettingsStore } from "../../stores/settingsStore";
+import type { LocationQueryValue } from "vue-router";
 
 export function useSetupPage() {
 	// Stores
@@ -129,9 +130,21 @@ export function useSetupPage() {
 	};
 
 	// Handle offline mode (skip server URL configuration)
-	const handleOfflineMode = () => {
+	const setOfflineMode = () => {
 		isServerUrlConfigured.value = true;
 		settingsStore.toggleOfflineMode(true);
+	};
+
+	// Handle offline mode changes from route query
+	const handleOfflineModeSwitch = (
+		backendBaseUrl?: LocationQueryValue | LocationQueryValue[],
+		offlineMode?: boolean
+	) => {
+		if (backendBaseUrl || offlineMode) {
+			isServerUrlConfigured.value = true;
+		} else {
+			isServerUrlConfigured.value = false;
+		}
 	};
 
 	return {
@@ -160,6 +173,7 @@ export function useSetupPage() {
 		loadExistingProjects,
 		submitServerBaseUrl,
 		useDefaultServerUrl,
-		handleOfflineMode,
+		setOfflineMode,
+		handleOfflineModeSwitch,
 	};
 }
