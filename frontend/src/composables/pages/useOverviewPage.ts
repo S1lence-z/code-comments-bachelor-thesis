@@ -15,7 +15,6 @@ export function useOverviewPage() {
 	const projectDataStore = useProjectDataStore();
 
 	// Store refs
-	const { repositoryUrl, writeApiUrl, repositoryBranch } = storeToRefs(projectStore);
 	const { allComments, isLoadingComments } = storeToRefs(projectDataStore);
 
 	// Filtering state
@@ -49,9 +48,9 @@ export function useOverviewPage() {
 
 	const openFileInEditor = (filePath: string) => {
 		const params = {
-			repoUrl: repositoryUrl.value,
-			commentsApiUrl: writeApiUrl.value,
-			branch: repositoryBranch.value,
+			repoUrl: projectStore.repositoryUrl,
+			commentsApiUrl: projectStore.writeApiUrl,
+			branch: projectStore.repositoryBranch,
 			file: filePath,
 		};
 		router.push({ path: "/review/code", query: params });

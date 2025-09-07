@@ -1,6 +1,5 @@
 import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
-import { storeToRefs } from "pinia";
 import { useProjectDataStore } from "../../stores/projectDataStore";
 import { useFileContentStore } from "../../stores/fileContentStore";
 import { useSettingsStore } from "../../stores/settingsStore";
@@ -9,6 +8,7 @@ import type { ProcessedFile } from "../../types/github/githubFile";
 import type CommentDto from "../../types/dtos/CommentDto";
 import { CommentType } from "../../types/enums/CommentType";
 import { getCommentLocationInfoByType } from "../../utils/commentUtils";
+import { storeToRefs } from "pinia";
 
 export function useCodeReviewPage() {
 	// Router
@@ -21,7 +21,6 @@ export function useCodeReviewPage() {
 	const settingsStore = useSettingsStore();
 
 	// Store refs
-	const { repositoryUrl, writeApiUrl, repositoryBranch, githubPat } = storeToRefs(projectStore);
 	const { fileTree, allComments, isLoadingRepository, isLoadingComments } = storeToRefs(projectDataStore);
 
 	// Local state
@@ -53,9 +52,9 @@ export function useCodeReviewPage() {
 		try {
 			processedSelectedFile.value = await fileContentStore.getFileContentAsync(
 				path,
-				repositoryUrl.value,
-				repositoryBranch.value,
-				githubPat.value
+				projectStore.getRepositoryUrl,
+				projectStore.getInitialBranch,
+				projectStore.getGithubPat
 			);
 		} catch (e: any) {
 			processedSelectedFile.value = null;
@@ -68,7 +67,7 @@ export function useCodeReviewPage() {
 	// Comment handling functions
 	const handleSinglelineCommentSelected = (payload: { lineNumber: number; filePath: string }): void => {
 		const { lineNumber, filePath } = payload;
-		if (!filePath || !writeApiUrl.value) {
+		if (!filePath || !projectStore.getWriteApiUrl) {
 			console.error("Cannot add comment: comments API URL is not configured.");
 			return;
 		}
@@ -91,7 +90,7 @@ export function useCodeReviewPage() {
 		filePath: string;
 	}): void => {
 		const { selectedStartLineNumber, selectedEndLineNumber, filePath } = payload;
-		if (!filePath || !writeApiUrl.value) {
+		if (!filePath || !projectStore.getWriteApiUrl) {
 			console.error("Cannot add comment: comments API URL is not configured.");
 			return;
 		}
@@ -175,7 +174,7 @@ export function useCodeReviewPage() {
 
 	// Delete comment action
 	const deleteCommentAction = async (commentId: string): Promise<void> => {
-		await projectDataStore.deleteCommentAsync(commentId, writeApiUrl.value);
+		await projectDataStore.deleteCommentAsync(commentId, projectStore.getWriteApiUrl);
 	};
 
 	// Computed
@@ -196,10 +195,6 @@ export function useCodeReviewPage() {
 
 	return {
 		// Store refs
-		repositoryUrl,
-		writeApiUrl,
-		repositoryBranch,
-		githubPat,
 		fileTree,
 		allComments,
 		isLoadingRepository,
