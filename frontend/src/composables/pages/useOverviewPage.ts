@@ -15,7 +15,6 @@ export function useOverviewPage() {
 	const projectDataStore = useProjectDataStore();
 
 	// Store refs
-	const { repositoryUrl, writeApiUrl, repositoryBranch } = storeToRefs(projectStore);
 	const { allComments, isLoadingComments } = storeToRefs(projectDataStore);
 
 	// Filtering state
@@ -36,25 +35,16 @@ export function useOverviewPage() {
 	});
 
 	// Methods
-	const navigateToCodeReview = (): void => {
-		router.push({
-			path: "/review/code",
-			query: router.currentRoute.value.query,
-		});
-	};
-
 	const setCommentTypeFilter = (commentType: CommentType | null): void => {
 		selectedCommentTypeFilter.value = commentType;
 	};
 
 	const openFileInEditor = (filePath: string) => {
-		const params = {
-			repoUrl: repositoryUrl.value,
-			commentsApiUrl: writeApiUrl.value,
-			branch: repositoryBranch.value,
+		const updatedParams = {
+			...router.currentRoute.value.query,
 			file: filePath,
 		};
-		router.push({ path: "/review/code", query: params });
+		router.push({ name: "Code Review", query: updatedParams });
 	};
 
 	return {
@@ -77,7 +67,6 @@ export function useOverviewPage() {
 		groupedCommentsByFile,
 
 		// Methods
-		navigateToCodeReview,
 		openFileInEditor,
 		setCommentTypeFilter,
 	};

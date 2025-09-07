@@ -4,6 +4,7 @@ import type ProjectSetupRequest from "../../types/dtos/SetupProjectRequest";
 import type ProjectDto from "../../types/dtos/ProjectDto";
 import router from "../../core/router";
 import { useProjectStore } from "../../stores/projectStore";
+import { extractBaseBackendUrl } from "../../utils/urlUtils";
 
 export function useSetupPage() {
 	// Stores
@@ -14,10 +15,12 @@ export function useSetupPage() {
 	const formBranchName = ref("");
 	const formProjectName = ref("");
 	const formWriteApiUrl = ref("");
+	const formServerBaseUrl = ref(projectStore.getBackendBaseUrl || "");
 
 	// UI state
 	const isCreatingProject = ref(false);
 	const isProjectCreated = ref(false);
+	const isServerUrlConfigured = ref(false);
 	const errorMessage = ref("");
 
 	// Data
@@ -58,6 +61,7 @@ export function useSetupPage() {
 		router.push({
 			name: "Code Review",
 			query: {
+				backendBaseUrl: formServerBaseUrl.value.trim(),
 				repoUrl: formGithubRepoUrl.value.trim(),
 				commentsApiUrl: formWriteApiUrl.value.trim(),
 				branch: formBranchName.value.trim(),
@@ -70,6 +74,7 @@ export function useSetupPage() {
 		router.push({
 			name: "Code Review",
 			query: {
+				backendBaseUrl: extractBaseBackendUrl(project.writeApiUrl),
 				repoUrl: project.repository.repositoryUrl,
 				commentsApiUrl: project.writeApiUrl,
 				branch: project.repository.branch,
@@ -80,10 +85,26 @@ export function useSetupPage() {
 	// Load existing projects
 	const loadExistingProjects = async (): Promise<void> => {
 		try {
-			existingProjects.value = await listProjects(projectStore.getBackendBaseUrl);
+			existingProjects.value = await listProjects(formServerBaseUrl.value.trim());
 		} catch (error) {
 			console.error("Failed to load existing projects:", error);
 		}
+	};
+
+	// Handle submission of the server base URL form
+	const submitServerBaseUrl = async (): Promise<void> => {
+		if (!formServerBaseUrl.value.trim()) return;
+		router.push({
+			name: "Home",
+			query: {
+				backendBaseUrl: formServerBaseUrl.value.trim(),
+			},
+		});
+		isServerUrlConfigured.value = true;
+	};
+
+	const useDefaultServerUrl = () => {
+		formServerBaseUrl.value = projectStore.getDefaultBackendBaseUrl();
 	};
 
 	return {
@@ -91,10 +112,12 @@ export function useSetupPage() {
 		formGithubRepoUrl,
 		formBranchName,
 		formProjectName,
+		formServerBaseUrl,
 
 		// UI state
 		isCreatingProject,
 		isProjectCreated,
+		isServerUrlConfigured,
 		errorMessage,
 
 		// Data
@@ -105,5 +128,7 @@ export function useSetupPage() {
 		navigateToNewProject,
 		navigateToExistingProject,
 		loadExistingProjects,
+		submitServerBaseUrl,
+		useDefaultServerUrl,
 	};
 }
