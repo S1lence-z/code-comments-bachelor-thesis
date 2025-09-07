@@ -90,7 +90,7 @@ watch(
 			<!-- Synced Status, Export, Options -->
 			<div class="flex items-center gap-8">
 				<!-- Synced Status -->
-				<div class="flex items-center space-x-8">
+				<div v-if="!activeTab.includes('/setup')" class="flex items-center space-x-8">
 					<!-- Synced Status -->
 					<div v-if="serverStatus === 'synced'" class="flex items-center gap-2">
 						<div class="w-2 h-2 bg-emerald-400 rounded-full"></div>
