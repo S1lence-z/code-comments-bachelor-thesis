@@ -52,6 +52,7 @@ export const useSettingsStore = defineStore("settingsStore", {
 			if (!this.offlineModeState && confirm("Switching to offline mode will reload the application. Continue?")) {
 				router.push({ name: "Home" });
 			}
+			this.toggleSettingsOpen();
 		},
 		getPersistentSettings(): AppSettings {
 			return {

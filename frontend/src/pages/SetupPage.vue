@@ -52,7 +52,10 @@ watch(
 watch(
 	[() => route.query.backendBaseUrl, () => isOfflineMode.value],
 	([newBackendBaseUrl, newOfflineMode]) => {
-		if (newBackendBaseUrl || newOfflineMode) {
+		console.log("Route query changed:", newBackendBaseUrl, newOfflineMode);
+		if (!newBackendBaseUrl && !newOfflineMode) {
+			isServerUrlConfigured.value = false;
+		} else if (newBackendBaseUrl || newOfflineMode) {
 			isServerUrlConfigured.value = true;
 		}
 	},
