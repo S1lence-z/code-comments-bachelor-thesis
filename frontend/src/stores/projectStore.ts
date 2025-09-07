@@ -7,7 +7,7 @@ export const useProjectStore = defineStore("projectStore", {
 		writeApiUrl: "",
 		repositoryBranch: "main",
 		githubPat: import.meta.env.VITE_GITHUB_PAT || "",
-		backendBaseUrl: import.meta.env.VITE_API_BASE_URL || "",
+		backendBaseUrl: "",
 	}),
 	getters: {
 		getRepositoryUrl: (state) => state.repositoryUrl,
@@ -23,10 +23,14 @@ export const useProjectStore = defineStore("projectStore", {
 			this.repositoryUrl = decodeURIComponent(newQuery.repoUrl as string) || "";
 			this.writeApiUrl = decodeURIComponent(newQuery.commentsApiUrl as string) || "";
 			this.repositoryBranch = decodeURIComponent(newQuery.branch as string) || "main";
+			this.backendBaseUrl = newQuery.backendBaseUrl ? decodeURIComponent(newQuery.backendBaseUrl as string) : "";
 
 			if (!this.repositoryUrl || !this.writeApiUrl) {
 				throw new Error("Repository URL and Comments API URL must be set.");
 			}
+		},
+		getDefaultBackendBaseUrl: () => {
+			return import.meta.env.VITE_API_BASE_URL;
 		},
 	},
 });
