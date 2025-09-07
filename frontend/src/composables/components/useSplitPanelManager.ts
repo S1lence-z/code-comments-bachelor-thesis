@@ -373,6 +373,14 @@ export function useSplitPanelManager(props: SplitPanelManagerProps, emit: SplitP
 					);
 				});
 			});
+
+			// For each panel, add the last panel as the active tab
+			panels.value.forEach((panel) => {
+				panel.activeTab = panel.openTabs[panel.openTabs.length - 1];
+			});
+
+			// Set the selected file to the active tab of the first panel
+			emit("update:selectedFilePath", panels.value[0].activeTab?.filePath || null);
 		}
 
 		// Assign project info
