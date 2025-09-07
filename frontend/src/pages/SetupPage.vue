@@ -50,13 +50,13 @@ watch(
 
 // Initialize formServerBaseUrl from the router query if available
 watch(
-	() => route.query.backendBaseUrl,
-	(newValue) => {
-		if (newValue) {
+	[() => route.query.backendBaseUrl, () => isOfflineMode.value],
+	([newBackendBaseUrl, newOfflineMode]) => {
+		if (newBackendBaseUrl || newOfflineMode) {
 			isServerUrlConfigured.value = true;
 		}
 	},
-	{ immediate: true }
+	{ immediate: true, deep: true }
 );
 </script>
 
