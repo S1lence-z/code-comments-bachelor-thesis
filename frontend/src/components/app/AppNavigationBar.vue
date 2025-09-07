@@ -90,7 +90,10 @@ watch(
 			<!-- Synced Status, Export, Options -->
 			<div class="flex items-center gap-8">
 				<!-- Synced Status -->
-				<div v-if="!activeTab.includes('/setup')" class="flex items-center space-x-8">
+				<div
+					v-if="!activeTab.includes('/setup') && !settingsStore.isOfflineMode"
+					class="flex items-center space-x-8"
+				>
 					<!-- Synced Status -->
 					<div v-if="serverStatus === 'synced'" class="flex items-center gap-2">
 						<div class="w-2 h-2 bg-emerald-400 rounded-full"></div>
@@ -104,6 +107,10 @@ watch(
 						<div class="w-2 h-2 bg-red-400 rounded-full"></div>
 						<span class="text-red-400 font-medium text-md">Status: {{ serverStore.getErrorMessage }}</span>
 					</div>
+				</div>
+				<div v-else-if="settingsStore.isOfflineMode" class="flex items-center gap-2">
+					<div class="w-2 h-2 bg-gray-400 rounded-full"></div>
+					<span class="text-gray-400 font-medium text-md">Offline Mode</span>
 				</div>
 
 				<div class="flex flex-row gap-4">

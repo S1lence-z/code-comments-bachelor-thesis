@@ -8,12 +8,12 @@
 			"type": "number",
 			"description": "Unique identifier for the record."
 		},
-		"repoUrl": {
+		"repositoryUrl": {
 			"type": "string",
 			"format": "url",
 			"description": "URL of the associated repository."
 		},
-		"commentsApiUrl": {
+		"writeApiUrl": {
 			"type": "string",
 			"format": "url",
 			"description": "API endpoint to fetch or manage comments for this record."
@@ -26,6 +26,6 @@
 			}
 		}
 	},
-	"required": ["id", "repoUrl", "commentsApiUrl", "comments"],
+	"required": ["id", "repositoryUrl", "writeApiUrl", "comments"],
 	"additionalProperties": false
 }
