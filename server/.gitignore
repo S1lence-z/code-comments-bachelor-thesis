@@ -120,3 +120,5 @@ src/.vs/config/applicationhost.config
 # Sqlite files
 *.db
 *.sqlite
+*.db-wal
+*.db-shm
