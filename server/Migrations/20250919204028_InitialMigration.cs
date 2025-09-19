@@ -133,8 +133,8 @@ namespace server.Migrations
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
                     Version = table.Column<string>(type: "TEXT", nullable: false, defaultValue: "1.0"),
-                    ReadApiUrl = table.Column<string>(type: "TEXT", nullable: false),
-                    WriteApiUrl = table.Column<string>(type: "TEXT", nullable: false),
+                    ServerBaseUrl = table.Column<string>(type: "TEXT", nullable: false),
+                    ReadWriteApiUrl = table.Column<string>(type: "TEXT", nullable: false),
                     RepositoryId = table.Column<Guid>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
@@ -155,7 +155,7 @@ namespace server.Migrations
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     ProjectId = table.Column<Guid>(type: "TEXT", nullable: false),
                     LocationId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CategoryId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CategoryId = table.Column<Guid>(type: "TEXT", nullable: true),
                     Type = table.Column<string>(type: "TEXT", nullable: false),
                     Content = table.Column<string>(type: "TEXT", nullable: false)
                 },

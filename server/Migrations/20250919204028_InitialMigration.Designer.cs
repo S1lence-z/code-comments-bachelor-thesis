@@ -11,8 +11,8 @@ using server.Data;
 namespace server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250825160722_MakeCategoryIdOptional")]
-    partial class MakeCategoryIdOptional
+    [Migration("20250919204028_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -146,11 +146,15 @@ namespace server.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("ReadApiUrl")
+                    b.Property<string>("ReadWriteApiUrl")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("RepositoryId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ServerBaseUrl")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Version")
@@ -158,10 +162,6 @@ namespace server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
                         .HasDefaultValue("1.0");
-
-                    b.Property<string>("WriteApiUrl")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
