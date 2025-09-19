@@ -129,7 +129,7 @@ onMounted(() => {
 						<div v-else class="text-center">
 							<div class="empty-state">
 								<div class="empty-state-icon">
-									<Icon srcName="archive" size="32px" />
+									<Icon srcName="empty" />
 								</div>
 								<h3 class="text-xl font-semibold text-white mb-2">No File Selected</h3>
 								<p class="text-slate-400 mb-4">Set up a project on the Home page</p>
