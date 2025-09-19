@@ -13,9 +13,9 @@ namespace server.Services
 	{
 		private readonly string BASE_BACKEND_URL = apiUrls.Value.Backend;
 
-		private string GenerateApiUrl(Guid projectId)
+		private static string GenerateReadWriteApiUrl(Guid projectId, string baseUrl)
 		{
-			return $"{BASE_BACKEND_URL}/api/v1/project/{projectId}/comments";
+			return $"{baseUrl}/api/v1/project/{projectId}/comments";
 		}
 
 		public async Task<IEnumerable<ProjectDto>> GetAllProjectsAsync()
@@ -40,15 +40,18 @@ namespace server.Services
 				};
 				await context.Repositories.AddAsync(newRepository);
 
+				// Validate if the server url in the request is the same as the base backend url
+				if (request.ServerBaseUrl.TrimEnd('/') != BASE_BACKEND_URL.TrimEnd('/'))
+					throw new Exception("The ServerBaseUrl must match the backend URL.");
+
 				// Create new project
 				Guid newProjectId = Guid.NewGuid();
-				string readWriteApiUrl = GenerateApiUrl(newProjectId);
 				Project newProject = new()
 				{
 					Id = newProjectId,
 					Name = request.Name,
-					ReadApiUrl = readWriteApiUrl,
-					WriteApiUrl = readWriteApiUrl,
+					ServerBaseUrl = request.ServerBaseUrl,
+					ReadWriteApiUrl = GenerateReadWriteApiUrl(newProjectId, request.ServerBaseUrl),
 					RepositoryId = newRepositoryId
 				};
 				await context.Projects.AddAsync(newProject);

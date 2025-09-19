@@ -13,12 +13,12 @@ namespace server.Models.Projects
 
 		[Required]
 		public string Version { get; set; } = "1.0";
+		
+		[Required]
+		public string ServerBaseUrl { get; set; } = string.Empty;
 
 		[Required]
-		public string ReadApiUrl { get; set; } = string.Empty;
-
-		[Required]
-		public string WriteApiUrl { get; set; } = string.Empty;
+		public string ReadWriteApiUrl { get; set; } = string.Empty;
 
 		[Required]
 		public Guid RepositoryId { get; set; }

@@ -81,7 +81,7 @@ watch(
 						}"
 					>
 						<router-link :to="{ path: route.path, query: preserveQueryParams }" class="block">
-							{{ route.name }}
+							{{ route.name?.description }}
 						</router-link>
 					</div>
 				</div>

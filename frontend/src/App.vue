@@ -12,6 +12,7 @@ import KeyboardShortcutsEditor from "./components/app/KeyboardShortcutsEditor.vu
 import { useWorkspaceStore } from "./stores/workspaceStore.ts";
 import { useProjectDataStore } from "./stores/projectDataStore.ts";
 import { useFileContentStore } from "./stores/fileContentStore.ts";
+import { setupPageKey } from "./core/keys";
 
 // Router
 const router = useRouter();
@@ -31,7 +32,7 @@ const fileContentStore = useFileContentStore();
 const handleSwitchOfflineMode = () => {
 	if (confirm("Switching offline mode will reload the application. Continue?")) {
 		settingsStore.toggleOfflineMode();
-		router.push({ name: "Home" });
+		router.push({ name: setupPageKey });
 	}
 	settingsStore.toggleSettingsOpen(false);
 };
@@ -51,10 +52,10 @@ onMounted(async () => {
 			// Load the synced project data
 			await projectDataStore.loadProjectDataAsync(
 				projectStore.repositoryUrl,
-				projectStore.writeApiUrl,
+				projectStore.rwApiUrl,
 				projectStore.repositoryBranch,
 				projectStore.githubPat,
-				projectStore.getBackendBaseUrl
+				projectStore.getServerBaseUrl
 			);
 			// Load commented files content
 			await fileContentStore.loadCommentedFilesContent(
@@ -72,7 +73,7 @@ onMounted(async () => {
 watch(
 	() => route.query,
 	async (newQuery, oldQuery) => {
-		const relevantParams = ["backendBaseUrl", "repositoryUrl", "writeApiUrl", "branch"];
+		const relevantParams = ["serverBaseUrl", "repositoryUrl", "rwApiUrl", "branch"];
 		const hasRelevantChanges = relevantParams.some((param) => newQuery[param] !== oldQuery[param]);
 
 		if (hasRelevantChanges) {
@@ -82,10 +83,10 @@ watch(
 			// Load the synced project data
 			await projectDataStore.loadProjectDataAsync(
 				projectStore.repositoryUrl,
-				projectStore.writeApiUrl,
+				projectStore.rwApiUrl,
 				projectStore.repositoryBranch,
 				projectStore.githubPat,
-				projectStore.getBackendBaseUrl
+				projectStore.getServerBaseUrl
 			);
 		}
 	},

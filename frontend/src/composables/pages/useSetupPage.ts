@@ -1,24 +1,27 @@
 import { computed, ref } from "vue";
 import { setupProject, listProjects } from "../../services/projectService";
-import type ProjectSetupRequest from "../../types/dtos/SetupProjectRequest";
+import type ProjectSetupRequest from "../../types/dtos/ProjectSetupRequest";
 import type ProjectDto from "../../types/dtos/ProjectDto";
-import router from "../../core/router";
 import { useProjectStore } from "../../stores/projectStore";
-import { extractBaseBackendUrl } from "../../utils/urlUtils";
+import { isValidGithubUrl } from "../../utils/urlUtils";
 import { useSettingsStore } from "../../stores/settingsStore";
 import type { LocationQueryValue } from "vue-router";
+import { useQueryParams } from "../core/useQueryParams";
 
 export function useSetupPage() {
 	// Stores
 	const projectStore = useProjectStore();
 	const settingsStore = useSettingsStore();
 
+	// Query params composable
+	const { navigateToProject, navigateToServer } = useQueryParams();
+
 	// Form input values
 	const formGithubRepositoryUrl = ref("");
 	const formBranchName = ref("");
 	const formProjectName = ref("");
-	const formWriteApiUrl = ref("");
-	const formServerBaseUrl = ref<string>(projectStore.getBackendBaseUrl || "");
+	const formReadWriteApiUrl = ref("");
+	const formServerBaseUrl = ref(projectStore.getServerBaseUrl || "");
 
 	// UI state
 	const isCreatingProject = ref(false);
@@ -49,18 +52,26 @@ export function useSetupPage() {
 		isProjectCreated.value = false;
 		errorMessage.value = "";
 
+		// Validate github URL
+		if (!isValidGithubUrl(formGithubRepositoryUrl.value.trim())) {
+			errorMessage.value = "Invalid GitHub repository URL.";
+			return;
+		}
+
+		// Submit project setup request
 		try {
 			const setupData: ProjectSetupRequest = {
+				serverBaseUrl: formServerBaseUrl.value.trim(),
 				repositoryUrl: formGithubRepositoryUrl.value.trim(),
 				branch: formBranchName.value.trim(),
 				name: formProjectName.value.trim(),
 			};
 
-			const response = await setupProject(setupData, projectStore.getBackendBaseUrl);
+			const response = await setupProject(setupData, projectStore.getServerBaseUrl);
 
-			if (response.writeApiUrl && response.repository) {
+			if (response.readWriteApiUrl && response.repository) {
 				isProjectCreated.value = true;
-				formWriteApiUrl.value = response.writeApiUrl;
+				formReadWriteApiUrl.value = response.readWriteApiUrl;
 			} else {
 				throw new Error("Invalid response from server");
 			}
@@ -75,28 +86,22 @@ export function useSetupPage() {
 	const navigateToNewProject = (): void => {
 		if (!isProjectCreated.value) return;
 
-		router.push({
-			name: "Code Review",
-			query: {
-				backendBaseUrl: formServerBaseUrl.value.trim(),
-				repositoryUrl: formGithubRepositoryUrl.value.trim(),
-				writeApiUrl: formWriteApiUrl.value.trim(),
-				branch: formBranchName.value.trim(),
-			},
-		});
+		navigateToProject(
+			formServerBaseUrl.value.trim(),
+			formGithubRepositoryUrl.value.trim(),
+			formReadWriteApiUrl.value.trim(),
+			formBranchName.value.trim()
+		);
 	};
 
 	// Navigate to existing project
 	const navigateToExistingProject = (project: ProjectDto): void => {
-		router.push({
-			name: "Code Review",
-			query: {
-				backendBaseUrl: extractBaseBackendUrl(project.writeApiUrl),
-				repositoryUrl: project.repository.repositoryUrl,
-				writeApiUrl: project.writeApiUrl,
-				branch: project.repository.branch,
-			},
-		});
+		navigateToProject(
+			project.serverBaseUrl,
+			project.repository.repositoryUrl,
+			project.readWriteApiUrl,
+			project.repository.branch
+		);
 	};
 
 	// Load existing projects
@@ -115,21 +120,15 @@ export function useSetupPage() {
 	// Handle submission of the server base URL form
 	const submitServerBaseUrl = async (): Promise<void> => {
 		if (!formServerBaseUrl.value.trim()) return;
-		router.push({
-			name: "Home",
-			query: {
-				backendBaseUrl: formServerBaseUrl.value.trim(),
-			},
-		});
+
+		navigateToServer(formServerBaseUrl.value.trim());
 		isServerUrlConfigured.value = true;
 	};
 
 	// Use default server URL
 	const useDefaultServerUrl = () => {
-		formServerBaseUrl.value = projectStore.getDefaultBackendBaseUrl();
-	};
-
-	// Handle offline mode (skip server URL configuration)
+		formServerBaseUrl.value = projectStore.getDefaultServerBaseUrl();
+	}; // Handle offline mode (skip server URL configuration)
 	const setOfflineMode = () => {
 		isServerUrlConfigured.value = true;
 		settingsStore.toggleOfflineMode(true);

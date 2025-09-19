@@ -1,5 +1,4 @@
 import { ref, computed } from "vue";
-import { useRoute } from "vue-router";
 import { useProjectDataStore } from "../../stores/projectDataStore";
 import { useFileContentStore } from "../../stores/fileContentStore";
 import { useSettingsStore } from "../../stores/settingsStore";
@@ -9,16 +8,20 @@ import type CommentDto from "../../types/dtos/CommentDto";
 import { CommentType } from "../../types/enums/CommentType";
 import { getCommentLocationInfoByType } from "../../utils/commentUtils";
 import { storeToRefs } from "pinia";
+import { useQueryParams } from "../core/useQueryParams";
+import { useWorkspaceStore } from "../../stores/workspaceStore";
 
 export function useCodeReviewPage() {
-	// Router
-	const route = useRoute();
+	// Query params composable
+	const { params } = useQueryParams();
 
 	// Stores
 	const projectStore = useProjectStore();
 	const projectDataStore = useProjectDataStore();
 	const fileContentStore = useFileContentStore();
 	const settingsStore = useSettingsStore();
+	// TODO: delete this dependency when I fix the split panel manager
+	const workspaceStore = useWorkspaceStore();
 
 	// Store refs
 	const { fileTree, allComments, isLoadingRepository, isLoadingComments } = storeToRefs(projectDataStore);
@@ -53,7 +56,7 @@ export function useCodeReviewPage() {
 			processedSelectedFile.value = await fileContentStore.getFileContentAsync(
 				path,
 				projectStore.getRepositoryUrl,
-				projectStore.getInitialBranch,
+				projectStore.getRepositoryBranch,
 				projectStore.getGithubPat
 			);
 		} catch (e: any) {
@@ -173,7 +176,7 @@ export function useCodeReviewPage() {
 	};
 
 	const handleFileQueryParam = (): void => {
-		const filePathToOpen = decodeURIComponent((route.query.file as string) || "");
+		const filePathToOpen = params.value.file;
 		if (filePathToOpen) {
 			selectedFilePath.value = filePathToOpen;
 		} else {
@@ -184,7 +187,12 @@ export function useCodeReviewPage() {
 
 	// Delete comment action
 	const deleteCommentAction = async (commentId: string): Promise<void> => {
-		await projectDataStore.deleteCommentAsync(commentId, projectStore.getWriteApiUrl);
+		await projectDataStore.deleteCommentAsync(commentId, projectStore.getRwApiUrl);
+	};
+
+	// Is current workspace empty
+	const isWorkspaceEmpty = () => {
+		return !workspaceStore.existsNonEmptyWorkspace(projectStore.getRepositoryUrl, projectStore.getRepositoryBranch);
 	};
 
 	// Computed
@@ -245,6 +253,7 @@ export function useCodeReviewPage() {
 		handleSidebarResize,
 		handleFileQueryParam,
 		deleteCommentAction,
+		isWorkspaceEmpty,
 
 		// Computed
 		getSubtitle,

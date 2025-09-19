@@ -10,9 +10,9 @@ export const useWorkspaceStore = defineStore("workspace", {
 		getAllSavedWorkspaces: (state): Workspace[] => state.savedWorkspaces,
 		getWorkspaceByRepository:
 			(state) =>
-			(repositoryUrl: string, repoBranch: string): Workspace | undefined => {
+			(repositoryUrl: string, repositoryBranch: string): Workspace | undefined => {
 				return state.savedWorkspaces.find(
-					(ws) => ws.repositoryUrl === repositoryUrl && ws.repositoryBranch === repoBranch
+					(ws) => ws.repositoryUrl === repositoryUrl && ws.repositoryBranch === repositoryBranch
 				);
 			},
 	},
@@ -22,6 +22,13 @@ export const useWorkspaceStore = defineStore("workspace", {
 				(ws) =>
 					ws.repositoryUrl === workspace.repositoryUrl && ws.repositoryBranch === workspace.repositoryBranch
 			);
+		},
+		existsNonEmptyWorkspace(repositoryUrl: string, repositoryBranch: string): boolean {
+			const foundWorkspace = this.savedWorkspaces.find((ws) => {
+				ws.repositoryUrl === repositoryUrl && ws.repositoryBranch === repositoryBranch;
+			});
+			if (!foundWorkspace) return false;
+			return foundWorkspace.panels.length === 0 ? false : true;
 		},
 		applyWorkspaces(workspaces: Workspace[]) {
 			this.savedWorkspaces = workspaces;
