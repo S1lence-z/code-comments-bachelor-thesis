@@ -8,9 +8,9 @@
 
 		public string Name { get; set; } = string.Empty;
 
-		public string ReadApiUrl { get; set; } = string.Empty;
+		public string ServerBaseUrl { get; set; } = string.Empty;
 
-		public string WriteApiUrl { get; set; } = string.Empty;
+		public string ReadWriteApiUrl { get; set; } = string.Empty;
 
 		public RepositoryDto Repository { get; set; } = null!;
 	}

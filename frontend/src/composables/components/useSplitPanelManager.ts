@@ -337,10 +337,11 @@ export function useSplitPanelManager(props: SplitPanelManagerProps, emit: SplitP
 		nextPanel.size = (clampedNextWidthPx / containerWidth) * FULL_WIDTH_PERCENTAGE;
 	};
 
+	// TODO: this should happen in the page component and just pass the panels as props
 	// Workspace initialization
 	const initializeWorkspace = (): void => {
 		// Ensure project info is available
-		if (!projectStore.getRepositoryUrl || !projectStore.getInitialBranch) {
+		if (!projectStore.getRepositoryUrl || !projectStore.getRepositoryBranch) {
 			console.warn("Project repository info not available for workspace initialization");
 			return;
 		}

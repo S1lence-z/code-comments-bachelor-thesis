@@ -6,6 +6,7 @@ import SplitPanelManager from "../components/codeReview/SplitPanelManager.vue";
 import ResizeHandle from "../lib/ResizeHandle.vue";
 import CommentForm from "../components/codeReview/CommentForm.vue";
 import SlideoutPanel from "../lib/SlideoutPanel.vue";
+import Icon from "../lib/Icon.vue";
 
 // Initialize the composable
 const {
@@ -44,6 +45,7 @@ const {
 	handleSidebarResize,
 	handleFileQueryParam,
 	deleteCommentAction,
+	isWorkspaceEmpty,
 
 	// Computed
 	getSubtitle,
@@ -87,8 +89,11 @@ onMounted(() => {
 							@project-comment-requested="handleProjectCommentSelected"
 							@file-comment-requested="handleFileCommentSelected"
 						/>
-						<div v-else class="p-6 text-sm text-center text-slate-300">
-							No files found in the repository.
+						<div v-else class="text-center">
+							<div class="empty-state">
+								<h3 class="text-lg font-semibold text-white mb-2">No Files Found</h3>
+								<p class="text-sm text-slate-400 mb-4">Set up a project on the Home page</p>
+							</div>
 						</div>
 					</div>
 
@@ -113,7 +118,7 @@ onMounted(() => {
 						</div>
 						<!-- SplitPanelManager -->
 						<SplitPanelManager
-							v-else
+							v-else-if="isWorkspaceEmpty()"
 							:selected-file-path="selectedFilePath"
 							@update:selected-file-path="handleFileSelected"
 							@line-double-clicked="handleSinglelineCommentSelected"
@@ -121,6 +126,16 @@ onMounted(() => {
 							@delete-comment="deleteCommentAction"
 							@edit-comment="handleCommentEdit"
 						/>
+						<!-- Empty State -->
+						<div v-else class="text-center">
+							<div class="empty-state">
+								<div class="empty-state-icon">
+									<Icon srcName="empty" />
+								</div>
+								<h3 class="text-xl font-semibold text-white mb-2">No File Selected</h3>
+								<p class="text-slate-400 mb-4">Set up a project on the Home page</p>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>

@@ -1,30 +1,43 @@
 import { defineStore } from "pinia";
 import { type LocationQuery } from "vue-router";
+import { QUERY_PARAMS, type QueryParams } from "../types/others/QueryParams";
 
 export const useProjectStore = defineStore("projectStore", {
 	state: () => ({
 		repositoryUrl: "",
-		writeApiUrl: "",
-		repositoryBranch: "main",
+		rwApiUrl: "",
+		repositoryBranch: "",
 		githubPat: import.meta.env.VITE_GITHUB_PAT || "",
-		backendBaseUrl: "",
+		serverBaseUrl: "",
 	}),
 	getters: {
 		getRepositoryUrl: (state) => state.repositoryUrl,
-		getWriteApiUrl: (state) => state.writeApiUrl,
-		getInitialBranch: (state) => state.repositoryBranch,
+		getRwApiUrl: (state) => state.rwApiUrl,
+		getRepositoryBranch: (state) => state.repositoryBranch,
 		getGithubPat: (state) => state.githubPat,
 		getRepositoryName: (state) => state.repositoryUrl.split("/").pop() || "Unknown",
-		getBackendBaseUrl: (state) => state.backendBaseUrl,
+		getServerBaseUrl: (state) => state.serverBaseUrl,
 	},
 	actions: {
 		syncStateWithRoute(newQuery: LocationQuery) {
-			this.backendBaseUrl = newQuery.backendBaseUrl ? decodeURIComponent(newQuery.backendBaseUrl as string) : "";
-			this.repositoryUrl = newQuery.repositoryUrl ? decodeURIComponent(newQuery.repositoryUrl as string) : "";
-			this.writeApiUrl = newQuery.writeApiUrl ? decodeURIComponent(newQuery.writeApiUrl as string) : "";
-			this.repositoryBranch = newQuery.branch ? decodeURIComponent(newQuery.branch as string) : "main";
+			// Simple extraction from query
+			const extractString = (value: any): string => {
+				if (Array.isArray(value)) return value[0] || "";
+				return value || "";
+			};
+
+			this.serverBaseUrl = extractString(newQuery[QUERY_PARAMS.SERVER_BASE_URL]);
+			this.repositoryUrl = extractString(newQuery[QUERY_PARAMS.REPOSITORY_URL]);
+			this.rwApiUrl = extractString(newQuery[QUERY_PARAMS.RW_API_URL]);
+			this.repositoryBranch = extractString(newQuery[QUERY_PARAMS.BRANCH]);
 		},
-		getDefaultBackendBaseUrl: () => {
+		updateFromParams(params: QueryParams) {
+			this.serverBaseUrl = params.serverBaseUrl || "";
+			this.repositoryUrl = params.repositoryUrl || "";
+			this.rwApiUrl = params.rwApiUrl || "";
+			this.repositoryBranch = params.branch || "";
+		},
+		getDefaultServerBaseUrl: () => {
 			return import.meta.env.VITE_API_BASE_URL;
 		},
 	},

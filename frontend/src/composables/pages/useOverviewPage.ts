@@ -1,14 +1,14 @@
 import { ref, computed } from "vue";
-import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useProjectDataStore } from "../../stores/projectDataStore";
 import { useProjectStore } from "../../stores/projectStore";
 import { CommentType } from "../../types/enums/CommentType";
 import { groupCommentsByFile, sortCommentsByLineNumber } from "../../utils/commentUtils";
+import { useQueryParams } from "../core/useQueryParams";
 
 export function useOverviewPage() {
-	// Router
-	const router = useRouter();
+	// Query params composable
+	const { navigateToFile } = useQueryParams();
 
 	// Stores
 	const projectStore = useProjectStore();
@@ -40,11 +40,7 @@ export function useOverviewPage() {
 	};
 
 	const openFileInEditor = (filePath: string) => {
-		const updatedParams = {
-			...router.currentRoute.value.query,
-			file: filePath,
-		};
-		router.push({ name: "Code Review", query: updatedParams });
+		navigateToFile(filePath);
 	};
 
 	return {
@@ -55,9 +51,6 @@ export function useOverviewPage() {
 		// Stores (for direct access if needed)
 		projectStore,
 		projectDataStore,
-
-		// Router
-		router,
 
 		// Local state
 		selectedCommentTypeFilter,
