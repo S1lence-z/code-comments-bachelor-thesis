@@ -1,5 +1,4 @@
 import { ref, computed } from "vue";
-import { useRoute } from "vue-router";
 import { useProjectDataStore } from "../../stores/projectDataStore";
 import { useFileContentStore } from "../../stores/fileContentStore";
 import { useSettingsStore } from "../../stores/settingsStore";
@@ -9,10 +8,11 @@ import type CommentDto from "../../types/dtos/CommentDto";
 import { CommentType } from "../../types/enums/CommentType";
 import { getCommentLocationInfoByType } from "../../utils/commentUtils";
 import { storeToRefs } from "pinia";
+import { useQueryParams } from "../core/useQueryParams";
 
 export function useCodeReviewPage() {
-	// Router
-	const route = useRoute();
+	// Query params composable
+	const { params } = useQueryParams();
 
 	// Stores
 	const projectStore = useProjectStore();
@@ -173,7 +173,7 @@ export function useCodeReviewPage() {
 	};
 
 	const handleFileQueryParam = (): void => {
-		const filePathToOpen = decodeURIComponent((route.query.file as string) || "");
+		const filePathToOpen = params.value.file;
 		if (filePathToOpen) {
 			selectedFilePath.value = filePathToOpen;
 		} else {
@@ -184,7 +184,7 @@ export function useCodeReviewPage() {
 
 	// Delete comment action
 	const deleteCommentAction = async (commentId: string): Promise<void> => {
-		await projectDataStore.deleteCommentAsync(commentId, projectStore.getWriteApiUrl);
+		await projectDataStore.deleteCommentAsync(commentId, projectStore.getRwApiUrl);
 	};
 
 	// Computed

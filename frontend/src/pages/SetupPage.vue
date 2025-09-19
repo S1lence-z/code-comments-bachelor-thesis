@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { watch } from "vue";
 import { useSetupPage } from "../composables/pages/useSetupPage";
-import { useRoute } from "vue-router";
 import ServerForm from "../components/setup/ServerForm.vue";
 import ProjectList from "../components/setup/ProjectList.vue";
 import ProjectForm from "../components/setup/ProjectForm.vue";
+import { useQueryParams } from "../composables/core/useQueryParams";
 
-const route = useRoute();
+const { params } = useQueryParams();
 
 const {
 	// Form inputs
@@ -51,9 +51,9 @@ watch(
 
 // Initialize formServerBaseUrl from the router query if available
 watch(
-	[() => route.query.backendBaseUrl, () => isOfflineMode.value],
-	([newBackendBaseUrl, newOfflineMode]) => {
-		handleOfflineModeSwitch(newBackendBaseUrl, newOfflineMode);
+	[() => params.value.serverBaseUrl, () => isOfflineMode.value],
+	([newServerBaseUrl, newOfflineMode]) => {
+		handleOfflineModeSwitch(newServerBaseUrl, newOfflineMode);
 	},
 	{ immediate: true, deep: true }
 );
