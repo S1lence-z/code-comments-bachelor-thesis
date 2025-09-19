@@ -45,6 +45,7 @@ const {
 	handleSidebarResize,
 	handleFileQueryParam,
 	deleteCommentAction,
+	isWorkspaceEmpty,
 
 	// Computed
 	getSubtitle,
@@ -117,7 +118,7 @@ onMounted(() => {
 						</div>
 						<!-- SplitPanelManager -->
 						<SplitPanelManager
-							v-else-if="selectedFilePath"
+							v-else-if="isWorkspaceEmpty()"
 							:selected-file-path="selectedFilePath"
 							@update:selected-file-path="handleFileSelected"
 							@line-double-clicked="handleSinglelineCommentSelected"

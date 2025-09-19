@@ -13,7 +13,7 @@ export const useProjectStore = defineStore("projectStore", {
 	getters: {
 		getRepositoryUrl: (state) => state.repositoryUrl,
 		getRwApiUrl: (state) => state.rwApiUrl,
-		getInitialBranch: (state) => state.repositoryBranch,
+		getRepositoryBranch: (state) => state.repositoryBranch,
 		getGithubPat: (state) => state.githubPat,
 		getRepositoryName: (state) => state.repositoryUrl.split("/").pop() || "Unknown",
 		getServerBaseUrl: (state) => state.serverBaseUrl,

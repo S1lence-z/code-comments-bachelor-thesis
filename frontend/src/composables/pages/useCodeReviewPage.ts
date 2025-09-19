@@ -9,6 +9,7 @@ import { CommentType } from "../../types/enums/CommentType";
 import { getCommentLocationInfoByType } from "../../utils/commentUtils";
 import { storeToRefs } from "pinia";
 import { useQueryParams } from "../core/useQueryParams";
+import { useWorkspaceStore } from "../../stores/workspaceStore";
 
 export function useCodeReviewPage() {
 	// Query params composable
@@ -19,6 +20,8 @@ export function useCodeReviewPage() {
 	const projectDataStore = useProjectDataStore();
 	const fileContentStore = useFileContentStore();
 	const settingsStore = useSettingsStore();
+	// TODO: delete this dependency when I fix the split panel manager
+	const workspaceStore = useWorkspaceStore();
 
 	// Store refs
 	const { fileTree, allComments, isLoadingRepository, isLoadingComments } = storeToRefs(projectDataStore);
@@ -53,7 +56,7 @@ export function useCodeReviewPage() {
 			processedSelectedFile.value = await fileContentStore.getFileContentAsync(
 				path,
 				projectStore.getRepositoryUrl,
-				projectStore.getInitialBranch,
+				projectStore.getRepositoryBranch,
 				projectStore.getGithubPat
 			);
 		} catch (e: any) {
@@ -187,6 +190,11 @@ export function useCodeReviewPage() {
 		await projectDataStore.deleteCommentAsync(commentId, projectStore.getRwApiUrl);
 	};
 
+	// Is current workspace empty
+	const isWorkspaceEmpty = () => {
+		return !workspaceStore.existsNonEmptyWorkspace(projectStore.getRepositoryUrl, projectStore.getRepositoryBranch);
+	};
+
 	// Computed
 	const getSubtitle = computed(() => {
 		if (addedCommentType.value === CommentType.Project) return "Project-wide comment";
@@ -245,6 +253,7 @@ export function useCodeReviewPage() {
 		handleSidebarResize,
 		handleFileQueryParam,
 		deleteCommentAction,
+		isWorkspaceEmpty,
 
 		// Computed
 		getSubtitle,
