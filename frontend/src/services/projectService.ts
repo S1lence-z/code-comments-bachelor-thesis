@@ -1,4 +1,4 @@
-import type ProjectSetupRequest from "../types/dtos/SetupProjectRequest";
+import type ProjectSetupRequest from "../types/dtos/ProjectSetupRequest";
 import type ProjectDto from "../types/dtos/ProjectDto";
 
 export async function listProjects(backendBaseUrl: string): Promise<ProjectDto[]> {

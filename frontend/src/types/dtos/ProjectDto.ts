@@ -4,7 +4,7 @@ export default interface ProjectDto {
 	id: string;
 	version: string;
 	name: string;
-	readApiUrl: string;
-	writeApiUrl: string;
+	serverBaseUrl: string;
+	readWriteApiUrl: string;
 	repository: RepositoryDto;
 }

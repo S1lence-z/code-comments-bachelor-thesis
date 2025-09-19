@@ -1,10 +1,10 @@
 import { computed, ref } from "vue";
 import { setupProject, listProjects } from "../../services/projectService";
-import type ProjectSetupRequest from "../../types/dtos/SetupProjectRequest";
+import type ProjectSetupRequest from "../../types/dtos/ProjectSetupRequest";
 import type ProjectDto from "../../types/dtos/ProjectDto";
 import router from "../../core/router";
 import { useProjectStore } from "../../stores/projectStore";
-import { extractBaseBackendUrl } from "../../utils/urlUtils";
+import { isValidGithubUrl } from "../../utils/urlUtils";
 import { useSettingsStore } from "../../stores/settingsStore";
 import type { LocationQueryValue } from "vue-router";
 
@@ -17,8 +17,8 @@ export function useSetupPage() {
 	const formGithubRepositoryUrl = ref("");
 	const formBranchName = ref("");
 	const formProjectName = ref("");
-	const formWriteApiUrl = ref("");
-	const formServerBaseUrl = ref<string>(projectStore.getBackendBaseUrl || "");
+	const formReadWriteApiUrl = ref("");
+	const formServerBaseUrl = ref(projectStore.getBackendBaseUrl || "");
 
 	// UI state
 	const isCreatingProject = ref(false);
@@ -49,8 +49,16 @@ export function useSetupPage() {
 		isProjectCreated.value = false;
 		errorMessage.value = "";
 
+		// Validate github URL
+		if (!isValidGithubUrl(formGithubRepositoryUrl.value.trim())) {
+			errorMessage.value = "Invalid GitHub repository URL.";
+			return;
+		}
+
+		// Submit project setup request
 		try {
 			const setupData: ProjectSetupRequest = {
+				serverBaseUrl: formServerBaseUrl.value.trim(),
 				repositoryUrl: formGithubRepositoryUrl.value.trim(),
 				branch: formBranchName.value.trim(),
 				name: formProjectName.value.trim(),
@@ -58,9 +66,9 @@ export function useSetupPage() {
 
 			const response = await setupProject(setupData, projectStore.getBackendBaseUrl);
 
-			if (response.writeApiUrl && response.repository) {
+			if (response.readWriteApiUrl && response.repository) {
 				isProjectCreated.value = true;
-				formWriteApiUrl.value = response.writeApiUrl;
+				formReadWriteApiUrl.value = response.readWriteApiUrl;
 			} else {
 				throw new Error("Invalid response from server");
 			}
@@ -80,7 +88,7 @@ export function useSetupPage() {
 			query: {
 				backendBaseUrl: formServerBaseUrl.value.trim(),
 				repositoryUrl: formGithubRepositoryUrl.value.trim(),
-				writeApiUrl: formWriteApiUrl.value.trim(),
+				writeApiUrl: formReadWriteApiUrl.value.trim(),
 				branch: formBranchName.value.trim(),
 			},
 		});
@@ -91,9 +99,9 @@ export function useSetupPage() {
 		router.push({
 			name: "Code Review",
 			query: {
-				backendBaseUrl: extractBaseBackendUrl(project.writeApiUrl),
+				backendBaseUrl: project.serverBaseUrl,
 				repositoryUrl: project.repository.repositoryUrl,
-				writeApiUrl: project.writeApiUrl,
+				writeApiUrl: project.readWriteApiUrl,
 				branch: project.repository.branch,
 			},
 		});

@@ -62,9 +62,7 @@ export const useFileContentStore = defineStore("fileContentStore", {
 			if (this.isFileCached(filePath)) {
 				const cached = this.fileContentCache.get(filePath);
 				if (cached) return cached;
-				else {
-					throw new Error(`File content for ${filePath} is not cached.`);
-				}
+				else throw new Error("File is marked as cached but not found in cache.");
 			}
 
 			const processedFile = await fetchProcessedFile(repositoryUrl, branch, filePath, githubPat);
