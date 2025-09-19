@@ -97,7 +97,7 @@ export function useCommentForm(props: CommentFormProps, emit: CommentFormEmits) 
 		}
 
 		try {
-			await projectDataStore.upsertCommentAsync(commentData, projectStore.getWriteApiUrl);
+			await projectDataStore.upsertCommentAsync(commentData, projectStore.getRwApiUrl);
 			emit("update:isVisible", false);
 		} catch (error) {
 			console.error("Failed to save comment:", error);
