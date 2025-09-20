@@ -36,10 +36,7 @@ const useProjectService = () => {
 				body: JSON.stringify(setupProjectRequest),
 			});
 			if (!response.ok) {
-				const errorData = await response.json().catch(() => ({ message: "Failed to create configuration" }));
-				throw new Error(
-					`Failed to create configuration: ${response.status} ${response.statusText} - ${errorData.message}`
-				);
+				throw new Error(`Failed to create project: ${response.status} ${response.statusText}`);
 			}
 
 			const createdProject = await response.json();
