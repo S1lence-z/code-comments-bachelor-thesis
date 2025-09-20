@@ -3,7 +3,7 @@ import type { TreeNode } from "../types/github/githubTree";
 import type CommentDto from "../types/dtos/CommentDto";
 import type CategoryDto from "../types/dtos/CategoryDto";
 import useGithubTreeService from "../services/githubTreeService";
-import { fetchComments, addComment, updateComment, deleteComment } from "../services/commentsService";
+import useCommentsService from "../services/commentsService";
 import useCategoryService from "../services/categoryService";
 import { useServerStore } from "./serverStore";
 import { CommentType } from "../types/enums/CommentType";
@@ -75,13 +75,13 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				this.githubUrlForTree = repositoryUrl;
 			} catch (error: any) {
 				this.fileTreeData = [];
-				throw error;
 			} finally {
 				this.isLoadingRepository = false;
 			}
 		},
 		async fetchAllCommentsAsync(rwApiUrl: string) {
 			const serverStore = useServerStore();
+			const commentsService = useCommentsService();
 			serverStore.startSyncing();
 			this.isLoadingComments = true;
 			try {
@@ -92,7 +92,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 					return;
 				}
 
-				const response = await fetchComments(rwApiUrl);
+				const response = await commentsService.getComments(rwApiUrl);
 				if (!response) {
 					serverStore.setSyncError("No comments found in the response");
 					console.warn("No comments found in the response");
@@ -100,10 +100,9 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				}
 				this.comments = response || [];
 				serverStore.setSynced();
-			} catch (error: any) {
+			} catch (error) {
 				serverStore.setSyncError("Failed to fetch comments");
 				this.comments = [];
-				throw error;
 			} finally {
 				this.isLoadingComments = false;
 			}
@@ -143,8 +142,9 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 		},
 		async upsertCommentAsync(commentData: CommentDto, rwApiUrl: string): Promise<void> {
 			const serverStore = useServerStore();
+			const commentsService = useCommentsService();
 
-			// Offline mode
+			// Handle offline mode
 			if (!rwApiUrl || !rwApiUrl.trim()) {
 				// Generate a unique ID for new comments in offline mode
 				if (!commentData.id) {
@@ -161,7 +161,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				serverStore.startSyncing();
 				// Update existing comment
 				if (commentData.id) {
-					const updatedComment = await updateComment(rwApiUrl, commentData.id, commentData);
+					const updatedComment = await commentsService.updateComment(rwApiUrl, commentData.id, commentData);
 					if (!updatedComment.id) {
 						throw new Error("Failed to update comment");
 					}
@@ -170,8 +170,9 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 					serverStore.setSynced();
 					return;
 				}
+
 				// Add new comment
-				const newComment = await addComment(rwApiUrl, commentData);
+				const newComment = await commentsService.addComment(rwApiUrl, commentData);
 				if (!newComment.id) {
 					throw new Error("Failed to add comment");
 				}
@@ -179,13 +180,13 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				serverStore.setSynced();
 			} catch (error: any) {
 				serverStore.setSyncError("Failed to upsert comment");
-				throw error;
 			}
 		},
 		async deleteCommentAsync(commentId: string, rwApiUrl: string): Promise<void> {
 			const serverStore = useServerStore();
+			const commentsService = useCommentsService();
 
-			// Offline mode
+			// Handle offline mode
 			if (!rwApiUrl || !rwApiUrl.trim()) {
 				console.log("Operating in offline mode - deleting comment locally only");
 				this.deleteCommentLocal(commentId);
@@ -194,12 +195,11 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 
 			try {
 				serverStore.startSyncing();
-				await deleteComment(rwApiUrl, commentId);
+				await commentsService.deleteComment(rwApiUrl, commentId);
 				this.deleteCommentLocal(commentId);
 				serverStore.setSynced();
 			} catch (error: any) {
 				serverStore.setSyncError("Failed to delete comment");
-				throw error;
 			}
 		},
 		fileContainsComments(filePath: string): boolean {
