@@ -1,78 +1,78 @@
 import type CommentDto from "../types/dtos/CommentDto";
 
-export async function fetchComments(readApiUrl: string): Promise<CommentDto[]> {
-	try {
-		const response = await fetch(readApiUrl);
-		if (!response.ok) {
-			throw new Error(`Failed to fetch comments: ${response.status} ${response.statusText}`);
-		}
-		const allComments: CommentDto[] = await response.json();
-		return allComments;
-	} catch (error) {
-		console.error("Error in fetchComments:", error);
-		throw error;
-	}
-}
+const useCommentsService = () => {
+	async function getComments(rwApiUrl: string): Promise<CommentDto[]> {
+		try {
+			const response = await fetch(rwApiUrl);
+			if (!response.ok) {
+				throw new Error(`Failed to fetch comments: ${response.status} ${response.statusText}`);
+			}
 
-export async function addComment(writeApiUrl: string, commentData: CommentDto): Promise<CommentDto> {
-	try {
-		const response = await fetch(writeApiUrl, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify(commentData),
-		});
-		if (!response.ok) {
-			const errorData = await response.json().catch(() => ({ message: "Failed to add comment" }));
-			throw new Error(`Failed to add comment: ${response.status} ${response.statusText} - ${errorData.message}`);
+			const allComments: CommentDto[] = await response.json();
+			return allComments;
+		} catch (error) {
+			throw error;
 		}
-		return await response.json();
-	} catch (error) {
-		console.error("Error in addComment:", error);
-		throw error;
 	}
-}
 
-export async function updateComment(
-	writeApiUrl: string,
-	commentId: string,
-	commentData: CommentDto
-): Promise<CommentDto> {
-	try {
-		const response = await fetch(`${writeApiUrl}/${commentId}`, {
-			method: "PUT",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify(commentData),
-		});
-		if (!response.ok) {
-			const errorData = await response.json().catch(() => ({ message: "Failed to update comment" }));
-			throw new Error(
-				`Failed to update comment: ${response.status} ${response.statusText} - ${errorData.message}`
-			);
-		}
-		return await response.json();
-	} catch (error) {
-		console.error("Error in updateComment:", error);
-		throw error;
-	}
-}
+	async function addComment(rwApiUrl: string, commentData: CommentDto): Promise<CommentDto> {
+		try {
+			const response = await fetch(rwApiUrl, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(commentData),
+			});
+			if (!response.ok) {
+				throw new Error(`Failed to add comment: ${response.status} ${response.statusText}`);
+			}
 
-export async function deleteComment(writeApiUrl: string, commentId: string): Promise<void> {
-	try {
-		const response = await fetch(`${writeApiUrl}/${commentId}`, {
-			method: "DELETE",
-		});
-		if (!response.ok) {
-			const errorData = await response.json().catch(() => ({ message: "Failed to delete comment" }));
-			throw new Error(
-				`Failed to delete comment: ${response.status} ${response.statusText} - ${errorData.message}`
-			);
+			const addedComment: CommentDto = await response.json();
+			return addedComment;
+		} catch (error) {
+			throw error;
 		}
-	} catch (error) {
-		console.error("Error in deleteComment:", error);
-		throw error;
 	}
-}
+
+	async function updateComment(rwApiUrl: string, commentId: string, commentData: CommentDto): Promise<CommentDto> {
+		try {
+			const response = await fetch(`${rwApiUrl}/${commentId}`, {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(commentData),
+			});
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({ message: "Failed to update comment" }));
+				throw new Error(
+					`Failed to update comment: ${response.status} ${response.statusText} - ${errorData.message}`
+				);
+			}
+
+			const updatedComment: CommentDto = await response.json();
+			return updatedComment;
+		} catch (error) {
+			console.error("Error in updateComment:", error);
+			throw error;
+		}
+	}
+
+	async function deleteComment(rwApiUrl: string, commentId: string): Promise<void> {
+		try {
+			const response = await fetch(`${rwApiUrl}/${commentId}`, {
+				method: "DELETE",
+			});
+			if (!response.ok) {
+				throw new Error(`Failed to delete comment: ${response.status} ${response.statusText}`);
+			}
+		} catch (error) {
+			throw error;
+		}
+	}
+
+	return { getComments, addComment, updateComment, deleteComment };
+};
+
+export default useCommentsService;

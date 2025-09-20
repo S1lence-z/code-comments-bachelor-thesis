@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { defineProps } from "vue";
 import InputField from "../../lib/InputField.vue";
 import Button from "../../lib/Button.vue";
 import Card from "../../lib/Card.vue";

@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { fetchProcessedFile } from "../services/githubFileService";
+import useGithubFileService from "../services/githubFileService";
 import { FileDisplayType, type ProcessedFile } from "../types/github/githubFile";
 import type CommentDto from "../types/dtos/CommentDto";
 
@@ -43,11 +43,19 @@ export const useFileContentStore = defineStore("fileContentStore", {
 			branch: string,
 			githubPat?: string
 		): Promise<void> {
+			const githubFileService = useGithubFileService();
+
 			if (this.isFileCached(filePath)) {
 				return;
 			}
+
 			try {
-				const processedFile = await fetchProcessedFile(repositoryUrl, branch, filePath, githubPat);
+				const processedFile = await githubFileService.fetchProcessedFile(
+					repositoryUrl,
+					branch,
+					filePath,
+					githubPat
+				);
 				this.cacheFile(filePath, processedFile);
 			} catch (error) {
 				console.error(`Failed to cache file ${filePath}:`, error);
@@ -59,15 +67,27 @@ export const useFileContentStore = defineStore("fileContentStore", {
 			branch: string,
 			githubPat?: string
 		): Promise<ProcessedFile> {
+			const githubFileService = useGithubFileService();
+
 			if (this.isFileCached(filePath)) {
 				const cached = this.fileContentCache.get(filePath);
 				if (cached) return cached;
 				else throw new Error("File is marked as cached but not found in cache.");
 			}
 
-			const processedFile = await fetchProcessedFile(repositoryUrl, branch, filePath, githubPat);
-			this.cacheFile(filePath, processedFile);
-			return processedFile;
+			try {
+				const processedFile = await githubFileService.fetchProcessedFile(
+					repositoryUrl,
+					branch,
+					filePath,
+					githubPat
+				);
+				this.cacheFile(filePath, processedFile);
+				return processedFile;
+			} catch (error) {
+				console.error(`Failed to get file content for ${filePath}:`, error);
+				throw error;
+			}
 		},
 		async loadCommentedFilesContent(
 			comments: CommentDto[],

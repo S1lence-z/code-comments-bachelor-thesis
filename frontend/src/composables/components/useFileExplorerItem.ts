@@ -1,5 +1,5 @@
 import { useProjectDataStore } from "../../stores/projectDataStore";
-import type { TreeNode } from "../../types/github/githubTree";
+import { type TreeNode, TreeNodeType } from "../../types/github/githubTree";
 
 export interface FileExplorerItemProps {
 	item: TreeNode;
@@ -19,15 +19,15 @@ export function useFileExplorerItem(props: FileExplorerItemProps, emit: FileExpl
 
 	// Methods
 	const handleItemClick = (): void => {
-		if (props.item.type === "file") {
+		if (props.item.type === TreeNodeType.file) {
 			emit("update:filePath", props.item.path);
-		} else if (props.item.type === "folder") {
+		} else if (props.item.type === TreeNodeType.folder) {
 			emit("toggle-expand-item", props.item);
 		}
 	};
 
 	const handleToggleExpand = (): void => {
-		if (props.item.type === "folder") {
+		if (props.item.type === TreeNodeType.folder) {
 			emit("toggle-expand-item", props.item);
 		}
 	};
