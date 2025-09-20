@@ -31,6 +31,7 @@ export function useSetupPage() {
 	const isProjectCreated = ref(false);
 	const isServerUrlConfigured = ref(false);
 	const projectCreationErrorMessage = ref("");
+	const projectsLoadedSuccessfully = ref(true);
 
 	// Computed
 	const isOfflineMode = computed(() => settingsStore.isOfflineMode);
@@ -117,6 +118,7 @@ export function useSetupPage() {
 			existingProjects.value = await projectService.getProjects(formServerBaseUrl.value.trim());
 		} catch (error) {
 			console.error("Failed to load existing projects:", error);
+			projectsLoadedSuccessfully.value = false;
 		}
 	};
 
@@ -131,9 +133,12 @@ export function useSetupPage() {
 	// Use default server URL
 	const useDefaultServerUrl = () => {
 		formServerBaseUrl.value = projectStore.getDefaultServerBaseUrl();
-	}; // Handle offline mode (skip server URL configuration)
+	};
+
+	// Handle offline mode (skip server URL configuration)
 	const setOfflineMode = () => {
 		isServerUrlConfigured.value = true;
+		projectsLoadedSuccessfully.value = true;
 		settingsStore.toggleOfflineMode(true);
 	};
 
@@ -164,6 +169,7 @@ export function useSetupPage() {
 		isProjectCreated,
 		isServerUrlConfigured,
 		projectCreationErrorMessage,
+		projectsLoadedSuccessfully,
 
 		// Data
 		existingProjects,

@@ -5,6 +5,7 @@ import ServerForm from "../components/setup/ServerForm.vue";
 import ProjectList from "../components/setup/ProjectList.vue";
 import ProjectForm from "../components/setup/ProjectForm.vue";
 import { useQueryParams } from "../composables/core/useQueryParams";
+import Icon from "../lib/Icon.vue";
 
 const { params } = useQueryParams();
 
@@ -23,6 +24,7 @@ const {
 	isProjectCreated,
 	isServerUrlConfigured,
 	projectCreationErrorMessage,
+	projectsLoadedSuccessfully,
 
 	// Data
 	existingProjects,
@@ -71,9 +73,22 @@ watch(
 			</div>
 		</div>
 		<!-- Main Content -->
-		<div class="mx-auto px-6 mt-8">
-			<!-- Server URL Setup Card -->
-			<div class="flex flex-col lg:flex-row gap-12 max-w-7xl mx-auto">
+		<div class="mx-auto px-6 mt-8 max-w-7xl lg:flex-row space-y-6">
+			<!-- Error Message -->
+			<div v-if="!projectsLoadedSuccessfully" class="flex status-message error gap">
+				<div class="flex items-center gap-3">
+					<div class="card-icon-sm">
+						<Icon srcName="error" />
+					</div>
+					<p class="text-red-400">
+						There was an error loading existing projects from the selected server. Please, check the server
+						URL or switch to offline mode in settings.
+					</p>
+				</div>
+			</div>
+			<!-- Setup Card -->
+			<div class="flex flex-col gap-6 lg:flex-row">
+				<!-- Server Form -->
 				<ServerForm
 					v-if="!isServerUrlConfigured"
 					v-model:serverBaseUrl="formServerBaseUrl"
