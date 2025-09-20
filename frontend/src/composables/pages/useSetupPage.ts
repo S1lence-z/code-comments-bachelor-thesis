@@ -138,20 +138,20 @@ export function useSetupPage() {
 	// Handle offline mode (skip server URL configuration)
 	const setOfflineMode = () => {
 		isServerUrlConfigured.value = true;
-		projectsLoadedSuccessfully.value = true;
 		settingsStore.toggleOfflineMode(true);
 	};
 
 	// Handle offline mode changes from route query
 	const handleOfflineModeSwitch = (
-		backendBaseUrl?: LocationQueryValue | LocationQueryValue[],
+		serverBaseUrl?: LocationQueryValue | LocationQueryValue[],
 		offlineMode?: boolean
 	) => {
-		if (backendBaseUrl || offlineMode) {
+		if (serverBaseUrl || offlineMode) {
 			isServerUrlConfigured.value = true;
 		} else {
 			isServerUrlConfigured.value = false;
 		}
+		projectsLoadedSuccessfully.value = true;
 	};
 
 	return {
