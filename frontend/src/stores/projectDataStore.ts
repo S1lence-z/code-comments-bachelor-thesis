@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import type { TreeNode } from "../types/github/githubTree";
 import type CommentDto from "../types/dtos/CommentDto";
 import type CategoryDto from "../types/dtos/CategoryDto";
-import { fetchRepoTreeAPI } from "../services/githubTreeService";
+import useGithubTreeService from "../services/githubTreeService";
 import { fetchComments, addComment, updateComment, deleteComment } from "../services/commentsService";
 import useCategoryService from "../services/categoryService";
 import { useServerStore } from "./serverStore";
@@ -57,6 +57,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 			await Promise.all(promises);
 		},
 		async fetchRepositoryTree(repositoryUrl: string, branch: string, githubPat: string) {
+			const githubTreeService = useGithubTreeService();
 			this.isLoadingRepository = true;
 			try {
 				if (!repositoryUrl || !repositoryUrl.trim()) {
@@ -70,7 +71,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 					return;
 				}
 
-				this.fileTreeData = await fetchRepoTreeAPI(repositoryUrl, branch, githubPat);
+				this.fileTreeData = await githubTreeService.getRepositoryTree(repositoryUrl, branch, githubPat);
 				this.githubUrlForTree = repositoryUrl;
 			} catch (error: any) {
 				this.fileTreeData = [];
