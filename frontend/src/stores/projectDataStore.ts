@@ -4,7 +4,7 @@ import type CommentDto from "../types/dtos/CommentDto";
 import type CategoryDto from "../types/dtos/CategoryDto";
 import { fetchRepoTreeAPI } from "../services/githubTreeService";
 import { fetchComments, addComment, updateComment, deleteComment } from "../services/commentsService";
-import { getAllCategories } from "../services/categoryService";
+import useCategoryService from "../services/categoryService";
 import { useServerStore } from "./serverStore";
 import { CommentType } from "../types/enums/CommentType";
 
@@ -41,18 +41,18 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 	actions: {
 		async loadProjectDataAsync(
 			newRepositoryUrl: string,
-			newWriteApiUrl: string,
+			newRwApiUrl: string,
 			newBranch: string,
 			githubPat: string,
-			backendBaseUrl: string
+			serverBaseUrl: string
 		) {
 			const serverStore = useServerStore();
 			serverStore.startSyncing();
 
 			const promises = [
 				this.fetchRepositoryTree(newRepositoryUrl, newBranch, githubPat),
-				this.fetchAllCommentsAsync(newWriteApiUrl),
-				this.fetchAllCategoriesAsync(backendBaseUrl),
+				this.fetchAllCommentsAsync(newRwApiUrl),
+				this.fetchAllCategoriesAsync(serverBaseUrl),
 			];
 			await Promise.all(promises);
 		},
@@ -79,19 +79,19 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				this.isLoadingRepository = false;
 			}
 		},
-		async fetchAllCommentsAsync(writeApiUrl: string) {
+		async fetchAllCommentsAsync(rwApiUrl: string) {
 			const serverStore = useServerStore();
 			serverStore.startSyncing();
 			this.isLoadingComments = true;
 			try {
-				if (!writeApiUrl || !writeApiUrl.trim()) {
+				if (!rwApiUrl || !rwApiUrl.trim()) {
 					serverStore.setSyncError("Failed to fetch comments");
-					console.warn("Cannot fetch comments: writeApiUrl is empty or invalid");
+					console.warn("Cannot fetch comments: rwApiUrl is empty or invalid");
 					this.comments = [];
 					return;
 				}
 
-				const response = await fetchComments(writeApiUrl);
+				const response = await fetchComments(rwApiUrl);
 				if (!response) {
 					serverStore.setSyncError("No comments found in the response");
 					console.warn("No comments found in the response");
@@ -107,16 +107,17 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				this.isLoadingComments = false;
 			}
 		},
-		async fetchAllCategoriesAsync(backendBaseUrl: string) {
+		async fetchAllCategoriesAsync(serverBaseUrl: string) {
+			const { getAllCategories } = useCategoryService();
 			this.isLoadingCategories = true;
 			try {
-				if (!backendBaseUrl || !backendBaseUrl.trim()) {
-					console.warn("Cannot fetch categories: writeApiUrl is empty or invalid");
+				if (!serverBaseUrl || !serverBaseUrl.trim()) {
+					console.warn("Cannot fetch categories: serverBaseUrl is empty or invalid");
 					return;
 				}
 
-				const response = await getAllCategories(backendBaseUrl);
-				this.categories = response || [dummyCategoryDto];
+				const fetchedCategories = await getAllCategories(serverBaseUrl);
+				this.categories = fetchedCategories;
 			} catch (error: any) {
 				console.error("Error fetching categories:", error);
 				this.categories = [dummyCategoryDto];
@@ -139,11 +140,11 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				this.comments.splice(index, 1);
 			}
 		},
-		async upsertCommentAsync(commentData: CommentDto, writeApiUrl: string): Promise<void> {
+		async upsertCommentAsync(commentData: CommentDto, rwApiUrl: string): Promise<void> {
 			const serverStore = useServerStore();
 
 			// Offline mode
-			if (!writeApiUrl || !writeApiUrl.trim()) {
+			if (!rwApiUrl || !rwApiUrl.trim()) {
 				// Generate a unique ID for new comments in offline mode
 				if (!commentData.id) {
 					commentData.id = `offline-${Date.now()}-${Math.random().toString(36)}`;
@@ -159,7 +160,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				serverStore.startSyncing();
 				// Update existing comment
 				if (commentData.id) {
-					const updatedComment = await updateComment(writeApiUrl, commentData.id, commentData);
+					const updatedComment = await updateComment(rwApiUrl, commentData.id, commentData);
 					if (!updatedComment.id) {
 						throw new Error("Failed to update comment");
 					}
@@ -169,7 +170,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 					return;
 				}
 				// Add new comment
-				const newComment = await addComment(writeApiUrl, commentData);
+				const newComment = await addComment(rwApiUrl, commentData);
 				if (!newComment.id) {
 					throw new Error("Failed to add comment");
 				}
@@ -180,11 +181,11 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				throw error;
 			}
 		},
-		async deleteCommentAsync(commentId: string, writeApiUrl: string): Promise<void> {
+		async deleteCommentAsync(commentId: string, rwApiUrl: string): Promise<void> {
 			const serverStore = useServerStore();
 
 			// Offline mode
-			if (!writeApiUrl || !writeApiUrl.trim()) {
+			if (!rwApiUrl || !rwApiUrl.trim()) {
 				console.log("Operating in offline mode - deleting comment locally only");
 				this.deleteCommentLocal(commentId);
 				return;
@@ -192,7 +193,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 
 			try {
 				serverStore.startSyncing();
-				await deleteComment(writeApiUrl, commentId);
+				await deleteComment(rwApiUrl, commentId);
 				this.deleteCommentLocal(commentId);
 				serverStore.setSynced();
 			} catch (error: any) {
