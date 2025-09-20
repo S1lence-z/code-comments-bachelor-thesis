@@ -144,14 +144,15 @@ export function useSetupPage() {
 
 	// Handle offline mode changes from route query
 	const handleOfflineModeSwitch = (
-		backendBaseUrl?: LocationQueryValue | LocationQueryValue[],
+		serverBaseUrl?: LocationQueryValue | LocationQueryValue[],
 		offlineMode?: boolean
 	) => {
-		if (backendBaseUrl || offlineMode) {
+		if (serverBaseUrl || offlineMode) {
 			isServerUrlConfigured.value = true;
 		} else {
 			isServerUrlConfigured.value = false;
 		}
+		projectsLoadedSuccessfully.value = true;
 	};
 
 	return {
