@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { defineProps } from "vue";
 import type ProjectDto from "../../types/dtos/ProjectDto";
 import Card from "../../lib/Card.vue";
 import Icon from "../../lib/Icon.vue";
