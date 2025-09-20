@@ -22,7 +22,7 @@ const {
 	isCreatingProject,
 	isProjectCreated,
 	isServerUrlConfigured,
-	errorMessage,
+	projectCreationErrorMessage,
 
 	// Data
 	existingProjects,
@@ -91,7 +91,7 @@ watch(
 				<!-- Setup Form -->
 				<div v-if="isServerUrlConfigured" class="flex-1">
 					<ProjectForm
-						:errorMessage="errorMessage"
+						:errorMessage="projectCreationErrorMessage"
 						:isCreatingProject="isCreatingProject"
 						:isProjectCreated="isProjectCreated"
 						v-model:formGithubRepositoryUrl="formGithubRepositoryUrl"
