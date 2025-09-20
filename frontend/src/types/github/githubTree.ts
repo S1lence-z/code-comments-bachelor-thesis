@@ -1,15 +1,25 @@
+export enum TreeNodeType {
+	file = "file",
+	folder = "folder",
+}
+
 export interface TreeNode {
 	name: string;
 	path: string;
-	type: "file" | "folder";
+	type: TreeNodeType;
 	children: TreeNode[];
 	isExpanded: boolean;
 }
 
-// For GitHub API response
-export interface GitHubTreeItem {
+export enum GithubTreeItemType {
+	blob = "blob",
+	tree = "tree",
+	commit = "commit",
+}
+
+export interface GithubTreeItem {
 	path: string;
-	type: "blob" | "tree" | "commit";
+	type: GithubTreeItemType;
 	mode: string;
 	sha: string;
 	url: string;

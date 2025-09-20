@@ -1,5 +1,5 @@
 import { computed, ref } from "vue";
-import { setupProject, listProjects } from "../../services/projectService";
+import useProjectService from "../../services/projectService";
 import type ProjectSetupRequest from "../../types/dtos/ProjectSetupRequest";
 import type ProjectDto from "../../types/dtos/ProjectDto";
 import { useProjectStore } from "../../stores/projectStore";
@@ -12,6 +12,9 @@ export function useSetupPage() {
 	// Stores
 	const projectStore = useProjectStore();
 	const settingsStore = useSettingsStore();
+
+	// Services
+	const projectService = useProjectService();
 
 	// Query params composable
 	const { navigateToProject, navigateToServer } = useQueryParams();
@@ -27,7 +30,8 @@ export function useSetupPage() {
 	const isCreatingProject = ref(false);
 	const isProjectCreated = ref(false);
 	const isServerUrlConfigured = ref(false);
-	const errorMessage = ref("");
+	const projectCreationErrorMessage = ref("");
+	const projectsLoadedSuccessfully = ref(true);
 
 	// Computed
 	const isOfflineMode = computed(() => settingsStore.isOfflineMode);
@@ -43,18 +47,18 @@ export function useSetupPage() {
 		}
 		// In offline mode, simulate project creation without server interaction
 		isProjectCreated.value = true;
-		errorMessage.value = "";
+		projectCreationErrorMessage.value = "";
 	};
 
 	// Create new project from form
 	const createProject = async (): Promise<void> => {
 		isCreatingProject.value = true;
 		isProjectCreated.value = false;
-		errorMessage.value = "";
+		projectCreationErrorMessage.value = "";
 
 		// Validate github URL
 		if (!isValidGithubUrl(formGithubRepositoryUrl.value.trim())) {
-			errorMessage.value = "Invalid GitHub repository URL.";
+			projectCreationErrorMessage.value = "Invalid GitHub repository URL.";
 			return;
 		}
 
@@ -67,7 +71,7 @@ export function useSetupPage() {
 				name: formProjectName.value.trim(),
 			};
 
-			const response = await setupProject(setupData, projectStore.getServerBaseUrl);
+			const response = await projectService.createProject(setupData, projectStore.getServerBaseUrl);
 
 			if (response.readWriteApiUrl && response.repository) {
 				isProjectCreated.value = true;
@@ -76,7 +80,7 @@ export function useSetupPage() {
 				throw new Error("Invalid response from server");
 			}
 		} catch (error: any) {
-			errorMessage.value = `Failed to create review session: ${error.message || "Unknown error"}`;
+			projectCreationErrorMessage.value = `Failed to create review session: ${error.message || "Unknown error"}`;
 		} finally {
 			isCreatingProject.value = false;
 		}
@@ -111,9 +115,10 @@ export function useSetupPage() {
 				console.warn("Server base URL is not set. Cannot load existing projects.");
 				return;
 			}
-			existingProjects.value = await listProjects(formServerBaseUrl.value.trim());
+			existingProjects.value = await projectService.getProjects(formServerBaseUrl.value.trim());
 		} catch (error) {
 			console.error("Failed to load existing projects:", error);
+			projectsLoadedSuccessfully.value = false;
 		}
 	};
 
@@ -128,9 +133,12 @@ export function useSetupPage() {
 	// Use default server URL
 	const useDefaultServerUrl = () => {
 		formServerBaseUrl.value = projectStore.getDefaultServerBaseUrl();
-	}; // Handle offline mode (skip server URL configuration)
+	};
+
+	// Handle offline mode (skip server URL configuration)
 	const setOfflineMode = () => {
 		isServerUrlConfigured.value = true;
+		projectsLoadedSuccessfully.value = true;
 		settingsStore.toggleOfflineMode(true);
 	};
 
@@ -160,7 +168,8 @@ export function useSetupPage() {
 		isCreatingProject,
 		isProjectCreated,
 		isServerUrlConfigured,
-		errorMessage,
+		projectCreationErrorMessage,
+		projectsLoadedSuccessfully,
 
 		// Data
 		existingProjects,
