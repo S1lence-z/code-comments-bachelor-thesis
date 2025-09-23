@@ -1,35 +1,45 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
 import Panel from "./Panel.vue";
 import ResizeHandle from "../../lib/ResizeHandle.vue";
 import CodeEditor from "./CodeEditor.vue";
 import ContentViewer from "./ContentViewer.vue";
-import {
-	useSplitPanelManager,
-	type SplitPanelManagerProps,
-	type SplitPanelManagerEmits,
-} from "../../composables/components/useSplitPanelManager";
-import { useFileContentStore } from "../../stores/fileContentStore";
-import { useProjectDataStore } from "../../stores/projectDataStore";
-import { FileDisplayType } from "../../types/github/githubFile";
+import { useSplitPanelManager } from "../../composables/components/useSplitPanelManager";
 import { getFileName } from "../../utils/fileUtils";
+import type { DraggedTabData, PanelData } from "../../types/others/Panels";
+
+export interface SplitPanelManagerProps {
+	panels: PanelData[];
+	draggedTab: DraggedTabData | null;
+	leftDropZoneActive: boolean;
+	rightDropZoneActive: boolean;
+	dropZoneWidth: number;
+}
+
+export interface SplitPanelManagerEmits {
+	(event: "tab-selected", filePath: string, panelId: number): void;
+	(event: "tab-closed", filePath: string, panelId: number): void;
+	(event: "tab-drop", panelId: number, insertIndex?: number): void;
+	(event: "tab-drag-start", filePath: string, panelId: number): void;
+	(event: "tab-drag-end"): void;
+	(event: "panel-resize", currentPanel: PanelData, nextPanel: PanelData, newWidthPercentage: number): void;
+	(event: "drop-zone-drag-over", dragEvent: DragEvent): void;
+	(event: "drop-zone-leave", dragEvent: DragEvent): void;
+	(event: "drop-zone-drop", dragEvent: DragEvent): void;
+	(event: "line-double-clicked", data: { lineNumber: number; filePath: string }): void;
+	(
+		event: "multiline-selected",
+		data: { selectedStartLineNumber: number; selectedEndLineNumber: number; filePath: string }
+	): void;
+	(event: "delete-comment", commentId: string): void;
+	(event: "edit-comment", commentId: string): void;
+}
 
 const props = defineProps<SplitPanelManagerProps>();
 const emit = defineEmits<SplitPanelManagerEmits>();
 
-// Stores
-const fileContentStore = useFileContentStore();
-const projectDataStore = useProjectDataStore();
-
 // Use the split panel manager composable
 const {
-	panels,
 	containerElement,
-	draggedTab,
-	leftDropZoneActive,
-	rightDropZoneActive,
-	DROPZONE_WIDTH,
-	initializeWorkspace,
 	handleTabSelected,
 	handleTabClosed,
 	handleTabDrop,
@@ -39,32 +49,15 @@ const {
 	handleDropZoneLeave,
 	handleDropZoneDrop,
 	handlePanelResize,
+
+	// Helper functions
+	isTextFile,
+	getFileContent,
+	getCommentsForFile,
+	isFileCached,
+	getFileDisplayType,
+	getFileDownloadUrl,
 } = useSplitPanelManager(props, emit);
-
-// Helper functions for content rendering
-const isTextFile = (filePath: string) => {
-	return fileContentStore.getFileDisplayType(filePath) === FileDisplayType.Text;
-};
-
-const getFileContent = (filePath: string) => {
-	return fileContentStore.getFileContent(filePath);
-};
-
-const getCommentsForFile = (filePath: string) => {
-	return projectDataStore.getCommentsForFile(filePath);
-};
-
-const isFileCached = (filePath: string) => {
-	return fileContentStore.isFileCached(filePath);
-};
-
-const getFileDisplayType = (filePath: string) => {
-	return fileContentStore.getFileDisplayType(filePath);
-};
-
-const getFileDownloadUrl = (filePath: string) => {
-	return fileContentStore.getFileDownloadUrl(filePath);
-};
 
 // Event handlers for content
 const handleLineDoubleClicked = (data: { lineNumber: number; filePath: string }) => {
@@ -86,11 +79,6 @@ const handleDeleteComment = async (commentId: string) => {
 const handleEditComment = async (commentId: string) => {
 	emit("edit-comment", commentId);
 };
-
-// Initialize workspace on component mount
-onMounted(() => {
-	initializeWorkspace();
-});
 </script>
 
 <template>
@@ -163,7 +151,7 @@ onMounted(() => {
 		<div
 			v-if="leftDropZoneActive"
 			class="absolute left-0 top-0 h-full bg-blue-500/30 border-r-2 border-blue-500 flex items-center justify-center z-10"
-			:style="{ width: DROPZONE_WIDTH + 'px' }"
+			:style="{ width: dropZoneWidth + 'px' }"
 		>
 			<div class="text-blue-200 text-xs font-medium transform -rotate-90 whitespace-nowrap">New Panel</div>
 		</div>
@@ -172,7 +160,7 @@ onMounted(() => {
 		<div
 			v-if="rightDropZoneActive"
 			class="absolute right-0 top-0 h-full bg-blue-500/30 border-l-2 border-blue-500 flex items-center justify-center z-10"
-			:style="{ width: DROPZONE_WIDTH + 'px' }"
+			:style="{ width: dropZoneWidth + 'px' }"
 		>
 			<div class="text-blue-200 text-xs font-medium transform -rotate-90 whitespace-nowrap">New Panel</div>
 		</div>

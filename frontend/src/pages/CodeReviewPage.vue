@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, computed } from "vue";
 import { useCodeReviewPage } from "../composables/pages/useCodeReviewPage.ts";
+import { useWorkspaceController } from "../composables/controllers/useWorkspaceController.ts";
+import { useDragDropController } from "../composables/controllers/useDragDropController.ts";
 import FileExplorer from "../components/codeReview/FileExplorer.vue";
 import SplitPanelManager from "../components/codeReview/SplitPanelManager.vue";
 import ResizeHandle from "../lib/ResizeHandle.vue";
@@ -8,7 +10,7 @@ import CommentForm from "../components/codeReview/CommentForm.vue";
 import SlideoutPanel from "../lib/SlideoutPanel.vue";
 import Icon from "../lib/Icon.vue";
 
-// Initialize the composable
+// Initialize the composable (without workspace/drag-drop functionality)
 const {
 	// Store refs
 	fileTree,
@@ -45,15 +47,42 @@ const {
 	handleSidebarResize,
 	handleFileQueryParam,
 	deleteCommentAction,
-	isWorkspaceEmpty,
+	isAnyFileSelected,
 
 	// Computed
 	getSubtitle,
 	projectCommentButtonLabel,
 } = useCodeReviewPage();
 
+// Initialize workspace controller
+const workspaceController = useWorkspaceController(
+	{ selectedFilePath },
+	(event: "update:selectedFilePath", filePath: string | null) => {
+		if (event === "update:selectedFilePath") {
+			selectedFilePath.value = filePath;
+		}
+	}
+);
+
+// Initialize drag drop controller
+const dragDropController = useDragDropController(
+	{
+		panelCount: computed(() => workspaceController.panels.value.length),
+	},
+	(event: "tab-drop" | "drop-zone-drop", ...args: any[]) => {
+		if (event === "tab-drop") {
+			const [targetPanelId, draggedTab, insertIndex] = args;
+			workspaceController.handleTabDrop(targetPanelId, draggedTab, insertIndex);
+		} else if (event === "drop-zone-drop") {
+			const [draggedTab, insertPosition] = args;
+			workspaceController.handleDropZoneDrop(draggedTab, insertPosition);
+		}
+	}
+);
+
 onMounted(() => {
 	handleFileQueryParam();
+	workspaceController.initializeWorkspace();
 });
 </script>
 
@@ -118,9 +147,21 @@ onMounted(() => {
 						</div>
 						<!-- SplitPanelManager -->
 						<SplitPanelManager
-							v-else-if="isWorkspaceEmpty()"
-							:selected-file-path="selectedFilePath"
-							@update:selected-file-path="handleFileSelected"
+							v-else-if="isAnyFileSelected()"
+							:panels="workspaceController.panels.value"
+							:dragged-tab="dragDropController.draggedTab.value"
+							:left-drop-zone-active="dragDropController.leftDropZoneActive.value"
+							:right-drop-zone-active="dragDropController.rightDropZoneActive.value"
+							:drop-zone-width="dragDropController.DROPZONE_WIDTH"
+							@tab-selected="workspaceController.handleTabSelected"
+							@tab-closed="workspaceController.handleTabClosed"
+							@tab-drop="dragDropController.handleTabDrop"
+							@tab-drag-start="dragDropController.handleTabDragStart"
+							@tab-drag-end="dragDropController.handleTabDragEnd"
+							@panel-resize="workspaceController.handlePanelResize"
+							@drop-zone-drag-over="dragDropController.handleDropZoneDragOver"
+							@drop-zone-leave="dragDropController.handleDropZoneLeave"
+							@drop-zone-drop="dragDropController.handleDropZoneDrop"
 							@line-double-clicked="handleSinglelineCommentSelected"
 							@multiline-selected="handleMultilineCommentSelected"
 							@delete-comment="deleteCommentAction"

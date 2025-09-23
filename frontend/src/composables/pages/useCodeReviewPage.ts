@@ -9,7 +9,6 @@ import { CommentType } from "../../types/enums/CommentType";
 import { getCommentLocationInfoByType } from "../../utils/commentUtils";
 import { storeToRefs } from "pinia";
 import { useQueryParams } from "../core/useQueryParams";
-import { useWorkspaceStore } from "../../stores/workspaceStore";
 
 export function useCodeReviewPage() {
 	// Query params composable
@@ -20,8 +19,6 @@ export function useCodeReviewPage() {
 	const projectDataStore = useProjectDataStore();
 	const fileContentStore = useFileContentStore();
 	const settingsStore = useSettingsStore();
-	// TODO: delete this dependency when I fix the split panel manager
-	const workspaceStore = useWorkspaceStore();
 
 	// Store refs
 	const { fileTree, allComments, isLoadingRepository, isLoadingComments } = storeToRefs(projectDataStore);
@@ -71,7 +68,7 @@ export function useCodeReviewPage() {
 	const handleSinglelineCommentSelected = (payload: { lineNumber: number; filePath: string }): void => {
 		const { lineNumber, filePath } = payload;
 		if (!filePath) {
-			console.error("Cannot add comment: no file path provided.");
+			console.error("File path is required for single line comment");
 			return;
 		}
 		const existingComment = allComments.value.find(
@@ -94,7 +91,7 @@ export function useCodeReviewPage() {
 	}): void => {
 		const { selectedStartLineNumber, selectedEndLineNumber, filePath } = payload;
 		if (!filePath) {
-			console.error("Cannot add comment: no file path provided.");
+			console.error("File path is required for multiline comment");
 			return;
 		}
 		const existingComment = allComments.value.find(
@@ -112,7 +109,7 @@ export function useCodeReviewPage() {
 
 	const handleFileCommentSelected = (filePath: string): void => {
 		if (!filePath) {
-			console.error("Cannot add comment: no file path provided.");
+			console.error("File path is required for file comment");
 			return;
 		}
 
@@ -128,7 +125,7 @@ export function useCodeReviewPage() {
 
 	const handleProjectCommentSelected = (): void => {
 		if (!projectStore.getRepositoryName) {
-			console.error("Cannot add project comment: repository name is not set.");
+			console.error("Repository name is required for project comment");
 			return;
 		}
 
@@ -144,7 +141,7 @@ export function useCodeReviewPage() {
 		// Take the comment ID and open the modal for editing
 		const editedComment = allComments.value.find((comment: CommentDto) => comment.id === commentId);
 		if (!editedComment) {
-			console.error("Comment not found for ID:", commentId);
+			console.error("Comment not found");
 			return;
 		}
 
@@ -152,13 +149,13 @@ export function useCodeReviewPage() {
 		const commentType: CommentType = editedComment.type;
 		if (commentType === CommentType.Singleline) {
 			handleSinglelineCommentSelected({
-				lineNumber: editedComment.location.lineNumber || 0,
+				lineNumber: editedComment.location.lineNumber!,
 				filePath: editedComment.location.filePath,
 			});
 		} else if (commentType === CommentType.Multiline) {
 			handleMultilineCommentSelected({
-				selectedStartLineNumber: editedComment.location.startLineNumber || 0,
-				selectedEndLineNumber: editedComment.location.endLineNumber || 0,
+				selectedStartLineNumber: editedComment.location.startLineNumber!,
+				selectedEndLineNumber: editedComment.location.endLineNumber!,
 				filePath: editedComment.location.filePath,
 			});
 		} else if (commentType === CommentType.File) {
@@ -166,7 +163,7 @@ export function useCodeReviewPage() {
 		} else if (commentType === CommentType.Project) {
 			handleProjectCommentSelected();
 		} else {
-			console.error("Unsupported comment type:", commentType);
+			console.error("Unknown comment type");
 		}
 	};
 
@@ -178,7 +175,7 @@ export function useCodeReviewPage() {
 	const handleFileQueryParam = (): void => {
 		const filePathToOpen = params.value.file;
 		if (filePathToOpen) {
-			selectedFilePath.value = filePathToOpen;
+			handleFileSelected(filePathToOpen);
 		} else {
 			selectedFilePath.value = null;
 			processedSelectedFile.value = null;
@@ -191,20 +188,21 @@ export function useCodeReviewPage() {
 	};
 
 	// Is current workspace empty
-	const isWorkspaceEmpty = () => {
-		return !workspaceStore.existsNonEmptyWorkspace(projectStore.getRepositoryUrl, projectStore.getRepositoryBranch);
+	const isAnyFileSelected = () => {
+		return !!selectedFilePath.value;
 	};
 
 	// Computed
 	const getSubtitle = computed(() => {
-		if (addedCommentType.value === CommentType.Project) return "Project-wide comment";
-		if (!commentFilePath.value) return "";
-		const commentInfo = getCommentLocationInfoByType(
+		if (addedCommentType.value === CommentType.Project) {
+			return "Project-wide comment";
+		}
+		const locationInfo = getCommentLocationInfoByType(
 			addedCommentType.value,
 			startLineNumber.value,
 			endLineNumber.value
 		);
-		return `In file ${commentFilePath.value} ${commentInfo}`;
+		return locationInfo;
 	});
 
 	const projectCommentButtonLabel = computed(() => {
@@ -253,7 +251,7 @@ export function useCodeReviewPage() {
 		handleSidebarResize,
 		handleFileQueryParam,
 		deleteCommentAction,
-		isWorkspaceEmpty,
+		isAnyFileSelected,
 
 		// Computed
 		getSubtitle,
