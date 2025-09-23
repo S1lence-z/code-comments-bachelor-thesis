@@ -13,6 +13,7 @@ export interface SplitPanelManagerProps {
 	leftDropZoneActive: boolean;
 	rightDropZoneActive: boolean;
 	dropZoneWidth: number;
+	sideBarWidth: number;
 }
 
 export interface SplitPanelManagerEmits {
@@ -139,11 +140,10 @@ const handleEditComment = async (commentId: string) => {
 				<div v-else class="flex items-center justify-center h-full text-slate-400">No file selected</div>
 			</Panel>
 			<!-- Resize Handle -->
-			<!-- TODO: fix the resize event, the event.clientX value is not accurate -->
 			<ResizeHandle
 				v-if="index < panels.length - 1"
 				:resizable-element="containerElement || null"
-				@resize-event="(event: MouseEvent) => handlePanelResize(index, event.clientX)"
+				@resize-event="(event: MouseEvent) => handlePanelResize(index, event.clientX - props.sideBarWidth)"
 			/>
 		</template>
 

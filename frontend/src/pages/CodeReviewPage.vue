@@ -154,6 +154,7 @@ onMounted(() => {
 							:left-drop-zone-active="dragDropController.leftDropZoneActive.value"
 							:right-drop-zone-active="dragDropController.rightDropZoneActive.value"
 							:drop-zone-width="dragDropController.DROPZONE_WIDTH"
+							:side-bar-width="sidebarWidth"
 							@tab-selected="workspaceController.handleTabSelected"
 							@tab-closed="workspaceController.handleTabClosed"
 							@tab-drop="dragDropController.handleTabDrop"
