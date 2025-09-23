@@ -1,18 +1,16 @@
-﻿using Microsoft.EntityFrameworkCore;
-using server.Data;
-using server.Mappers;
+﻿using server.Mappers;
 using server.Models.Categories;
 using server.Types.Interfaces;
 
 namespace server.Services
 {
-	public class CategoryService(ApplicationDbContext context) : ICategoryService
+	public class CategoryService(ICategoryRepository repository) : ICategoryService
 	{
 		public async Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync()
 		{
 			try
 			{
-				IEnumerable<Category> categories = await context.Categories.AsNoTracking().ToListAsync();
+				IEnumerable<Category> categories = await repository.GetAllAsync();
 				return categories.Select(CategoryMapper.ToDto);
 			}
 			catch (Exception ex)
