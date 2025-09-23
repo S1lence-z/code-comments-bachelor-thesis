@@ -1,29 +1,21 @@
-﻿using Microsoft.EntityFrameworkCore;
-using server.Data;
-using server.Mappers;
-using server.Models.Categories;
+﻿using server.Mappers;
 using server.Models.Comments;
+using server.Models.Categories;
 using server.Models.Locations;
 using server.Models.Locations.DTOs;
 using server.Types.Enums;
 using server.Types.Interfaces;
+using server.Types.Repositories;
 
 namespace server.Services
 {
-	public class CommentService(ApplicationDbContext context) : ICommentService
+	public class CommentService(ICommentRepository commentRepository, IProjectRepository projectRepository, ICategoryRepository categoryRepository) : ICommentService
 	{
 		public async Task<IEnumerable<CommentDto>> GetAllCommentsForProjectAsync(Guid projectId)
 		{
 			try
 			{
-				IEnumerable<Comment> comments = await context.Comments
-					.AsNoTracking()
-					.Where(c => c.ProjectId == projectId)
-					.Include(c => c.Project)
-						.ThenInclude(p => p.Repository)
-					.Include(c => c.Location)
-					.Include(c => c.Category)
-					.ToListAsync();
+				IEnumerable<Comment> comments = await commentRepository.GetAllByProjectIdAsync(projectId);
 				return comments.Select(CommentMapper.ToDto);
 			}
 			catch (Exception ex)
@@ -70,16 +62,15 @@ namespace server.Services
 			try
 			{
 				// Check if the project exists
-				bool projectExists = await context.Projects.AnyAsync(p => p.Id == projectId);
+				bool projectExists = await projectRepository.ExistsAsync(projectId);
 				if (!projectExists)
 					throw new ArgumentException($"Project with ID {projectId} does not exist.");
 
-				// Get the category
-				Category? category = await context.Categories.FirstOrDefaultAsync(cat => cat.Id == newCommentData.CategoryId);
+				// Validate category
+				Category? category = await categoryRepository.GetByIdAsync(newCommentData.CategoryId);
 
 				// Create and save the new location based on comment type
 				Location newLocation = CreateLocationFromComment(newCommentData);
-				await context.Locations.AddAsync(newLocation);
 
 				// Create and save the new comment
 				Comment newComment = new()
@@ -91,18 +82,8 @@ namespace server.Services
 					Type = newCommentData.Type,
 					Content = newCommentData.Content
 				};
-				await context.Comments.AddAsync(newComment);
-				await context.SaveChangesAsync();
 
-				// Retrieve the newly created comment with all related data
-				Comment createdComment = await context.Comments
-					.AsNoTracking()
-					.Include(c => c.Project)
-						.ThenInclude(p => p.Repository)
-					.Include(c => c.Location)
-					.Include(c => c.Category)
-					.FirstOrDefaultAsync(c => c.Id == newComment.Id) 
-					?? throw new Exception("Failed to retrieve the newly created comment.");
+				Comment createdComment = await commentRepository.CreateAsync(newComment, newLocation);
 				return CommentMapper.ToDto(createdComment);
 			}
 			catch (Exception ex)
@@ -115,36 +96,26 @@ namespace server.Services
 		{
 			try
 			{
-				// Ensure the project exists
-				bool projectExists = await context.Projects.AnyAsync(p => p.Id == projectId);
-				if (!projectExists)
-					throw new ArgumentException($"Project with ID {projectId} does not exist.");
-				
 				// Find the existing comment
-				Comment? existingComment = await context.Comments
-					.Include(c => c.Location)
-					.FirstOrDefaultAsync(c => c.Id == commentId && c.ProjectId == projectId);
+				Comment? existingComment = await commentRepository.GetByIdWithProjectAsync(commentId, projectId, track: true);
 				if (existingComment is null)
 					throw new ArgumentException($"Comment with ID {commentId} for project {projectId} does not exist.");
+
+				// Validate category if possible
+				if (updatedCommentData.CategoryId.HasValue)
+				{
+					bool categoryExists = await categoryRepository.ExistsAsync(updatedCommentData.CategoryId.Value);
+					if (!categoryExists)
+						throw new ArgumentException($"Category with ID {updatedCommentData.CategoryId.Value} does not exist.");
+				}
 
 				// Update the comment content and categoryId
 				existingComment.Content = updatedCommentData.Content;
 				existingComment.CategoryId = updatedCommentData.CategoryId;
 
-				// Update the location details based on comment type
-				context.Comments.Update(existingComment);
-				await context.SaveChangesAsync();
-
-				// Retrieve the updated comment with all related data
-				Comment updatedComment = await context.Comments
-					.AsNoTracking()
-					.Include(c => c.Project)
-						.ThenInclude(p => p.Repository)
-					.Include(c => c.Location)
-					.Include(c => c.Category)
-					.FirstOrDefaultAsync(c => c.Id == existingComment.Id) 
-					?? throw new Exception("Failed to retrieve the updated comment.");
-				return CommentMapper.ToDto(updatedComment);
+				// Persist changes
+				Comment udpatedComment = await commentRepository.UpdateAsync(existingComment);
+				return CommentMapper.ToDto(udpatedComment);
 			}
 			catch (Exception ex)
 			{
@@ -156,12 +127,10 @@ namespace server.Services
 		{
 			try
 			{
-				Comment? comment = await context.Comments.FirstOrDefaultAsync(c => c.Id == commentId && c.ProjectId == projectId);
+				Comment? comment = await commentRepository.GetByIdWithProjectAsync(commentId, projectId, true);
 				if (comment is null)
 					throw new ArgumentException($"Comment with ID {commentId} for project {projectId} does not exist.");
-				context.Comments.Remove(comment);
-				int affectedRows = await context.SaveChangesAsync();
-				return affectedRows > 0;
+				return await commentRepository.DeleteAsync(comment);
 			}
 			catch (Exception ex)
 			{
