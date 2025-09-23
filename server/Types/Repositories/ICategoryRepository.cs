@@ -1,6 +1,6 @@
 using server.Models.Categories;
 
-namespace server.Types.Interfaces
+namespace server.Types.Repositories
 {
     public interface ICategoryRepository
     {

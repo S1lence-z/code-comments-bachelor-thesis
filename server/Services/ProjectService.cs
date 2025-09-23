@@ -4,6 +4,7 @@ using server.Types.Interfaces;
 using server.Mappers;
 using Microsoft.Extensions.Options;
 using server.Configs;
+using server.Types.Repositories;
 
 namespace server.Services
 {

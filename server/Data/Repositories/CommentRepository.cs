@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using server.Models.Comments;
 using server.Models.Locations;
-using server.Types.Interfaces;
+using server.Types.Repositories;
 
 namespace server.Data.Repositories
 {

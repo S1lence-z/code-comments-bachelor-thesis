@@ -4,6 +4,7 @@ using server.Data;
 using server.Data.Repositories;
 using server.Services;
 using server.Types.Interfaces;
+using server.Types.Repositories;
 using System.Text.Json.Serialization;
 
 namespace server

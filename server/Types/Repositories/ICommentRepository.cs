@@ -1,7 +1,7 @@
 using server.Models.Comments;
 using server.Models.Locations;
 
-namespace server.Types.Interfaces
+namespace server.Types.Repositories
 {
     public interface ICommentRepository
     {

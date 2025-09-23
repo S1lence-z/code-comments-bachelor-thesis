@@ -5,6 +5,7 @@ using server.Models.Locations;
 using server.Models.Locations.DTOs;
 using server.Types.Enums;
 using server.Types.Interfaces;
+using server.Types.Repositories;
 
 namespace server.Services
 {

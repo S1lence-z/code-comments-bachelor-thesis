@@ -1,6 +1,6 @@
 using server.Models.Projects;
 
-namespace server.Types.Interfaces
+namespace server.Types.Repositories
 {
     public interface IProjectRepository
     {
