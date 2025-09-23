@@ -31,6 +31,7 @@ const {
 	sidebar,
 
 	// Comment form state
+	commentFilePath,
 	startLineNumber,
 	endLineNumber,
 	commentId,
@@ -174,7 +175,7 @@ onMounted(() => {
 									<Icon srcName="empty" />
 								</div>
 								<h3 class="text-xl font-semibold text-white mb-2">No File Selected</h3>
-								<p class="text-slate-400 mb-4">Set up a project on the Home page</p>
+								<p class="text-slate-400 mb-4">Please select a file to view its comments</p>
 							</div>
 						</div>
 					</div>
@@ -190,7 +191,7 @@ onMounted(() => {
 			>
 				<CommentForm
 					v-model:isVisible="isAddingComment"
-					:comment-file-path="selectedFilePath"
+					:comment-file-path="commentFilePath"
 					:start-line-number="startLineNumber"
 					:end-line-number="endLineNumber"
 					:comment-id="commentId"

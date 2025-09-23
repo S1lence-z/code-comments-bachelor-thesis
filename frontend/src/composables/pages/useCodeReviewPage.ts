@@ -194,15 +194,16 @@ export function useCodeReviewPage() {
 
 	// Computed
 	const getSubtitle = computed(() => {
-		if (addedCommentType.value === CommentType.Project) {
-			return "Project-wide comment";
-		}
-		const locationInfo = getCommentLocationInfoByType(
+		if (addedCommentType.value === CommentType.Project) return "Project-wide comment";
+		if (!commentFilePath.value) return "";
+
+		// Get comment location info
+		const commentInfo = getCommentLocationInfoByType(
 			addedCommentType.value,
 			startLineNumber.value,
 			endLineNumber.value
 		);
-		return locationInfo;
+		return `In file ${commentFilePath.value} ${commentInfo}`;
 	});
 
 	const projectCommentButtonLabel = computed(() => {
