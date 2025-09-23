@@ -29,19 +29,7 @@ const setActiveFileTab = (filePath: string) => {
 };
 
 const removeFileTab = (filePath: string) => {
-	if (props.openTabs) {
-		// In split panel mode, emit to parent
-		emit("tab-closed", filePath);
-	} else {
-		// In classic mode, manage internal tabs
-		const index = openFileTabs.value.indexOf(filePath);
-		if (index !== -1) {
-			openFileTabs.value.splice(index, 1);
-			if (props.activeTab === filePath) {
-				emit("update:activeTab", openFileTabs.value[0] || null);
-			}
-		}
-	}
+	emit("tab-closed", filePath);
 };
 
 // Only manage internal tabs in classic mode
@@ -132,6 +120,7 @@ const currentTabs = computed(() => props.openTabs || openFileTabs.value);
 							<span class="truncate max-w-32">{{ getFileName(file) }}</span>
 						</button>
 
+						<!-- Close tab button -->
 						<button
 							@click="removeFileTab(file)"
 							class="flex items-center justify-center w-6 h-6 text-slate-400 hover:text-white hover:bg-white/10 rounded-md duration-200 mr-1 cursor-pointer"

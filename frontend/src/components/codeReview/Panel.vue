@@ -3,22 +3,26 @@ import { ref, computed } from "vue";
 import FileTabManager from "./FileTabManager.vue";
 import type { TabData, DraggedTabData } from "../../types/others/Panels";
 
-const props = defineProps<{
+interface PanelProps {
 	panelId: number;
 	openTabs: TabData[];
 	activeTab: TabData | null;
 	draggedTab: DraggedTabData | null;
-}>();
+}
 
-const emit = defineEmits<{
+interface PanelEmits {
 	(event: "tab-selected", filePath: string, panelId: number): void;
 	(event: "tab-closed", filePath: string, panelId: number): void;
 	(event: "tab-drop", panelId: number): void;
 	(event: "tab-drag-start", filePath: string, panelId: number): void;
 	(event: "tab-drag-end"): void;
 	(event: "tab-drop-with-index", panelId: number, insertIndex: number): void;
-}>();
+}
 
+const props = defineProps<PanelProps>();
+const emit = defineEmits<PanelEmits>();
+
+// Drag and drop state
 const isDragOver = ref(false);
 const showDropZone = ref(false);
 
@@ -53,7 +57,7 @@ const handleDrop = (event: DragEvent) => {
 	emit("tab-drop", props.panelId);
 };
 
-// Enhanced FileTabManager that supports the panel's tabs
+// Tab state and handlers
 const currentTabs = computed(() => props.openTabs.map((tab) => tab.filePath));
 const currentActiveTab = computed(() => props.activeTab?.filePath || null);
 
