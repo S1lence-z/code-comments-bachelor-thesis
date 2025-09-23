@@ -1,7 +1,7 @@
-
 using Microsoft.EntityFrameworkCore;
 using server.Configs;
 using server.Data;
+using server.Data.Repositories;
 using server.Services;
 using server.Types.Interfaces;
 using System.Text.Json.Serialization;
@@ -21,6 +21,11 @@ namespace server
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlite(builder.Configuration.GetConnectionString("localDb"))
             );
+
+            // Register repositories
+            builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+            builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
             // Register services
             builder.Services.AddScoped<IProjectService, ProjectService>();
