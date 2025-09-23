@@ -56,8 +56,6 @@ export function useWorkspaceController(props: WorkspaceControllerProps, emit: Wo
 	};
 
 	const closePanel = (panelId: number): void => {
-		if (panels.value.length <= 1) return;
-
 		const panelIndex = panels.value.findIndex((p: PanelData) => p.id === panelId);
 		if (panelIndex === -1) return;
 
@@ -122,26 +120,33 @@ export function useWorkspaceController(props: WorkspaceControllerProps, emit: Wo
 	};
 
 	const handleTabClosed = (filePath: string, panelId: number): void => {
+		// Find the panel
 		const panel = findPanelById(panels.value, panelId);
 		if (!panel) return;
 
+		// Find the tab index
 		const tabIndex = getTabIndexInPanel(panel, filePath);
 		if (tabIndex === -1) return;
 
 		// Remove the tab
 		panel.openTabs.splice(tabIndex, 1);
 
-		// If panel has no tabs left, close it
-		if (panel.openTabs.length === 0) {
-			emit("update:selectedFilePath", null);
+		// Current panel still has some tabs
+		if (panel.openTabs.length > 0) {
+			// If the closed tab was active, set a new active tab
+			if (panel.activeTab?.filePath === filePath) {
+				panel.activeTab = panel.openTabs[0];
+				emit("update:selectedFilePath", panel.activeTab.filePath);
+			}
+		} else {
+			// Panel has no tabs left
+			panel.activeTab = null;
 			closePanel(panelId);
-			return;
 		}
 
-		// If the closed tab was active, switch to another tab
-		if (panel.activeTab?.filePath === filePath) {
-			panel.activeTab = panel.openTabs[0] || null;
-			emit("update:selectedFilePath", panel.activeTab?.filePath || null);
+		// If no panels left, clear selected file path
+		if (panels.value.length === 0) {
+			emit("update:selectedFilePath", null);
 		}
 	};
 
