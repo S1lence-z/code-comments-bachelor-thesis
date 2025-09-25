@@ -1,4 +1,5 @@
 name: Sync Markdown to Wiki
+
 on:
     push:
         branches: [master]
