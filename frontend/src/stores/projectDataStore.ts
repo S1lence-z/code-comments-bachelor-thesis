@@ -8,7 +8,7 @@ import useCategoryService from "../services/categoryService";
 import { useServerStore } from "./serverStore";
 import { CommentType } from "../types/enums/CommentType";
 
-// Dummy category to ensure at least one category exists
+// TODO: Dummy category to have at least one -> improve, add it also on the server side
 const dummyCategoryDto: CategoryDto = {
 	id: "dummy-id",
 	label: "Uncategorized",
