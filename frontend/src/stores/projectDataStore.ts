@@ -7,8 +7,9 @@ import useCommentsService from "../services/commentsService";
 import useCategoryService from "../services/categoryService";
 import { useServerStore } from "./serverStore";
 import { CommentType } from "../types/enums/CommentType";
+import { useFileContentStore } from "./fileContentStore";
 
-// Dummy category to ensure at least one category exists
+// TODO: Dummy category to have at least one -> improve, add it also on the server side
 const dummyCategoryDto: CategoryDto = {
 	id: "dummy-id",
 	label: "Uncategorized",
@@ -51,7 +52,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 
 			const promises = [
 				this.fetchRepositoryTree(newRepositoryUrl, newBranch, githubPat),
-				this.fetchAllCommentsAsync(newRwApiUrl),
+				this.fetchAllCommentsAsync(newRwApiUrl, newRepositoryUrl, newBranch, githubPat),
 				this.fetchAllCategoriesAsync(serverBaseUrl),
 			];
 			await Promise.all(promises);
@@ -79,9 +80,15 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				this.isLoadingRepository = false;
 			}
 		},
-		async fetchAllCommentsAsync(rwApiUrl: string) {
+		async fetchAllCommentsAsync(
+			rwApiUrl: string,
+			githubRepositoryUrl: string,
+			githubBranch: string,
+			githubPat?: string
+		) {
 			const serverStore = useServerStore();
 			const commentsService = useCommentsService();
+			const fileContentStore = useFileContentStore();
 			serverStore.startSyncing();
 			this.isLoadingComments = true;
 			try {
@@ -98,7 +105,14 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 					console.warn("No comments found in the response");
 					return;
 				}
+				// Load commented files content
 				this.comments = response || [];
+				await fileContentStore.loadCommentedFilesContent(
+					this.allComments,
+					githubRepositoryUrl,
+					githubBranch,
+					githubPat
+				);
 				serverStore.setSynced();
 			} catch (error) {
 				serverStore.setSyncError("Failed to fetch comments");

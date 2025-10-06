@@ -11,7 +11,6 @@ import { useKeyboardShortcutsStore } from "./stores/keyboardShortcutsStore.ts";
 import KeyboardShortcutsEditor from "./components/app/KeyboardShortcutsEditor.vue";
 import { useWorkspaceStore } from "./stores/workspaceStore.ts";
 import { useProjectDataStore } from "./stores/projectDataStore.ts";
-import { useFileContentStore } from "./stores/fileContentStore.ts";
 import { setupPageKey } from "./core/keys";
 
 // Router
@@ -25,7 +24,6 @@ const projectDataStore = useProjectDataStore();
 const settingsStore = useSettingsStore();
 const keyboardShortcutsStore = useKeyboardShortcutsStore();
 const workspaceStore = useWorkspaceStore();
-const fileContentStore = useFileContentStore();
 
 // Methods
 // TODO: consider creating the useAppController composable for app-level methods - have not done it yet since there is only one method for now
@@ -56,13 +54,6 @@ onMounted(async () => {
 				projectStore.repositoryBranch,
 				projectStore.githubPat,
 				projectStore.getServerBaseUrl
-			);
-			// Load commented files content
-			await fileContentStore.loadCommentedFilesContent(
-				projectDataStore.allComments,
-				projectStore.repositoryUrl,
-				projectStore.repositoryBranch,
-				projectStore.githubPat
 			);
 		})
 		.catch((error) => {
