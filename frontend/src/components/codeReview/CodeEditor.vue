@@ -1,27 +1,10 @@
 <script setup lang="ts">
 import "../../../css/codemirror.css";
 import { Codemirror } from "vue-codemirror";
-import type CommentDto from "../../types/dtos/CommentDto";
-import { useCodeEditor } from "../../composables/components/useCodeEditor";
+import { useCodeEditor, type CodeEditorProps, type CodeEditorEmits } from "../../composables/components/useCodeEditor";
 
-interface CodeEditorProps {
-	filePath: string | null;
-	fileContent: string | null | undefined;
-	isLoadingFile: boolean;
-	commentForFile: CommentDto[];
-	deleteCommentAction: (commentId: string) => Promise<void>;
-	editCommentAction: (commentId: string) => Promise<void>;
-}
-
-const props = withDefaults(defineProps<CodeEditorProps>(), {
-	isLoadingFile: false,
-	commentForFile: () => [],
-});
-
-const emit = defineEmits<{
-	"line-double-clicked": [{ lineNumber: number; filePath: string }];
-	"multiline-selected": [{ selectedStartLineNumber: number; selectedEndLineNumber: number; filePath: string }];
-}>();
+const props = defineProps<CodeEditorProps>();
+const emit = defineEmits<CodeEditorEmits>();
 
 // Initialize the composable
 const {

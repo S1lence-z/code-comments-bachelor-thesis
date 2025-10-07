@@ -1,14 +1,7 @@
 <script setup lang="ts">
-import { useContentViewer } from "../../composables/components/useContentViewer";
+import { useContentViewer, type ContentViewerProps } from "../../composables/components/useContentViewer";
 import { FileDisplayType } from "../../types/github/githubFile";
 
-interface ContentViewerProps {
-	selectedFilePath: string | null;
-	fileName: string;
-	downloadUrl: string;
-	displayType: FileDisplayType;
-	previewUrl: string;
-}
 defineProps<ContentViewerProps>();
 
 // Initialize the composable

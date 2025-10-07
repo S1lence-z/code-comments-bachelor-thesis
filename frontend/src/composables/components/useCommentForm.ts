@@ -6,11 +6,11 @@ import { createCommentByType } from "../../utils/commentUtils";
 
 export interface CommentFormProps {
 	isVisible: boolean;
-	commentFilePath: string | null;
-	startLineNumber: number | null;
-	endLineNumber: number | null;
 	commentId: string | null;
 	commentType: CommentType;
+	commentFilePath: string;
+	startLineNumber: number | null;
+	endLineNumber: number | null;
 }
 
 export interface CommentFormEmits {

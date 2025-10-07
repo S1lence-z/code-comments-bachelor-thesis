@@ -4,7 +4,7 @@ import { type TreeNode, TreeNodeType } from "../../types/github/githubTree";
 export interface FileExplorerItemProps {
 	item: TreeNode;
 	filePath: string | null;
-	depth?: number;
+	depth: number;
 }
 
 export interface FileExplorerItemEmits {
@@ -18,6 +18,10 @@ export function useFileExplorerItem(props: FileExplorerItemProps, emit: FileExpl
 	const projectDataStore = useProjectDataStore();
 
 	// Methods
+	const fileContainsComments = (filePath: string): boolean => {
+		return projectDataStore.fileContainsComments(filePath);
+	};
+
 	const handleItemClick = (): void => {
 		if (props.item.type === TreeNodeType.file) {
 			emit("update:filePath", props.item.path);
@@ -32,17 +36,9 @@ export function useFileExplorerItem(props: FileExplorerItemProps, emit: FileExpl
 		}
 	};
 
-	const handleFileCommentAction = (): void => {
-		emit("file-comment-requested", props.item.path);
-	};
-
 	return {
-		// Store access for template
-		projectDataStore,
-
-		// Methods
 		handleItemClick,
 		handleToggleExpand,
-		handleFileCommentAction,
+		fileContainsComments,
 	};
 }
