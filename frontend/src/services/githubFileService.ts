@@ -2,31 +2,55 @@ import type { ProcessedFile, GithubFileContentResponse } from "../types/github/g
 import { FileDisplayType } from "../types/github/githubFile";
 
 const useGithubFileService = () => {
+	const base64ToBlobUrl = (base64Data: string, mimeType: string): string | null => {
+		if (!base64Data) return null;
+		try {
+			const sanitized = base64Data.replace(/\s/g, "");
+			const byteCharacters = atob(sanitized);
+			const byteNumbers = new Array(byteCharacters.length);
+			for (let i = 0; i < byteCharacters.length; i++) {
+				byteNumbers[i] = byteCharacters.charCodeAt(i);
+			}
+			const byteArray = new Uint8Array(byteNumbers);
+			const blob = new Blob([byteArray], { type: mimeType });
+			return URL.createObjectURL(blob);
+		} catch (error) {
+			console.error("Failed to create blob URL from base64 data", error);
+			return null;
+		}
+	};
+
 	const processFileContent = (file: GithubFileContentResponse): ProcessedFile => {
-		const { name, content, download_url } = file;
+		const { name, content, download_url: downloadUrl } = file;
 		let displayType: FileDisplayType = FileDisplayType.Text;
 		let fileContent: string | null = null;
+		let previewUrl: string | null = downloadUrl;
 
 		if (name.endsWith(".jpg") || name.endsWith(".png")) {
 			displayType = FileDisplayType.Image;
+			previewUrl = downloadUrl;
 		} else if (name.endsWith(".pdf")) {
 			displayType = FileDisplayType.PDF;
+			previewUrl = content ? base64ToBlobUrl(content, "application/pdf") : downloadUrl;
 		} else if (!content) {
 			displayType = FileDisplayType.Binary;
+			previewUrl = null;
 		} else {
 			// Github API returns base64 encoded content for text files
-			fileContent = atob(content);
-			const bytes = new Uint8Array(fileContent.length);
-			for (let i = 0; i < fileContent.length; i++) {
-				bytes[i] = fileContent.charCodeAt(i);
+			const decoded = atob(content.replace(/\s/g, ""));
+			const bytes = new Uint8Array(decoded.length);
+			for (let i = 0; i < decoded.length; i++) {
+				bytes[i] = decoded.charCodeAt(i);
 			}
 			fileContent = new TextDecoder("utf-8").decode(bytes);
+			previewUrl = null;
 		}
 
 		return {
 			displayType,
 			content: fileContent,
-			downloadUrl: download_url,
+			downloadUrl: downloadUrl,
+			previewUrl,
 			fileName: name,
 		};
 	};

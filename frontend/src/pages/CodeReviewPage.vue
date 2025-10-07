@@ -49,10 +49,12 @@ const {
 	handleFileQueryParam,
 	deleteCommentAction,
 	isAnyFileSelected,
+	expandAllFiles,
 
 	// Computed
 	getSubtitle,
 	projectCommentButtonLabel,
+	expandAllButtonLabel,
 } = useCodeReviewPage();
 
 // Initialize workspace controller
@@ -116,6 +118,8 @@ onMounted(() => {
 							@update:selected-path="handleFileSelected"
 							:treeData="fileTree"
 							:projectCommentButtonLabel="projectCommentButtonLabel"
+							:expandAllButtonLabel="expandAllButtonLabel"
+							@toggle-expand-all-items="expandAllFiles"
 							@project-comment-requested="handleProjectCommentSelected"
 							@file-comment-requested="handleFileCommentSelected"
 						/>

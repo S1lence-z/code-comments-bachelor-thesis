@@ -14,15 +14,7 @@ const props = withDefaults(defineProps<FileExplorerItemProps>(), {
 const emit = defineEmits<FileExplorerItemEmits>();
 
 // Initialize the composable
-const {
-	// Store access for template
-	projectDataStore,
-
-	// Methods
-	handleItemClick,
-	handleToggleExpand,
-	handleFileCommentAction,
-} = useFileExplorerItem(props, emit);
+const { handleItemClick, handleToggleExpand, fileContainsComments } = useFileExplorerItem(emit);
 </script>
 
 <template>
@@ -32,13 +24,12 @@ const {
 			class="flex items-center rounded-lg transition-all duration-200"
 			:class="{
 				'bg-white/10 text-white border border-white/20': item.path === filePath && item.type === 'file',
-				'bg-amber-500/10 border border-amber-500/20':
-					projectDataStore.fileContainsComments(item.path) && item.path !== filePath,
+				'bg-amber-500/10 border border-amber-500/20': fileContainsComments(item.path) && item.path !== filePath,
 				'hover:bg-white/5': item.path !== filePath,
 			}"
 		>
 			<div
-				@click="handleItemClick"
+				@click="handleItemClick(item)"
 				class="flex flex-grow items-center gap-2 cursor-pointer text-slate-300 min-w-0 py-2 px-3 rounded-lg"
 				:title="item.path"
 				:style="{
@@ -49,7 +40,7 @@ const {
 				<span
 					v-if="item.type === 'folder'"
 					class="w-4 h-4 flex items-center justify-center text-slate-400 transition-all duration-200 flex-shrink-0 hover:text-white"
-					@click.stop="handleToggleExpand"
+					@click.stop="handleToggleExpand(item)"
 				>
 					<Icon
 						srcName="arrow"
@@ -100,7 +91,7 @@ const {
 				</span>
 
 				<!-- Contains comments indicator -->
-				<span v-if="projectDataStore.fileContainsComments(item.path)" class="flex items-center gap-1 ml-2">
+				<span v-if="fileContainsComments(item.path)" class="flex items-center gap-1 ml-2">
 					<div class="w-2 h-2 bg-amber-400 rounded-full"></div>
 					<span class="text-xs text-amber-400">💬</span>
 				</span>
@@ -109,7 +100,7 @@ const {
 			<!-- Item Actions -->
 			<div class="mr-2 duration-200">
 				<button
-					@click="handleFileCommentAction"
+					@click="emit('file-comment-requested', props.item.path)"
 					class="w-6 h-6 bg-white/10 hover:bg-white/20 hover:text-white rounded-md flex items-center justify-center transition-all duration-200 text-black cursor-pointer"
 					title="Add comment"
 				>
@@ -129,9 +120,9 @@ const {
 				:item="child"
 				:depth="props.depth + 1"
 				:filePath="props.filePath"
-				@update:filePath="$emit('update:filePath', $event)"
+				@update:filePath="emit('update:filePath', $event)"
 				@toggle-expand-item="handleToggleExpandInTree(child, item.children)"
-				@file-comment-requested="$emit('file-comment-requested', $event)"
+				@file-comment-requested="emit('file-comment-requested', $event)"
 			/>
 		</ul>
 	</li>

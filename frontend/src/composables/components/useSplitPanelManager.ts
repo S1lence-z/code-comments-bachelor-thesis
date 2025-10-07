@@ -1,8 +1,37 @@
 import { ref } from "vue";
-import type { SplitPanelManagerProps, SplitPanelManagerEmits } from "../../components/codeReview/SplitPanelManager.vue";
+import type { DraggedTabData, PanelData } from "../../types/others/Panels";
 import { useFileContentStore } from "../../stores/fileContentStore";
 import { useProjectDataStore } from "../../stores/projectDataStore";
 import { FileDisplayType } from "../../types/github/githubFile";
+import { useSettingsStore } from "../../stores/settingsStore";
+
+export interface SplitPanelManagerProps {
+	panels: PanelData[];
+	draggedTab: DraggedTabData | null;
+	leftDropZoneActive: boolean;
+	rightDropZoneActive: boolean;
+	dropZoneWidth: number;
+	sideBarWidth: number;
+}
+
+export interface SplitPanelManagerEmits {
+	(event: "tab-selected", filePath: string, panelId: number): void;
+	(event: "tab-closed", filePath: string, panelId: number): void;
+	(event: "tab-drop", panelId: number, insertIndex?: number): void;
+	(event: "tab-drag-start", filePath: string, panelId: number): void;
+	(event: "tab-drag-end"): void;
+	(event: "panel-resize", currentPanel: PanelData, nextPanel: PanelData, newWidthPercentage: number): void;
+	(event: "drop-zone-drag-over", dragEvent: DragEvent): void;
+	(event: "drop-zone-leave", dragEvent: DragEvent): void;
+	(event: "drop-zone-drop", dragEvent: DragEvent): void;
+	(event: "line-double-clicked", data: { lineNumber: number; filePath: string }): void;
+	(
+		event: "multiline-selected",
+		data: { selectedStartLineNumber: number; selectedEndLineNumber: number; filePath: string }
+	): void;
+	(event: "delete-comment", commentId: string): void;
+	(event: "edit-comment", commentId: string): void;
+}
 
 export function useSplitPanelManager(props: SplitPanelManagerProps, emit: SplitPanelManagerEmits) {
 	// Constants
@@ -12,44 +41,10 @@ export function useSplitPanelManager(props: SplitPanelManagerProps, emit: SplitP
 	// Stores
 	const fileContentStore = useFileContentStore();
 	const projectDataStore = useProjectDataStore();
+	const settingsStore = useSettingsStore();
 
 	// Component refs
 	const containerElement = ref<HTMLElement>();
-
-	// Tab management methods
-	const handleTabSelected = (filePath: string, panelId: number): void => {
-		emit("tab-selected", filePath, panelId);
-	};
-
-	const handleTabClosed = (filePath: string, panelId: number): void => {
-		emit("tab-closed", filePath, panelId);
-	};
-
-	const handleTabDrop = (targetPanelId: number, insertIndex?: number): void => {
-		emit("tab-drop", targetPanelId, insertIndex);
-	};
-
-	// Drag and drop methods
-	const handleTabDragStart = (filePath: string, panelId: number): void => {
-		emit("tab-drag-start", filePath, panelId);
-	};
-
-	const handleTabDragEnd = (): void => {
-		emit("tab-drag-end");
-	};
-
-	// Drop zone methods
-	const handleDropZoneDragOver = (event: DragEvent): void => {
-		emit("drop-zone-drag-over", event);
-	};
-
-	const handleDropZoneLeave = (event: DragEvent): void => {
-		emit("drop-zone-leave", event);
-	};
-
-	const handleDropZoneDrop = (event: DragEvent): void => {
-		emit("drop-zone-drop", event);
-	};
 
 	// Helper functions for content rendering
 	const isTextFile = (filePath: string) => {
@@ -76,8 +71,17 @@ export function useSplitPanelManager(props: SplitPanelManagerProps, emit: SplitP
 		return fileContentStore.getFileDownloadUrl(filePath);
 	};
 
+	const getFilePreviewUrl = (filePath: string) => {
+		return fileContentStore.getFilePreviewUrl(filePath);
+	};
+
 	// Panel resizing functionality
+	const adjustForSidebarWidth = (x: number) => {
+		return x - (settingsStore.isSidebarOpen ? props.sideBarWidth : 0);
+	};
+
 	const handlePanelResize = (panelIndex: number, newWidth: number): void => {
+		newWidth = adjustForSidebarWidth(newWidth);
 		const container = containerElement.value;
 		if (!container || panelIndex >= props.panels.length - 1) return;
 
@@ -115,18 +119,8 @@ export function useSplitPanelManager(props: SplitPanelManagerProps, emit: SplitP
 	};
 
 	return {
-		// State
+		// State and methods
 		containerElement,
-
-		// Methods
-		handleTabSelected,
-		handleTabClosed,
-		handleTabDrop,
-		handleTabDragStart,
-		handleTabDragEnd,
-		handleDropZoneDragOver,
-		handleDropZoneLeave,
-		handleDropZoneDrop,
 		handlePanelResize,
 
 		// Helper functions
@@ -136,5 +130,6 @@ export function useSplitPanelManager(props: SplitPanelManagerProps, emit: SplitP
 		isFileCached,
 		getFileDisplayType,
 		getFileDownloadUrl,
+		getFilePreviewUrl,
 	};
 }

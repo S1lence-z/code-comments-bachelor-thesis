@@ -1,4 +1,13 @@
 import { ref, computed, onUnmounted } from "vue";
+import type { FileDisplayType } from "../../types/github/githubFile";
+
+export interface ContentViewerProps {
+	selectedFilePath: string | null;
+	fileName: string;
+	downloadUrl: string;
+	displayType: FileDisplayType;
+	previewUrl: string;
+}
 
 export function useContentViewer() {
 	// Zoom and pan state

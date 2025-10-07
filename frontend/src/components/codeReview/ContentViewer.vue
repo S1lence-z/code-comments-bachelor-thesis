@@ -1,13 +1,7 @@
 <script setup lang="ts">
-import { useContentViewer } from "../../composables/components/useContentViewer";
+import { useContentViewer, type ContentViewerProps } from "../../composables/components/useContentViewer";
 import { FileDisplayType } from "../../types/github/githubFile";
 
-interface ContentViewerProps {
-	selectedFilePath: string | null;
-	fileName: string;
-	downloadUrl: string;
-	displayType: FileDisplayType;
-}
 defineProps<ContentViewerProps>();
 
 // Initialize the composable
@@ -31,6 +25,18 @@ const {
 </script>
 
 <template>
+	<!-- PDF Content -->
+	<template v-if="displayType === FileDisplayType.PDF">
+		<div :style="contentStyle" class="w-full h-full max-w-none max-h-none">
+			<iframe
+				:src="previewUrl || downloadUrl || undefined"
+				class="w-full h-full border-0 pointer-events-auto"
+				frameborder="0"
+				allowfullscreen
+			></iframe>
+		</div>
+	</template>
+
 	<div
 		ref="containerRef"
 		class="relative w-full h-full bg-[#272c33] overflow-hidden"
@@ -65,25 +71,12 @@ const {
 			<!-- Image Content -->
 			<template v-if="displayType === FileDisplayType.Image">
 				<img
-					:src="downloadUrl ?? ''"
+					:src="previewUrl || downloadUrl || ''"
 					:alt="`Image: ${selectedFilePath}`"
 					:style="contentStyle"
 					class="max-w-none max-h-none pointer-events-none select-none"
 					draggable="false"
 				/>
-			</template>
-
-			<!-- PDF Content -->
-			<template v-else-if="displayType === FileDisplayType.PDF">
-				<div :style="contentStyle" class="w-full h-full max-w-none max-h-none">
-					<iframe
-						:src="downloadUrl ?? undefined"
-						class="w-full h-full border-0 pointer-events-auto"
-						frameborder="0"
-						allowfullscreen
-						@mousedown.stop
-					></iframe>
-				</div>
 			</template>
 
 			<!-- Binary File Content -->

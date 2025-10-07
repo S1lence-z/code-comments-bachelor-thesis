@@ -53,7 +53,7 @@ const handleBlur = (event: FocusEvent) => {
 		<button type="button" class="btn btn-secondary" @click="toggleDropdown">
 			{{ props.label }}
 		</button>
-		<div v-if="showDropdown" class="absolute mt-2 w-full bg-gray-800 rounded-xl shadow-lg z-20">
+		<div v-if="showDropdown" class="absolute mt-2 w-full bg-gray-800 rounded-lg shadow-lg z-20">
 			<ul>
 				<li
 					v-for="option in props.options"
