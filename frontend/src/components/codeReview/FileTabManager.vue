@@ -79,26 +79,50 @@ const draggedFilePath = computed(() => {
 	return props.draggedTab?.filePath;
 });
 
+const fileTabsContainer = ref<HTMLElement | null>(null);
+
+const handleHorizontalTabScroll = (event: WheelEvent) => {
+	if (!fileTabsContainer.value) return;
+
+	const { deltaX, deltaY } = event;
+	event.preventDefault();
+
+	if (Math.abs(deltaY) >= Math.abs(deltaX)) {
+		fileTabsContainer.value.scrollLeft += deltaY;
+		return;
+	}
+
+	if (deltaX !== 0) {
+		fileTabsContainer.value.scrollLeft += deltaX;
+	}
+};
+
 // Get the current tabs to display
 const currentTabs = computed(() => props.openTabs || openFileTabs.value);
 </script>
 
 <template>
-	<div v-if="currentTabs.length > 0" class="flex flex-col h-full overflow-hidden">
+	<div v-if="currentTabs.length > 0" class="flex flex-col h-full">
 		<!-- File Tabs -->
 		<div class="w-full bg-white/5 backdrop-blur-sm border-b border-white/10 py-2">
 			<!-- File tabs container -->
-			<div class="flex items-center pl-4">
+			<div class="flex items-center py-1">
 				<!-- Mutliple File Tabs -->
-				<div v-if="currentTabs.length > 1" class="file-tabs scrollbar-hidden">
+				<div
+					v-if="currentTabs.length > 1"
+					ref="fileTabsContainer"
+					class="file-tabs scrollbar-hidden"
+					@wheel="handleHorizontalTabScroll"
+				>
 					<div
 						v-for="(file, index) in currentTabs"
 						:key="file"
 						class="file-tab"
 						:class="{
 							active: file === activeTab,
-
 							'opacity-50 scale-95': isDragging && file === draggedFilePath,
+							'ml-4': index === 0,
+							'mr-4': index === currentTabs.length - 1,
 						}"
 						@dragover="handleDragOver"
 						@drop="handleDrop($event, index)"
