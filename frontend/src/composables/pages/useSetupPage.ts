@@ -7,11 +7,15 @@ import { isValidGithubUrl } from "../../utils/urlUtils";
 import { useSettingsStore } from "../../stores/settingsStore";
 import type { LocationQueryValue } from "vue-router";
 import { useQueryParams } from "../core/useQueryParams";
+import useGithubBranchService from "../../services/githubBranchService";
 
 export function useSetupPage() {
 	// Stores
 	const projectStore = useProjectStore();
 	const settingsStore = useSettingsStore();
+
+	// Services
+	const { branchExistsInRepo } = useGithubBranchService();
 
 	// Services
 	const projectService = useProjectService();
@@ -56,21 +60,36 @@ export function useSetupPage() {
 		isProjectCreated.value = false;
 		projectCreationErrorMessage.value = "";
 
-		// Validate github URL
-		if (!isValidGithubUrl(formGithubRepositoryUrl.value.trim())) {
-			projectCreationErrorMessage.value = "Invalid GitHub repository URL.";
-			return;
-		}
-
 		// Submit project setup request
 		try {
+			// Trim inputs
+			const repositoryUrl = formGithubRepositoryUrl.value.trim();
+			const branchName = formBranchName.value.trim();
+			const projectName = formProjectName.value.trim();
+			const serverBaseUrl = formServerBaseUrl.value.trim();
+
+			// Validate github URL
+			if (!isValidGithubUrl(repositoryUrl)) {
+				projectCreationErrorMessage.value = "Invalid GitHub repository URL.";
+				return;
+			}
+
+			// Validate the branch exists on the repository
+			const branchExists = await branchExistsInRepo(repositoryUrl, branchName);
+			if (!branchExists) {
+				projectCreationErrorMessage.value = `The branch "${branchName}" does not exist in the repository.`;
+				return;
+			}
+
+			// Prepare setup data
 			const setupData: ProjectSetupRequest = {
-				serverBaseUrl: formServerBaseUrl.value.trim(),
-				repositoryUrl: formGithubRepositoryUrl.value.trim(),
-				branch: formBranchName.value.trim(),
-				name: formProjectName.value.trim(),
+				serverBaseUrl,
+				repositoryUrl,
+				branch: branchName,
+				name: projectName,
 			};
 
+			// Call the service to create the project
 			const response = await projectService.createProject(setupData, projectStore.getServerBaseUrl);
 
 			if (response.readWriteApiUrl && response.repository) {
