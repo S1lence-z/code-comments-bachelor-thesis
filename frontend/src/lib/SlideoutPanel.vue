@@ -22,7 +22,7 @@ const emit = defineEmits(["update:isVisible"]);
 		<!-- Tools Panel -->
 		<div class="flex flex-row justify-end">
 			<span
-				class="font-bold cursor-pointer hover:bg-amber-900 hover:rounded-xl p-2 text-black"
+				class="font-bold cursor-pointer hover:bg-amber-900 hover:rounded-lg p-1 text-black"
 				@click="emit('update:isVisible', false)"
 				>✕</span
 			>

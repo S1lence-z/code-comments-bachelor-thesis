@@ -26,7 +26,7 @@ const emit = defineEmits<FileExplorerEmits>();
 		<div class="flex bg-white/5 backdrop-blur-sm py-3 space-x-2 justify-around border-b border-white/10">
 			<!-- Toggle Expand All Button -->
 			<button
-				class="rounded-lg p-2 text-sm cursor-pointer bg-slate-300 hover:bg-slate-400 font-bold"
+				class="btn-secondary rounded-lg p-2 text-sm cursor-pointer font-semibold"
 				@click="emit('toggle-expand-all-items')"
 			>
 				{{ props.expandAllButtonLabel }}
@@ -34,7 +34,7 @@ const emit = defineEmits<FileExplorerEmits>();
 
 			<!-- Project Comment Button -->
 			<button
-				class="rounded-lg p-2 text-sm cursor-pointer bg-blue-300 hover:bg-blue-400 font-bold"
+				class="btn-primary rounded-lg p-2 text-sm cursor-pointer font-semibold"
 				@click="emit('project-comment-requested')"
 			>
 				{{ props.projectCommentButtonLabel }}
