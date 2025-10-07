@@ -44,9 +44,28 @@ export function useSetupPage() {
 	const existingProjects = ref<ProjectDto[]>([]);
 
 	// Handle new project creation
-	const handleNewProjectCreation = () => {
+	const handleNewProjectCreation = async () => {
+		// Trim inputs
+		const repositoryUrl = formGithubRepositoryUrl.value.trim();
+		const branchName = formBranchName.value.trim();
+		const projectName = formProjectName.value.trim();
+		const serverBaseUrl = formServerBaseUrl.value.trim();
+
+		// Validate github URL
+		if (!isValidGithubUrl(repositoryUrl)) {
+			projectCreationErrorMessage.value = "Invalid GitHub repository URL.";
+			return;
+		}
+
+		// Validate the branch exists on the repository
+		const branchExists = await branchExistsInRepo(repositoryUrl, branchName);
+		if (!branchExists) {
+			projectCreationErrorMessage.value = `The branch "${branchName}" does not exist in the repository.`;
+			return;
+		}
+
 		if (!isOfflineMode.value) {
-			createProject();
+			createProject(serverBaseUrl, repositoryUrl, branchName, projectName);
 			return;
 		}
 		// In offline mode, simulate project creation without server interaction
@@ -55,32 +74,13 @@ export function useSetupPage() {
 	};
 
 	// Create new project from form
-	const createProject = async (): Promise<void> => {
+	const createProject = async (serverBaseUrl: string, repositoryUrl: string, branchName: string, projectName: string): Promise<void> => {
 		isCreatingProject.value = true;
 		isProjectCreated.value = false;
 		projectCreationErrorMessage.value = "";
 
 		// Submit project setup request
 		try {
-			// Trim inputs
-			const repositoryUrl = formGithubRepositoryUrl.value.trim();
-			const branchName = formBranchName.value.trim();
-			const projectName = formProjectName.value.trim();
-			const serverBaseUrl = formServerBaseUrl.value.trim();
-
-			// Validate github URL
-			if (!isValidGithubUrl(repositoryUrl)) {
-				projectCreationErrorMessage.value = "Invalid GitHub repository URL.";
-				return;
-			}
-
-			// Validate the branch exists on the repository
-			const branchExists = await branchExistsInRepo(repositoryUrl, branchName);
-			if (!branchExists) {
-				projectCreationErrorMessage.value = `The branch "${branchName}" does not exist in the repository.`;
-				return;
-			}
-
 			// Prepare setup data
 			const setupData: ProjectSetupRequest = {
 				serverBaseUrl,
