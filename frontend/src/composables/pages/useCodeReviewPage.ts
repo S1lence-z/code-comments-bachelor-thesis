@@ -27,6 +27,7 @@ export function useCodeReviewPage() {
 	const selectedFilePath = ref<string | null>(null);
 	const processedSelectedFile = ref<ProcessedFile | null>(null);
 	const isLoadingFile = ref<boolean>(false);
+	const areFilesExpanded = ref<boolean>(false);
 
 	// Resizable sidebar state
 	const sidebarWidth = ref(280);
@@ -192,6 +193,11 @@ export function useCodeReviewPage() {
 		return !!selectedFilePath.value;
 	};
 
+	const expandAllFiles = () => {
+		areFilesExpanded.value = !areFilesExpanded.value;
+		projectDataStore.expandAllFiles(areFilesExpanded.value);
+	};
+
 	// Computed
 	const getSubtitle = computed(() => {
 		if (addedCommentType.value === CommentType.Project) return "Project-wide comment";
@@ -210,6 +216,10 @@ export function useCodeReviewPage() {
 		return projectDataStore.containsProjectComment ? "Edit Project Comment" : "Add Project Comment";
 	});
 
+	const expandAllButtonLabel = computed(() => {
+		return areFilesExpanded.value ? "Collapse All" : "Expand All";
+	});
+
 	return {
 		// Store refs
 		fileTree,
@@ -217,10 +227,7 @@ export function useCodeReviewPage() {
 		isLoadingRepository,
 		isLoadingComments,
 
-		// Stores (for direct access if needed)
-		projectStore,
-		projectDataStore,
-		fileContentStore,
+		// Stores
 		settingsStore,
 
 		// Local state
@@ -253,9 +260,11 @@ export function useCodeReviewPage() {
 		handleFileQueryParam,
 		deleteCommentAction,
 		isAnyFileSelected,
+		expandAllFiles,
 
 		// Computed
 		getSubtitle,
 		projectCommentButtonLabel,
+		expandAllButtonLabel,
 	};
 }
