@@ -9,6 +9,7 @@ export interface ProcessedFile {
 	displayType: FileDisplayType;
 	content: string | null;
 	downloadUrl: string | null;
+	previewUrl: string | null;
 	fileName: string;
 }
 

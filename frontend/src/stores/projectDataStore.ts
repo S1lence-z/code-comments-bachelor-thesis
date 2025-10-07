@@ -219,5 +219,17 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 		fileContainsComments(filePath: string): boolean {
 			return this.comments.some((comment: CommentDto) => comment.location.filePath === filePath);
 		},
+		expandAllFiles(toExpand: boolean): void {
+			const expandItem = (node: TreeNode, expand: boolean) => {
+				node.isExpanded = expand;
+				if (node.children && node.children.length > 0) {
+					node.children.forEach((child) => expandItem(child, expand));
+				}
+			};
+
+			this.fileTreeData.forEach((node) => {
+				expandItem(node, toExpand);
+			});
+		},
 	},
 });

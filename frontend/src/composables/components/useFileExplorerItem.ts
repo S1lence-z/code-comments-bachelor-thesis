@@ -13,36 +13,32 @@ export interface FileExplorerItemEmits {
 	(event: "file-comment-requested", filePath: string): void;
 }
 
-export function useFileExplorerItem(props: FileExplorerItemProps, emit: FileExplorerItemEmits) {
+export function useFileExplorerItem(emit: FileExplorerItemEmits) {
 	// Store access
 	const projectDataStore = useProjectDataStore();
 
 	// Methods
-	const handleItemClick = (): void => {
-		if (props.item.type === TreeNodeType.file) {
-			emit("update:filePath", props.item.path);
-		} else if (props.item.type === TreeNodeType.folder) {
-			emit("toggle-expand-item", props.item);
+	const fileContainsComments = (filePath: string): boolean => {
+		return projectDataStore.fileContainsComments(filePath);
+	};
+
+	const handleItemClick = (item: TreeNode): void => {
+		if (item.type === TreeNodeType.file) {
+			emit("update:filePath", item.path);
+		} else if (item.type === TreeNodeType.folder) {
+			emit("toggle-expand-item", item);
 		}
 	};
 
-	const handleToggleExpand = (): void => {
-		if (props.item.type === TreeNodeType.folder) {
-			emit("toggle-expand-item", props.item);
+	const handleToggleExpand = (item: TreeNode): void => {
+		if (item.type === TreeNodeType.folder) {
+			emit("toggle-expand-item", item);
 		}
-	};
-
-	const handleFileCommentAction = (): void => {
-		emit("file-comment-requested", props.item.path);
 	};
 
 	return {
-		// Store access for template
-		projectDataStore,
-
-		// Methods
 		handleItemClick,
 		handleToggleExpand,
-		handleFileCommentAction,
+		fileContainsComments,
 	};
 }

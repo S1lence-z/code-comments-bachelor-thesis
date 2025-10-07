@@ -4,12 +4,7 @@ import InputSelect from "../../lib/InputSelect.vue";
 import InputArea from "../../lib/InputArea.vue";
 import type { CommentFormProps, CommentFormEmits } from "../../composables/components/useCommentForm";
 
-const props = withDefaults(defineProps<CommentFormProps>(), {
-	isVisible: false,
-	commentId: null,
-	commentFilePath: "",
-});
-
+const props = defineProps<CommentFormProps>();
 const emit = defineEmits<CommentFormEmits>();
 
 // Initialize the composable

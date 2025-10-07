@@ -5,15 +5,16 @@ import { useSettingsStore } from "../../stores/settingsStore";
 import { useKeyboardShortcutsStore } from "../../stores/keyboardShortcutsStore";
 import type CommentDto from "../../types/dtos/CommentDto";
 
-interface CodeEditorProps {
+export interface CodeEditorProps {
 	filePath: string | null;
 	fileContent: string | null | undefined;
+	commentForFile: CommentDto[];
+	isLoadingFile: boolean;
 	deleteCommentAction: (commentId: string) => Promise<void>;
 	editCommentAction: (commentId: string) => Promise<void>;
-	commentForFile: CommentDto[];
 }
 
-interface CodeEditorEmits {
+export interface CodeEditorEmits {
 	(event: "line-double-clicked", payload: { lineNumber: number; filePath: string }): void;
 	(
 		event: "multiline-selected",
@@ -30,6 +31,7 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 	const currentContent = ref<string>("");
 	const editorView = shallowRef<EditorView>();
 	const lastSelectionTimeout = ref<number | null>(null);
+	const isLoadingFile = ref<boolean>(props.isLoadingFile);
 
 	// Computed properties
 	const editorPlaceholder = computed(() => {
@@ -125,6 +127,7 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 		// State
 		currentContent,
 		editorView,
+		isLoadingFile,
 
 		// Computed
 		editorPlaceholder,

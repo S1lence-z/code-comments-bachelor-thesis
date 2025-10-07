@@ -6,7 +6,6 @@ import { navigationRoutes } from "../../core/routes";
 import { useProjectDataStore } from "../../stores/projectDataStore";
 import { useProjectStore } from "../../stores/projectStore";
 import { downloadJSON } from "../../utils/jsonUtils";
-import Dropdown from "../../lib/Dropdown.vue";
 import { useServerStore } from "../../stores/serverStore";
 import Button from "../../lib/Button.vue";
 import { useSettingsStore } from "../../stores/settingsStore";
@@ -38,14 +37,12 @@ const exportLocalComments = () => {
 	}
 	// Get the repository name from the project store and confirm export
 	const repositoryName = projectStore.getRepositoryName;
-	if (confirm(`Are you sure you want to export ${localComments.length} comments for ${repositoryName}?`)) {
+	const commentWord = localComments.length === 1 ? "comment" : "comments";
+
+	if (confirm(`Are you sure you want to export ${localComments.length} ${commentWord} for ${repositoryName}?`)) {
 		downloadJSON(localComments, `${repositoryName}-comments.json`);
 	}
 };
-
-const exportOptions: Array<{ label: string; value: string; actionCallback: () => void }> = [
-	{ label: "JSON", value: "json", actionCallback: exportLocalComments },
-];
 
 // Watch for route changes to update active tab
 watch(
@@ -115,7 +112,12 @@ watch(
 
 				<div class="flex flex-row gap-4">
 					<!-- Dropdown for Export Options -->
-					<Dropdown label="Export" :options="exportOptions" />
+					<Button
+						label="Export Comments"
+						type="button"
+						buttonStyle="secondary"
+						:onClick="exportLocalComments"
+					/>
 					<!-- Button for Settings slideout panel -->
 					<Button
 						label="Settings"

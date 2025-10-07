@@ -23,6 +23,13 @@ export const useFileContentStore = defineStore("fileContentStore", {
 			}
 			return "";
 		},
+		getFilePreviewUrl(filePath: string) {
+			const cachedFile = this.fileContentCache.get(filePath);
+			if (cachedFile && cachedFile.previewUrl) {
+				return cachedFile.previewUrl;
+			}
+			return "";
+		},
 		getFileDisplayType(filePath: string): FileDisplayType {
 			const cachedFile = this.fileContentCache.get(filePath);
 			if (cachedFile) {
