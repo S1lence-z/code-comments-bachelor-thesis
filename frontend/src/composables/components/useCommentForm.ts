@@ -4,11 +4,13 @@ import { useProjectStore } from "../../stores/projectStore";
 import { CommentType } from "../../types/enums/CommentType";
 import { createCommentByType } from "../../utils/commentUtils";
 
+const lastUsedCategoryLabel = ref("");
+
 export interface CommentFormProps {
 	isVisible: boolean;
 	commentId: string | null;
 	commentType: CommentType;
-	commentFilePath: string;
+	commentFilePath: string | null;
 	startLineNumber: number | null;
 	endLineNumber: number | null;
 }
@@ -23,10 +25,6 @@ export function useCommentForm(props: CommentFormProps, emit: CommentFormEmits) 
 	const projectDataStore = useProjectDataStore();
 	const projectStore = useProjectStore();
 
-	// Form state
-	const commentContent = ref("");
-	const commentCategoryLabel = ref("");
-
 	// Computed properties
 	const currentComment = computed(() => {
 		const existingComment = props.commentId
@@ -34,6 +32,20 @@ export function useCommentForm(props: CommentFormProps, emit: CommentFormEmits) 
 			: null;
 		return existingComment || null;
 	});
+
+	const availableCategories = computed(() => {
+		return projectDataStore.allCategories.map((cat) => ({ value: cat.label, label: cat.label }));
+	});
+
+	const getDefaultCategoryLabel = (): string => {
+		if (lastUsedCategoryLabel.value) {
+			const exists = availableCategories.value.some((cat) => cat.label === lastUsedCategoryLabel.value);
+			if (exists) {
+				return lastUsedCategoryLabel.value;
+			}
+		}
+		return availableCategories.value[0]?.label || "";
+	};
 
 	const showDeleteButton = computed(() => {
 		return props.commentId !== null;
@@ -43,20 +55,20 @@ export function useCommentForm(props: CommentFormProps, emit: CommentFormEmits) 
 		return props.commentType !== CommentType.Project && props.commentType !== CommentType.File;
 	});
 
-	const availableCategories = computed(() => {
-		return projectDataStore.allCategories.map((cat) => ({ value: cat.label, label: cat.label }));
-	});
+	// Form state
+	const commentContent = ref("");
+	const commentCategoryLabel = ref(getDefaultCategoryLabel());
 
 	// Methods
 	const resetForm = (): void => {
 		commentContent.value = "";
-		commentCategoryLabel.value = "";
+		commentCategoryLabel.value = getDefaultCategoryLabel();
 	};
 
 	const syncFormWithComment = (): void => {
 		if (currentComment.value) {
 			commentContent.value = currentComment.value.content || "";
-			commentCategoryLabel.value = currentComment.value.category?.label || "";
+			commentCategoryLabel.value = currentComment.value.category?.label || getDefaultCategoryLabel();
 		} else {
 			resetForm();
 		}
@@ -125,15 +137,23 @@ export function useCommentForm(props: CommentFormProps, emit: CommentFormEmits) 
 		{ immediate: true }
 	);
 
+	watch(
+		() => commentCategoryLabel.value,
+		(val) => {
+			if (val) {
+				lastUsedCategoryLabel.value = val;
+			}
+		}
+	);
+
 	return {
 		// Form state
 		commentContent,
 		commentCategoryLabel,
 
 		// Computed
-		currentComment,
-		showDeleteButton,
 		showCategorySelect,
+		showDeleteButton,
 		availableCategories,
 
 		// Methods

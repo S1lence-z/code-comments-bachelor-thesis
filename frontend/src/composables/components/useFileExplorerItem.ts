@@ -4,7 +4,7 @@ import { type TreeNode, TreeNodeType } from "../../types/github/githubTree";
 export interface FileExplorerItemProps {
 	item: TreeNode;
 	filePath: string | null;
-	depth: number;
+	depth?: number;
 }
 
 export interface FileExplorerItemEmits {
