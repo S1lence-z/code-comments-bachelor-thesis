@@ -14,7 +14,7 @@ const props = withDefaults(defineProps<FileExplorerItemProps>(), {
 const emit = defineEmits<FileExplorerItemEmits>();
 
 // Initialize the composable
-const { handleItemClick, handleToggleExpand, fileContainsComments } = useFileExplorerItem(props, emit);
+const { handleItemClick, handleToggleExpand, fileContainsComments } = useFileExplorerItem(emit);
 </script>
 
 <template>
@@ -29,7 +29,7 @@ const { handleItemClick, handleToggleExpand, fileContainsComments } = useFileExp
 			}"
 		>
 			<div
-				@click="handleItemClick"
+				@click="handleItemClick(item)"
 				class="flex flex-grow items-center gap-2 cursor-pointer text-slate-300 min-w-0 py-2 px-3 rounded-lg"
 				:title="item.path"
 				:style="{
@@ -40,7 +40,7 @@ const { handleItemClick, handleToggleExpand, fileContainsComments } = useFileExp
 				<span
 					v-if="item.type === 'folder'"
 					class="w-4 h-4 flex items-center justify-center text-slate-400 transition-all duration-200 flex-shrink-0 hover:text-white"
-					@click.stop="handleToggleExpand"
+					@click.stop="handleToggleExpand(item)"
 				>
 					<Icon
 						srcName="arrow"
