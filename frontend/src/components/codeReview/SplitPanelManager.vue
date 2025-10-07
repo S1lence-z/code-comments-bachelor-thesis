@@ -58,6 +58,7 @@ const {
 	isFileCached,
 	getFileDisplayType,
 	getFileDownloadUrl,
+	getFilePreviewUrl,
 } = useSplitPanelManager(props, emit);
 
 // Event handlers for content
@@ -133,6 +134,7 @@ const handleEditComment = async (commentId: string) => {
 						:file-name="getFileName(panel.activeTab.filePath)"
 						:display-type="getFileDisplayType(panel.activeTab.filePath)"
 						:download-url="getFileDownloadUrl(panel.activeTab.filePath)"
+						:preview-url="getFilePreviewUrl(panel.activeTab.filePath)"
 					/>
 				</div>
 

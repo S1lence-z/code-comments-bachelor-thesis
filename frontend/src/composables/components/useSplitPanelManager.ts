@@ -76,6 +76,10 @@ export function useSplitPanelManager(props: SplitPanelManagerProps, emit: SplitP
 		return fileContentStore.getFileDownloadUrl(filePath);
 	};
 
+	const getFilePreviewUrl = (filePath: string) => {
+		return fileContentStore.getFilePreviewUrl(filePath);
+	};
+
 	// Panel resizing functionality
 	const handlePanelResize = (panelIndex: number, newWidth: number): void => {
 		const container = containerElement.value;
@@ -136,5 +140,6 @@ export function useSplitPanelManager(props: SplitPanelManagerProps, emit: SplitP
 		isFileCached,
 		getFileDisplayType,
 		getFileDownloadUrl,
+		getFilePreviewUrl,
 	};
 }
