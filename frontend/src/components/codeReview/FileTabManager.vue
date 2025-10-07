@@ -87,17 +87,17 @@ const currentTabs = computed(() => props.openTabs || openFileTabs.value);
 	<div v-if="currentTabs.length > 0" class="flex flex-col h-full overflow-hidden">
 		<!-- File Tabs -->
 		<div class="w-full bg-white/5 backdrop-blur-sm border-b border-white/10 py-2">
-			<div class="flex items-center px-4">
-				<!-- Open Files Label -->
-				<span class="text-slate-300 font-semibold mr-6">Open Files</span>
-				<!-- File Tabs -->
-				<div class="file-tabs scrollbar-hidden">
+			<!-- File tabs container -->
+			<div class="flex items-center pl-4">
+				<!-- Mutliple File Tabs -->
+				<div v-if="currentTabs.length > 1" class="file-tabs scrollbar-hidden">
 					<div
 						v-for="(file, index) in currentTabs"
 						:key="file"
 						class="file-tab"
 						:class="{
 							active: file === activeTab,
+
 							'opacity-50 scale-95': isDragging && file === draggedFilePath,
 						}"
 						@dragover="handleDragOver"
@@ -109,7 +109,7 @@ const currentTabs = computed(() => props.openTabs || openFileTabs.value);
 							@dragend="handleDragEnd"
 							@click="setActiveFileTab(file)"
 							:title="file"
-							class="flex items-center gap-2 px-3 py-2 duration-200 cursor-pointer"
+							class="flex items-center gap-2 px-3 py-1 duration-200 cursor-pointer"
 							:class="{
 								'text-white': file === activeTab,
 								'text-slate-300 hover:text-white': file !== activeTab,
@@ -123,12 +123,26 @@ const currentTabs = computed(() => props.openTabs || openFileTabs.value);
 						<!-- Close tab button -->
 						<button
 							@click="removeFileTab(file)"
-							class="flex items-center justify-center w-6 h-6 text-slate-400 hover:text-white hover:bg-white/10 rounded-md duration-200 mr-1 cursor-pointer"
+							class="flex items-center justify-center w-6 h-6 text-slate-400 hover:text-white hover:bg-white/10 rounded-md duration-200 mr-1 cursor-pointer text-sm"
 							title="Close file"
 						>
 							X
 						</button>
 					</div>
+				</div>
+
+				<!-- Single Open File Label -->
+				<div v-else class="flex items-center gap-2 px-2 py-1 text-slate-300">
+					<span class="text-slate-300 font-semibold">{{ getFileName(currentTabs[0]) }}</span>
+
+					<!-- Close tab button -->
+					<button
+						@click="removeFileTab(currentTabs[0])"
+						class="flex items-center justify-center w-6 h-6 text-slate-400 hover:text-white hover:bg-white/10 rounded-md duration-200 cursor-pointer"
+						title="Close file"
+					>
+						X
+					</button>
 				</div>
 			</div>
 		</div>
