@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import type { IconProps } from "@iconify/vue";
+
 const props = defineProps<{
 	label: string;
 	modelValue: string;
 	type: string;
 	placeholder?: string | "Default";
 	required?: boolean | false;
+	labelIcon?: IconProps["icon"];
 }>();
 
 defineEmits<{
@@ -14,7 +17,10 @@ defineEmits<{
 
 <template>
 	<div class="mb-4">
-		<label :for="props.label" class="block mb-2 font-bold text-gray-400">{{ props.label }}</label>
+		<div class="flex items-center gap-2 mb-2">
+			<Icon v-if="props.labelIcon" :icon="props.labelIcon" class="text-gray-400 w-4 h-4" />
+			<label :for="props.label" class="block font-bold text-gray-400">{{ props.label }}</label>
+		</div>
 		<input
 			:type="props.type"
 			:id="props.label"

@@ -2,6 +2,7 @@
 import Card from "../../lib/Card.vue";
 import InputField from "../../lib/InputField.vue";
 import Button from "../../lib/Button.vue";
+import { Icon } from "@iconify/vue";
 
 interface ServerFormProps {
 	serverBaseUrl: string;
@@ -40,21 +41,25 @@ const emit = defineEmits<{
 					>use its URL</span
 				>.
 			</p>
-			<div class="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-300/30 rounded-lg p-4">
+			<div
+				class="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-300/30 rounded-lg p-2 flex gap-4 items-center"
+			>
+				<Icon icon="mdi:info" class="text-purple-300 w-6 h-6" />
 				<p class="text-purple-300 text-lg font-medium">
-					✨ You can also run the application in offline mode! Added comments will be shown in real-time until
+					You can also run the application in offline mode! Added comments will be shown in real-time until
 					you refresh the page. Perfect for quick prototyping and testing.
 				</p>
 			</div>
 		</div>
 		<form @submit.prevent="() => emit('submitServerBaseUrl')" class="flex flex-col space-y-4">
 			<InputField
-				label="🌐 Server URL"
+				label="Server URL"
 				v-bind:modelValue="serverBaseUrl"
 				@update:modelValue="(value: string) => emit('update:serverBaseUrl', value)"
 				type="url"
 				placeholder="http://localhost:3000"
 				:required="true"
+				labelIcon="mdi:server"
 			/>
 			<div class="flex flex-col space-y-2">
 				<Button
