@@ -53,15 +53,15 @@ export const sortCommentsByLineNumber = (comments: CommentDto[]): CommentDto[] =
 export const getCommentTypeIcon = (type: CommentType) => {
 	switch (type) {
 		case CommentType.Singleline:
-			return "arrow";
+			return "mdi:chevron-right";
 		case CommentType.Multiline:
-			return "code";
+			return "mdi:code-tags";
 		case CommentType.File:
-			return "closedFolder";
+			return "mdi:folder";
 		case CommentType.Project:
-			return "archive";
+			return "mdi:archive";
 		default:
-			return "code";
+			return "mdi:code-tags";
 	}
 };
 

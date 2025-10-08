@@ -2,7 +2,6 @@ import { WidgetType } from "@codemirror/view";
 import type CategoryDto from "../../types/dtos/CategoryDto.ts";
 
 export default abstract class BaseCommentWidget extends WidgetType {
-	protected static readonly className: string;
 	protected handleDeleteComment: (commentId: string) => Promise<void>;
 	protected handleEditComment: (commentId: string) => Promise<void>;
 	protected content: string;
@@ -32,9 +31,19 @@ export default abstract class BaseCommentWidget extends WidgetType {
 		return this.isCompact ? this.createCompactModal() : this.createModal();
 	}
 
+	// Create and iconify web component element
+	protected createIconElement(iconName: string, size: number = 20): HTMLElement {
+		const iconElement = document.createElement("iconify-icon");
+		iconElement.setAttribute("icon", iconName);
+		iconElement.setAttribute("style", "vertical-align: middle;");
+		iconElement.setAttribute("width", size.toString());
+		iconElement.setAttribute("height", size.toString());
+		return iconElement;
+	}
+
 	protected createModal(): HTMLDivElement {
 		const wrap = document.createElement("div");
-		wrap.className = this.getClassName();
+		wrap.className = `cm-comment-widget ${this.getWidgetTypeClass()}`;
 
 		const tools = this.createCommentTools();
 		const contentDiv = this.createContentDiv();
@@ -47,13 +56,17 @@ export default abstract class BaseCommentWidget extends WidgetType {
 
 	protected createCompactModal(): HTMLDivElement {
 		const wrap = document.createElement("div");
-		wrap.className = `${this.getClassName()} compact`;
+		wrap.className = `cm-comment-widget compact ${this.getWidgetTypeClass()}`;
 
-		const tools = this.createCommentTools();
+		const categoryLabel = this.createCategoryLabel(this.category);
 		const contentDiv = this.createContentDiv();
+		const editButton = this.createEditButton();
+		const deleteButton = this.createDeleteButton();
 
-		wrap.appendChild(tools);
+		wrap.appendChild(categoryLabel);
 		wrap.appendChild(contentDiv);
+		wrap.appendChild(editButton);
+		wrap.appendChild(deleteButton);
 
 		return wrap;
 	}
@@ -87,7 +100,10 @@ export default abstract class BaseCommentWidget extends WidgetType {
 	protected createEditButton(): HTMLButtonElement {
 		const editButton = document.createElement("button");
 		editButton.classList.add("edit-button");
-		editButton.textContent = "Edit";
+
+		const icon = this.createIconElement("mdi:pencil");
+		editButton.appendChild(icon);
+
 		editButton.onclick = async () => await this.handleEditComment(this.commentId);
 		return editButton;
 	}
@@ -95,18 +111,20 @@ export default abstract class BaseCommentWidget extends WidgetType {
 	protected createDeleteButton(): HTMLButtonElement {
 		const deleteButton = document.createElement("button");
 		deleteButton.classList.add("delete-button");
-		deleteButton.textContent = "Delete";
+
+		const icon = this.createIconElement("mdi:delete");
+		deleteButton.appendChild(icon);
+
 		deleteButton.onclick = async () => await this.handleDeleteComment(this.commentId);
 		return deleteButton;
 	}
 
 	protected createCategoryLabel(category: CategoryDto): HTMLSpanElement {
 		const label = document.createElement("span");
-		label.className = `comment-category comment-category-pill ${this.getCategoryColorClass()}`;
+		label.className = "comment-category";
 		label.textContent = category.label;
 		return label;
 	}
 
-	protected abstract getClassName(): string;
-	protected abstract getCategoryColorClass(): string;
+	protected abstract getWidgetTypeClass(): string;
 }

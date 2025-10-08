@@ -8,45 +8,56 @@
 	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Compact mode comment tools */
-.cm-singleline-comment-widget.compact .comment-tools,
-.cm-multiline-comment-widget.compact .comment-tools {
-	gap: 6px;
-	margin-bottom: 6px;
-	padding-bottom: 4px;
+/* Compact mode adjustments */
+.cm-comment-widget.compact .comment-tools {
+	margin-bottom: 0;
+	padding-bottom: 0;
+	border-bottom: none;
 }
 
-.cm-singleline-comment-widget.compact .comment-tools button,
-.cm-multiline-comment-widget.compact .comment-tools button {
-	padding: 3px 8px;
-	font-size: 12px;
-	border-radius: 6px;
-}
-
-/* Specific button styles */
-.comment-tools button.edit-button {
-	background: rgba(0, 157, 255, 0.1);
-	border-color: rgba(59, 130, 246, 0.2);
-	color: #2196f3;
-}
-
-.comment-tools button.delete-button {
-	background: rgba(239, 68, 68, 0.1);
-	border-color: rgba(239, 68, 68, 0.2);
-	color: #ef4444;
-}
-
-.comment-tools button {
+/* Button styles */
+.comment-tools button,
+.cm-comment-widget button {
 	backdrop-filter: blur(8px);
 	-webkit-backdrop-filter: blur(8px);
-	border: 1px solid rgba(239, 68, 68, 0.2);
+	border: 1px solid;
 	padding: 6px 12px;
 	border-radius: 8px;
 	cursor: pointer;
 	font-size: 14px;
 	font-weight: 500;
+	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+	flex-shrink: 0;
 }
 
-.comment-tools button:hover {
+.comment-tools button.edit-button,
+.cm-comment-widget button.edit-button {
+	background: rgba(0, 157, 255, 0.1);
+	border-color: rgba(59, 130, 246, 0.2);
+	color: #2196f3;
+}
+
+.comment-tools button.delete-button,
+.cm-comment-widget button.delete-button {
+	background: rgba(239, 68, 68, 0.1);
+	border-color: rgba(239, 68, 68, 0.2);
+	color: #ef4444;
+}
+
+.comment-tools button:hover,
+.cm-comment-widget button:hover {
 	color: #ffffff;
+	transform: translateY(-1px);
+}
+
+.comment-tools button.edit-button:hover,
+.cm-comment-widget button.edit-button:hover {
+	background: rgba(0, 157, 255, 0.2);
+	border-color: rgba(59, 130, 246, 0.4);
+}
+
+.comment-tools button.delete-button:hover,
+.cm-comment-widget button.delete-button:hover {
+	background: rgba(239, 68, 68, 0.2);
+	border-color: rgba(239, 68, 68, 0.4);
 }

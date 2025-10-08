@@ -27,6 +27,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 		isLoadingRepository: false,
 		isLoadingComments: false,
 		isLoadingCategories: false,
+		isSavingComment: false,
 	}),
 	getters: {
 		fileTree: (state) => state.fileTreeData,
@@ -38,6 +39,9 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 		containsProjectComment: (state) => {
 			return state.comments.some((comment) => comment.type === CommentType.Project);
 		},
+		hasUnsavedChanges: (state) => {
+			return state.isSavingComment;
+		}
 	},
 	actions: {
 		async loadProjectDataAsync(
@@ -154,25 +158,29 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				this.comments.splice(index, 1);
 			}
 		},
+		// Methods for server synchronization
 		async upsertCommentAsync(commentData: CommentDto, rwApiUrl: string): Promise<void> {
 			const serverStore = useServerStatusStore();
 			const commentsService = useCommentsService();
 
-			// Handle offline mode
-			if (!rwApiUrl || !rwApiUrl.trim()) {
-				// Generate a unique ID for new comments in offline mode
-				if (!commentData.id) {
-					commentData.id = `offline-${Date.now()}-${Math.random().toString(36)}`;
-				}
-				// Populate the category
-				commentData.category =
-					this.categories.find((cat) => cat.id === commentData.category?.id) || dummyCategoryDto;
-				this.upsertCommentLocal(commentData);
-				return;
-			}
-
 			try {
+				this.isSavingComment = true;
+				// Handle offline mode
+				if (!rwApiUrl || !rwApiUrl.trim()) {
+					// Generate a unique ID for new comments in offline mode
+					if (!commentData.id) {
+						commentData.id = `offline-${Date.now()}-${Math.random().toString(36)}`;
+					}
+					// Populate the category
+					commentData.category =
+						this.categories.find((cat) => cat.id === commentData.category?.id) || dummyCategoryDto;
+					this.upsertCommentLocal(commentData);
+					return;
+				}
+
+				// Online mode
 				serverStore.startSyncing();
+
 				// Update existing comment
 				if (commentData.id) {
 					const updatedComment = await commentsService.updateComment(rwApiUrl, commentData.id, commentData);
@@ -194,28 +202,35 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				serverStore.setSynced();
 			} catch (error: any) {
 				serverStore.setSyncError("Failed to upsert comment");
+			} finally {
+				this.isSavingComment = false;
 			}
 		},
 		async deleteCommentAsync(commentId: string, rwApiUrl: string): Promise<void> {
 			const serverStore = useServerStatusStore();
 			const commentsService = useCommentsService();
 
-			// Handle offline mode
-			if (!rwApiUrl || !rwApiUrl.trim()) {
-				console.log("Operating in offline mode - deleting comment locally only");
-				this.deleteCommentLocal(commentId);
-				return;
-			}
-
 			try {
+				this.isSavingComment = true;
+				// Handle offline mode
+				if (!rwApiUrl || !rwApiUrl.trim()) {
+					console.log("Operating in offline mode - deleting comment locally only");
+					this.deleteCommentLocal(commentId);
+					return;
+				}
+
+				// Online mode
 				serverStore.startSyncing();
 				await commentsService.deleteComment(rwApiUrl, commentId);
 				this.deleteCommentLocal(commentId);
 				serverStore.setSynced();
 			} catch (error: any) {
 				serverStore.setSyncError("Failed to delete comment");
+			} finally {
+				this.isSavingComment = false;
 			}
 		},
+		// Other helper methods
 		fileContainsComments(filePath: string): boolean {
 			return this.comments.some((comment: CommentDto) => comment.location.filePath === filePath);
 		},

@@ -5,7 +5,6 @@ import ServerForm from "../components/setup/ServerForm.vue";
 import ProjectList from "../components/setup/ProjectList.vue";
 import ProjectForm from "../components/setup/ProjectForm.vue";
 import { useQueryParams } from "../composables/core/useQueryParams";
-import Icon from "../lib/Icon.vue";
 
 const { params } = useQueryParams();
 
@@ -78,7 +77,7 @@ watch(
 			<div v-if="!projectsLoadedSuccessfully" class="flex status-message error gap">
 				<div class="flex items-center gap-3">
 					<div class="card-icon-sm">
-						<Icon srcName="error" />
+						<Icon icon="mdi:alert-circle" class="w-5 h-5 text-red-400" />
 					</div>
 					<p class="text-red-400">
 						There was an error loading existing projects from the selected server. Please, check the server

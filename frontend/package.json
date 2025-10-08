@@ -22,6 +22,7 @@
     "@codemirror/state": "^6.5.2",
     "@codemirror/theme-one-dark": "^6.1.2",
     "@codemirror/view": "^6.37.1",
+    "@iconify/vue": "^5.0.0",
     "@replit/codemirror-lang-csharp": "^6.2.0",
     "@replit/codemirror-lang-svelte": "^6.0.0",
     "@tailwindcss/vite": "^4.1.11",

@@ -1,7 +1,7 @@
 const useGithubBranchService = () => {
 	const branchExistsInRepo = async (repositoryUrl: string, branchName: string): Promise<boolean> => {
-		const ownerAndUserNames = new URL(repositoryUrl).pathname;
-		const response = await fetch(`https://api.github.com/repos${ownerAndUserNames}branches/${branchName}`);
+		const [owner, repo] = new URL(repositoryUrl).pathname.split("/").filter(Boolean);
+		const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/branches/${branchName}`);
 		return response.ok;
 	};
 

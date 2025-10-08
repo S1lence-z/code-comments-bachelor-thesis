@@ -1,8 +1,9 @@
+import { computed } from "vue";
 import { useProjectDataStore } from "../../stores/projectDataStore";
 import { type TreeNode, TreeNodeType } from "../../types/github/githubTree";
 
 export interface FileExplorerItemProps {
-	item: TreeNode;
+	currentNode: TreeNode;
 	filePath: string | null;
 	depth?: number;
 }
@@ -13,7 +14,7 @@ export interface FileExplorerItemEmits {
 	(event: "file-comment-requested", filePath: string): void;
 }
 
-export function useFileExplorerItem(emit: FileExplorerItemEmits) {
+export function useFileExplorerItem(props: FileExplorerItemProps, emit: FileExplorerItemEmits) {
 	// Store access
 	const projectDataStore = useProjectDataStore();
 
@@ -36,9 +37,27 @@ export function useFileExplorerItem(emit: FileExplorerItemEmits) {
 		}
 	};
 
+	const containsCommentedChildren = (item: TreeNode): boolean => {
+		if (item.type === TreeNodeType.file) {
+			return projectDataStore.fileContainsComments(item.path);
+		}
+		return item.children.some(containsCommentedChildren) ?? false;
+	};
+
+	// Computed
+	const isFileSelected = computed(() => {
+		return props.currentNode.path === props.filePath && props.currentNode.type === TreeNodeType.file;
+	});
+
+	const hasCommentedChildren = computed(() => {
+		return containsCommentedChildren(props.currentNode);
+	});
+
 	return {
 		handleItemClick,
 		handleToggleExpand,
 		fileContainsComments,
+		isFileSelected,
+		hasCommentedChildren,
 	};
 }

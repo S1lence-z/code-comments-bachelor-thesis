@@ -2,34 +2,37 @@
 import { ref } from "vue";
 import { useKeyboardShortcutsStore } from "../../stores/keyboardShortcutsStore";
 import Card from "../../lib/Card.vue";
-import type { AppKeyboardShortcuts, KeyboardShortcut } from "../../types/others/KeyboardShortcuts";
+import type { AppKeyboardShortcuts } from "../../types/others/KeyboardShortcuts";
+import Button from "../../lib/Button.vue";
+import { objectDeepCopy } from "../../utils/jsonUtils";
 
-// Variables
+interface KeyboardShortcutsEditorEmits {
+	(event: "close"): void;
+}
+
+const emits = defineEmits<KeyboardShortcutsEditorEmits>();
+
+// Store
 const keyboardShortcutsStore = useKeyboardShortcutsStore();
-const editingShortcut = ref<string | null>(null);
+
+// State - Deep copy of store shortcuts to avoid direct mutation
+const allShortcuts = ref<AppKeyboardShortcuts>(objectDeepCopy(keyboardShortcutsStore.getShortcuts));
+
+// Editing state
+const editingShortcutAction = ref<string | null>(null);
 const tempBinding = ref<string>("");
 
 const startEditing = (action: string, currentBinding: string) => {
-	editingShortcut.value = action;
+	editingShortcutAction.value = action;
 	tempBinding.value = currentBinding;
 };
 
-const cancelEditing = () => {
-	editingShortcut.value = null;
-	tempBinding.value = "";
-};
-
-const saveShortcut = (shortcut: KeyboardShortcut) => {
-	if (tempBinding.value.trim()) {
-		const updatedShortcut = { ...shortcut, binding: tempBinding.value.trim() };
-		keyboardShortcutsStore.updateShortcut(updatedShortcut);
-	}
-	editingShortcut.value = null;
-	tempBinding.value = "";
-};
-
-const handleKeyCapture = (event: KeyboardEvent, shortcut: KeyboardShortcut) => {
+const handleKeyCapture = (event: KeyboardEvent) => {
 	event.preventDefault();
+
+	if (!event.ctrlKey) {
+		return;
+	}
 
 	const modifiers = [];
 	if (event.ctrlKey) modifiers.push("Ctrl");
@@ -45,30 +48,37 @@ const handleKeyCapture = (event: KeyboardEvent, shortcut: KeyboardShortcut) => {
 	const binding = modifiers.length > 0 ? `${modifiers.join("-")}-${key}` : key;
 	tempBinding.value = binding;
 
-	// Auto-save the shortcut
-	saveShortcut(shortcut);
-};
+	// Update the local state
+	if (editingShortcutAction.value) {
+		const shortcut = Object.values(allShortcuts.value).find(
+			(shortcut) => shortcut.actionName === editingShortcutAction.value
+		);
 
-const onInputFocus = (action: string, currentBinding: string) => {
-	startEditing(action, currentBinding);
-};
-
-const onInputBlur = () => {
-	// Cancel editing if no valid shortcut was set
-	cancelEditing();
+		if (shortcut) {
+			shortcut.binding = binding;
+		}
+	}
 };
 
 const resetToDefault = () => {
 	const defaultShortcuts: AppKeyboardShortcuts = keyboardShortcutsStore.getDefaultShortcuts;
-	keyboardShortcutsStore.applyShortcuts(defaultShortcuts);
-	keyboardShortcutsStore.saveShortcuts();
-	editingShortcut.value = null;
+	allShortcuts.value = defaultShortcuts;
+	editingShortcutAction.value = null;
+};
+
+const saveShortcuts = () => {
+	// Apply all shortcuts to the store
+	Object.values(allShortcuts.value).forEach((shortcut) => {
+		keyboardShortcutsStore.updateShortcut(shortcut);
+	});
+	emits("close");
 };
 </script>
 
 <template>
 	<Card class="bg-white">
-		<div class="flex justify-between items-center mb-6">
+		<!-- Header -->
+		<div class="flex justify-between items-center mb-4">
 			<h2 class="text-2xl font-bold">Keyboard Shortcuts</h2>
 			<button
 				@click="resetToDefault"
@@ -78,9 +88,15 @@ const resetToDefault = () => {
 			</button>
 		</div>
 
+		<!-- Help text when editing -->
+		<div class="text-gray-600 flex items-center mb-4 gap-2">
+			<Icon icon="mdi:info" class="w-7 h-7 text-blue-400" />
+			<p class="text-black text-base">Press Ctrl + any key to set the shortcut</p>
+		</div>
+
 		<div class="space-y-3">
 			<div
-				v-for="shortcut in keyboardShortcutsStore.getShortcuts"
+				v-for="shortcut in allShortcuts"
 				:key="shortcut.actionName"
 				class="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
 			>
@@ -90,26 +106,26 @@ const resetToDefault = () => {
 					</div>
 
 					<div class="flex items-center">
-						<!-- Input that's always visible -->
 						<input
 							:value="
-								editingShortcut === shortcut.actionName ? tempBinding : shortcut.binding || 'Not set'
+								editingShortcutAction === shortcut.actionName
+									? tempBinding
+									: shortcut.binding || 'Not set'
 							"
-							@focus="onInputFocus(shortcut.actionName, shortcut.binding)"
-							@blur="onInputBlur"
-							@keydown="handleKeyCapture($event, shortcut)"
+							@focus="startEditing(shortcut.actionName, shortcut.binding)"
+							@keydown="handleKeyCapture($event)"
 							class="px-3 py-1 border border-gray-300 rounded text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[150px] cursor-pointer"
-							:class="{ 'text-gray-400': !shortcut.binding && editingShortcut !== shortcut.actionName }"
+							:class="{
+								'text-gray-400': !shortcut.binding && editingShortcutAction !== shortcut.actionName,
+							}"
 							readonly
 						/>
 					</div>
 				</div>
-
-				<!-- Help text when editing -->
-				<div v-if="editingShortcut === shortcut.actionName" class="mt-2 text-sm text-gray-600">
-					Press Ctrl + any key to set the shortcut. Release to save automatically.
-				</div>
 			</div>
+			<!-- Buttons -->
+			<Button label="Save" type="button" buttonStyle="primary" :onClick="saveShortcuts" class="mt-2 mr-2" />
+			<Button label="Cancel" type="button" buttonStyle="secondary" :onClick="() => emits('close')" class="mt-2" />
 		</div>
 	</Card>
 </template>

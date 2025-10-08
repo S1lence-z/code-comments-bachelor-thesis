@@ -34,6 +34,7 @@ const handleKeydown = (event: KeyboardEvent) => {
 		class="w-full text-white p-3 border border-gray-600 rounded-md bg-modern-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-modern-blue"
 		:placeholder="props.placeholder"
 		:rows="props.rows"
+		spellcheck="true"
 		@keydown="handleKeydown"
 	></textarea>
 </template>

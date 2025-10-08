@@ -57,7 +57,7 @@ const {
 				<div v-if="panel.activeTab" class="h-full w-full">
 					<!-- Loading state -->
 					<div v-if="!isFileCached(panel.activeTab.filePath)" class="flex items-center justify-center h-full">
-						<div class="text-slate-400">Loading file content...</div>
+						<div class="text-slate-400">Loading {{ getFileName(panel.activeTab.filePath) }}...</div>
 					</div>
 
 					<!-- Text files (code) -->

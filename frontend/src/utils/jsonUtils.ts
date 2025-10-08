@@ -20,3 +20,7 @@ export const downloadJSON = (data: any, filename: string) => {
 	document.body.removeChild(a);
 	URL.revokeObjectURL(url);
 };
+
+export const objectDeepCopy = <T>(obj: T): T => {
+	return JSON.parse(JSON.stringify(obj));
+};
