@@ -2,7 +2,6 @@
 import type CommentDto from "../../types/dtos/CommentDto";
 import { CommentType } from "../../types/enums/CommentType";
 import Card from "../../lib/Card.vue";
-import Icon from "../../lib/Icon.vue";
 import { useCommentStatistics, type CommentStatisticsProps } from "../../composables/components/useCommentStatistics";
 
 const props = withDefaults(defineProps<CommentStatisticsProps>(), {
@@ -61,11 +60,5 @@ const {
 				<span class="text-white">{{ count }}</span>
 			</div>
 		</Card>
-	</div>
-	<div v-else class="flex space-x-6 font-semibold text-lg status-message error text-white">
-		<div class="card-icon-sm">
-			<Icon srcName="error" />
-		</div>
-		<h1 class="flex items-center">No statistics available for the selected comment type.</h1>
 	</div>
 </template>

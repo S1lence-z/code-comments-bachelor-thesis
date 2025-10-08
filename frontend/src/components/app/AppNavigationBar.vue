@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, computed } from "vue";
 import { useRoute } from "vue-router";
-import Icon from "../../lib/Icon.vue";
 import { navigationRoutes } from "../../core/routes";
 import { useProjectDataStore } from "../../stores/projectDataStore";
 import { useProjectStore } from "../../stores/projectStore";
@@ -58,7 +57,7 @@ watch(
 		<div class="flex items-center justify-between h-full max-w-full px-6 py-4">
 			<!-- Logo and Navigation -->
 			<div class="flex items-center gap-3">
-				<Icon srcName="appLogo" />
+				<Icon icon="mdi:code-json" class="w-7 h-7 text-blue-400" />
 				<router-link
 					:to="{ path: '/setup', query: preserveQueryParams }"
 					class="text-white text-xl font-bold transition-colors duration-200 hover:text-blue-300 whitespace-nowrap"

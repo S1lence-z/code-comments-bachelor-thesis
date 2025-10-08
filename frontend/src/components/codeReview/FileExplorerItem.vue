@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { getFileIcon, getFileIconColor } from "../../utils/fileUtils";
-import Icon from "../../lib/Icon.vue";
 import { handleToggleExpandInTree } from "../../utils/treeNodeUtils.ts";
 import {
 	useFileExplorerItem,
@@ -43,40 +42,38 @@ const { handleItemClick, handleToggleExpand, fileContainsComments } = useFileExp
 					@click.stop="handleToggleExpand(item)"
 				>
 					<Icon
-						srcName="arrow"
-						size="16px"
-						class="transition-transform duration-200 origin-center"
+						icon="mdi:chevron-right"
+						class="w-8 h-8 transition-transform duration-200 origin-center"
 						:class="{ 'rotate-90': item.isExpanded }"
 					/>
 				</span>
 				<span v-else class="w-4 flex-shrink-0"></span>
 
 				<!-- Item Icon -->
-				<span class="w-5 h-5 flex items-center justify-center flex-shrink-0">
+				<span class="w-6 h-6 flex items-center justify-center flex-shrink-0">
 					<!-- Folder icon for folders -->
 					<Icon
 						v-if="item.type === 'folder'"
-						:srcName="item.isExpanded ? 'openFolder' : 'closedFolder'"
-						size="18px"
-						class="transition-all duration-200"
+						:icon="item.isExpanded ? 'mdi:folder-open' : 'mdi:folder'"
+						class="w-6 h-6 transition-all duration-200"
 						:class="{
 							'text-blue-400': item.isExpanded,
 							'text-slate-400': !item.isExpanded,
 						}"
 					/>
 					<!-- File icon for files -->
-					<Icon
+					<span
 						v-else
-						:text-icon="getFileIcon(item.name)"
-						size="18px"
-						class="transition-all duration-200"
+						class="w-6 h-6 flex items-center justify-center text-xs font-bold transition-all duration-200"
 						:style="{
 							color:
 								item.path === props.filePath && item.type === 'file'
 									? 'currentColor'
 									: getFileIconColor(item.name),
 						}"
-					/>
+					>
+						{{ getFileIcon(item.name) }}
+					</span>
 				</span>
 
 				<!-- File or folder name -->

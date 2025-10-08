@@ -2,7 +2,6 @@
 import InputField from "../../lib/InputField.vue";
 import Button from "../../lib/Button.vue";
 import Card from "../../lib/Card.vue";
-import Icon from "../../lib/Icon.vue";
 
 interface ProjectFormProps {
 	formGithubRepositoryUrl: string;
@@ -36,7 +35,7 @@ const emit = defineEmits<{
 			<div v-if="props.errorMessage" class="status-message error">
 				<div class="flex items-center gap-3">
 					<div class="card-icon-sm">
-						<Icon srcName="error" />
+						<Icon icon="mdi:alert-circle" class="w-5 h-5 text-red-400" />
 					</div>
 					<p class="text-red-400">{{ props.errorMessage }}</p>
 				</div>
@@ -45,7 +44,7 @@ const emit = defineEmits<{
 			<div v-if="props.isProjectCreated" class="status-message success flex flex-col gap-4">
 				<div class="flex items-center gap-3">
 					<div class="card-icon-sm">
-						<Icon srcName="success" />
+						<Icon icon="mdi:check-circle" class="w-5 h-5 text-emerald-400" />
 					</div>
 					<p class="text-emerald-400 font-semibold">Review session created successfully!</p>
 				</div>

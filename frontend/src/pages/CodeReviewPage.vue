@@ -8,7 +8,6 @@ import SplitPanelManager from "../components/codeReview/SplitPanelManager.vue";
 import ResizeHandle from "../lib/ResizeHandle.vue";
 import CommentForm from "../components/codeReview/CommentForm.vue";
 import SlideoutPanel from "../lib/SlideoutPanel.vue";
-import Icon from "../lib/Icon.vue";
 
 // Initialize the composable (without workspace/drag-drop functionality)
 const {
@@ -177,7 +176,7 @@ onMounted(() => {
 						<div v-else class="text-center">
 							<div class="empty-state">
 								<div class="empty-state-icon">
-									<Icon srcName="empty" />
+									<Icon icon="mdi:inbox" class="w-8 h-8 text-slate-400" />
 								</div>
 								<h3 class="text-xl font-semibold text-white mb-2">No File Selected</h3>
 								<p class="text-slate-400 mb-4">Please select a file to view its comments</p>

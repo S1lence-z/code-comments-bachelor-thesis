@@ -3,7 +3,6 @@ import type CommentDto from "../../types/dtos/CommentDto";
 import { CommentType } from "../../types/enums/CommentType";
 import Card from "../../lib/Card.vue";
 import Button from "../../lib/Button.vue";
-import Icon from "../../lib/Icon.vue";
 import { getFileName, getFileDirectory } from "../../utils/fileUtils";
 import { getCommentTypeIcon, getCommentLocationInfo } from "../../utils/commentUtils";
 import {
@@ -44,7 +43,7 @@ const {
 			<div class="flex items-center justify-between">
 				<div class="flex items-center gap-3">
 					<div class="card-icon-sm">
-						<Icon :srcName="getCommentTypeIcon(comment.type)" />
+						<Icon :icon="getCommentTypeIcon(comment.type)" class="w-8 h-8 text-blue-400" />
 					</div>
 					<div>
 						<span class="text-white font-medium">{{ comment.type }} Comment</span>
@@ -58,6 +57,7 @@ const {
 			</div>
 		</Card>
 	</div>
+
 	<!-- File-Based Comments -->
 	<div v-for="(comments, filePath) in fileBasedComments" :key="filePath" class="space-y-4">
 		<Card>
@@ -65,7 +65,7 @@ const {
 			<div class="flex items-center justify-between cursor-pointer" @click="toggleFileExpanded(filePath)">
 				<div class="flex items-center gap-3">
 					<div class="card-icon-sm">
-						<Icon srcName="closedFolder" />
+						<Icon icon="mdi:folder" class="w-8 h-8 text-amber-300" />
 					</div>
 					<div>
 						<h3 class="text-xl font-semibold text-white">{{ getFileName(filePath) }}</h3>
@@ -88,7 +88,7 @@ const {
 						<div class="flex items-center justify-between">
 							<div class="flex items-center gap-3">
 								<div class="card-icon-sm">
-									<Icon :srcName="getCommentTypeIcon(comment.type)" />
+									<Icon :icon="getCommentTypeIcon(comment.type)" class="w-8 h-8 text-blue-400" />
 								</div>
 								<div>
 									<span class="text-white font-medium">{{ comment.type }} Comment</span>
@@ -131,5 +131,16 @@ const {
 				</div>
 			</div>
 		</Card>
+	</div>
+
+	<!-- No Comments Available -->
+	<div
+		v-if="projectComments.length === 0 && Object.keys(fileBasedComments).length === 0"
+		class="flex space-x-6 font-semibold text-lg status-message error text-white"
+	>
+		<div class="card-icon-sm">
+			<Icon icon="mdi:alert-circle" class="w-5 h-5 text-red-400" />
+		</div>
+		<h1 class="flex items-center">No statistics available for the selected comment type.</h1>
 	</div>
 </template>

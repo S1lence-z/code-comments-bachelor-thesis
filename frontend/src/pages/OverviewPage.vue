@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useOverviewPage } from "../composables/pages/useOverviewPage";
-import Icon from "../lib/Icon.vue";
 import CommentStatistics from "../components/overview/CommentStatistics.vue";
 import CommentBrowser from "../components/overview/CommentBrowser.vue";
 import { CommentType } from "../types/enums/CommentType";
@@ -90,7 +89,7 @@ const {
 				<div v-else-if="totalCommentCount === 0" class="text-center">
 					<div class="empty-state">
 						<div class="empty-state-icon">
-							<Icon srcName="archive" size="32px" />
+							<Icon icon="mdi:archive" class="w-8 h-8 text-slate-400" />
 						</div>
 						<h3 class="text-xl font-semibold text-white mb-2">No Comments Found</h3>
 						<p class="text-slate-400 mb-4">Start adding comments to your code review session</p>
@@ -102,7 +101,7 @@ const {
 					<CommentBrowser
 						:allCommentsByFile="groupedCommentsByFile"
 						:commentTypeFilter="selectedCommentTypeFilter"
-						@openFileInEditor="(filePath) => openFileInEditor(filePath)"
+						@openFileInEditor="(filePath: string) => openFileInEditor(filePath)"
 					/>
 				</div>
 			</div>
