@@ -130,6 +130,6 @@ watch(
 
 	<!-- Settings Keyboard Shortcuts Modal -->
 	<Modal v-if="settingsStore.isEditingKeyboardShortcuts" @close="settingsStore.toggleKeyboardShortcutsEditor">
-		<KeyboardShortcutsEditor />
+		<KeyboardShortcutsEditor @close="settingsStore.toggleKeyboardShortcutsEditor" />
 	</Modal>
 </template>
