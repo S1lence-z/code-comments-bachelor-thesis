@@ -150,14 +150,14 @@ const currentTabs = computed(() => props.openTabs || openFileTabs.value);
 							class="flex items-center justify-center w-6 h-6 text-slate-400 hover:text-white hover:bg-white/10 rounded-md duration-200 mr-1 cursor-pointer text-sm"
 							title="Close file"
 						>
-							X
+							<Icon icon="mdi:close" class="w-6 h-6" />
 						</button>
 					</div>
 				</div>
 
 				<!-- Single Open File Label -->
 				<div v-else class="flex items-center gap-2 px-2 py-1 text-slate-300">
-					<span class="text-slate-300 font-semibold">{{ getFileName(currentTabs[0]) }}</span>
+					<span class="text-slate-300 font-semibold ml-4">{{ getFileName(currentTabs[0]) }}</span>
 
 					<!-- Close tab button -->
 					<button
@@ -165,7 +165,7 @@ const currentTabs = computed(() => props.openTabs || openFileTabs.value);
 						class="flex items-center justify-center w-6 h-6 text-slate-400 hover:text-white hover:bg-white/10 rounded-md duration-200 cursor-pointer"
 						title="Close file"
 					>
-						X
+						<Icon icon="mdi:close" class="w-6 h-6" />
 					</button>
 				</div>
 			</div>
