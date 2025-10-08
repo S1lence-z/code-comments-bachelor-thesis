@@ -5,8 +5,6 @@ import BaseCommentWidget from "./baseCommentWidget.ts";
  * A CodeMirror widget that displays comments inline with the code
  */
 export default class SingleLineCommentWidget extends BaseCommentWidget {
-	protected static readonly className = "cm-singleline-comment-widget";
-
 	constructor(
 		content: string,
 		commentId: string,
@@ -18,11 +16,7 @@ export default class SingleLineCommentWidget extends BaseCommentWidget {
 		super(content, commentId, category, isCompactCommentModal, deleteCommentAction, editCommentAction);
 	}
 
-	protected getClassName(): string {
-		return SingleLineCommentWidget.className;
-	}
-
-	protected getCategoryColorClass(): string {
-		return "comment-category-blue";
+	protected getWidgetTypeClass(): string {
+		return "";
 	}
 }

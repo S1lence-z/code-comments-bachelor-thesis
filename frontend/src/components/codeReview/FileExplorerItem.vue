@@ -55,11 +55,7 @@ const { handleItemClick, handleToggleExpand, fileContainsComments } = useFileExp
 					<Icon
 						v-if="item.type === 'folder'"
 						:icon="item.isExpanded ? 'mdi:folder-open' : 'mdi:folder'"
-						class="w-6 h-6 transition-all duration-200"
-						:class="{
-							'text-blue-400': item.isExpanded,
-							'text-slate-400': !item.isExpanded,
-						}"
+						class="w-6 h-6 transition-all duration-200 text-amber-300"
 					/>
 					<!-- File icon for files -->
 					<span
