@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import type { Workspace } from "../types/others/Panels";
 import { appSavedWorkspaceKey } from "../core/keys";
 
-export const useWorkspaceStore = defineStore("workspace", {
+export const useWorkspaceStore = defineStore("workspaceStore", {
 	state: () => ({
 		savedWorkspaces: [] as Workspace[],
 	}),

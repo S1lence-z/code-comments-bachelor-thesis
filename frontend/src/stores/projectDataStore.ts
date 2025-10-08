@@ -5,7 +5,7 @@ import type CategoryDto from "../types/dtos/CategoryDto";
 import useGithubTreeService from "../services/githubTreeService";
 import useCommentsService from "../services/commentsService";
 import useCategoryService from "../services/categoryService";
-import { useServerStore } from "./serverStore";
+import { useServerStatusStore } from "./serverStore";
 import { CommentType } from "../types/enums/CommentType";
 import { useFileContentStore } from "./fileContentStore";
 
@@ -47,7 +47,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 			githubPat: string,
 			serverBaseUrl: string
 		) {
-			const serverStore = useServerStore();
+			const serverStore = useServerStatusStore();
 			serverStore.startSyncing();
 
 			const promises = [
@@ -86,7 +86,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 			githubBranch: string,
 			githubPat?: string
 		) {
-			const serverStore = useServerStore();
+			const serverStore = useServerStatusStore();
 			const commentsService = useCommentsService();
 			const fileContentStore = useFileContentStore();
 			serverStore.startSyncing();
@@ -155,7 +155,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 			}
 		},
 		async upsertCommentAsync(commentData: CommentDto, rwApiUrl: string): Promise<void> {
-			const serverStore = useServerStore();
+			const serverStore = useServerStatusStore();
 			const commentsService = useCommentsService();
 
 			// Handle offline mode
@@ -197,7 +197,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 			}
 		},
 		async deleteCommentAsync(commentId: string, rwApiUrl: string): Promise<void> {
-			const serverStore = useServerStore();
+			const serverStore = useServerStatusStore();
 			const commentsService = useCommentsService();
 
 			// Handle offline mode

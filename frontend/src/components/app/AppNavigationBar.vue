@@ -6,14 +6,14 @@ import { navigationRoutes } from "../../core/routes";
 import { useProjectDataStore } from "../../stores/projectDataStore";
 import { useProjectStore } from "../../stores/projectStore";
 import { downloadJSON } from "../../utils/jsonUtils";
-import { useServerStore } from "../../stores/serverStore";
+import { useServerStatusStore } from "../../stores/serverStore";
 import Button from "../../lib/Button.vue";
 import { useSettingsStore } from "../../stores/settingsStore";
 
 // Stores
 const projectDataStore = useProjectDataStore();
 const projectStore = useProjectStore();
-const serverStore = useServerStore();
+const serverStore = useServerStatusStore();
 const settingsStore = useSettingsStore();
 
 // Get the current route to determine which tab should be active
