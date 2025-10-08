@@ -47,7 +47,7 @@ const emit = defineEmits<FileExplorerEmits>();
 				<FileExplorerItem
 					v-for="item in props.treeData"
 					:key="item.path"
-					:item="item"
+					:currentNode="item"
 					:filePath="props.selectedPath"
 					@update:filePath="(filePath) => emit('update:selectedPath', filePath)"
 					@toggle-expand-item="handleToggleExpandInTree(item, props.treeData)"

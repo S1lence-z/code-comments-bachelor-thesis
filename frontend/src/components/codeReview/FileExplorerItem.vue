@@ -6,6 +6,7 @@ import {
 	type FileExplorerItemProps,
 	type FileExplorerItemEmits,
 } from "../../composables/components/useFileExplorerItem";
+import { TreeNodeType } from "../../types/github/githubTree";
 
 const props = withDefaults(defineProps<FileExplorerItemProps>(), {
 	depth: 0,
@@ -13,38 +14,40 @@ const props = withDefaults(defineProps<FileExplorerItemProps>(), {
 const emit = defineEmits<FileExplorerItemEmits>();
 
 // Initialize the composable
-const { handleItemClick, handleToggleExpand, fileContainsComments } = useFileExplorerItem(emit);
+const { handleItemClick, handleToggleExpand, fileContainsComments, hasCommentedChildren, isFileSelected } =
+	useFileExplorerItem(props, emit);
 </script>
 
 <template>
-	<li class="list-none" :title="item.path">
+	<li class="list-none" :title="currentNode.path">
 		<!-- Item Container -->
 		<div
 			class="flex items-center rounded-lg transition-all duration-200"
 			:class="{
-				'bg-white/10 text-white border border-white/20': item.path === filePath && item.type === 'file',
-				'bg-amber-500/10 border border-amber-500/20': fileContainsComments(item.path) && item.path !== filePath,
-				'hover:bg-white/5': item.path !== filePath,
+				'bg-white/10 text-white border border-white/20': isFileSelected,
+				'bg-amber-500/10 border border-amber-500/20': hasCommentedChildren,
+				'hover:bg-white/5': !isFileSelected,
 			}"
 		>
+			<!-- Item Info -->
 			<div
-				@click="handleItemClick(item)"
+				@click="handleItemClick(currentNode)"
 				class="flex flex-grow items-center gap-2 cursor-pointer text-slate-300 min-w-0 py-2 px-3 rounded-lg"
-				:title="item.path"
+				:title="currentNode.path"
 				:style="{
 					paddingLeft: `${props.depth * 16 + 12}px`,
 				}"
 			>
 				<!-- Arrow expand icon for folders -->
 				<span
-					v-if="item.type === 'folder'"
+					v-if="currentNode.type === TreeNodeType.folder"
 					class="w-4 h-4 flex items-center justify-center text-slate-400 transition-all duration-200 flex-shrink-0 hover:text-white"
-					@click.stop="handleToggleExpand(item)"
+					@click.stop="handleToggleExpand(currentNode)"
 				>
 					<Icon
 						icon="mdi:chevron-right"
 						class="w-8 h-8 transition-transform duration-200 origin-center"
-						:class="{ 'rotate-90': item.isExpanded }"
+						:class="{ 'rotate-90': currentNode.isExpanded }"
 					/>
 				</span>
 				<span v-else class="w-4 flex-shrink-0"></span>
@@ -53,8 +56,8 @@ const { handleItemClick, handleToggleExpand, fileContainsComments } = useFileExp
 				<span class="w-6 h-6 flex items-center justify-center flex-shrink-0">
 					<!-- Folder icon for folders -->
 					<Icon
-						v-if="item.type === 'folder'"
-						:icon="item.isExpanded ? 'mdi:folder-open' : 'mdi:folder'"
+						v-if="currentNode.type === TreeNodeType.folder"
+						:icon="currentNode.isExpanded ? 'mdi:folder-open' : 'mdi:folder'"
 						class="w-6 h-6 transition-all duration-200 text-amber-300"
 					/>
 					<!-- File icon for files -->
@@ -63,28 +66,28 @@ const { handleItemClick, handleToggleExpand, fileContainsComments } = useFileExp
 						class="w-6 h-6 flex items-center justify-center text-xs font-bold transition-all duration-200"
 						:style="{
 							color:
-								item.path === props.filePath && item.type === 'file'
+								isFileSelected && currentNode.type === TreeNodeType.file
 									? 'currentColor'
-									: getFileIconColor(item.name),
+									: getFileIconColor(currentNode.name),
 						}"
 					>
-						{{ getFileIcon(item.name) }}
+						{{ getFileIcon(currentNode.name) }}
 					</span>
 				</span>
 
 				<!-- File or folder name -->
 				<span
-					class="flex-1 text-sm font-medium truncate transition-colors duration-200"
+					class="flex-1 text-sm font-medium truncate transition-colors duration-200 text-slate-300"
 					:class="{
-						'text-white': item.path === props.filePath && item.type === 'file',
-						'text-slate-300 group-hover:text-white': item.path !== props.filePath,
+						'text-white': isFileSelected && currentNode.type === TreeNodeType.file,
+						'hover:text-white': !isFileSelected,
 					}"
 				>
-					{{ item.name }}
+					{{ currentNode.name }}
 				</span>
 
 				<!-- Contains comments indicator -->
-				<span v-if="fileContainsComments(item.path)" class="flex items-center gap-1 ml-2">
+				<span v-if="fileContainsComments(currentNode.path)" class="flex items-center gap-1 ml-2">
 					<div class="w-2 h-2 bg-amber-400 rounded-full"></div>
 					<span class="text-xs text-amber-400">💬</span>
 				</span>
@@ -93,7 +96,7 @@ const { handleItemClick, handleToggleExpand, fileContainsComments } = useFileExp
 			<!-- Item Actions -->
 			<div class="mr-2 duration-200">
 				<button
-					@click="emit('file-comment-requested', props.item.path)"
+					@click="emit('file-comment-requested', props.currentNode.path)"
 					class="w-6 h-6 bg-white/10 hover:bg-white/20 hover:text-white rounded-md flex items-center justify-center transition-all duration-200 text-black cursor-pointer"
 					title="Add comment"
 				>
@@ -104,17 +107,22 @@ const { handleItemClick, handleToggleExpand, fileContainsComments } = useFileExp
 
 		<!-- Render children if item is a folder and expanded -->
 		<ul
-			v-if="item.type === 'folder' && item.isExpanded && item.children && item.children.length > 0"
+			v-if="
+				currentNode.type === TreeNodeType.folder &&
+				currentNode.isExpanded &&
+				currentNode.children &&
+				currentNode.children.length > 0
+			"
 			class="mt-1 space-y-1"
 		>
 			<FileExplorerItem
-				v-for="child in item.children"
+				v-for="child in currentNode.children"
 				:key="child.path"
-				:item="child"
+				:currentNode="child"
 				:depth="props.depth + 1"
 				:filePath="props.filePath"
 				@update:filePath="emit('update:filePath', $event)"
-				@toggle-expand-item="handleToggleExpandInTree(child, item.children)"
+				@toggle-expand-item="handleToggleExpandInTree(child, currentNode.children)"
 				@file-comment-requested="emit('file-comment-requested', $event)"
 			/>
 		</ul>
