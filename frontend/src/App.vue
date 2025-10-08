@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, watch, ref } from "vue";
+import { onMounted, watch, ref, onBeforeUnmount } from "vue";
 import NavigationBar from "./components/app/AppNavigationBar.vue";
 import Modal from "./lib/Modal.vue";
 import { useRouter, useRoute } from "vue-router";
@@ -35,7 +35,16 @@ const handleSwitchOfflineMode = () => {
 	settingsStore.toggleSettingsOpen(false);
 };
 
+const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+	if (projectDataStore.hasUnsavedChanges || settingsStore.isOfflineMode) {
+		event.preventDefault();
+		return "";
+	}
+};
+
 onMounted(async () => {
+	window.addEventListener("beforeunload", handleBeforeUnload);
+
 	// Load settings
 	settingsStore.loadSettings();
 	keyboardShortcutsStore.loadShortcuts();
@@ -59,8 +68,18 @@ onMounted(async () => {
 		.catch((error) => {
 			console.error("Router is not ready:", error);
 		});
+
+	onBeforeUnmount(() => {
+		settingsStore.saveSettings();
+		keyboardShortcutsStore.saveShortcuts();
+	});
 });
 
+onBeforeUnmount(() => {
+	window.removeEventListener("beforeunload", handleBeforeUnload);
+});
+
+// Watch for changes in route query parameters
 watch(
 	() => route.query,
 	async (newQuery, oldQuery) => {
