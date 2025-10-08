@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { formatBasePath } from "../utils/basePathUtils";
+
+const basePathname = formatBasePath(import.meta.env.VITE_CLIENT_BASE_PATHNAME) || "";
 
 const props = defineProps({
 	srcName: {
@@ -16,7 +19,7 @@ const props = defineProps({
 	},
 });
 
-const iconSrc = computed(() => `/assets/${props.srcName}.svg`);
+const iconSrc = computed(() => `${basePathname}/assets/${props.srcName}.svg`);
 const iconSize = computed(() => `w-[${props.size}] h-[${props.size}]`);
 </script>
 

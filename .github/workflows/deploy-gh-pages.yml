@@ -2,7 +2,7 @@ name: Deploy FE to GitHub Pages
 
 on:
     push:
-        branches: [deploy/gh-pages]
+        branches: [master]
 
 jobs:
     deploy:
@@ -24,6 +24,7 @@ jobs:
               working-directory: frontend
               env:
                   VITE_API_BASE_URL: "http://localhost/server"
+                  VITE_CLIENT_BASE_PATHNAME: "/code-comments-bachelor-thesis/"
 
             - run: cp index.html 404.html
               working-directory: frontend/dist
