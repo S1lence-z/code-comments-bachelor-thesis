@@ -6,7 +6,7 @@ const defaultKeyBoardShortcuts: AppKeyboardShortcuts = {
 	addComment: { binding: "Ctrl-c", actionName: "Add Comment" },
 };
 
-export const useKeyboardShortcutsStore = defineStore("keyboardShortcuts", {
+export const useKeyboardShortcutsStore = defineStore("keyboardShortcutsStore", {
 	state: () => ({
 		shortcuts: defaultKeyBoardShortcuts,
 	}),
