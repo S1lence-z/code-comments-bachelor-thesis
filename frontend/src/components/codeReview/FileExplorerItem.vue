@@ -7,6 +7,9 @@ import {
 	type FileExplorerItemEmits,
 } from "../../composables/components/useFileExplorerItem";
 import { TreeNodeType } from "../../types/github/githubTree";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 const props = withDefaults(defineProps<FileExplorerItemProps>(), {
 	depth: 0,
@@ -98,7 +101,7 @@ const { handleItemClick, handleToggleExpand, fileContainsComments, hasCommentedC
 				<button
 					@click="emit('file-comment-requested', props.currentNode.path)"
 					class="w-6 h-6 bg-white/10 hover:bg-white/20 hover:text-white rounded-md flex items-center justify-center transition-all duration-200 text-black cursor-pointer"
-					title="Add comment"
+					:title="t('fileExplorer.addComment')"
 				>
 					+
 				</button>

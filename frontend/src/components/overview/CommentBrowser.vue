@@ -10,6 +10,9 @@ import {
 	type CommentBrowserEmits,
 	type CommentBrowserProps,
 } from "../../composables/components/useCommentBrowser";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 const props = withDefaults(defineProps<CommentBrowserProps>(), {
 	allCommentsByFile: () => ({} as Record<string, CommentDto[]>),
@@ -74,7 +77,8 @@ const {
 				</div>
 				<div class="flex items-center gap-2">
 					<span class="bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full text-sm">
-						{{ comments.length }} comment{{ comments.length === 1 ? "" : "s" }}
+						{{ comments.length }}
+						{{ comments.length === 1 ? t("commentBrowser.comment") : t("commentBrowser.comments") }}
 					</span>
 				</div>
 			</div>
@@ -99,7 +103,7 @@ const {
 							</div>
 							<div v-if="comment.type !== CommentType.Project" class="flex items-center gap-2">
 								<Button
-									label="View in Editor"
+									:label="t('commentBrowser.viewInEditor')"
 									buttonStyle="primary"
 									type="button"
 									:onClick="() => handleOpenFileInEditor(filePath)"
@@ -141,6 +145,6 @@ const {
 		<div class="card-icon-sm">
 			<Icon icon="mdi:alert-circle" class="w-5 h-5 text-red-400" />
 		</div>
-		<h1 class="flex items-center">No statistics available for the selected comment type.</h1>
+		<h1 class="flex items-center">{{ t("commentBrowser.noStatsAvailable") }}</h1>
 	</div>
 </template>

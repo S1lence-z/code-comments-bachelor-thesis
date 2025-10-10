@@ -2,6 +2,9 @@
 import Button from "../../lib/Button.vue";
 import ToggleButton from "../../lib/ToggleButton.vue";
 import { useSettingsStore } from "../../stores/settingsStore";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 const emit = defineEmits<{
 	(event: "handleSwitchOfflineMode"): void;
@@ -15,31 +18,31 @@ const settingsStore = useSettingsStore();
 	<div class="flex flex-col justify-start space-y-6">
 		<!-- Toggle Button for Sidebar -->
 		<ToggleButton
-			label="Show Sidebar"
+			:label="t('settings.showSidebar')"
 			:isActive="settingsStore.sidebarOpenState"
 			@update:isActive="settingsStore.toggleSidebarOpen"
 		/>
 		<!-- Toggle Button for Keyboard Mode -->
 		<ToggleButton
-			label="Keyboard Mode"
+			:label="t('settings.keyboardMode')"
 			:isActive="settingsStore.keyboardModeOnState"
 			@update:isActive="settingsStore.toggleKeyboardMode"
 		/>
 		<!-- Save workspace to session storage -->
 		<ToggleButton
-			label="Save Workspace"
+			:label="t('settings.saveWorkspace')"
 			:isActive="settingsStore.saveWorkspaceState"
 			@update:isActive="settingsStore.toggleSaveWorkspace"
 		/>
 		<!-- Toggle Button for Compact Comment Mode -->
 		<ToggleButton
-			label="Compact Comment Widget"
+			:label="t('settings.compactCommentWidget')"
 			:isActive="settingsStore.compactCommentWidgetState"
 			@update:isActive="settingsStore.toggleCompactCommentWidget"
 		/>
 		<!-- Button for Toggling Offline Mode -->
 		<ToggleButton
-			label="Offline Mode"
+			:label="t('settings.offlineMode')"
 			:isActive="settingsStore.offlineModeState"
 			@update:isActive="emit('handleSwitchOfflineMode')"
 		/>
@@ -47,7 +50,7 @@ const settingsStore = useSettingsStore();
 		<div class="border-t border-gray-200 w-full"></div>
 		<!-- Button for Editing Keyboard Shortcuts -->
 		<Button
-			label="Edit Keyboard Shortcuts"
+			:label="t('settings.editKeyboardShortcuts')"
 			type="button"
 			buttonStyle="primary"
 			:onClick="settingsStore.toggleKeyboardShortcutsEditor"

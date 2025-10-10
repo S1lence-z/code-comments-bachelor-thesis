@@ -2,6 +2,9 @@
 import { ref, watch, computed } from "vue";
 import { getFileName } from "../../utils/fileUtils";
 import type { DraggedTabData } from "../../types/others/Panels";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 const props = defineProps<{
 	activeTab: string | null;
@@ -148,7 +151,7 @@ const currentTabs = computed(() => props.openTabs || openFileTabs.value);
 						<button
 							@click="removeFileTab(file)"
 							class="flex items-center justify-center w-6 h-6 text-slate-400 hover:text-white hover:bg-white/10 rounded-md duration-200 mr-1 cursor-pointer text-sm"
-							title="Close file"
+							:title="t('panel.closeFile')"
 						>
 							<Icon icon="mdi:close" class="w-6 h-6" />
 						</button>
@@ -163,7 +166,7 @@ const currentTabs = computed(() => props.openTabs || openFileTabs.value);
 					<button
 						@click="removeFileTab(currentTabs[0])"
 						class="flex items-center justify-center w-6 h-6 text-slate-400 hover:text-white hover:bg-white/10 rounded-md duration-200 cursor-pointer"
-						title="Close file"
+						:title="t('panel.closeFile')"
 					>
 						<Icon icon="mdi:close" class="w-6 h-6" />
 					</button>

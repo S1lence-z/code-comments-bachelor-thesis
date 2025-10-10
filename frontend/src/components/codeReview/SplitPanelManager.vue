@@ -9,6 +9,9 @@ import {
 	type SplitPanelManagerEmits,
 } from "../../composables/components/useSplitPanelManager";
 import { getFileName } from "../../utils/fileUtils";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 const props = defineProps<SplitPanelManagerProps>();
 const emit = defineEmits<SplitPanelManagerEmits>();
@@ -85,7 +88,9 @@ const {
 				</div>
 
 				<!-- Empty state when no tab is active -->
-				<div v-else class="flex items-center justify-center h-full text-slate-400">No file selected</div>
+				<div v-else class="flex items-center justify-center h-full text-slate-400">
+					{{ t("panel.noFileSelected") }}
+				</div>
 			</Panel>
 			<!-- Resize Handle -->
 			<ResizeHandle
@@ -101,7 +106,9 @@ const {
 			class="absolute left-0 top-0 h-full bg-blue-500/30 border-r-2 border-blue-500 flex items-center justify-center z-10"
 			:style="{ width: dropZoneWidth + 'px' }"
 		>
-			<div class="text-blue-200 text-xs font-medium transform -rotate-90 whitespace-nowrap">New Panel</div>
+			<div class="text-blue-200 text-xs font-medium transform -rotate-90 whitespace-nowrap">
+				{{ t("panel.newPanel") }}
+			</div>
 		</div>
 
 		<!-- Right Drop Zone -->
@@ -110,7 +117,9 @@ const {
 			class="absolute right-0 top-0 h-full bg-blue-500/30 border-l-2 border-blue-500 flex items-center justify-center z-10"
 			:style="{ width: dropZoneWidth + 'px' }"
 		>
-			<div class="text-blue-200 text-xs font-medium transform -rotate-90 whitespace-nowrap">New Panel</div>
+			<div class="text-blue-200 text-xs font-medium transform -rotate-90 whitespace-nowrap">
+				{{ t("panel.newPanel") }}
+			</div>
 		</div>
 	</div>
 </template>

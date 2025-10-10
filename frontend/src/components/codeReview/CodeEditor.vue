@@ -2,11 +2,13 @@
 import "../../../css/codemirror.css";
 import { Codemirror } from "vue-codemirror";
 import { useCodeEditor, type CodeEditorProps, type CodeEditorEmits } from "../../composables/components/useCodeEditor";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 const props = defineProps<CodeEditorProps>();
 const emit = defineEmits<CodeEditorEmits>();
 
-// Initialize the composable
 const {
 	// State
 	currentContent,
@@ -24,13 +26,6 @@ const {
 
 <template>
 	<section class="flex flex-col flex-grow h-full bg-gray-800 text-gray-300">
-		<div
-			v-if="!props.filePath && props.fileContent === null && !props.isLoadingFile"
-			class="flex items-center justify-center flex-grow text-gray-400 italic"
-		>
-			Select a file to view its content.
-		</div>
-
 		<div v-if="props.isLoadingFile && props.filePath" class="flex items-center justify-center flex-grow">
 			<p class="text-center italic text-gray-400 p-5">Loading {{ props.filePath }}...</p>
 		</div>
@@ -48,7 +43,10 @@ const {
 				v-if="isKeyboardMode"
 				class="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 text-xs font-semibold z-10 pointer-events-none"
 			>
-				🎹 Keyboard Navigation Mode
+				<div class="flex items-center gap-2">
+					<Icon icon="mdi:keyboard" class="w-5 h-5" />
+					<p class="text-base">{{ t("codeEditor.keyboardMode") }}</p>
+				</div>
 			</div>
 			<codemirror
 				v-model="currentContent"

@@ -8,8 +8,10 @@ import SplitPanelManager from "../components/codeReview/SplitPanelManager.vue";
 import ResizeHandle from "../lib/ResizeHandle.vue";
 import CommentForm from "../components/codeReview/CommentForm.vue";
 import SlideoutPanel from "../lib/SlideoutPanel.vue";
+import { useI18n } from "vue-i18n";
 
-// Initialize the composable (without workspace/drag-drop functionality)
+const { t } = useI18n();
+
 const {
 	// Store refs
 	fileTree,
@@ -108,7 +110,7 @@ onMounted(() => {
 								<div
 									class="animate-spin rounded-full h-4 w-4 border-2 border-modern-blue border-t-transparent"
 								></div>
-								<span>Loading repository...</span>
+								<span>{{ t("codeReviewPage.loadingRepository") }}</span>
 							</div>
 						</div>
 						<FileExplorer
@@ -124,8 +126,10 @@ onMounted(() => {
 						/>
 						<div v-else class="text-center">
 							<div class="empty-state">
-								<h3 class="text-lg font-semibold text-white mb-2">No Files Found</h3>
-								<p class="text-sm text-slate-400 mb-4">Set up a project on the Home page</p>
+								<h3 class="text-lg font-semibold text-white mb-2">
+									{{ t("codeReviewPage.noFilesFound") }}
+								</h3>
+								<p class="text-sm text-slate-400 mb-4">{{ t("codeReviewPage.noFilesFoundSubtext") }}</p>
 							</div>
 						</div>
 					</div>
@@ -146,7 +150,7 @@ onMounted(() => {
 								<div
 									class="animate-spin rounded-full h-4 w-4 border-2 border-modern-blue border-t-transparent"
 								></div>
-								<span>Loading comments...</span>
+								<span>{{ t("codeReviewPage.loadingComments") }}</span>
 							</div>
 						</div>
 						<!-- SplitPanelManager -->
@@ -178,8 +182,10 @@ onMounted(() => {
 								<div class="empty-state-icon">
 									<Icon icon="mdi:inbox" class="w-8 h-8 text-slate-400" />
 								</div>
-								<h3 class="text-xl font-semibold text-white mb-2">No File Selected</h3>
-								<p class="text-slate-400 mb-4">Please select a file to view its comments</p>
+								<h3 class="text-xl font-semibold text-white mb-2">
+									{{ t("codeReviewPage.noFileSelected") }}
+								</h3>
+								<p class="text-slate-400 mb-4">{{ t("codeReviewPage.noFileSelectedSubtext") }}</p>
 							</div>
 						</div>
 					</div>
@@ -188,7 +194,7 @@ onMounted(() => {
 
 			<!-- Comment Add/Edit Form Component -->
 			<SlideoutPanel
-				:title="(commentId ? 'Edit' : 'Add') + ' Comment'"
+				:title="commentId ? t('codeReviewPage.editComment') : t('codeReviewPage.addComment')"
 				:subtitle="getSubtitle"
 				v-model:isVisible="isAddingComment"
 				class="w-110"

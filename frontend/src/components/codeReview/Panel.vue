@@ -2,6 +2,9 @@
 import { ref, computed } from "vue";
 import FileTabManager from "./FileTabManager.vue";
 import type { TabData, DraggedTabData } from "../../types/others/Panels";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 interface PanelProps {
 	panelId: number;
@@ -107,7 +110,7 @@ const handleTabDropWithIndex = (panelId: number, insertIndex: number) => {
 			class="absolute inset-0 bg-blue-500/20 border-2 border-blue-500 border-dashed flex items-center justify-center pointer-events-none"
 			:class="{ 'bg-blue-500/30': isDragOver }"
 		>
-			<div class="text-blue-300 text-sm font-medium">Drop tab here</div>
+			<div class="text-blue-300 text-sm font-medium">{{ t("panel.dropTabHere") }}</div>
 		</div>
 	</div>
 </template>

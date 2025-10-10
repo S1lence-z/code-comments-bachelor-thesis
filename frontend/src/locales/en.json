@@ -25,6 +25,9 @@
 		"cancel": "Cancel",
 		"notSet": "Not set"
 	},
+	"codeEditor": {
+		"keyboardMode": "Keyboard Navigation Mode"
+	},
 	"serverForm": {
 		"title": "Comments Server URL",
 		"subtitle": "Configure the URL for your comments server",
@@ -59,7 +62,8 @@
 	},
 	"setupPage": {
 		"title": "Code Comments Dashboard",
-		"subtitle": "Manage your code review sessions"
+		"subtitle": "Manage your code review sessions",
+		"errorLoadingExistingProjects": "There was an error loading existing projects from the selected server. Please, check the server URL or switch to offline mode in settings."
 	},
 	"codeReviewPage": {
 		"loadingRepository": "Loading repository...",
@@ -75,13 +79,15 @@
 		"title": "Comments Overview",
 		"subtitle": "Review all comments across your codebase",
 		"noCommentsFound": "No Comments Found",
-		"noCommentsFoundSubtext": "Start adding comments to your code review session"
+		"noCommentsFoundSubtext": "Start adding comments to your code review session",
+		"filterByCommentType": "Filter by comment type:"
 	},
 	"notFoundPage": {
 		"title": "404",
 		"subtitle": "Page Not Found",
 		"goBack": "Go Back",
-		"goToSetup": "Go to Setup"
+		"goToSetup": "Go to Setup",
+		"content": "The page you're looking for doesn't exist or has been moved."
 	},
 	"fileExplorer": {
 		"expandAll": "Expand All",
@@ -112,10 +118,11 @@
 	"commentBrowser": {
 		"viewInEditor": "View in Editor",
 		"comment": "comment",
-		"comments": "comments"
+		"comments": "comments",
+		"noStatsAvailable": "No statistics available for the selected comment type"
 	},
 	"contentViewer": {
-		"resetZoom": "Reset Zoom (Ctrl/Cmd + 0)",
+		"resetZoom": "Reset Zoom",
 		"binaryFile": "Binary File",
 		"binaryFileSubtext": "Content cannot be displayed",
 		"viewOnGithub": "here",

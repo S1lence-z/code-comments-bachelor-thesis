@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { useContentViewer, type ContentViewerProps } from "../../composables/components/useContentViewer";
 import { FileDisplayType } from "../../types/github/githubFile";
+import { useI18n } from "vue-i18n";
+import Button from "../../lib/Button.vue";
+
+const { t } = useI18n();
 
 defineProps<ContentViewerProps>();
 
@@ -46,20 +50,15 @@ const {
 		@touchmove="handleTouchMove"
 		@touchend="handleTouchEnd"
 	>
-		<!-- Zoom Level Display -->
-		<div class="absolute top-4 left-4 z-10 bg-[#0e639c] rounded px-3 py-1 text-white text-sm">
-			{{ zoomPercentage }}%
-		</div>
-
 		<!-- Control Panel -->
-		<div class="absolute top-4 right-4 z-10 flex flex-col rounded-lg">
-			<button
-				@click="resetZoom"
-				class="px-2 py-1 bg-[#0e639c] text-white rounded hover:bg-[#1177bb] transition-colors text-xl"
-				title="Reset Zoom (Ctrl/Cmd + 0)"
-			>
-				Reset Zoom
-			</button>
+		<div class="absolute top-4 left-4 right-4 z-10 flex justify-between">
+			<div class="btn btn-primary">{{ zoomPercentage }}%</div>
+			<Button
+				:label="t('contentViewer.resetZoom')"
+				type="button"
+				buttonStyle="primary"
+				:onClick="() => resetZoom"
+			/>
 		</div>
 
 		<!-- Content Container -->
@@ -83,9 +82,9 @@ const {
 			<template v-else-if="displayType === FileDisplayType.Binary">
 				<div class="p-8 text-center">
 					<div class="text-6xl text-gray-600 mb-4">📄</div>
-					<div class="text-gray-400 text-lg mb-2">Binary File</div>
+					<div class="text-gray-400 text-lg mb-2">{{ t("contentViewer.binaryFile") }}</div>
 					<div class="text-gray-500 text-sm">{{ fileName }}</div>
-					<div class="text-gray-600 text-xs mt-2">Content cannot be displayed</div>
+					<div class="text-gray-600 text-xs mt-2">{{ t("contentViewer.binaryFileSubtext") }}</div>
 					<div class="text-gray-500 text-lg mt-1">
 						You can take a look at it
 						<a
@@ -93,7 +92,7 @@ const {
 							class="text-blue-500 hover:underline"
 							target="_blank"
 							rel="noopener"
-							>here</a
+							>{{ t("contentViewer.viewOnGithub") }}</a
 						>.
 					</div>
 				</div>
@@ -103,15 +102,16 @@ const {
 			<template v-else>
 				<div class="p-8 text-center">
 					<div class="text-6xl text-gray-600 mb-4">❓</div>
-					<div class="text-gray-400 text-lg mb-2">Unsupported File Type</div>
+					<div class="text-gray-400 text-lg mb-2">{{ t("contentViewer.unsupportedFileType") }}</div>
 					<div class="text-gray-500 text-sm">{{ fileName }}</div>
 					<div v-if="downloadUrl" class="text-gray-500 text-lg mt-1">
 						You can take a look at it
-						<a :href="downloadUrl" class="text-blue-500 hover:underline" target="_blank" rel="noopener"
-							>here</a
+						<a :href="downloadUrl" class="text-blue-500 hover:underline" target="_blank" rel="noopener">{{
+							t("contentViewer.viewOnGithub")
+						}}</a
 						>.
 					</div>
-					<div v-else class="text-gray-500 text-sm mt-1">No download link available</div>
+					<div v-else class="text-gray-500 text-sm mt-1">{{ t("contentViewer.noDownloadLink") }}</div>
 				</div>
 			</template>
 		</div>

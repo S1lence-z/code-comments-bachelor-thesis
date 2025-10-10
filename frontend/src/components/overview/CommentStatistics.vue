@@ -3,6 +3,9 @@ import type CommentDto from "../../types/dtos/CommentDto";
 import { CommentType } from "../../types/enums/CommentType";
 import Card from "../../lib/Card.vue";
 import { useCommentStatistics, type CommentStatisticsProps } from "../../composables/components/useCommentStatistics";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 const props = withDefaults(defineProps<CommentStatisticsProps>(), {
 	allComments: () => [] as CommentDto[],
@@ -28,29 +31,43 @@ const {
 
 <template>
 	<div v-if="showCards" class="flex space-x-8">
-		<Card v-if="showTotalCommentsCard" title="Total" subtitle="All comments in the codebase" class="flex-1">
+		<Card
+			v-if="showTotalCommentsCard"
+			:title="t('commentStatistics.totalTitle')"
+			:subtitle="t('commentStatistics.totalSubtitle')"
+			class="flex-1"
+		>
 			<h1 class="text-2xl text-white">{{ totalCommentCount }}</h1>
 		</Card>
-		<Card v-if="showFileCommentsCard" title="File Comments" subtitle="Total file comments" class="flex-1">
+		<Card
+			v-if="showFileCommentsCard"
+			:title="t('commentStatistics.fileCommentsTitle')"
+			:subtitle="t('commentStatistics.fileCommentsSubtitle')"
+			class="flex-1"
+		>
 			<h1 class="text-2xl text-white">{{ commentTypeStats[CommentType.File] }}</h1>
 		</Card>
 		<Card
 			v-if="showSinglelineCommentsCard"
-			title="Singleline Comments"
-			subtitle="Total singleline comments"
+			:title="t('commentStatistics.singlelineCommentsTitle')"
+			:subtitle="t('commentStatistics.singlelineCommentsSubtitle')"
 			class="flex-1"
 		>
 			<h1 class="text-2xl text-white">{{ commentTypeStats[CommentType.Singleline] }}</h1>
 		</Card>
 		<Card
 			v-if="showMultilineCommentsCard"
-			title="Multiline Comments"
-			subtitle="Total multiline comments"
+			:title="t('commentStatistics.multilineCommentsTitle')"
+			:subtitle="t('commentStatistics.multilineCommentsSubtitle')"
 			class="flex-1"
 		>
 			<h1 class="text-2xl text-white">{{ commentTypeStats[CommentType.Multiline] }}</h1>
 		</Card>
-		<Card v-if="showCategoryDistributionCard" title="Category Distribution" class="flex-1">
+		<Card
+			v-if="showCategoryDistributionCard"
+			:title="t('commentStatistics.categoryDistributionTitle')"
+			class="flex-1"
+		>
 			<div
 				v-for="(count, category) in totalCategoryCounts"
 				:key="category"

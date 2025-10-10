@@ -3,6 +3,9 @@ import { useCommentForm } from "../../composables/components/useCommentForm";
 import InputSelect from "../../lib/InputSelect.vue";
 import InputArea from "../../lib/InputArea.vue";
 import type { CommentFormProps, CommentFormEmits } from "../../composables/components/useCommentForm";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 const props = defineProps<CommentFormProps>();
 const emit = defineEmits<CommentFormEmits>();
@@ -31,23 +34,25 @@ const {
 		<InputSelect
 			v-if="showCategorySelect"
 			v-model="commentCategoryLabel"
-			label="Category"
+			:label="t('commentForm.categoryLabel')"
 			:options="availableCategories"
-			placeholder="Select a category"
+			:placeholder="t('commentForm.categoryPlaceholder')"
 		/>
 
 		<InputArea
-			label="Comment"
+			:label="t('commentForm.commentLabel')"
 			v-model="commentContent"
-			placeholder="Enter your comment..."
+			:placeholder="t('commentForm.commentPlaceholder')"
 			:rows="4"
 			@submit="handleSubmit"
 		/>
 
 		<div class="flex justify-end space-x-2">
-			<button @click="handleCancel" class="btn btn-secondary">Cancel</button>
-			<button v-if="showDeleteButton" @click="handleDelete" class="btn bg-red-500 text-white">Delete</button>
-			<button @click="handleSubmit" class="btn btn-primary">Save (Ctrl + Enter)</button>
+			<button @click="handleCancel" class="btn btn-secondary">{{ t("commentForm.cancel") }}</button>
+			<button v-if="showDeleteButton" @click="handleDelete" class="btn bg-red-500 text-white">
+				{{ t("commentForm.delete") }}
+			</button>
+			<button @click="handleSubmit" class="btn btn-primary">{{ t("commentForm.save") }}</button>
 		</div>
 	</div>
 </template>

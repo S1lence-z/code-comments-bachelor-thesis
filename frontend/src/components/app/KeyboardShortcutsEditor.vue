@@ -5,6 +5,9 @@ import Card from "../../lib/Card.vue";
 import type { AppKeyboardShortcuts } from "../../types/others/KeyboardShortcuts";
 import Button from "../../lib/Button.vue";
 import { objectDeepCopy } from "../../utils/jsonUtils";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 interface KeyboardShortcutsEditorEmits {
 	(event: "close"): void;
@@ -79,19 +82,19 @@ const saveShortcuts = () => {
 	<Card class="bg-white">
 		<!-- Header -->
 		<div class="flex justify-between items-center mb-4">
-			<h2 class="text-2xl font-bold">Keyboard Shortcuts</h2>
+			<h2 class="text-2xl font-bold">{{ t("keyboardShortcuts.title") }}</h2>
 			<button
 				@click="resetToDefault"
 				class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
 			>
-				Reset to Default
+				{{ t("keyboardShortcuts.resetToDefault") }}
 			</button>
 		</div>
 
 		<!-- Help text when editing -->
 		<div class="text-gray-600 flex items-center mb-4 gap-2">
 			<Icon icon="mdi:info" class="w-7 h-7 text-blue-400" />
-			<p class="text-black text-base">Press Ctrl + any key to set the shortcut</p>
+			<p class="text-black text-base">{{ t("keyboardShortcuts.helpText") }}</p>
 		</div>
 
 		<div class="space-y-3">
@@ -110,7 +113,7 @@ const saveShortcuts = () => {
 							:value="
 								editingShortcutAction === shortcut.actionName
 									? tempBinding
-									: shortcut.binding || 'Not set'
+									: shortcut.binding || t('keyboardShortcuts.notSet')
 							"
 							@focus="startEditing(shortcut.actionName, shortcut.binding)"
 							@keydown="handleKeyCapture($event)"
@@ -124,8 +127,20 @@ const saveShortcuts = () => {
 				</div>
 			</div>
 			<!-- Buttons -->
-			<Button label="Save" type="button" buttonStyle="primary" :onClick="saveShortcuts" class="mt-2 mr-2" />
-			<Button label="Cancel" type="button" buttonStyle="secondary" :onClick="() => emits('close')" class="mt-2" />
+			<Button
+				:label="t('keyboardShortcuts.save')"
+				type="button"
+				buttonStyle="primary"
+				:onClick="saveShortcuts"
+				class="mt-2 mr-2"
+			/>
+			<Button
+				:label="t('keyboardShortcuts.cancel')"
+				type="button"
+				buttonStyle="secondary"
+				:onClick="() => emits('close')"
+				class="mt-2"
+			/>
 		</div>
 	</Card>
 </template>
