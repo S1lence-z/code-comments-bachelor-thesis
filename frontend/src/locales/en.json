@@ -1,0 +1,152 @@
+{
+	"app": {
+		"title": "Code Comments",
+		"copyright": "© 2025 Code Comments"
+	},
+	"navigation": {
+		"setup": "Setup",
+		"codeReview": "Code Review",
+		"overview": "Overview"
+	},
+	"settings": {
+		"title": "Settings",
+		"showSidebar": "Show Sidebar",
+		"keyboardMode": "Keyboard Mode",
+		"saveWorkspace": "Save Workspace",
+		"compactCommentWidget": "Compact Comment Widget",
+		"offlineMode": "Offline Mode",
+		"editKeyboardShortcuts": "Edit Keyboard Shortcuts"
+	},
+	"keyboardShortcuts": {
+		"title": "Keyboard Shortcuts",
+		"resetToDefault": "Reset to Default",
+		"helpText": "Press Ctrl + any key to set the shortcut",
+		"save": "Save",
+		"cancel": "Cancel",
+		"notSet": "Not set"
+	},
+	"serverForm": {
+		"title": "Comments Server URL",
+		"subtitle": "Configure the URL for your comments server",
+		"setupGuideText": "Don't have your own server setup? Follow this",
+		"setupGuideLink": "setup guide",
+		"setupGuideTextContinued": "to run the server locally with Docker and then",
+		"useDefaultUrl": "use its URL",
+		"offlineModeInfo": "You can also run the application in offline mode! Added comments will be shown in real-time until you refresh the page. Perfect for quick prototyping and testing.",
+		"serverUrlLabel": "Server URL",
+		"serverUrlPlaceholder": "http://localhost:3000",
+		"saveAndContinue": "Save and Continue",
+		"runInOfflineMode": "Run in Offline Mode"
+	},
+	"projectForm": {
+		"title": "New Review Session",
+		"subtitle": "Start a new code review by entering a GitHub repository URL",
+		"successMessage": "Review session created successfully!",
+		"openReviewSession": "Open Review Session",
+		"githubRepoUrlLabel": "GitHub Repository URL",
+		"githubRepoUrlPlaceholder": "https://github.com/owner/repository",
+		"branchLabel": "Branch",
+		"branchPlaceholder": "main",
+		"projectNameLabel": "Project Name",
+		"projectNamePlaceholder": "My Project",
+		"createReviewSession": "Create Review Session"
+	},
+	"projectList": {
+		"title": "Existing Projects",
+		"subtitle": "Continue working on your previous code reviews",
+		"noProjects": "No existing projects found",
+		"noProjectsSubtext": "Create your first review session to get started"
+	},
+	"setupPage": {
+		"title": "Code Comments Dashboard",
+		"subtitle": "Manage your code review sessions"
+	},
+	"codeReviewPage": {
+		"loadingRepository": "Loading repository...",
+		"loadingComments": "Loading comments...",
+		"noFilesFound": "No Files Found",
+		"noFilesFoundSubtext": "Set up a project on the Home page",
+		"noFileSelected": "No File Selected",
+		"noFileSelectedSubtext": "Please select a file to view its comments",
+		"addComment": "Add Comment",
+		"editComment": "Edit Comment"
+	},
+	"overviewPage": {
+		"title": "Comments Overview",
+		"subtitle": "Review all comments across your codebase",
+		"noCommentsFound": "No Comments Found",
+		"noCommentsFoundSubtext": "Start adding comments to your code review session"
+	},
+	"notFoundPage": {
+		"title": "404",
+		"subtitle": "Page Not Found",
+		"goBack": "Go Back",
+		"goToSetup": "Go to Setup"
+	},
+	"fileExplorer": {
+		"expandAll": "Expand All",
+		"collapseAll": "Collapse All",
+		"projectComment": "Project Comment",
+		"addComment": "Add comment"
+	},
+	"commentForm": {
+		"categoryLabel": "Category",
+		"categoryPlaceholder": "Select a category",
+		"commentLabel": "Comment",
+		"commentPlaceholder": "Enter your comment...",
+		"cancel": "Cancel",
+		"delete": "Delete",
+		"save": "Save (Ctrl + Enter)"
+	},
+	"commentStatistics": {
+		"totalTitle": "Total",
+		"totalSubtitle": "All comments in the codebase",
+		"fileCommentsTitle": "File Comments",
+		"fileCommentsSubtitle": "Total file comments",
+		"singlelineCommentsTitle": "Singleline Comments",
+		"singlelineCommentsSubtitle": "Total singleline comments",
+		"multilineCommentsTitle": "Multiline Comments",
+		"multilineCommentsSubtitle": "Total multiline comments",
+		"categoryDistributionTitle": "Category Distribution"
+	},
+	"commentBrowser": {
+		"viewInEditor": "View in Editor",
+		"comment": "comment",
+		"comments": "comments"
+	},
+	"contentViewer": {
+		"resetZoom": "Reset Zoom (Ctrl/Cmd + 0)",
+		"binaryFile": "Binary File",
+		"binaryFileSubtext": "Content cannot be displayed",
+		"viewOnGithub": "here",
+		"unsupportedFileType": "Unsupported File Type",
+		"noDownloadLink": "No download link available"
+	},
+	"panel": {
+		"dropTabHere": "Drop tab here",
+		"newPanel": "New Panel",
+		"closeFile": "Close file",
+		"noFileSelected": "No file selected"
+	},
+	"status": {
+		"commentsSynced": "Comments Synced",
+		"syncingComments": "Syncing Comments...",
+		"offlineMode": "Offline Mode",
+		"exportComments": "Export Comments",
+		"noCommentsToExport": "No comments to export.",
+		"confirmExport": "Are you sure you want to export {count} {commentWord} for {repositoryName}?"
+	},
+	"common": {
+		"loading": "Loading...",
+		"error": "Error",
+		"success": "Success",
+		"save": "Save",
+		"cancel": "Cancel",
+		"delete": "Delete",
+		"edit": "Edit",
+		"add": "Add",
+		"close": "Close",
+		"open": "Open",
+		"create": "Create"
+	}
+}
