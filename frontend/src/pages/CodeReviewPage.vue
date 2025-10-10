@@ -6,7 +6,6 @@ import { useDragDropController } from "../composables/controllers/useDragDropCon
 import FileExplorer from "../components/codeReview/FileExplorer.vue";
 import SplitPanelManager from "../components/codeReview/SplitPanelManager.vue";
 import ResizeHandle from "../lib/ResizeHandle.vue";
-import CommentForm from "../components/codeReview/CommentForm.vue";
 import SlideoutPanel from "../lib/SlideoutPanel.vue";
 import { useI18n } from "vue-i18n";
 
@@ -31,29 +30,18 @@ const {
 	maxSidebarWidth,
 	sidebar,
 
-	// Comment form state
-	commentFilePath,
-	startLineNumber,
-	endLineNumber,
-	commentId,
-	isAddingComment,
-	addedCommentType,
-
 	// Methods
 	handleFileSelected,
-	handleFileCommentSelected,
-	handleProjectCommentSelected,
 	handleSidebarResize,
 	handleFileQueryParam,
 	isAnyFileSelected,
 	expandAllFiles,
 
 	// Inline form handlers
-	handleInlineFormSubmit,
-	onDeleteComment,
+	deleteInlineComment,
+	submitInlineComment,
 
 	// Computed
-	getSubtitle,
 	projectCommentButtonLabel,
 	expandAllButtonLabel,
 } = useCodeReviewPage();
@@ -121,8 +109,8 @@ onMounted(() => {
 							:projectCommentButtonLabel="projectCommentButtonLabel"
 							:expandAllButtonLabel="expandAllButtonLabel"
 							@toggle-expand-all-items="expandAllFiles"
-							@project-comment-requested="handleProjectCommentSelected"
-							@file-comment-requested="handleFileCommentSelected"
+							@project-comment-requested="() => console.log('Project comment requested')"
+							@file-comment-requested="() => console.log('File comment requested')"
 						/>
 						<div v-else class="text-center">
 							<div class="empty-state">
@@ -171,8 +159,8 @@ onMounted(() => {
 							@drop-zone-drag-over="dragDropController.handleDropZoneDragOver"
 							@drop-zone-leave="dragDropController.handleDropZoneLeave"
 							@drop-zone-drop="dragDropController.handleDropZoneDrop"
-							@inline-form-submit="handleInlineFormSubmit"
-							@inline-form-delete="onDeleteComment"
+							@inline-form-submit="submitInlineComment"
+							@inline-form-delete="deleteInlineComment"
 						/>
 						<!-- Empty State -->
 						<div v-else class="text-center">
@@ -191,22 +179,13 @@ onMounted(() => {
 			</div>
 
 			<!-- Comment Add/Edit Form Component -->
-			<SlideoutPanel
+			<!-- <SlideoutPanel
 				:title="commentId ? t('codeReviewPage.editComment') : t('codeReviewPage.addComment')"
 				:subtitle="getSubtitle"
 				v-model:isVisible="isAddingComment"
 				class="w-110"
 			>
-				<CommentForm
-					v-model:isVisible="isAddingComment"
-					:comment-file-path="commentFilePath"
-					:start-line-number="startLineNumber"
-					:end-line-number="endLineNumber"
-					:comment-id="commentId"
-					:comment-type="addedCommentType"
-					@delete-comment="onDeleteComment"
-				/>
-			</SlideoutPanel>
+			</SlideoutPanel> -->
 		</div>
 	</div>
 </template>

@@ -4,9 +4,8 @@ import { useFileContentStore } from "../../stores/fileContentStore";
 import { useSettingsStore } from "../../stores/settingsStore";
 import { useProjectStore } from "../../stores/projectStore";
 import type { ProcessedFile } from "../../types/github/githubFile";
-import type CommentDto from "../../types/dtos/CommentDto";
 import { CommentType } from "../../types/enums/CommentType";
-import { getCommentLocationInfoByType, createCommentByType } from "../../utils/commentUtils";
+import { createCommentByType } from "../../utils/commentUtils";
 import { storeToRefs } from "pinia";
 import { useQueryParams } from "../core/useQueryParams";
 
@@ -35,14 +34,6 @@ export function useCodeReviewPage() {
 	const maxSidebarWidth = 450;
 	const sidebar = ref<HTMLElement | null>(null);
 
-	// Comment form state
-	const commentFilePath = ref<string | null>(null);
-	const startLineNumber = ref<number | null>(null);
-	const endLineNumber = ref<number | null>(null);
-	const commentId = ref<string | null>(null);
-	const isAddingComment = ref<boolean>(false);
-	const addedCommentType = ref<CommentType>(CommentType.Singleline);
-
 	// Handle file selection and loading
 	const handleFileSelected = async (path: string | null): Promise<void> => {
 		if (!path) return;
@@ -63,35 +54,6 @@ export function useCodeReviewPage() {
 		} finally {
 			isLoadingFile.value = false;
 		}
-	};
-
-	const handleFileCommentSelected = (filePath: string): void => {
-		if (!filePath) {
-			console.error("File path is required for file comment");
-			return;
-		}
-
-		const existingComment = allComments.value.find(
-			(comment: CommentDto) => comment.location.filePath === filePath && comment.type === CommentType.File
-		);
-
-		commentId.value = existingComment ? existingComment.id : null;
-		commentFilePath.value = filePath;
-		addedCommentType.value = CommentType.File;
-		isAddingComment.value = true;
-	};
-
-	const handleProjectCommentSelected = (): void => {
-		if (!projectStore.getRepositoryName) {
-			console.error("Repository name is required for project comment");
-			return;
-		}
-
-		const existingComment = allComments.value.find((comment: CommentDto) => comment.type === CommentType.Project);
-		commentId.value = existingComment ? existingComment.id : null;
-		commentFilePath.value = projectStore.getRepositoryName;
-		addedCommentType.value = CommentType.Project;
-		isAddingComment.value = true;
 	};
 
 	// Handle resize events from ResizeHandle component
@@ -120,7 +82,7 @@ export function useCodeReviewPage() {
 	};
 
 	// Handle inline form submission from CodeEditor
-	const handleInlineFormSubmit = async (payload: {
+	const submitInlineComment = async (payload: {
 		content: string;
 		categoryLabel: string;
 		commentId: string | null;
@@ -153,24 +115,11 @@ export function useCodeReviewPage() {
 		}
 	};
 
-	const onDeleteComment = async (commentId: string): Promise<void> => {
+	const deleteInlineComment = async (commentId: string): Promise<void> => {
 		await projectDataStore.deleteCommentAsync(commentId, projectStore.getRwApiUrl);
 	};
 
 	// Computed
-	const getSubtitle = computed(() => {
-		if (addedCommentType.value === CommentType.Project) return "Project-wide comment";
-		if (!commentFilePath.value) return "";
-
-		// Get comment location info
-		const commentInfo = getCommentLocationInfoByType(
-			addedCommentType.value,
-			startLineNumber.value,
-			endLineNumber.value
-		);
-		return `In file ${commentFilePath.value} ${commentInfo}`;
-	});
-
 	const projectCommentButtonLabel = computed(() => {
 		return projectDataStore.containsProjectComment ? "Edit Project Comment" : "Add Project Comment";
 	});
@@ -200,29 +149,18 @@ export function useCodeReviewPage() {
 		maxSidebarWidth,
 		sidebar,
 
-		// Comment form state
-		commentFilePath,
-		startLineNumber,
-		endLineNumber,
-		commentId,
-		isAddingComment,
-		addedCommentType,
-
 		// Methods
 		handleFileSelected,
-		handleFileCommentSelected,
-		handleProjectCommentSelected,
 		handleSidebarResize,
 		handleFileQueryParam,
 		isAnyFileSelected,
 		expandAllFiles,
 
 		// Inline form handlers
-		handleInlineFormSubmit,
-		onDeleteComment,
+		submitInlineComment,
+		deleteInlineComment,
 
 		// Computed
-		getSubtitle,
 		projectCommentButtonLabel,
 		expandAllButtonLabel,
 	};
