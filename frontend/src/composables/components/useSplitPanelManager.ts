@@ -31,6 +31,20 @@ export interface SplitPanelManagerEmits {
 	): void;
 	(event: "delete-comment", commentId: string): void;
 	(event: "edit-comment", commentId: string): void;
+	(
+		event: "inline-form-submit",
+		payload: {
+			content: string;
+			categoryLabel: string;
+			commentId: string | null;
+			commentType: any;
+			filePath: string;
+			startLineNumber: number | null;
+			endLineNumber: number | null;
+		}
+	): void;
+	(event: "inline-form-cancel"): void;
+	(event: "inline-form-delete", commentId: string): void;
 }
 
 export function useSplitPanelManager(props: SplitPanelManagerProps, emit: SplitPanelManagerEmits) {

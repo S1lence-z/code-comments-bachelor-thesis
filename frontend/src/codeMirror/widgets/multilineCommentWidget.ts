@@ -8,7 +8,7 @@ export default class MultilineCommentWidget extends BaseCommentWidget {
 		category: CategoryDto[],
 		isCompactCommentModal: boolean,
 		deleteCommentAction: (commentId: string) => Promise<void>,
-		editCommentAction: (commentId: string) => Promise<void>
+		editCommentAction: (commentId: string) => void
 	) {
 		super(content, commentId, category, isCompactCommentModal, deleteCommentAction, editCommentAction);
 	}

@@ -41,16 +41,16 @@ const {
 
 	// Methods
 	handleFileSelected,
-	handleSinglelineCommentSelected,
-	handleMultilineCommentSelected,
 	handleFileCommentSelected,
 	handleProjectCommentSelected,
-	handleCommentEdit,
 	handleSidebarResize,
 	handleFileQueryParam,
-	deleteCommentAction,
 	isAnyFileSelected,
 	expandAllFiles,
+
+	// Inline form handlers
+	handleInlineFormSubmit,
+	onDeleteComment,
 
 	// Computed
 	getSubtitle,
@@ -171,10 +171,8 @@ onMounted(() => {
 							@drop-zone-drag-over="dragDropController.handleDropZoneDragOver"
 							@drop-zone-leave="dragDropController.handleDropZoneLeave"
 							@drop-zone-drop="dragDropController.handleDropZoneDrop"
-							@line-double-clicked="handleSinglelineCommentSelected"
-							@multiline-selected="handleMultilineCommentSelected"
-							@delete-comment="deleteCommentAction"
-							@edit-comment="handleCommentEdit"
+							@inline-form-submit="handleInlineFormSubmit"
+							@inline-form-delete="onDeleteComment"
 						/>
 						<!-- Empty State -->
 						<div v-else class="text-center">
@@ -206,7 +204,7 @@ onMounted(() => {
 					:end-line-number="endLineNumber"
 					:comment-id="commentId"
 					:comment-type="addedCommentType"
-					@delete-comment="deleteCommentAction"
+					@delete-comment="onDeleteComment"
 				/>
 			</SlideoutPanel>
 		</div>

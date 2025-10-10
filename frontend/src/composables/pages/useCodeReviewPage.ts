@@ -6,7 +6,7 @@ import { useProjectStore } from "../../stores/projectStore";
 import type { ProcessedFile } from "../../types/github/githubFile";
 import type CommentDto from "../../types/dtos/CommentDto";
 import { CommentType } from "../../types/enums/CommentType";
-import { getCommentLocationInfoByType } from "../../utils/commentUtils";
+import { getCommentLocationInfoByType, createCommentByType } from "../../utils/commentUtils";
 import { storeToRefs } from "pinia";
 import { useQueryParams } from "../core/useQueryParams";
 
@@ -65,49 +65,6 @@ export function useCodeReviewPage() {
 		}
 	};
 
-	// Comment handling functions
-	const handleSinglelineCommentSelected = (payload: { lineNumber: number; filePath: string }): void => {
-		const { lineNumber, filePath } = payload;
-		if (!filePath) {
-			console.error("File path is required for single line comment");
-			return;
-		}
-		const existingComment = allComments.value.find(
-			(c: CommentDto) => c.location.filePath === filePath && c.location.lineNumber === lineNumber
-		);
-
-		// Set the form state variables
-		commentFilePath.value = filePath;
-		startLineNumber.value = lineNumber;
-		endLineNumber.value = null;
-		commentId.value = existingComment ? existingComment.id : null;
-		addedCommentType.value = CommentType.Singleline;
-		isAddingComment.value = true;
-	};
-
-	const handleMultilineCommentSelected = (payload: {
-		selectedStartLineNumber: number;
-		selectedEndLineNumber: number;
-		filePath: string;
-	}): void => {
-		const { selectedStartLineNumber, selectedEndLineNumber, filePath } = payload;
-		if (!filePath) {
-			console.error("File path is required for multiline comment");
-			return;
-		}
-		const existingComment = allComments.value.find(
-			(c: CommentDto) =>
-				c.location.filePath === filePath && c.location.startLineNumber === selectedStartLineNumber
-		);
-
-		commentFilePath.value = filePath;
-		startLineNumber.value = selectedStartLineNumber;
-		endLineNumber.value = selectedEndLineNumber;
-		commentId.value = existingComment ? existingComment.id : null;
-		addedCommentType.value = CommentType.Multiline;
-		isAddingComment.value = true;
-	};
-
 	const handleFileCommentSelected = (filePath: string): void => {
 		if (!filePath) {
 			console.error("File path is required for file comment");
@@ -137,37 +94,6 @@ export function useCodeReviewPage() {
 		isAddingComment.value = true;
 	};
 
-	// Handle edit button for the codemirror widget
-	const handleCommentEdit = async (commentId: string): Promise<void> => {
-		// Take the comment ID and open the modal for editing
-		const editedComment = allComments.value.find((comment: CommentDto) => comment.id === commentId);
-		if (!editedComment) {
-			console.error("Comment not found");
-			return;
-		}
-
-		// Get the comment type
-		const commentType: CommentType = editedComment.type;
-		if (commentType === CommentType.Singleline) {
-			handleSinglelineCommentSelected({
-				lineNumber: editedComment.location.lineNumber!,
-				filePath: editedComment.location.filePath,
-			});
-		} else if (commentType === CommentType.Multiline) {
-			handleMultilineCommentSelected({
-				selectedStartLineNumber: editedComment.location.startLineNumber!,
-				selectedEndLineNumber: editedComment.location.endLineNumber!,
-				filePath: editedComment.location.filePath,
-			});
-		} else if (commentType === CommentType.File) {
-			handleFileCommentSelected(editedComment.location.filePath);
-		} else if (commentType === CommentType.Project) {
-			handleProjectCommentSelected();
-		} else {
-			console.error("Unknown comment type");
-		}
-	};
-
 	// Handle resize events from ResizeHandle component
 	const handleSidebarResize = (newWidth: number): void => {
 		sidebarWidth.value = Math.max(minSidebarWidth, Math.min(maxSidebarWidth, newWidth));
@@ -183,11 +109,6 @@ export function useCodeReviewPage() {
 		}
 	};
 
-	// Delete comment action
-	const deleteCommentAction = async (commentId: string): Promise<void> => {
-		await projectDataStore.deleteCommentAsync(commentId, projectStore.getRwApiUrl);
-	};
-
 	// Is current workspace empty
 	const isAnyFileSelected = () => {
 		return !!selectedFilePath.value;
@@ -196,6 +117,44 @@ export function useCodeReviewPage() {
 	const expandAllFiles = () => {
 		areFilesExpanded.value = !areFilesExpanded.value;
 		projectDataStore.expandAllFiles(areFilesExpanded.value);
+	};
+
+	// Handle inline form submission from CodeEditor
+	const handleInlineFormSubmit = async (payload: {
+		content: string;
+		categoryLabel: string;
+		commentId: string | null;
+		commentType: CommentType;
+		filePath: string;
+		startLineNumber: number | null;
+		endLineNumber: number | null;
+	}): Promise<void> => {
+		const commentData = createCommentByType(
+			payload.commentType,
+			projectDataStore.allCategories,
+			payload.categoryLabel,
+			payload.commentId,
+			payload.content,
+			payload.startLineNumber || 0,
+			payload.endLineNumber || 0,
+			payload.filePath
+		);
+
+		if (!commentData) {
+			alert("Invalid comment type.");
+			return;
+		}
+
+		try {
+			await projectDataStore.upsertCommentAsync(commentData, projectStore.getRwApiUrl);
+		} catch (error) {
+			console.error("Failed to save comment:", error);
+			alert("Failed to save comment. Please try again.");
+		}
+	};
+
+	const onDeleteComment = async (commentId: string): Promise<void> => {
+		await projectDataStore.deleteCommentAsync(commentId, projectStore.getRwApiUrl);
 	};
 
 	// Computed
@@ -251,16 +210,16 @@ export function useCodeReviewPage() {
 
 		// Methods
 		handleFileSelected,
-		handleSinglelineCommentSelected,
-		handleMultilineCommentSelected,
 		handleFileCommentSelected,
 		handleProjectCommentSelected,
-		handleCommentEdit,
 		handleSidebarResize,
 		handleFileQueryParam,
-		deleteCommentAction,
 		isAnyFileSelected,
 		expandAllFiles,
+
+		// Inline form handlers
+		handleInlineFormSubmit,
+		onDeleteComment,
 
 		// Computed
 		getSubtitle,

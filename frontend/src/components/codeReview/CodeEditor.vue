@@ -26,7 +26,7 @@ const {
 
 <template>
 	<section class="flex flex-col flex-grow h-full bg-gray-800 text-gray-300">
-		<div v-if="props.isLoadingFile && props.filePath" class="flex items-center justify-center flex-grow">
+		<div v-if="props.filePath && !props.fileContent" class="flex items-center justify-center flex-grow">
 			<p class="text-center italic text-gray-400 p-5">Loading {{ props.filePath }}...</p>
 		</div>
 		<div

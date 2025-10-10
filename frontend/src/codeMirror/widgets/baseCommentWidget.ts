@@ -3,7 +3,7 @@ import type CategoryDto from "../../types/dtos/CategoryDto.ts";
 
 export default abstract class BaseCommentWidget extends WidgetType {
 	protected handleDeleteComment: (commentId: string) => Promise<void>;
-	protected handleEditComment: (commentId: string) => Promise<void>;
+	protected handleEditComment: (commentId: string) => void;
 	protected content: string;
 	protected commentId: string;
 	protected category: CategoryDto;
@@ -15,7 +15,7 @@ export default abstract class BaseCommentWidget extends WidgetType {
 		category: CategoryDto[],
 		isCompact: boolean,
 		handleDeleteComment: (commentId: string) => Promise<void>,
-		handleEditComment: (commentId: string) => Promise<void>
+		handleEditComment: (commentId: string) => void
 	) {
 		super();
 		this.content = content;

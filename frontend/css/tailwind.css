@@ -44,6 +44,10 @@
 		@apply text-gray-700 bg-gray-200 hover:bg-gray-300;
 	}
 
+	.btn-danger {
+		@apply text-white bg-red-600 hover:bg-red-700;
+	}
+
 	/* Modal Styles */
 	.modal {
 		@apply fixed inset-0 z-50 flex items-center justify-around backdrop-blur-sm;

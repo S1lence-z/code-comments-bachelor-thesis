@@ -68,12 +68,9 @@ const {
 						v-else-if="isTextFile(panel.activeTab.filePath)"
 						:file-path="panel.activeTab.filePath"
 						:file-content="getFileContent(panel.activeTab.filePath)"
-						:is-loading-file="false"
 						:comment-for-file="getCommentsForFile(panel.activeTab.filePath)"
-						:delete-comment-action="async (commentId) => emit('delete-comment', commentId)"
-						:edit-comment-action="async (commentId) => emit('edit-comment', commentId)"
-						@line-double-clicked="(data) => emit('line-double-clicked', data)"
-						@multiline-selected="(data) => emit('multiline-selected', data)"
+						@inline-form-submit="(payload) => emit('inline-form-submit', payload)"
+						@inline-form-delete="(commentId) => emit('inline-form-delete', commentId)"
 					/>
 
 					<!-- Non-text files (images, documents, ...) -->
