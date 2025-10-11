@@ -7,7 +7,7 @@ import {
 	useSplitPanelManager,
 	type SplitPanelManagerProps,
 	type SplitPanelManagerEmits,
-} from "../../composables/components/useSplitPanelManager";
+} from "../../composables/codeReview/useSplitPanelManager";
 import { getFileName } from "../../utils/fileUtils";
 import { useI18n } from "vue-i18n";
 

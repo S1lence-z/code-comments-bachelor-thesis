@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import "../../../css/codemirror.css";
 import { Codemirror } from "vue-codemirror";
-import { useCodeEditor, type CodeEditorProps, type CodeEditorEmits } from "../../composables/components/useCodeEditor";
+import { useCodeEditor, type CodeEditorProps, type CodeEditorEmits } from "../../composables/codeReview/useCodeEditor";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();

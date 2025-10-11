@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { watch } from "vue";
-import { useSetupPage } from "../composables/pages/useSetupPage";
+import { useSetupPage } from "./useSetupPage";
 import ServerForm from "../components/setup/ServerForm.vue";
 import ProjectList from "../components/setup/ProjectList.vue";
 import ProjectForm from "../components/setup/ProjectForm.vue";
@@ -83,7 +83,7 @@ watch(
 						<Icon icon="mdi:alert-circle" class="w-5 h-5 text-red-400" />
 					</div>
 					<p class="text-red-400">
-						{{ t('setupPage.errorLoadingExistingProjects') }}
+						{{ t("setupPage.errorLoadingExistingProjects") }}
 					</p>
 				</div>
 			</div>

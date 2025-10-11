@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, computed } from "vue";
-import { useCodeReviewPage } from "../composables/pages/useCodeReviewPage.ts";
+import { useCodeReviewPage } from "./useCodeReviewPage.ts";
 import { useWorkspaceController } from "../composables/controllers/useWorkspaceController.ts";
 import { useDragDropController } from "../composables/controllers/useDragDropController.ts";
 import FileExplorer from "../components/codeReview/FileExplorer.vue";

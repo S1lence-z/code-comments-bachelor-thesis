@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useOverviewPage } from "../composables/pages/useOverviewPage";
+import { useOverviewPage } from "./useOverviewPage";
 import CommentStatistics from "../components/overview/CommentStatistics.vue";
 import CommentBrowser from "../components/overview/CommentBrowser.vue";
 import { CommentType } from "../types/enums/CommentType";

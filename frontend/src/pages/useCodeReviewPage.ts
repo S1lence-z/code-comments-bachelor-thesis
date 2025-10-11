@@ -1,13 +1,13 @@
 import { ref, computed } from "vue";
-import { useProjectDataStore } from "../../stores/projectDataStore";
-import { useFileContentStore } from "../../stores/fileContentStore";
-import { useSettingsStore } from "../../stores/settingsStore";
-import { useProjectStore } from "../../stores/projectStore";
-import type { ProcessedFile } from "../../types/github/githubFile";
-import { CommentType } from "../../types/enums/CommentType";
-import { createCommentByType } from "../../utils/commentUtils";
+import { useProjectDataStore } from "../stores/projectDataStore";
+import { useFileContentStore } from "../stores/fileContentStore";
+import { useSettingsStore } from "../stores/settingsStore";
+import { useProjectStore } from "../stores/projectStore";
+import type { ProcessedFile } from "../types/github/githubFile";
+import { CommentType } from "../types/enums/CommentType";
+import { createCommentByType } from "../utils/commentUtils";
 import { storeToRefs } from "pinia";
-import { useQueryParams } from "../core/useQueryParams";
+import { useQueryParams } from "../composables/core/useQueryParams";
 
 export function useCodeReviewPage() {
 	// Query params composable

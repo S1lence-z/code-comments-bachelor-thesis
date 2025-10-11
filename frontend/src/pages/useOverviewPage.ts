@@ -1,10 +1,10 @@
 import { ref, computed } from "vue";
 import { storeToRefs } from "pinia";
-import { useProjectDataStore } from "../../stores/projectDataStore";
-import { useProjectStore } from "../../stores/projectStore";
-import { CommentType } from "../../types/enums/CommentType";
-import { groupCommentsByFile, sortCommentsByLineNumber } from "../../utils/commentUtils";
-import { useQueryParams } from "../core/useQueryParams";
+import { useProjectDataStore } from "../stores/projectDataStore";
+import { useProjectStore } from "../stores/projectStore";
+import { CommentType } from "../types/enums/CommentType";
+import { groupCommentsByFile, sortCommentsByLineNumber } from "../utils/commentUtils";
+import { useQueryParams } from "../composables/core/useQueryParams";
 
 export function useOverviewPage() {
 	// Query params composable

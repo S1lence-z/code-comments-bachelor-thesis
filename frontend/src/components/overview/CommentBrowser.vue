@@ -9,7 +9,7 @@ import {
 	useCommentBrowser,
 	type CommentBrowserEmits,
 	type CommentBrowserProps,
-} from "../../composables/components/useCommentBrowser";
+} from "../../composables/overview/useCommentBrowser";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();

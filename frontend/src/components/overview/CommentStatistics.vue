@@ -2,7 +2,7 @@
 import type CommentDto from "../../types/dtos/CommentDto";
 import { CommentType } from "../../types/enums/CommentType";
 import Card from "../../lib/Card.vue";
-import { useCommentStatistics, type CommentStatisticsProps } from "../../composables/components/useCommentStatistics";
+import { useCommentStatistics, type CommentStatisticsProps } from "../../composables/overview/useCommentStatistics";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
