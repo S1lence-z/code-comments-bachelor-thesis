@@ -14,15 +14,17 @@ interface ProjectFormProps {
 	isProjectCreated: boolean;
 	errorMessage: string | null;
 }
-const props = defineProps<ProjectFormProps>();
 
-const emit = defineEmits<{
+interface ProjectFormEmits {
 	(event: "update:formGithubRepositoryUrl", value: string): void;
 	(event: "update:formBranchName", value: string): void;
 	(event: "update:formProjectName", value: string): void;
 	(event: "createProject"): void;
 	(event: "navigateToNewProject"): void;
-}>();
+}
+
+const props = defineProps<ProjectFormProps>();
+const emit = defineEmits<ProjectFormEmits>();
 </script>
 
 <template>

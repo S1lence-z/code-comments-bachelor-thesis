@@ -8,11 +8,13 @@ const { t } = useI18n();
 interface ProjectListProps {
 	existingProjects: ProjectDto[];
 }
-const props = defineProps<ProjectListProps>();
 
-const emit = defineEmits<{
+interface ProjectListEmits {
 	(event: "navigateToExistingProject", project: ProjectDto): void;
-}>();
+}
+
+const props = defineProps<ProjectListProps>();
+const emit = defineEmits<ProjectListEmits>();
 </script>
 
 <template>

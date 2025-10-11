@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type CommentDto from "../../types/dtos/CommentDto";
 import { CommentType } from "../../types/enums/CommentType";
 import Card from "../../lib/Card.vue";
 import { useCommentStatistics, type CommentStatisticsProps } from "../../composables/overview/useCommentStatistics";
@@ -7,10 +6,7 @@ import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 
-const props = withDefaults(defineProps<CommentStatisticsProps>(), {
-	allComments: () => [] as CommentDto[],
-	commentsGroupedByFile: () => ({} as Record<string, CommentDto[]>),
-});
+const props = defineProps<CommentStatisticsProps>();
 
 // Initialize the composable
 const {

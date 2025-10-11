@@ -1,13 +1,13 @@
 import { computed, ref } from "vue";
-import useProjectService from "../../services/projectService";
-import type ProjectSetupRequest from "../../types/dtos/ProjectSetupRequest";
-import type ProjectDto from "../../types/dtos/ProjectDto";
-import { useProjectStore } from "../../stores/projectStore";
-import { isValidGithubUrl } from "../../utils/urlUtils";
-import { useSettingsStore } from "../../stores/settingsStore";
+import useProjectService from "../services/projectService";
+import type ProjectSetupRequest from "../types/dtos/ProjectSetupRequest";
+import type ProjectDto from "../types/dtos/ProjectDto";
+import { useProjectStore } from "../stores/projectStore";
+import { isValidGithubUrl } from "../utils/urlUtils";
+import { useSettingsStore } from "../stores/settingsStore";
 import type { LocationQueryValue } from "vue-router";
-import { useQueryParams } from "../core/useQueryParams";
-import useGithubBranchService from "../../services/githubBranchService";
+import { useQueryParams } from "../composables/core/useQueryParams";
+import useGithubBranchService from "../services/githubBranchService";
 
 export function useSetupPage() {
 	// Stores
@@ -74,7 +74,12 @@ export function useSetupPage() {
 	};
 
 	// Create new project from form
-	const createProject = async (serverBaseUrl: string, repositoryUrl: string, branchName: string, projectName: string): Promise<void> => {
+	const createProject = async (
+		serverBaseUrl: string,
+		repositoryUrl: string,
+		branchName: string,
+		projectName: string
+	): Promise<void> => {
 		isCreatingProject.value = true;
 		isProjectCreated.value = false;
 		projectCreationErrorMessage.value = "";

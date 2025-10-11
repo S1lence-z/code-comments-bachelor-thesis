@@ -57,7 +57,7 @@ export function useFileExplorerItem(props: FileExplorerItemProps, emit: FileExpl
 		handleItemClick,
 		handleToggleExpand,
 		fileContainsComments,
-		isFileSelected,
 		hasCommentedChildren,
+		isFileSelected,
 	};
 }

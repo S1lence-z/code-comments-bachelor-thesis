@@ -10,14 +10,16 @@ const { t } = useI18n();
 interface ServerFormProps {
 	serverBaseUrl: string;
 }
-defineProps<ServerFormProps>();
 
-const emit = defineEmits<{
+interface ServerFormEmits {
 	(event: "update:serverBaseUrl", value: string): void;
 	(event: "useDefaultServerUrl"): void;
 	(event: "submitServerBaseUrl"): void;
 	(event: "runInOfflineMode"): void;
-}>();
+}
+
+defineProps<ServerFormProps>();
+const emit = defineEmits<ServerFormEmits>();
 </script>
 
 <template>

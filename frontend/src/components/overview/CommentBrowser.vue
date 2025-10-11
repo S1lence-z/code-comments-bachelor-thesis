@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type CommentDto from "../../types/dtos/CommentDto";
 import { CommentType } from "../../types/enums/CommentType";
 import Card from "../../lib/Card.vue";
 import Button from "../../lib/Button.vue";
@@ -14,11 +13,7 @@ import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 
-const props = withDefaults(defineProps<CommentBrowserProps>(), {
-	allCommentsByFile: () => ({} as Record<string, CommentDto[]>),
-	commentTypeFilter: null,
-});
-
+const props = defineProps<CommentBrowserProps>();
 const emit = defineEmits<CommentBrowserEmits>();
 
 // Initialize the composable

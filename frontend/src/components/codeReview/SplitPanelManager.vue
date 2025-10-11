@@ -16,8 +16,8 @@ const { t } = useI18n();
 const props = defineProps<SplitPanelManagerProps>();
 const emit = defineEmits<SplitPanelManagerEmits>();
 
-// Use the split panel manager composable
 const {
+	// State
 	containerElement,
 	handlePanelResize,
 
