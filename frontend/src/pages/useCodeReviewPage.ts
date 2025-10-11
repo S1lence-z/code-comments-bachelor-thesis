@@ -70,6 +70,20 @@ export function useCodeReviewPage() {
 		return settingsStore.isSidebarOpen;
 	});
 
+	// Project/File comment form state
+	const isAddingProjectOrFileComment = ref(false);
+	const projectOrFileCommentPath = ref<string | null>(null);
+
+	const handleFileCommentRequest = (filePath: string) => {
+		isAddingProjectOrFileComment.value = true;
+		projectOrFileCommentPath.value = filePath;
+	};
+
+	const handleProjectCommentRequest = () => {
+		isAddingProjectOrFileComment.value = true;
+		projectOrFileCommentPath.value = null;
+	};
+
 	return {
 		// Store refs
 		fileTree,
@@ -83,6 +97,12 @@ export function useCodeReviewPage() {
 		minSidebarWidth,
 		maxSidebarWidth,
 		sidebar,
+
+		// Project/File comment form state
+		isAddingProjectOrFileComment,
+		projectOrFileCommentPath,
+		handleFileCommentRequest,
+		handleProjectCommentRequest,
 
 		// Methods
 		handleFileSelected,

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 interface ButtonProps {
 	label: string;
-	buttonStyle: "primary" | "secondary";
+	buttonStyle: "primary" | "secondary" | "danger";
 	buttonSize: "small" | "medium" | "large";
 	disabled?: boolean;
 }

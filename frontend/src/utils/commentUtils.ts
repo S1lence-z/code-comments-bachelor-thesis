@@ -5,8 +5,8 @@ import type CategoryDto from "../types/dtos/CategoryDto";
 
 export const getCommentLocationInfoByType = (
 	commentType: CommentType,
-	startLineNumber: number | null,
-	endLineNumber: number | null
+	startLineNumber?: number,
+	endLineNumber?: number
 ) => {
 	let commentInfo = "";
 	switch (commentType) {
@@ -83,7 +83,7 @@ export const createCommentDtoByType = (
 		throw new Error("Comment content cannot be empty.");
 	}
 
-	if (!categoryId) {
+	if (!categoryId && commentType !== CommentType.Project && commentType !== CommentType.File) {
 		throw new Error("Invalid category selected.");
 	}
 

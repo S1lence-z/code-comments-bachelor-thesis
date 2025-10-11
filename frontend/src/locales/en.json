@@ -71,9 +71,7 @@
 		"noFilesFound": "No Files Found",
 		"noFilesFoundSubtext": "Set up a project on the Home page",
 		"noFileSelected": "No File Selected",
-		"noFileSelectedSubtext": "Please select a file to view its comments",
-		"addComment": "Add Comment",
-		"editComment": "Edit Comment"
+		"noFileSelectedSubtext": "Please select a file to view its comments"
 	},
 	"overviewPage": {
 		"title": "Comments Overview",
@@ -96,13 +94,15 @@
 		"addComment": "Add comment"
 	},
 	"commentForm": {
-		"categoryLabel": "Category",
-		"categoryPlaceholder": "Select a category",
 		"commentLabel": "Comment",
 		"commentPlaceholder": "Enter your comment...",
 		"cancel": "Cancel",
 		"delete": "Delete",
-		"save": "Save (Ctrl + Enter)"
+		"save": "Save",
+		"edit": "Update",
+		"addComment": "Add Comment",
+		"editComment": "Edit Comment",
+		"contentRequired": "Comment content cannot be empty."
 	},
 	"commentStatistics": {
 		"totalTitle": "Total",

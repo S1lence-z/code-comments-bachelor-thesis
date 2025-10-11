@@ -8,6 +8,8 @@ import FileExplorer from "../components/codeReview/FileExplorer.vue";
 import SplitPanelManager from "../components/codeReview/SplitPanelManager.vue";
 import ResizeHandle from "../lib/ResizeHandle.vue";
 import { useI18n } from "vue-i18n";
+import type RawCommentData from "../types/others/RawCommentData.ts";
+import AddEditCommentForm from "../components/codeReview/AddEditCommentForm.vue";
 
 const { t } = useI18n();
 
@@ -15,7 +17,7 @@ const { t } = useI18n();
 const { submitComment, deleteComment } = useCommentOperations();
 
 // Wrapper functions to handle results and show user feedback
-const handleCommentSubmission = async (payload: any) => {
+const handleCommentSubmission = async (payload: RawCommentData) => {
 	const result = await submitComment(payload);
 	if (!result.success) {
 		alert(result.error); // TODO: Replace with toast notification
@@ -42,6 +44,12 @@ const {
 	minSidebarWidth,
 	maxSidebarWidth,
 	sidebar,
+
+	// Project/File comment form state
+	isAddingProjectOrFileComment,
+	projectOrFileCommentPath,
+	handleFileCommentRequest,
+	handleProjectCommentRequest,
 
 	// Methods
 	handleFileSelected,
@@ -115,8 +123,8 @@ onMounted(() => {
 							:selectedPath="selectedFilePath"
 							@update:selected-path="handleFileSelected"
 							:treeData="fileTree"
-							@project-comment-requested="() => console.log('Project comment requested')"
-							@file-comment-requested="() => console.log('File comment requested')"
+							@project-comment-requested="handleProjectCommentRequest"
+							@file-comment-requested="handleFileCommentRequest"
 						/>
 
 						<!-- Empty State -->
@@ -178,14 +186,14 @@ onMounted(() => {
 				</div>
 			</div>
 
-			<!-- Comment Add/Edit Form Component -->
-			<!-- <SlideoutPanel
-				:title="commentId ? t('codeReviewPage.editComment') : t('codeReviewPage.addComment')"
-				:subtitle="getSubtitle"
-				v-model:isVisible="isAddingComment"
-				class="w-110"
-			>
-			</SlideoutPanel> -->
+			<!-- Project/File Comment Form -->
+			<AddEditCommentForm
+				v-model:isVisible="isAddingProjectOrFileComment"
+				:filePath="projectOrFileCommentPath"
+				@submit="handleCommentSubmission"
+				@delete="handleCommentDeletion"
+				@close="isAddingProjectOrFileComment = false"
+			/>
 		</div>
 	</div>
 </template>
