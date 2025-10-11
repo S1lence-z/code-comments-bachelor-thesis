@@ -89,12 +89,6 @@ const saveShortcuts = () => {
 			<p class="text-black text-base">{{ t("keyboardShortcuts.helpText") }}</p>
 		</div>
 
-		<!-- Help text when editing -->
-		<div class="text-gray-600 flex items-center mb-4 gap-2">
-			<Icon icon="mdi:info" class="w-7 h-7 text-blue-400" />
-			<p class="text-black text-base">Press Ctrl + any key to set the shortcut</p>
-		</div>
-
 		<div class="space-y-3">
 			<div
 				v-for="shortcut in allShortcuts"
