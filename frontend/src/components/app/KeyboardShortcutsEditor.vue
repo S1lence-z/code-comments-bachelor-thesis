@@ -141,6 +141,9 @@ const saveShortcuts = () => {
 					@click="resetToDefault"
 				/>
 			</div>
+			<!-- Buttons -->
+			<Button label="Save" type="button" buttonStyle="primary" :onClick="saveShortcuts" class="mt-2 mr-2" />
+			<Button label="Cancel" type="button" buttonStyle="secondary" :onClick="() => emits('close')" class="mt-2" />
 		</div>
 	</Card>
 </template>
