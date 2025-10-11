@@ -4,6 +4,7 @@ import { useFileContentStore } from "../../stores/fileContentStore";
 import { useProjectDataStore } from "../../stores/projectDataStore";
 import { FileDisplayType } from "../../types/github/githubFile";
 import { useSettingsStore } from "../../stores/settingsStore";
+import type RawCommentData from "../../types/others/RawCommentData";
 
 export interface SplitPanelManagerProps {
 	panels: PanelData[];
@@ -24,26 +25,7 @@ export interface SplitPanelManagerEmits {
 	(event: "drop-zone-drag-over", dragEvent: DragEvent): void;
 	(event: "drop-zone-leave", dragEvent: DragEvent): void;
 	(event: "drop-zone-drop", dragEvent: DragEvent): void;
-	(event: "line-double-clicked", data: { lineNumber: number; filePath: string }): void;
-	(
-		event: "multiline-selected",
-		data: { selectedStartLineNumber: number; selectedEndLineNumber: number; filePath: string }
-	): void;
-	(event: "delete-comment", commentId: string): void;
-	(event: "edit-comment", commentId: string): void;
-	(
-		event: "inline-form-submit",
-		payload: {
-			content: string;
-			categoryLabel: string;
-			commentId: string | null;
-			commentType: any;
-			filePath: string;
-			startLineNumber: number | null;
-			endLineNumber: number | null;
-		}
-	): void;
-	(event: "inline-form-cancel"): void;
+	(event: "inline-form-submit", payload: RawCommentData): void;
 	(event: "inline-form-delete", commentId: string): void;
 }
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, computed } from "vue";
 import { useCodeReviewPage } from "./useCodeReviewPage.ts";
+import { useCommentOperations } from "../composables/useCommentOperations.ts";
 import { useWorkspaceController } from "../composables/controllers/useWorkspaceController.ts";
 import { useDragDropController } from "../composables/controllers/useDragDropController.ts";
 import FileExplorer from "../components/codeReview/FileExplorer.vue";
@@ -9,6 +10,24 @@ import ResizeHandle from "../lib/ResizeHandle.vue";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
+
+// Comment operations
+const { submitComment, deleteComment } = useCommentOperations();
+
+// Wrapper functions to handle results and show user feedback
+const handleCommentSubmission = async (payload: any) => {
+	const result = await submitComment(payload);
+	if (!result.success) {
+		alert(result.error); // TODO: Replace with toast notification
+	}
+};
+
+const handleCommentDeletion = async (commentId: string) => {
+	const result = await deleteComment(commentId);
+	if (!result.success) {
+		alert(result.error); // TODO: Replace with toast notification
+	}
+};
 
 const {
 	// Store refs
@@ -29,10 +48,6 @@ const {
 	handleSidebarResize,
 	handleFileQueryParam,
 	isAnyFileSelected,
-
-	// Inline form handlers
-	deleteInlineComment,
-	submitInlineComment,
 
 	// Computed
 	isSidebarVisible,
@@ -144,8 +159,8 @@ onMounted(() => {
 							@drop-zone-drag-over="dragDropController.handleDropZoneDragOver"
 							@drop-zone-leave="dragDropController.handleDropZoneLeave"
 							@drop-zone-drop="dragDropController.handleDropZoneDrop"
-							@inline-form-submit="submitInlineComment"
-							@inline-form-delete="deleteInlineComment"
+							@inline-form-submit="handleCommentSubmission"
+							@inline-form-delete="handleCommentDeletion"
 						/>
 						<!-- Empty State -->
 						<div v-else class="text-center">

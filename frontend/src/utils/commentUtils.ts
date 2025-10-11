@@ -1,5 +1,6 @@
 import { CommentType } from "../types/enums/CommentType";
 import type CommentDto from "../types/dtos/CommentDto";
+import type RawCommentData from "../types/others/RawCommentData";
 import type CategoryDto from "../types/dtos/CategoryDto";
 
 export const getCommentLocationInfoByType = (
@@ -25,10 +26,6 @@ export const getCommentLocationInfoByType = (
 			commentInfo = "Unknown";
 	}
 	return commentInfo;
-};
-
-export const getCommentsByType = (comments: CommentDto[], commentType: CommentType): CommentDto[] => {
-	return comments.filter((comment) => comment.type === commentType);
 };
 
 export const groupCommentsByFile = (comments: CommentDto[]): Record<string, CommentDto[]> => {
@@ -73,28 +70,32 @@ export const getCommentLocationInfo = (comment: CommentDto): string => {
 	);
 };
 
-export const createCommentByType = (
+export const createCommentDtoByType = (
 	commentType: CommentType,
 	allCategories: CategoryDto[],
-	selectedCategoryLabel: string,
-	commentId: string | null,
-	content: string,
-	startLineNumber: number,
-	endLineNumber: number,
-	commentFilePath: string
+	commentData: RawCommentData
 ): CommentDto => {
-	const trimmedContent = content.trim();
-	const categoryId = allCategories.find((cat) => cat.label === selectedCategoryLabel)?.id || null;
+	const trimmedContent = commentData.content.trim();
+	// TODO: use the value or id instead of label
+	const categoryId = allCategories.find((cat) => cat.label === commentData.categoryLabel)?.id || null;
+
+	if (!trimmedContent) {
+		throw new Error("Comment content cannot be empty.");
+	}
+
+	if (!categoryId) {
+		throw new Error("Invalid category selected.");
+	}
 
 	switch (commentType) {
 		case CommentType.Singleline:
 			return {
-				id: commentId,
+				id: commentData.id,
 				location: {
 					type: CommentType.Singleline,
 					id: null,
-					filePath: commentFilePath,
-					lineNumber: startLineNumber,
+					filePath: commentData.filePath,
+					lineNumber: commentData.startLineNumber,
 				},
 				categoryId: categoryId,
 				content: trimmedContent,
@@ -102,13 +103,13 @@ export const createCommentByType = (
 			};
 		case CommentType.Multiline:
 			return {
-				id: commentId,
+				id: commentData.id,
 				location: {
 					type: CommentType.Multiline,
 					id: null,
-					filePath: commentFilePath,
-					startLineNumber: startLineNumber,
-					endLineNumber: endLineNumber,
+					filePath: commentData.filePath,
+					startLineNumber: commentData.startLineNumber,
+					endLineNumber: commentData.endLineNumber,
 				},
 				categoryId: categoryId,
 				content: trimmedContent,
@@ -116,11 +117,11 @@ export const createCommentByType = (
 			};
 		case CommentType.File:
 			return {
-				id: commentId,
+				id: commentData.id,
 				location: {
 					type: CommentType.File,
 					id: null,
-					filePath: commentFilePath,
+					filePath: commentData.filePath,
 				},
 				categoryId: categoryId,
 				content: trimmedContent,
@@ -128,11 +129,11 @@ export const createCommentByType = (
 			};
 		case CommentType.Project:
 			return {
-				id: commentId,
+				id: commentData.id,
 				location: {
 					type: CommentType.Project,
 					id: null,
-					filePath: commentFilePath,
+					filePath: commentData.filePath,
 				},
 				categoryId: categoryId,
 				content: trimmedContent,

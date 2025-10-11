@@ -7,6 +7,7 @@ import { useProjectDataStore } from "../../stores/projectDataStore";
 import type CommentDto from "../../types/dtos/CommentDto";
 import { CommentType } from "../../types/enums/CommentType";
 import { showCommentFormEffect, hideCommentFormEffect } from "../../codeMirror/commentFormExtension";
+import type RawCommentData from "../../types/others/RawCommentData";
 
 export interface CodeEditorProps {
 	filePath: string | null;
@@ -15,18 +16,7 @@ export interface CodeEditorProps {
 }
 
 export interface CodeEditorEmits {
-	(
-		event: "inline-form-submit",
-		payload: {
-			content: string;
-			categoryLabel: string;
-			commentId: string | null;
-			commentType: CommentType;
-			filePath: string;
-			startLineNumber: number | null;
-			endLineNumber: number | null;
-		}
-	): void;
+	(event: "inline-form-submit", payload: RawCommentData): void;
 	(event: "inline-form-delete", commentId: string): void;
 }
 
@@ -101,16 +91,19 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 	): Promise<void> => {
 		if (!activeFormState.value) return;
 
-		// Emit to parent (CodeReviewPage) to handle the actual submission
-		emit("inline-form-submit", {
-			content,
-			categoryLabel,
-			commentId: commentId,
+		// TODO: instead of the label we should pass the category ID or the value, which will be resolved to ID in parent component
+		const commentData: RawCommentData = {
+			id: commentId,
 			commentType: activeFormState.value.commentType,
+			categoryLabel: categoryLabel,
 			filePath: activeFormState.value.filePath,
-			startLineNumber: activeFormState.value.startLineNumber,
-			endLineNumber: activeFormState.value.endLineNumber,
-		});
+			content: content,
+			startLineNumber: activeFormState.value.startLineNumber || activeFormState.value.lineNumber,
+			endLineNumber: activeFormState.value.endLineNumber || activeFormState.value.lineNumber,
+		};
+
+		// Emit to parent (CodeReviewPage) to handle the actual submission
+		emit("inline-form-submit", commentData);
 
 		// Hide the form after submission
 		hideForm();

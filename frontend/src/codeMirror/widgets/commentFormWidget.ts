@@ -167,11 +167,12 @@ export default class CommentFormWidget extends WidgetType {
 	private createButton(
 		text: string,
 		variant: "primary" | "secondary" | "danger",
-		onClick: () => void
+		onClick: () => void,
+		size: "small" | "medium" | "large" = "medium"
 	): HTMLButtonElement {
 		const btn = document.createElement("button");
 		btn.textContent = text;
-		btn.className = `btn btn-${variant}`;
+		btn.className = `btn btn-${variant} btn-${size}`;
 		btn.addEventListener("click", onClick);
 
 		return btn;
