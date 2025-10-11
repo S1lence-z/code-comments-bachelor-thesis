@@ -216,6 +216,10 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 
 	const handleSelectionChange = (): void => {
 		if (!editorView.value) return;
+
+		// Don't trigger if there's already an active form
+		if (activeFormState.value) return;
+
 		if (lastSelectionTimeout.value) {
 			clearTimeout(lastSelectionTimeout.value);
 		}
