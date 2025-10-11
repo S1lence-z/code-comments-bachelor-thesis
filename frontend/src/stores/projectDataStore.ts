@@ -41,7 +41,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 		},
 		hasUnsavedChanges: (state) => {
 			return state.isSavingComment;
-		}
+		},
 	},
 	actions: {
 		async loadProjectDataAsync(
@@ -233,6 +233,11 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 		// Other helper methods
 		fileContainsComments(filePath: string): boolean {
 			return this.comments.some((comment: CommentDto) => comment.location.filePath === filePath);
+		},
+		fileContainsFileComment(filePath: string): boolean {
+			return this.comments.some(
+				(comment: CommentDto) => comment.location.filePath === filePath && comment.type === CommentType.File
+			);
 		},
 		expandAllFiles(toExpand: boolean): void {
 			const expandItem = (node: TreeNode, expand: boolean) => {

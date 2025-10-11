@@ -5,8 +5,11 @@ import {
 	useFileExplorerItem,
 	type FileExplorerItemProps,
 	type FileExplorerItemEmits,
-} from "../../composables/components/useFileExplorerItem";
+} from "../../composables/codeReview/useFileExplorerItem.ts";
 import { TreeNodeType } from "../../types/github/githubTree";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 const props = withDefaults(defineProps<FileExplorerItemProps>(), {
 	depth: 0,
@@ -14,8 +17,14 @@ const props = withDefaults(defineProps<FileExplorerItemProps>(), {
 const emit = defineEmits<FileExplorerItemEmits>();
 
 // Initialize the composable
-const { handleItemClick, handleToggleExpand, fileContainsComments, hasCommentedChildren, isFileSelected } =
-	useFileExplorerItem(props, emit);
+const {
+	handleItemClick,
+	handleToggleExpand,
+	fileContainsAnyComments,
+	fileContainsFileComment,
+	hasCommentedChildren,
+	isFileSelected,
+} = useFileExplorerItem(props, emit);
 </script>
 
 <template>
@@ -87,7 +96,7 @@ const { handleItemClick, handleToggleExpand, fileContainsComments, hasCommentedC
 				</span>
 
 				<!-- Contains comments indicator -->
-				<span v-if="fileContainsComments(currentNode.path)" class="flex items-center gap-1 ml-2">
+				<span v-if="fileContainsAnyComments(currentNode.path)" class="flex items-center gap-1 ml-2">
 					<div class="w-2 h-2 bg-amber-400 rounded-full"></div>
 					<span class="text-xs text-amber-400">💬</span>
 				</span>
@@ -98,9 +107,10 @@ const { handleItemClick, handleToggleExpand, fileContainsComments, hasCommentedC
 				<button
 					@click="emit('file-comment-requested', props.currentNode.path)"
 					class="w-6 h-6 bg-white/10 hover:bg-white/20 hover:text-white rounded-md flex items-center justify-center transition-all duration-200 text-black cursor-pointer"
-					title="Add comment"
+					:title="t('fileExplorer.addComment')"
 				>
-					+
+					<Icon v-if="fileContainsFileComment(currentNode.path)" icon="mdi:edit" class="w-4 h-4" />
+					<Icon v-else icon="mdi:add" class="w-4 h-4" />
 				</button>
 			</div>
 		</div>

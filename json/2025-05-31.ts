@@ -220,6 +220,6 @@ namespace Public {
  * This is not visible to the user, but should be stored at the backend.
  */
 namespace Internal {
-	// TODO: Information we want to have at the backend.
+	// Information we want to have at the backend.
 	//  For example who and when changed a comment.
 }

@@ -127,9 +127,6 @@ export function useContentViewer() {
 
 	return {
 		// State
-		zoom,
-		panX,
-		panY,
 		isDragging,
 		containerRef,
 
@@ -144,9 +141,5 @@ export function useContentViewer() {
 		handleTouchStart,
 		handleTouchMove,
 		handleTouchEnd,
-
-		// Constants (if needed in template)
-		minZoom,
-		maxZoom,
 	};
 }

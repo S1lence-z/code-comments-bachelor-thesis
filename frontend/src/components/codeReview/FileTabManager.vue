@@ -1,104 +1,32 @@
 <script setup lang="ts">
-import { ref, watch, computed } from "vue";
 import { getFileName } from "../../utils/fileUtils";
-import type { DraggedTabData } from "../../types/others/Panels";
+import { useI18n } from "vue-i18n";
+import {
+	useFileTabManager,
+	type FileTabManagerProps,
+	type FileTabManagerEmits,
+} from "../../composables/codeReview/useFileTabManager";
 
-const props = defineProps<{
-	activeTab: string | null;
-	panelId?: number;
-	openTabs?: string[];
-	draggedTab?: DraggedTabData | null;
-}>();
+const { t } = useI18n();
 
-const emit = defineEmits<{
-	(event: "update:activeTab", value: string | null): void;
-	(event: "tab-closed", filePath: string): void;
-	(event: "tab-drag-start", filePath: string, panelId: number): void;
-	(event: "tab-drag-end"): void;
-	(event: "tab-drop", panelId: number, insertIndex: number): void;
-}>();
+const props = defineProps<FileTabManagerProps>();
+const emit = defineEmits<FileTabManagerEmits>();
 
-// Use external tabs if provided, otherwise manage internal tabs
-const openFileTabs = ref<string[]>([]);
+const {
+	// Computed
+	currentTabs,
+	isDragging,
+	draggedFilePath,
 
-const setActiveFileTab = (filePath: string) => {
-	const currentTabs = props.openTabs || openFileTabs.value;
-	if (currentTabs.includes(filePath)) {
-		emit("update:activeTab", filePath);
-	}
-};
-
-const removeFileTab = (filePath: string) => {
-	emit("tab-closed", filePath);
-};
-
-// Only manage internal tabs in classic mode
-watch(
-	() => props.activeTab,
-	(newFilePath: string | null) => {
-		if (!props.openTabs && newFilePath && !openFileTabs.value.includes(newFilePath)) {
-			openFileTabs.value.push(newFilePath);
-		}
-	}
-);
-
-// Drag and drop functionality
-const handleDragStart = (event: DragEvent, filePath: string) => {
-	if (!props.panelId) return;
-
-	event.dataTransfer!.effectAllowed = "move";
-	event.dataTransfer!.setData("text/plain", filePath);
-
-	// Add a slight delay to ensure the drag image is set
-	setTimeout(() => {
-		emit("tab-drag-start", filePath, props.panelId!);
-	}, 0);
-};
-
-const handleDragEnd = () => {
-	emit("tab-drag-end");
-};
-
-const handleDragOver = (event: DragEvent) => {
-	event.preventDefault();
-	event.dataTransfer!.dropEffect = "move";
-};
-
-const handleDrop = (event: DragEvent, insertIndex: number) => {
-	event.preventDefault();
-	if (!props.panelId) return;
-	emit("tab-drop", props.panelId, insertIndex);
-};
-
-// Check if a tab is being dragged
-const isDragging = computed(() => {
-	return props.draggedTab?.fromPanelId === props.panelId;
-});
-
-const draggedFilePath = computed(() => {
-	return props.draggedTab?.filePath;
-});
-
-const fileTabsContainer = ref<HTMLElement | null>(null);
-
-const handleHorizontalTabScroll = (event: WheelEvent) => {
-	if (!fileTabsContainer.value) return;
-
-	const { deltaX, deltaY } = event;
-	event.preventDefault();
-
-	if (Math.abs(deltaY) >= Math.abs(deltaX)) {
-		fileTabsContainer.value.scrollLeft += deltaY;
-		return;
-	}
-
-	if (deltaX !== 0) {
-		fileTabsContainer.value.scrollLeft += deltaX;
-	}
-};
-
-// Get the current tabs to display
-const currentTabs = computed(() => props.openTabs || openFileTabs.value);
+	// Functions
+	handleHorizontalTabScroll,
+	handleDragEnd,
+	handleDragOver,
+	handleDragStart,
+	handleDrop,
+	setActiveFileTab,
+	removeFileTab,
+} = useFileTabManager(props, emit);
 </script>
 
 <template>
@@ -148,7 +76,7 @@ const currentTabs = computed(() => props.openTabs || openFileTabs.value);
 						<button
 							@click="removeFileTab(file)"
 							class="flex items-center justify-center w-6 h-6 text-slate-400 hover:text-white hover:bg-white/10 rounded-md duration-200 mr-1 cursor-pointer text-sm"
-							title="Close file"
+							:title="t('panel.closeFile')"
 						>
 							<Icon icon="mdi:close" class="w-6 h-6" />
 						</button>
@@ -163,7 +91,7 @@ const currentTabs = computed(() => props.openTabs || openFileTabs.value);
 					<button
 						@click="removeFileTab(currentTabs[0])"
 						class="flex items-center justify-center w-6 h-6 text-slate-400 hover:text-white hover:bg-white/10 rounded-md duration-200 cursor-pointer"
-						title="Close file"
+						:title="t('panel.closeFile')"
 					>
 						<Icon icon="mdi:close" class="w-6 h-6" />
 					</button>

@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { useOverviewPage } from "../composables/pages/useOverviewPage";
+import { useOverviewPage } from "./useOverviewPage";
 import CommentStatistics from "../components/overview/CommentStatistics.vue";
 import CommentBrowser from "../components/overview/CommentBrowser.vue";
 import { CommentType } from "../types/enums/CommentType";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 const {
 	// Store refs
@@ -28,8 +31,8 @@ const {
 		<div class="bg-white/5 backdrop-blur-sm border-b border-white/10">
 			<div class="mx-auto px-6 py-8">
 				<div class="text-center">
-					<h1 class="text-4xl font-bold text-white mb-2">Comments Overview</h1>
-					<p class="text-slate-300 text-lg">Review all comments across your codebase</p>
+					<h1 class="text-4xl font-bold text-white mb-2">{{ t("overviewPage.title") }}</h1>
+					<p class="text-slate-300 text-lg">{{ t("overviewPage.subtitle") }}</p>
 				</div>
 			</div>
 		</div>
@@ -39,7 +42,9 @@ const {
 			<div class="max-w-7xl mx-auto space-y-8">
 				<!-- Filtering Bar -->
 				<div class="flex items-center gap-4">
-					<label class="text-slate-300 font-semibold uppercase text-lg mr-6">Filter By Comment Type:</label>
+					<label class="text-slate-300 font-semibold uppercase text-lg mr-6">{{
+						t("overviewPage.filterByCommentType")
+					}}</label>
 					<!-- All Comment Types Options -->
 					<div
 						class="flex items-center backdrop-blur-sm rounded-lg border border-white/10 duration-200 hover:bg-white/10 text-lg uppercase px-4 py-2 cursor-pointer text-white"
@@ -81,7 +86,7 @@ const {
 						<div
 							class="animate-spin rounded-full h-6 w-6 border-2 border-modern-blue border-t-transparent"
 						></div>
-						<span class="text-slate-300">Loading comments...</span>
+						<span class="text-slate-300">{{ t("common.loading") }}</span>
 					</div>
 				</div>
 
@@ -91,8 +96,8 @@ const {
 						<div class="empty-state-icon">
 							<Icon icon="mdi:archive" class="w-8 h-8 text-slate-400" />
 						</div>
-						<h3 class="text-xl font-semibold text-white mb-2">No Comments Found</h3>
-						<p class="text-slate-400 mb-4">Start adding comments to your code review session</p>
+						<h3 class="text-xl font-semibold text-white mb-2">{{ t("overviewPage.noCommentsFound") }}</h3>
+						<p class="text-slate-400 mb-4">{{ t("overviewPage.noCommentsFoundSubtext") }}</p>
 					</div>
 				</div>
 

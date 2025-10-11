@@ -54,6 +54,7 @@ namespace server.Data.Repositories
                 .Include(c => c.Project)
                     .ThenInclude(p => p.Repository)
                 .Include(c => c.Location)
+                .Include(c => c.Category)
                 .FirstAsync(c => c.Id == comment.Id);
             return updated;
         }
