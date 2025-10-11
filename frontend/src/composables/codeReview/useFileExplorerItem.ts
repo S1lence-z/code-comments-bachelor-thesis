@@ -19,8 +19,12 @@ export function useFileExplorerItem(props: FileExplorerItemProps, emit: FileExpl
 	const projectDataStore = useProjectDataStore();
 
 	// Methods
-	const fileContainsComments = (filePath: string): boolean => {
+	const fileContainsAnyComments = (filePath: string): boolean => {
 		return projectDataStore.fileContainsComments(filePath);
+	};
+
+	const fileContainsFileComment = (filePath: string): boolean => {
+		return projectDataStore.fileContainsFileComment(filePath);
 	};
 
 	const handleItemClick = (item: TreeNode): void => {
@@ -56,7 +60,8 @@ export function useFileExplorerItem(props: FileExplorerItemProps, emit: FileExpl
 	return {
 		handleItemClick,
 		handleToggleExpand,
-		fileContainsComments,
+		fileContainsAnyComments,
+		fileContainsFileComment,
 		hasCommentedChildren,
 		isFileSelected,
 	};
