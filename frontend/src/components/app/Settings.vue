@@ -53,7 +53,8 @@ const settingsStore = useSettingsStore();
 			:label="t('settings.editKeyboardShortcuts')"
 			type="button"
 			buttonStyle="primary"
-			:onClick="settingsStore.toggleKeyboardShortcutsEditor"
+			buttonSize="medium"
+			@click="settingsStore.toggleKeyboardShortcutsEditor"
 		/>
 	</div>
 </template>

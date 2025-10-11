@@ -50,10 +50,10 @@ const emit = defineEmits<ProjectFormEmits>();
 				</div>
 				<Button
 					class="w-full"
-					type="button"
 					:label="t('projectForm.openReviewSession')"
 					buttonStyle="secondary"
-					:onClick="() => emit('navigateToNewProject')"
+					buttonSize="medium"
+					@click="emit('navigateToNewProject')"
 				/>
 			</div>
 		</div>
@@ -95,8 +95,9 @@ const emit = defineEmits<ProjectFormEmits>();
 			<Button
 				class="w-full"
 				:label="t('projectForm.createReviewSession')"
-				type="submit"
 				buttonStyle="primary"
+				buttonSize="medium"
+				type="submit"
 				:disabled="props.isCreatingProject"
 			/>
 		</form>

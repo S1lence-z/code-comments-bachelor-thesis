@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
+import Button from "../lib/Button.vue";
 
 const { t } = useI18n();
 </script>
@@ -11,8 +12,15 @@ const { t } = useI18n();
 			<h2 class="mb-4 text-2xl font-semibold text-white">{{ t("notFoundPage.subtitle") }}</h2>
 			<p class="max-w-md mb-8 text-white/60">{{ t("notFoundPage.content") }}</p>
 			<div class="space-x-4">
-				<button @click="$router.back()" class="btn btn-secondary">{{ t("notFoundPage.goBack") }}</button>
-				<router-link to="/setup" class="btn btn-primary">{{ t("notFoundPage.goToSetup") }}</router-link>
+				<Button
+					:label="t('notFoundPage.goBack')"
+					@click="$router.back()"
+					buttonStyle="secondary"
+					buttonSize="large"
+				/>
+				<router-link to="/setup">
+					<Button :label="t('notFoundPage.goToSetup')" buttonStyle="primary" buttonSize="large" />
+				</router-link>
 			</div>
 		</div>
 	</div>

@@ -1,19 +1,25 @@
 <script setup lang="ts">
-const props = defineProps<{
+interface ButtonProps {
 	label: string;
-	type: string | "button";
-	buttonStyle: string | "primary" | "secondary";
-	onClick?: () => void;
-	disabled?: boolean | false;
-}>();
+	buttonStyle: "primary" | "secondary";
+	buttonSize: "small" | "medium" | "large";
+	disabled?: boolean;
+}
+
+interface ButtonEmits {
+	(event: "click"): void;
+}
+
+const props = defineProps<ButtonProps>();
+const emit = defineEmits<ButtonEmits>();
 </script>
 
 <template>
 	<button
 		class="btn"
-		:class="`btn-${props.buttonStyle}`"
+		:class="`btn-${props.buttonStyle} btn-${props.buttonSize}`"
 		:disabled="props.disabled"
-		@click="props.onClick ? props.onClick() : null"
+		@click="emit('click')"
 	>
 		{{ props.label }}
 	</button>

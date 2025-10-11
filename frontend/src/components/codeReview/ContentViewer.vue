@@ -52,12 +52,12 @@ const {
 	>
 		<!-- Control Panel -->
 		<div class="absolute top-4 left-4 right-4 z-10 flex justify-between">
-			<div class="btn btn-primary">{{ zoomPercentage }}%</div>
+			<span class="btn btn-primary btn-medium">{{ zoomPercentage }}%</span>
 			<Button
 				:label="t('contentViewer.resetZoom')"
-				type="button"
 				buttonStyle="primary"
-				:onClick="() => resetZoom"
+				buttonSize="medium"
+				@click="resetZoom"
 			/>
 		</div>
 

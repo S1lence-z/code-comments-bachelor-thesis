@@ -100,8 +100,8 @@ const {
 								<Button
 									:label="t('commentBrowser.viewInEditor')"
 									buttonStyle="primary"
-									type="button"
-									:onClick="() => handleOpenFileInEditor(filePath)"
+									buttonSize="medium"
+									@click="handleOpenFileInEditor(filePath)"
 								/>
 							</div>
 						</div>

@@ -116,16 +116,16 @@ watch(
 					<!-- Dropdown for Export Options -->
 					<Button
 						:label="t('status.exportComments')"
-						type="button"
 						buttonStyle="secondary"
-						:onClick="exportLocalComments"
+						buttonSize="medium"
+						@click="exportLocalComments"
 					/>
 					<!-- Button for Settings slideout panel -->
 					<Button
 						:label="t('settings.title')"
-						type="button"
 						buttonStyle="secondary"
-						:onClick="settingsStore.toggleSettingsOpen"
+						buttonSize="medium"
+						@click="settingsStore.toggleSettingsOpen"
 					/>
 				</div>
 			</div>

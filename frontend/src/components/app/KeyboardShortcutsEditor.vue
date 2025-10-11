@@ -81,19 +81,11 @@ const saveShortcuts = () => {
 <template>
 	<Card class="bg-white">
 		<!-- Header -->
-		<div class="flex justify-between items-center mb-4">
-			<h2 class="text-2xl font-bold">{{ t("keyboardShortcuts.title") }}</h2>
-			<button
-				@click="resetToDefault"
-				class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
-			>
-				{{ t("keyboardShortcuts.resetToDefault") }}
-			</button>
-		</div>
+		<h2 class="text-2xl font-bold mb-4">{{ t("keyboardShortcuts.title") }}</h2>
 
 		<!-- Help text when editing -->
 		<div class="text-gray-600 flex items-center mb-4 gap-2">
-			<Icon icon="mdi:info" class="w-7 h-7 text-blue-400" />
+			<Icon icon="mdi:info" class="w-6 h-6 text-blue-400" />
 			<p class="text-black text-base">{{ t("keyboardShortcuts.helpText") }}</p>
 		</div>
 
@@ -127,20 +119,28 @@ const saveShortcuts = () => {
 				</div>
 			</div>
 			<!-- Buttons -->
-			<Button
-				:label="t('keyboardShortcuts.save')"
-				type="button"
-				buttonStyle="primary"
-				:onClick="saveShortcuts"
-				class="mt-2 mr-2"
-			/>
-			<Button
-				:label="t('keyboardShortcuts.cancel')"
-				type="button"
-				buttonStyle="secondary"
-				:onClick="() => emits('close')"
-				class="mt-2"
-			/>
+			<div class="flex justify-between mt-4">
+				<div class="flex justify-start space-x-4">
+					<Button
+						:label="t('keyboardShortcuts.save')"
+						buttonStyle="primary"
+						buttonSize="medium"
+						@click="saveShortcuts"
+					/>
+					<Button
+						:label="t('keyboardShortcuts.cancel')"
+						buttonStyle="secondary"
+						buttonSize="medium"
+						@click="() => emits('close')"
+					/>
+				</div>
+				<Button
+					:label="t('keyboardShortcuts.resetToDefault')"
+					buttonStyle="secondary"
+					buttonSize="medium"
+					@click="resetToDefault"
+				/>
+			</div>
 		</div>
 	</Card>
 </template>

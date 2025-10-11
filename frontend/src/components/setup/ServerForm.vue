@@ -71,13 +71,15 @@ const emit = defineEmits<ServerFormEmits>();
 					:label="t('serverForm.saveAndContinue')"
 					type="submit"
 					buttonStyle="primary"
+					buttonSize="medium"
 					:disabled="!serverBaseUrl || serverBaseUrl.trim() === ''"
 				/>
 				<Button
 					:label="t('serverForm.runInOfflineMode')"
 					type="button"
 					buttonStyle="secondary"
-					:onClick="() => emit('runInOfflineMode')"
+					buttonSize="medium"
+					@click="emit('runInOfflineMode')"
 				/>
 			</div>
 		</form>
