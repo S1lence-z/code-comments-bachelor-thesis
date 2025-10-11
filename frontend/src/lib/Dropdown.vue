@@ -50,7 +50,7 @@ const handleBlur = (event: FocusEvent) => {
 		@blur="handleBlur"
 		@keydown.escape="closeDropdown"
 	>
-		<button type="button" class="btn btn-secondary" @click="toggleDropdown">
+		<button type="button" class="btn btn-secondary btn-small" @click="toggleDropdown">
 			{{ props.label }}
 		</button>
 		<div v-if="showDropdown" class="absolute mt-2 w-full bg-gray-800 rounded-lg shadow-lg z-20">

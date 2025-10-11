@@ -12,6 +12,7 @@
 	position: relative;
 	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 	overflow: hidden;
+	margin-right: 25px;
 }
 
 /* Default hover effects (single-line) */
@@ -132,4 +133,10 @@
 	bottom: 0;
 	width: 1px;
 	background: linear-gradient(180deg, rgba(154, 52, 18, 0.6), rgba(154, 52, 18, 0.2));
+}
+
+/* Comment Form Widget Styles */
+.cm-comment-form-widget {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	margin-right: 20px;
 }

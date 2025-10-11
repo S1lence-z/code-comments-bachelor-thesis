@@ -1,8 +1,10 @@
 import { oneDark } from "@codemirror/theme-one-dark";
 import { EditorView, lineNumbers, keymap } from "@codemirror/view";
 import type CommentDto from "../../types/dtos/CommentDto.ts";
+import type CategoryDto from "../../types/dtos/CategoryDto.ts";
 import { getLanguageExtension } from "../../utils/languageUtils.ts";
 import { commentsDisplayExtension } from "../commentsExtension.ts";
+import { commentFormExtension } from "../commentFormExtension.ts";
 import { getLineNumbersConfig, type LineNumberConfig } from "./lineNumbersConfig.ts";
 import { multilineCommentHighlightExtension, multilineCommentTheme } from "../others/multilineCommentHighlight.ts";
 import { EditorState, type Extension } from "@codemirror/state";
@@ -12,13 +14,18 @@ import type { AppKeyboardShortcuts } from "../../types/others/KeyboardShortcuts.
  * Creates the standard set of CodeMirror extensions for the code editor
  */
 export function createEditorExtensions(
+	// Props
 	filePath: string | null,
 	comments: CommentDto[] = [],
 	isKeyboardMode: boolean,
 	isCompactCommentModal: boolean,
 	appKeyboardShortcuts: AppKeyboardShortcuts,
-	deleteCommentAction: (commentId: string) => Promise<void>,
-	editCommentAction: (commentId: string) => Promise<void>,
+	categories: CategoryDto[] = [],
+	// Callbacks
+	onDeleteComment: (commentId: string) => Promise<void>,
+	onEditComment: (commentId: string) => void,
+	onCancelUpsertingComment: () => void,
+	onUpsertComment: (content: string, categoryLabel: string, commentId: string | null) => Promise<void>,
 	onSingleLineComment: (lineNumber: number, filePath: string) => void
 ) {
 	const langExt = getLanguageExtension(filePath);
@@ -32,10 +39,11 @@ export function createEditorExtensions(
 		multilineCommentTheme,
 		EditorView.lineWrapping,
 		...(Array.isArray(langExt) ? langExt : [langExt]),
-		commentsDisplayExtension(currentFileComments, deleteCommentAction, editCommentAction, isCompactCommentModal),
+		commentsDisplayExtension(currentFileComments, isCompactCommentModal, onDeleteComment, onEditComment),
 		addCursorNavigationExtensions(isKeyboardMode),
 		addCustomKeyboardShortcuts(filePath, onSingleLineComment, appKeyboardShortcuts),
 		preventDefaultDragAndDrop(),
+		commentFormExtension(categories, onUpsertComment, onCancelUpsertingComment, onDeleteComment),
 	];
 
 	return extensions;

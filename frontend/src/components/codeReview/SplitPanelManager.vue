@@ -7,14 +7,17 @@ import {
 	useSplitPanelManager,
 	type SplitPanelManagerProps,
 	type SplitPanelManagerEmits,
-} from "../../composables/components/useSplitPanelManager";
+} from "../../composables/codeReview/useSplitPanelManager";
 import { getFileName } from "../../utils/fileUtils";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 const props = defineProps<SplitPanelManagerProps>();
 const emit = defineEmits<SplitPanelManagerEmits>();
 
-// Use the split panel manager composable
 const {
+	// State
 	containerElement,
 	handlePanelResize,
 
@@ -44,7 +47,6 @@ const {
 				:panel-id="panel.id"
 				:open-tabs="panel.openTabs"
 				:active-tab="panel.activeTab"
-				:is-single-panel="panels.length === 1"
 				:dragged-tab="draggedTab"
 				@tab-selected="(filePath, panelId) => emit('tab-selected', filePath, panelId)"
 				@tab-closed="(filePath, panelId) => emit('tab-closed', filePath, panelId)"
@@ -65,12 +67,9 @@ const {
 						v-else-if="isTextFile(panel.activeTab.filePath)"
 						:file-path="panel.activeTab.filePath"
 						:file-content="getFileContent(panel.activeTab.filePath)"
-						:is-loading-file="false"
-						:comment-for-file="getCommentsForFile(panel.activeTab.filePath)"
-						:delete-comment-action="async (commentId) => emit('delete-comment', commentId)"
-						:edit-comment-action="async (commentId) => emit('edit-comment', commentId)"
-						@line-double-clicked="(data) => emit('line-double-clicked', data)"
-						@multiline-selected="(data) => emit('multiline-selected', data)"
+						:commentInFile="getCommentsForFile(panel.activeTab.filePath)"
+						@inline-form-submit="(payload) => emit('inline-form-submit', payload)"
+						@inline-form-delete="(commentId) => emit('inline-form-delete', commentId)"
 					/>
 
 					<!-- Non-text files (images, documents, ...) -->
@@ -85,7 +84,9 @@ const {
 				</div>
 
 				<!-- Empty state when no tab is active -->
-				<div v-else class="flex items-center justify-center h-full text-slate-400">No file selected</div>
+				<div v-else class="flex items-center justify-center h-full text-slate-400">
+					{{ t("panel.noFileSelected") }}
+				</div>
 			</Panel>
 			<!-- Resize Handle -->
 			<ResizeHandle
@@ -101,7 +102,9 @@ const {
 			class="absolute left-0 top-0 h-full bg-blue-500/30 border-r-2 border-blue-500 flex items-center justify-center z-10"
 			:style="{ width: dropZoneWidth + 'px' }"
 		>
-			<div class="text-blue-200 text-xs font-medium transform -rotate-90 whitespace-nowrap">New Panel</div>
+			<div class="text-blue-200 text-xs font-medium transform -rotate-90 whitespace-nowrap">
+				{{ t("panel.newPanel") }}
+			</div>
 		</div>
 
 		<!-- Right Drop Zone -->
@@ -110,7 +113,9 @@ const {
 			class="absolute right-0 top-0 h-full bg-blue-500/30 border-l-2 border-blue-500 flex items-center justify-center z-10"
 			:style="{ width: dropZoneWidth + 'px' }"
 		>
-			<div class="text-blue-200 text-xs font-medium transform -rotate-90 whitespace-nowrap">New Panel</div>
+			<div class="text-blue-200 text-xs font-medium transform -rotate-90 whitespace-nowrap">
+				{{ t("panel.newPanel") }}
+			</div>
 		</div>
 	</div>
 </template>

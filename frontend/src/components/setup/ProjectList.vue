@@ -1,21 +1,26 @@
 <script setup lang="ts">
 import type ProjectDto from "../../types/dtos/ProjectDto";
 import Card from "../../lib/Card.vue";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 interface ProjectListProps {
 	existingProjects: ProjectDto[];
 }
-const props = defineProps<ProjectListProps>();
 
-const emit = defineEmits<{
+interface ProjectListEmits {
 	(event: "navigateToExistingProject", project: ProjectDto): void;
-}>();
+}
+
+const props = defineProps<ProjectListProps>();
+const emit = defineEmits<ProjectListEmits>();
 </script>
 
 <template>
 	<Card
-		title="Existing Projects"
-		subtitle="Continue working on your previous code reviews"
+		:title="t('projectList.title')"
+		:subtitle="t('projectList.subtitle')"
 		iconName="archive"
 		iconGradient="blue"
 		iconSize="6"
@@ -25,8 +30,8 @@ const emit = defineEmits<{
 			<div class="empty-state-icon">
 				<Icon icon="mdi:inbox" class="w-8 h-8 text-slate-400" />
 			</div>
-			<p class="text-slate-400">No existing projects found</p>
-			<p class="text-slate-500 text-sm mt-2">Create your first review session to get started</p>
+			<p class="text-slate-400">{{ t("projectList.noProjects") }}</p>
+			<p class="text-slate-500 text-sm mt-2">{{ t("projectList.noProjectsSubtext") }}</p>
 		</div>
 		<!-- Existing Projects List -->
 		<div class="space-y-4">

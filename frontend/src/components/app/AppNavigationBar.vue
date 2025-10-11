@@ -8,6 +8,9 @@ import { downloadJSON } from "../../utils/jsonUtils";
 import { useServerStatusStore } from "../../stores/serverStore";
 import Button from "../../lib/Button.vue";
 import { useSettingsStore } from "../../stores/settingsStore";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 // Stores
 const projectDataStore = useProjectDataStore();
@@ -31,14 +34,14 @@ const preserveQueryParams = computed(() => {
 const exportLocalComments = () => {
 	const localComments = projectDataStore.allComments;
 	if (localComments.length === 0) {
-		alert("No comments to export.");
+		alert(t("status.noCommentsToExport"));
 		return;
 	}
 	// Get the repository name from the project store and confirm export
 	const repositoryName = projectStore.getRepositoryName;
-	const commentWord = localComments.length === 1 ? "comment" : "comments";
+	const commentWord = localComments.length === 1 ? t("commentBrowser.comment") : t("commentBrowser.comments");
 
-	if (confirm(`Are you sure you want to export ${localComments.length} ${commentWord} for ${repositoryName}?`)) {
+	if (confirm(`${t("status.confirmExport", { count: localComments.length, commentWord, repositoryName })}`)) {
 		downloadJSON(localComments, `${repositoryName}-comments.json`);
 	}
 };
@@ -62,7 +65,7 @@ watch(
 					:to="{ path: '/setup', query: preserveQueryParams }"
 					class="text-white text-xl font-bold transition-colors duration-200 hover:text-blue-300 whitespace-nowrap"
 				>
-					Code Comments
+					{{ t("app.title") }}
 				</router-link>
 
 				<!-- Navigation Links -->
@@ -93,36 +96,36 @@ watch(
 					<!-- Synced Status -->
 					<div v-if="serverStatus === 'synced'" class="flex items-center gap-2">
 						<div class="w-2 h-2 bg-emerald-400 rounded-full"></div>
-						<span class="text-emerald-400 font-medium text-md">Comments Synced</span>
+						<span class="text-emerald-400 font-medium text-md">{{ t("status.commentsSynced") }}</span>
 					</div>
 					<div v-else-if="serverStatus === 'syncing'" class="flex items-center gap-2">
 						<div class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
-						<span class="text-yellow-400 font-medium text-md">Syncing Comments...</span>
+						<span class="text-yellow-400 font-medium text-md">{{ t("status.syncingComments") }}</span>
 					</div>
 					<div v-else-if="serverStatus === 'error'" class="flex items-center gap-2">
 						<div class="w-2 h-2 bg-red-400 rounded-full"></div>
-						<span class="text-red-400 font-medium text-md">Status: {{ serverStore.getErrorMessage }}</span>
+						<span class="text-red-400 font-medium text-md">{{ serverStore.getErrorMessage }}</span>
 					</div>
 				</div>
 				<div v-else-if="settingsStore.isOfflineMode" class="flex items-center gap-2">
 					<div class="w-2 h-2 bg-gray-400 rounded-full"></div>
-					<span class="text-gray-400 font-medium text-md">Offline Mode</span>
+					<span class="text-gray-400 font-medium text-md">{{ t("status.offlineMode") }}</span>
 				</div>
 
 				<div class="flex flex-row gap-4">
 					<!-- Dropdown for Export Options -->
 					<Button
-						label="Export Comments"
-						type="button"
+						:label="t('status.exportComments')"
 						buttonStyle="secondary"
-						:onClick="exportLocalComments"
+						buttonSize="medium"
+						@click="exportLocalComments"
 					/>
 					<!-- Button for Settings slideout panel -->
 					<Button
-						label="Settings"
-						type="button"
+						:label="t('settings.title')"
 						buttonStyle="secondary"
-						:onClick="settingsStore.toggleSettingsOpen"
+						buttonSize="medium"
+						@click="settingsStore.toggleSettingsOpen"
 					/>
 				</div>
 			</div>

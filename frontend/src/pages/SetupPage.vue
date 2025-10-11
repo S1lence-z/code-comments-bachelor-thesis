@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { watch } from "vue";
-import { useSetupPage } from "../composables/pages/useSetupPage";
+import { useSetupPage } from "./useSetupPage";
 import ServerForm from "../components/setup/ServerForm.vue";
 import ProjectList from "../components/setup/ProjectList.vue";
 import ProjectForm from "../components/setup/ProjectForm.vue";
 import { useQueryParams } from "../composables/core/useQueryParams";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 const { params } = useQueryParams();
 
@@ -66,8 +69,8 @@ watch(
 		<div class="bg-white/5 backdrop-blur-sm border-b border-white/10">
 			<div class="mx-auto px-6 py-8">
 				<div class="text-center">
-					<h1 class="text-4xl font-bold text-white mb-2">Code Comments Dashboard</h1>
-					<p class="text-slate-300 text-lg">Manage your code review sessions</p>
+					<h1 class="text-4xl font-bold text-white mb-2">{{ t("setupPage.title") }}</h1>
+					<p class="text-slate-300 text-lg">{{ t("setupPage.subtitle") }}</p>
 				</div>
 			</div>
 		</div>
@@ -80,8 +83,7 @@ watch(
 						<Icon icon="mdi:alert-circle" class="w-5 h-5 text-red-400" />
 					</div>
 					<p class="text-red-400">
-						There was an error loading existing projects from the selected server. Please, check the server
-						URL or switch to offline mode in settings.
+						{{ t("setupPage.errorLoadingExistingProjects") }}
 					</p>
 				</div>
 			</div>
