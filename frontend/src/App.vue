@@ -26,7 +26,6 @@ const keyboardShortcutsStore = useKeyboardShortcutsStore();
 const workspaceStore = useWorkspaceStore();
 
 // Methods
-// TODO: consider creating the useAppController composable for app-level methods - have not done it yet since there is only one method for now
 const handleSwitchOfflineMode = () => {
 	if (confirm("Switching offline mode will reload the application. Continue?")) {
 		settingsStore.toggleOfflineMode();
