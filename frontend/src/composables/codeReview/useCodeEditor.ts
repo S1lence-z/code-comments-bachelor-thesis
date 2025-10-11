@@ -11,7 +11,7 @@ import { showCommentFormEffect, hideCommentFormEffect } from "../../codeMirror/c
 export interface CodeEditorProps {
 	filePath: string | null;
 	fileContent: string | null | undefined;
-	commentForFile: CommentDto[];
+	commentInFile: CommentDto[];
 }
 
 export interface CodeEditorEmits {
@@ -70,7 +70,7 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 	};
 
 	const handleEditCommentInline = (commentId: string): void => {
-		const comment = props.commentForFile.find((c) => c.id === commentId);
+		const comment = props.commentInFile.find((c) => c.id === commentId);
 		if (!comment || !props.filePath) return;
 
 		if (comment.type === CommentType.Singleline) {
@@ -127,7 +127,7 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 		if (!editorView.value) return;
 
 		// Find existing comment if editing
-		const existingComment = commentId ? props.commentForFile.find((c) => c.id === commentId) : null;
+		const existingComment = commentId ? props.commentInFile.find((c) => c.id === commentId) : null;
 
 		activeFormState.value = {
 			lineNumber,
@@ -165,7 +165,7 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 	};
 
 	const extensions = computed(() => {
-		const currentFileComments = props.commentForFile;
+		const currentFileComments = props.commentInFile;
 		return createEditorExtensions(
 			props.filePath,
 			currentFileComments,
@@ -184,7 +184,7 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 
 	const handleAddNewSingleLineComment = (lineNumber: number, filePath: string): void => {
 		// Check if there's an existing comment at this line
-		const existingComment = props.commentForFile.find(
+		const existingComment = props.commentInFile.find(
 			(c) => c.type === CommentType.Singleline && c.location.lineNumber === lineNumber
 		);
 
@@ -236,7 +236,7 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 
 			if (startLineNumber !== endLineNumber) {
 				// Check if there's an existing multiline comment
-				const existingComment = props.commentForFile.find(
+				const existingComment = props.commentInFile.find(
 					(c) =>
 						c.type === CommentType.Multiline &&
 						c.location.startLineNumber === startLineNumber &&

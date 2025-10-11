@@ -6,7 +6,6 @@ import { useDragDropController } from "../composables/controllers/useDragDropCon
 import FileExplorer from "../components/codeReview/FileExplorer.vue";
 import SplitPanelManager from "../components/codeReview/SplitPanelManager.vue";
 import ResizeHandle from "../lib/ResizeHandle.vue";
-import SlideoutPanel from "../lib/SlideoutPanel.vue";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
@@ -15,14 +14,9 @@ const {
 	// Store refs
 	fileTree,
 	isLoadingRepository,
-	isLoadingComments,
-
-	// Stores
-	settingsStore,
 
 	// Local state
 	selectedFilePath,
-	isLoadingFile,
 
 	// Sidebar state
 	sidebarWidth,
@@ -35,15 +29,13 @@ const {
 	handleSidebarResize,
 	handleFileQueryParam,
 	isAnyFileSelected,
-	expandAllFiles,
 
 	// Inline form handlers
 	deleteInlineComment,
 	submitInlineComment,
 
 	// Computed
-	projectCommentButtonLabel,
-	expandAllButtonLabel,
+	isSidebarVisible,
 } = useCodeReviewPage();
 
 // Initialize workspace controller
@@ -51,7 +43,7 @@ const workspaceController = useWorkspaceController(
 	{ selectedFilePath },
 	(event: "update:selectedFilePath", filePath: string | null) => {
 		if (event === "update:selectedFilePath") {
-			selectedFilePath.value = filePath;
+			handleFileSelected(filePath);
 		}
 	}
 );
@@ -88,11 +80,11 @@ onMounted(() => {
 					<!-- Sidebar -->
 					<div
 						ref="sidebar"
-						v-if="settingsStore.isSidebarOpen"
+						v-if="isSidebarVisible"
 						class="flex-shrink-0"
 						:style="{ width: sidebarWidth + 'px' }"
 					>
-						<!-- File Explorer -->
+						<!-- Loading Indicator -->
 						<div v-if="isLoadingRepository" class="p-6 text-sm text-center text-slate-300">
 							<div class="inline-flex items-center space-x-2">
 								<div
@@ -101,17 +93,18 @@ onMounted(() => {
 								<span>{{ t("codeReviewPage.loadingRepository") }}</span>
 							</div>
 						</div>
+
+						<!-- File Explorer -->
 						<FileExplorer
 							v-else-if="fileTree.length > 0"
 							:selectedPath="selectedFilePath"
 							@update:selected-path="handleFileSelected"
 							:treeData="fileTree"
-							:projectCommentButtonLabel="projectCommentButtonLabel"
-							:expandAllButtonLabel="expandAllButtonLabel"
-							@toggle-expand-all-items="expandAllFiles"
 							@project-comment-requested="() => console.log('Project comment requested')"
 							@file-comment-requested="() => console.log('File comment requested')"
 						/>
+
+						<!-- Empty State -->
 						<div v-else class="text-center">
 							<div class="empty-state">
 								<h3 class="text-lg font-semibold text-white mb-2">
@@ -124,7 +117,7 @@ onMounted(() => {
 
 					<!-- Resize Handle -->
 					<ResizeHandle
-						v-if="settingsStore.isSidebarOpen"
+						v-if="isSidebarVisible"
 						:resizable-element="sidebar"
 						:min-width="minSidebarWidth"
 						:max-width="maxSidebarWidth"
@@ -133,17 +126,9 @@ onMounted(() => {
 
 					<!-- Code Editor and Comments -->
 					<div class="flex flex-col flex-grow overflow-hidden backdrop-blur-sm bg-white/5 w-full">
-						<div v-if="isLoadingComments && !isLoadingFile" class="p-6 text-sm text-center text-slate-300">
-							<div class="inline-flex items-center space-x-2">
-								<div
-									class="animate-spin rounded-full h-4 w-4 border-2 border-modern-blue border-t-transparent"
-								></div>
-								<span>{{ t("codeReviewPage.loadingComments") }}</span>
-							</div>
-						</div>
 						<!-- SplitPanelManager -->
 						<SplitPanelManager
-							v-else-if="isAnyFileSelected()"
+							v-if="isAnyFileSelected()"
 							:panels="workspaceController.panels.value"
 							:dragged-tab="dragDropController.draggedTab.value"
 							:left-drop-zone-active="dragDropController.leftDropZoneActive.value"

@@ -1,9 +1,8 @@
-import { ref, computed } from "vue";
+import { computed, ref } from "vue";
 import { useProjectDataStore } from "../stores/projectDataStore";
 import { useFileContentStore } from "../stores/fileContentStore";
 import { useSettingsStore } from "../stores/settingsStore";
 import { useProjectStore } from "../stores/projectStore";
-import type { ProcessedFile } from "../types/github/githubFile";
 import { CommentType } from "../types/enums/CommentType";
 import { createCommentByType } from "../utils/commentUtils";
 import { storeToRefs } from "pinia";
@@ -20,15 +19,12 @@ export function useCodeReviewPage() {
 	const settingsStore = useSettingsStore();
 
 	// Store refs
-	const { fileTree, allComments, isLoadingRepository, isLoadingComments } = storeToRefs(projectDataStore);
+	const { fileTree, isLoadingRepository } = storeToRefs(projectDataStore);
 
-	// Local state
+	// State
 	const selectedFilePath = ref<string | null>(null);
-	const processedSelectedFile = ref<ProcessedFile | null>(null);
-	const isLoadingFile = ref<boolean>(false);
-	const areFilesExpanded = ref<boolean>(false);
 
-	// Resizable sidebar state
+	// Sidebar state
 	const sidebarWidth = ref(280);
 	const minSidebarWidth = 200;
 	const maxSidebarWidth = 450;
@@ -36,24 +32,21 @@ export function useCodeReviewPage() {
 
 	// Handle file selection and loading
 	const handleFileSelected = async (path: string | null): Promise<void> => {
-		if (!path) return;
-
-		selectedFilePath.value = path;
-		isLoadingFile.value = true;
-		// Fetch the file content
-		try {
-			processedSelectedFile.value = await fileContentStore.getFileContentAsync(
-				path,
-				projectStore.getRepositoryUrl,
-				projectStore.getRepositoryBranch,
-				projectStore.getGithubPat
-			);
-		} catch (e: any) {
-			processedSelectedFile.value = null;
-			console.error("Error fetching file content:", e);
-		} finally {
-			isLoadingFile.value = false;
+		if (!path) {
+			selectedFilePath.value = null;
+			return;
 		}
+
+		// Update selected file path
+		selectedFilePath.value = path;
+
+		// Fetch the file content
+		await fileContentStore.cacheFileAsync(
+			path,
+			projectStore.getRepositoryUrl,
+			projectStore.getRepositoryBranch,
+			projectStore.getGithubPat
+		);
 	};
 
 	// Handle resize events from ResizeHandle component
@@ -67,18 +60,12 @@ export function useCodeReviewPage() {
 			handleFileSelected(filePathToOpen);
 		} else {
 			selectedFilePath.value = null;
-			processedSelectedFile.value = null;
 		}
 	};
 
 	// Is current workspace empty
 	const isAnyFileSelected = () => {
 		return !!selectedFilePath.value;
-	};
-
-	const expandAllFiles = () => {
-		areFilesExpanded.value = !areFilesExpanded.value;
-		projectDataStore.expandAllFiles(areFilesExpanded.value);
 	};
 
 	// Handle inline form submission from CodeEditor
@@ -119,29 +106,17 @@ export function useCodeReviewPage() {
 		await projectDataStore.deleteCommentAsync(commentId, projectStore.getRwApiUrl);
 	};
 
-	// Computed
-	const projectCommentButtonLabel = computed(() => {
-		return projectDataStore.containsProjectComment ? "Edit Project Comment" : "Add Project Comment";
-	});
-
-	const expandAllButtonLabel = computed(() => {
-		return areFilesExpanded.value ? "Collapse All" : "Expand All";
+	const isSidebarVisible = computed(() => {
+		return settingsStore.isSidebarOpen;
 	});
 
 	return {
 		// Store refs
 		fileTree,
-		allComments,
 		isLoadingRepository,
-		isLoadingComments,
-
-		// Stores
-		settingsStore,
 
 		// Local state
 		selectedFilePath,
-		processedSelectedFile,
-		isLoadingFile,
 
 		// Sidebar state
 		sidebarWidth,
@@ -154,14 +129,11 @@ export function useCodeReviewPage() {
 		handleSidebarResize,
 		handleFileQueryParam,
 		isAnyFileSelected,
-		expandAllFiles,
 
 		// Inline form handlers
 		submitInlineComment,
 		deleteInlineComment,
 
-		// Computed
-		projectCommentButtonLabel,
-		expandAllButtonLabel,
+		isSidebarVisible,
 	};
 }

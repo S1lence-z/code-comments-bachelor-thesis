@@ -47,7 +47,6 @@ const {
 				:panel-id="panel.id"
 				:open-tabs="panel.openTabs"
 				:active-tab="panel.activeTab"
-				:is-single-panel="panels.length === 1"
 				:dragged-tab="draggedTab"
 				@tab-selected="(filePath, panelId) => emit('tab-selected', filePath, panelId)"
 				@tab-closed="(filePath, panelId) => emit('tab-closed', filePath, panelId)"
@@ -68,7 +67,7 @@ const {
 						v-else-if="isTextFile(panel.activeTab.filePath)"
 						:file-path="panel.activeTab.filePath"
 						:file-content="getFileContent(panel.activeTab.filePath)"
-						:comment-for-file="getCommentsForFile(panel.activeTab.filePath)"
+						:commentInFile="getCommentsForFile(panel.activeTab.filePath)"
 						@inline-form-submit="(payload) => emit('inline-form-submit', payload)"
 						@inline-form-delete="(commentId) => emit('inline-form-delete', commentId)"
 					/>
