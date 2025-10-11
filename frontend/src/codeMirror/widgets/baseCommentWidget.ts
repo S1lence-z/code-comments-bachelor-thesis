@@ -12,7 +12,7 @@ export default abstract class BaseCommentWidget extends WidgetType {
 	constructor(
 		content: string,
 		commentId: string,
-		category: CategoryDto[],
+		category: CategoryDto | null,
 		isCompact: boolean,
 		handleDeleteComment: (commentId: string) => Promise<void>,
 		handleEditComment: (commentId: string) => void
@@ -20,7 +20,7 @@ export default abstract class BaseCommentWidget extends WidgetType {
 		super();
 		this.content = content;
 		this.commentId = commentId;
-		this.category = category[0] || { id: 0, label: "Uncategorized" };
+		this.category = category ?? { id: "", label: "Uncategorized", description: "Uncategorized Comment" };
 		this.isCompact = isCompact;
 		this.handleDeleteComment = handleDeleteComment;
 		this.handleEditComment = handleEditComment;

@@ -78,7 +78,7 @@ function addMultiLineCommentDecoration(
 			widget: new MultilineCommentWidget(
 				comment.content,
 				comment.id ?? "",
-				comment.category ? [comment.category] : [],
+				comment.category ?? null,
 				isCompactCommentModal,
 				deleteCommentAction,
 				editCommentAction
@@ -106,7 +106,7 @@ function addSingleLineCommentDecoration(
 				widget: new SinglelineCommentWidget(
 					comment.content,
 					comment.id ?? "",
-					comment.category ? [comment.category] : [],
+					comment.category ?? null,
 					isCompactCommentModal,
 					deleteCommentAction,
 					editCommentAction
