@@ -4,7 +4,7 @@ import { Icon } from "@iconify/vue";
 interface Props {
 	title?: string;
 	subtitle?: string;
-	iconName?: string;
+	iconName?: "plus" | "archive" | "code" | "folder" | "error" | "success" | "empty" | "externalLink";
 	iconSize?: string;
 	iconGradient?: "blue" | "green" | "emerald";
 	class?: string;
