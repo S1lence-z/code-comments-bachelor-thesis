@@ -1,4 +1,4 @@
-import type { RepositoryType } from "../../../frontend/src/types/enums/RepositoryType";
+import type { RepositoryType } from "./RepositoryType";
 
 export default interface ProjectSetupRequest {
 	serverBaseUrl: string;

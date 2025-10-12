@@ -1,4 +1,4 @@
-import type RepositoryDto from "../../../frontend/src/types/dtos/RepositoryDto.js";
+import type RepositoryDto from "./RepositoryDto.js";
 
 export default interface ProjectDto {
 	id: string;

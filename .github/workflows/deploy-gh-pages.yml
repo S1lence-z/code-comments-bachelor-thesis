@@ -18,19 +18,19 @@ jobs:
                   node-version: 20
 
             - run: npm ci
-              working-directory: frontend
+              working-directory: client
 
             - run: npm run build
-              working-directory: frontend
+              working-directory: client
               env:
                   VITE_API_BASE_URL: "http://localhost/server"
                   VITE_CLIENT_BASE_PATHNAME: "/code-comments-bachelor-thesis/"
 
             - run: cp index.html 404.html
-              working-directory: frontend/dist
+              working-directory: client/dist
 
             - name: Deploy to GitHub Pages
               uses: peaceiris/actions-gh-pages@v4
               with:
                   github_token: ${{ secrets.GITHUB_TOKEN }}
-                  publish_dir: ./frontend/dist
+                  publish_dir: ./client/dist
