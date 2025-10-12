@@ -42,7 +42,7 @@ services:
                 VITE_SERVER_URL: ${VITE_SERVER_URL}
                 VITE_CLIENT_URL: ${VITE_CLIENT_URL}
         ports:
-            - "${MANAGER_PORT}:3001"
+            - "${MANAGER_PORT}:3000"
         environment:
             - VITE_SERVER_URL=${VITE_SERVER_URL}
             - VITE_CLIENT_URL=${VITE_CLIENT_URL}

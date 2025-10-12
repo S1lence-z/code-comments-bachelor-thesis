@@ -31,7 +31,7 @@ COPY --from=builder /app/package*.json ./
 RUN npm ci --omit=dev
 
 # Expose Nuxt default port
-EXPOSE 3001
+EXPOSE 3000
 
 # Set environment to production
 ENV NODE_ENV=production
