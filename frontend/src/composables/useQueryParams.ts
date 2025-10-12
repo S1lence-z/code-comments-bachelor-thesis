@@ -1,7 +1,7 @@
 import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { QUERY_PARAMS, type QueryParams } from "../../types/others/QueryParams";
-import { codeReviewPageKey } from "../../core/keys";
+import { QUERY_PARAMS, type QueryParams } from "../types/others/QueryParams";
+import { codeReviewPageKey } from "../core/keys";
 
 /**
  * Main composable for query parameter management

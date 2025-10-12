@@ -4,7 +4,7 @@ import { useFileContentStore } from "../stores/fileContentStore";
 import { useSettingsStore } from "../stores/settingsStore";
 import { useProjectStore } from "../stores/projectStore";
 import { storeToRefs } from "pinia";
-import { useQueryParams } from "../composables/core/useQueryParams";
+import { useQueryParams } from "../composables/useQueryParams";
 
 export function useCodeReviewPage() {
 	// Query params composable

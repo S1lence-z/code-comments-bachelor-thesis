@@ -4,7 +4,7 @@ import { useProjectDataStore } from "../stores/projectDataStore";
 import { useProjectStore } from "../stores/projectStore";
 import { CommentType } from "../types/enums/CommentType";
 import { groupCommentsByFile, sortCommentsByLineNumber } from "../utils/commentUtils";
-import { useQueryParams } from "../composables/core/useQueryParams";
+import { useQueryParams } from "../composables/useQueryParams";
 
 export function useOverviewPage() {
 	// Query params composable
