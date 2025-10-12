@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
 import { navigationLinks } from '../core/routes';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const route = useRoute();
 </script>
@@ -15,7 +18,7 @@ const route = useRoute();
 					to="/setup"
 					class="text-white text-xl font-bold transition-colors duration-200 hover:text-blue-300 whitespace-nowrap"
 				>
-					Code Review Manager
+                    {{ t('appNavigationBar.title') }}
 				</NuxtLink>
 
 				<!-- Navigation Links -->

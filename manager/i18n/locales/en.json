@@ -1,4 +1,7 @@
 {
+	"appNavigationBar": {
+		"title": "Manager"
+	},
 	"serverForm": {
 		"title": "Comments Server URL",
 		"subtitle": "Configure the URL for your comments server",
