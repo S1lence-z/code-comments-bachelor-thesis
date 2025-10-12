@@ -5,12 +5,15 @@ import type ProjectDto from "../../shared/types/ProjectDto";
 import { isValidGithubUrl } from "../utils/urlUtils";
 
 export function useSetupPage() {
+	// Runtime config
+	const config = useRuntimeConfig();
+
 	// Services
 	const { branchExistsInRepo } = useGithubBranchService();
 	const projectService = useProjectService();
 
 	// Query params composable
-	const { navigateToProject, navigateToServer } = useQueryParams();
+	const { navigateToProject, setupServerUrl } = useQueryParams();
 
 	// Form input values
 	const formGithubRepositoryUrl = ref("");
@@ -141,32 +144,27 @@ export function useSetupPage() {
 	};
 
 	// Handle submission of the server base URL form
-	const submitServerBaseUrl = async (): Promise<void> => {
-		if (!formServerBaseUrl.value.trim()) return;
+	const submitServerBaseUrl = (serverBaseUrl?: string): void => {
+		const urlToSubmit = serverBaseUrl ? serverBaseUrl.trim() : formServerBaseUrl.value.trim();
 
-		navigateToServer(formServerBaseUrl.value.trim());
+		if (!urlToSubmit) {
+			return;
+		}
+
+		formServerBaseUrl.value = urlToSubmit;
+		setupServerUrl(urlToSubmit);
 		isServerUrlConfigured.value = true;
 	};
 
 	// Use default server URL
 	const useDefaultServerUrl = () => {
-		formServerBaseUrl.value = import.meta.env.VITE_DEFAULT_BACKEND_URL || "";
+		formServerBaseUrl.value = config.public.apiBaseUrl || "";
 	};
 
 	// Handle offline mode (skip server URL configuration)
 	const setOfflineMode = () => {
 		isServerUrlConfigured.value = true;
 		isOfflineMode.value = true;
-	};
-
-	// Handle offline mode changes from route query
-	const handleOfflineModeSwitch = (serverBaseUrl?: string, offlineMode?: boolean) => {
-		if (serverBaseUrl || offlineMode) {
-			isServerUrlConfigured.value = true;
-		} else {
-			isServerUrlConfigured.value = false;
-		}
-		projectsLoadedSuccessfully.value = true;
 	};
 
 	return {
@@ -197,6 +195,5 @@ export function useSetupPage() {
 		submitServerBaseUrl,
 		useDefaultServerUrl,
 		setOfflineMode,
-		handleOfflineModeSwitch,
 	};
 }

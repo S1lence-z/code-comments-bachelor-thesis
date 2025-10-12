@@ -8,10 +8,8 @@ export default defineNuxtConfig({
 	srcDir: "app/",
 	runtimeConfig: {
 		public: {
-			// Default backend URL - can be overridden by NUXT_PUBLIC_API_BASE_URL env var
-			apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || "http://localhost:5234",
-			// Viewer app URL for redirects
-			viewerUrl: process.env.NUXT_PUBLIC_VIEWER_URL || "http://localhost:5173",
+			apiBaseUrl: process.env.NUXT_API_BASE_URL,
+			viewerBaseUrl: process.env.NUXT_VIEWER_BASE_URL,
 		},
 	},
 	modules: ["@nuxt/icon", "@nuxtjs/i18n"],

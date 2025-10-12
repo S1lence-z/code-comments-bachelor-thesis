@@ -3,6 +3,7 @@ import { useI18n } from "vue-i18n";
 import { Icon } from "@iconify/vue";
 
 const { t } = useI18n();
+const route = useRoute();
 
 const {
 	// Form inputs
@@ -32,7 +33,6 @@ const {
 	submitServerBaseUrl,
 	useDefaultServerUrl,
 	setOfflineMode,
-	handleOfflineModeSwitch,
 } = useSetupPage();
 
 // Watch the isServerBaseUrlSubmitted and reload existing projects when it changes
@@ -48,11 +48,14 @@ watch(
 
 // Initialize formServerBaseUrl from the router query if available
 watch(
-	[() => formServerBaseUrl.value, () => isOfflineMode.value],
-	([newServerBaseUrl, newOfflineMode]) => {
-		handleOfflineModeSwitch(newServerBaseUrl, newOfflineMode);
+	[() => route.query.serverBaseUrl],
+	([newServerBaseUrl]) => {
+		const serverBaseUrlFromQuery = newServerBaseUrl as string | undefined;
+		if (serverBaseUrlFromQuery && !isServerUrlConfigured.value) {
+			submitServerBaseUrl(serverBaseUrlFromQuery);
+		}
 	},
-	{ immediate: true, deep: true }
+	{ immediate: true }
 );
 </script>
 

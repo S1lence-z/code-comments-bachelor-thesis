@@ -1,13 +1,16 @@
 import { QUERY_PARAMS } from "../../shared/types/QueryParams";
 
 export const useQueryParams = () => {
-	const router = useRouter();
+	const config = useRuntimeConfig();
 	const route = useRoute();
 
-	const params = route.query;
-
-	const navigateToServer = (serverBaseUrl: string) => {
-		alert("Navigate to URL provided in env variables.");
+	const setupServerUrl = (serverBaseUrl: string) => {
+		if (serverBaseUrl) {
+			const currentServerBaseUrl = route.query[QUERY_PARAMS.SERVER_BASE_URL];
+			if (currentServerBaseUrl !== serverBaseUrl) {
+				navigateTo({ query: { [QUERY_PARAMS.SERVER_BASE_URL]: serverBaseUrl } });
+			}
+		}
 	};
 
 	const navigateToProject = (
@@ -16,11 +19,30 @@ export const useQueryParams = () => {
 		rwApiUrl: string,
 		branch: string
 	) => {
-		alert("Navigate to URL provided in env variables");
+		const query: Record<string, string> = {};
+		if (serverBaseUrl) {
+			query[QUERY_PARAMS.SERVER_BASE_URL] = serverBaseUrl;
+		}
+		if (repositoryUrl) {
+			query[QUERY_PARAMS.REPOSITORY_URL] = repositoryUrl;
+		}
+		if (rwApiUrl) {
+			query[QUERY_PARAMS.RW_API_URL] = rwApiUrl;
+		}
+		if (branch) {
+			query[QUERY_PARAMS.BRANCH] = branch;
+		}
+		if (config.public.viewerBaseUrl) {
+			const url = config.public.viewerBaseUrl + "?" + new URLSearchParams(query).toString();
+			const newWindow = window.open(url, "_blank", "noopener,noreferrer");
+			if (newWindow) newWindow.opener = null;
+		} else {
+			alert("Viewer base URL is not configured.");
+		}
 	};
 
 	return {
-		navigateToServer,
+		setupServerUrl,
 		navigateToProject,
 	};
 };
