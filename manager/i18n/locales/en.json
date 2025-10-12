@@ -35,5 +35,41 @@
 		"title": "Code Comments Dashboard",
 		"subtitle": "Manage your code review sessions",
 		"errorLoadingExistingProjects": "There was an error loading existing projects from the selected server. Please, check the server URL or switch to offline mode in settings."
+	},
+	"aboutPage": {
+		"title": "About",
+		"subtitle": "Learn more about the Code Review Manager",
+		"whatIsThis": {
+			"title": "What is Code Review Manager?",
+			"description1": "Code Review Manager is a setup and project management tool for your code review workflow. It helps you configure your code review environment and manage your review projects efficiently.",
+			"description2": "This application serves as the entry point to the code review system, allowing you to:",
+			"features": [
+				"Connect to your backend server",
+				"Create new code review projects",
+				"Access existing projects",
+				"Work in offline mode when needed"
+			]
+		},
+		"features": {
+			"title": "Features",
+			"serverConfiguration": {
+				"title": "Server Configuration",
+				"description": "Easily configure and connect to your backend server for synchronized code reviews."
+			},
+			"githubIntegration": {
+				"title": "GitHub Integration",
+				"description": "Connect to your GitHub repositories and branches for seamless code review."
+			},
+			"offlineMode": {
+				"title": "Offline Mode",
+				"description": "Work without a server connection when you need to review code locally."
+			}
+		},
+		"gettingStarted": {
+			"title": "Getting Started",
+			"description": "Ready to start reviewing code? Head over to the",
+			"setupLink": "Setup page",
+			"descriptionEnd": "to configure your first project."
+		}
 	}
 }
