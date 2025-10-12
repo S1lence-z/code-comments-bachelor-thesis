@@ -32,8 +32,8 @@ export const useQueryParams = () => {
 		if (branch) {
 			query[QUERY_PARAMS.BRANCH] = branch;
 		}
-		if (config.public.viewerBaseUrl) {
-			const url = config.public.viewerBaseUrl + "?" + new URLSearchParams(query).toString();
+		if (config.public.clientUrl) {
+			const url = config.public.clientUrl + "?" + new URLSearchParams(query).toString();
 			const newWindow = window.open(url, "_blank", "noopener,noreferrer");
 			if (newWindow) newWindow.opener = null;
 		} else {

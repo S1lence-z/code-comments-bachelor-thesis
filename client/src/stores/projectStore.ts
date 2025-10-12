@@ -37,8 +37,5 @@ export const useProjectStore = defineStore("projectStore", {
 			this.rwApiUrl = params.rwApiUrl || "";
 			this.repositoryBranch = params.branch || "";
 		},
-		getDefaultServerBaseUrl: () => {
-			return import.meta.env.VITE_API_BASE_URL;
-		},
 	},
 });

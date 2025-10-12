@@ -8,8 +8,8 @@ export default defineNuxtConfig({
 	srcDir: "app/",
 	runtimeConfig: {
 		public: {
-			apiBaseUrl: process.env.NUXT_API_BASE_URL,
-			viewerBaseUrl: process.env.NUXT_VIEWER_BASE_URL,
+			defaultServerUrl: process.env.VITE_SERVER_URL,
+			clientUrl: process.env.VITE_CLIENT_URL,
 		},
 	},
 	modules: ["@nuxt/icon", "@nuxtjs/i18n"],

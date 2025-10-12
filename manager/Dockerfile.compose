@@ -1,0 +1,40 @@
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+# Accept build arguments
+ARG VITE_SERVER_URL
+ARG VITE_CLIENT_URL
+
+# Install deps
+COPY package*.json ./
+RUN npm ci
+
+# Copy source
+COPY . .
+
+# Set environment variables for build
+ENV VITE_SERVER_URL=${VITE_SERVER_URL}
+ENV VITE_CLIENT_URL=${VITE_CLIENT_URL}
+
+RUN npm run build
+
+# Production stage: Run a node server to serve the Nuxt app
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+# Copy only necessary files from builder
+COPY --from=builder /app/.output ./.output
+COPY --from=builder /app/package*.json ./
+
+# Install only production dependencies (if any)
+RUN npm ci --omit=dev
+
+# Expose Nuxt default port
+EXPOSE 3001
+
+# Set environment to production
+ENV NODE_ENV=production
+
+# Start Nuxt SSR server
+CMD ["node", ".output/server/index.mjs"]

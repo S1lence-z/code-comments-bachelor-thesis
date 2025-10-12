@@ -158,7 +158,7 @@ export function useSetupPage() {
 
 	// Use default server URL
 	const useDefaultServerUrl = () => {
-		formServerBaseUrl.value = config.public.apiBaseUrl || "";
+		formServerBaseUrl.value = config.public.defaultServerUrl || "";
 	};
 
 	// Handle offline mode (skip server URL configuration)
