@@ -1,12 +1,10 @@
-import HomePage from "../pages/SetupPage.vue";
 import CodeReviewPage from "../pages/CodeReviewPage.vue";
 import OverviewPage from "../pages/OverviewPage.vue";
 import NotFoundPage from "../pages/NotFoundPage.vue";
-import { setupPageKey, codeReviewPageKey, overviewPageKey } from "./keys";
+import { codeReviewPageKey, overviewPageKey } from "./keys";
 
 const routes = [
-	{ path: "/", redirect: "/setup" },
-	{ path: "/setup", name: setupPageKey, component: HomePage },
+	{ path: "/", redirect: "/review/code" },
 	{ path: "/review/code", name: codeReviewPageKey, component: CodeReviewPage },
 	{ path: "/overview", name: overviewPageKey, component: OverviewPage },
 	{ path: "/:pathMatch(.*)*", component: NotFoundPage },

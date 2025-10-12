@@ -1,8 +1,6 @@
 <script lang="ts" setup>
-import InputField from "../../lib/InputField.vue";
-import Button from "../../lib/Button.vue";
-import Card from "../../lib/Card.vue";
 import { useI18n } from "vue-i18n";
+import Icon from "@iconify/vue";
 
 const { t } = useI18n();
 
@@ -28,7 +26,12 @@ const emit = defineEmits<ProjectFormEmits>();
 </script>
 
 <template>
-	<Card :title="t('projectForm.title')" :subtitle="t('projectForm.subtitle')" iconName="plus" iconGradient="emerald">
+	<Card
+		:title="t('projectForm.title')"
+		:subtitle="t('projectForm.subtitle')"
+		iconName="plus"
+		iconGradient="emerald"
+	>
 		<!-- Messages -->
 		<div v-if="props.errorMessage || props.isProjectCreated" class="space-y-6 mb-6">
 			<!-- Error Message -->
@@ -46,7 +49,9 @@ const emit = defineEmits<ProjectFormEmits>();
 					<div class="card-icon-sm">
 						<Icon icon="mdi:check-circle" class="w-5 h-5 text-emerald-400" />
 					</div>
-					<p class="text-emerald-400 font-semibold">{{ t("projectForm.successMessage") }}</p>
+					<p class="text-emerald-400 font-semibold">
+						{{ t("projectForm.successMessage") }}
+					</p>
 				</div>
 				<Button
 					class="w-full"

@@ -1,23 +1,12 @@
-import { computed, ref } from "vue";
 import useProjectService from "../services/projectService";
-import type ProjectSetupRequest from "../types/dtos/ProjectSetupRequest";
-import type ProjectDto from "../types/dtos/ProjectDto";
-import { useProjectStore } from "../stores/projectStore";
-import { isValidGithubUrl } from "../utils/urlUtils";
-import { useSettingsStore } from "../stores/settingsStore";
-import type { LocationQueryValue } from "vue-router";
-import { useQueryParams } from "../composables/core/useQueryParams";
 import useGithubBranchService from "../services/githubBranchService";
+import type ProjectSetupRequest from "../../shared/types/ProjectSetupRequest";
+import type ProjectDto from "../../shared/types/ProjectDto";
+import { isValidGithubUrl } from "../utils/urlUtils";
 
 export function useSetupPage() {
-	// Stores
-	const projectStore = useProjectStore();
-	const settingsStore = useSettingsStore();
-
 	// Services
 	const { branchExistsInRepo } = useGithubBranchService();
-
-	// Services
 	const projectService = useProjectService();
 
 	// Query params composable
@@ -28,7 +17,7 @@ export function useSetupPage() {
 	const formBranchName = ref("");
 	const formProjectName = ref("");
 	const formReadWriteApiUrl = ref("");
-	const formServerBaseUrl = ref(projectStore.getServerBaseUrl || "");
+	const formServerBaseUrl = ref("");
 
 	// UI state
 	const isCreatingProject = ref(false);
@@ -36,9 +25,7 @@ export function useSetupPage() {
 	const isServerUrlConfigured = ref(false);
 	const projectCreationErrorMessage = ref("");
 	const projectsLoadedSuccessfully = ref(true);
-
-	// Computed
-	const isOfflineMode = computed(() => settingsStore.isOfflineMode);
+	const isOfflineMode = ref(false);
 
 	// Data
 	const existingProjects = ref<ProjectDto[]>([]);
@@ -95,7 +82,10 @@ export function useSetupPage() {
 			};
 
 			// Call the service to create the project
-			const response = await projectService.createProject(setupData, projectStore.getServerBaseUrl);
+			const response = await projectService.createProject(
+				setupData,
+				formServerBaseUrl.value.trim()
+			);
 
 			if (response.readWriteApiUrl && response.repository) {
 				isProjectCreated.value = true;
@@ -104,7 +94,9 @@ export function useSetupPage() {
 				throw new Error("Invalid response from server");
 			}
 		} catch (error: any) {
-			projectCreationErrorMessage.value = `Failed to create review session: ${error.message || "Unknown error"}`;
+			projectCreationErrorMessage.value = `Failed to create review session: ${
+				error.message || "Unknown error"
+			}`;
 		} finally {
 			isCreatingProject.value = false;
 		}
@@ -139,7 +131,9 @@ export function useSetupPage() {
 				console.warn("Server base URL is not set. Cannot load existing projects.");
 				return;
 			}
-			existingProjects.value = await projectService.getProjects(formServerBaseUrl.value.trim());
+			existingProjects.value = await projectService.getProjects(
+				formServerBaseUrl.value.trim()
+			);
 		} catch (error) {
 			console.error("Failed to load existing projects:", error);
 			projectsLoadedSuccessfully.value = false;
@@ -156,20 +150,17 @@ export function useSetupPage() {
 
 	// Use default server URL
 	const useDefaultServerUrl = () => {
-		formServerBaseUrl.value = projectStore.getDefaultServerBaseUrl();
+		formServerBaseUrl.value = import.meta.env.VITE_DEFAULT_BACKEND_URL || "";
 	};
 
 	// Handle offline mode (skip server URL configuration)
 	const setOfflineMode = () => {
 		isServerUrlConfigured.value = true;
-		settingsStore.toggleOfflineMode(true);
+		isOfflineMode.value = true;
 	};
 
 	// Handle offline mode changes from route query
-	const handleOfflineModeSwitch = (
-		serverBaseUrl?: LocationQueryValue | LocationQueryValue[],
-		offlineMode?: boolean
-	) => {
+	const handleOfflineModeSwitch = (serverBaseUrl?: string, offlineMode?: boolean) => {
 		if (serverBaseUrl || offlineMode) {
 			isServerUrlConfigured.value = true;
 		} else {
@@ -185,7 +176,7 @@ export function useSetupPage() {
 		formProjectName,
 		formServerBaseUrl,
 
-		// Computed
+		// Ref
 		isOfflineMode,
 
 		// UI state

@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import Card from "../../lib/Card.vue";
-import InputField from "../../lib/InputField.vue";
-import Button from "../../lib/Button.vue";
 import { Icon } from "@iconify/vue";
 import { useI18n } from "vue-i18n";
 
@@ -42,9 +39,12 @@ const emit = defineEmits<ServerFormEmits>();
 					>{{ t("serverForm.setupGuideLink") }}</a
 				>
 				{{ t("serverForm.setupGuideTextContinued") }}
-				<span class="text-blue-500 underline cursor-pointer" @click="() => emit('useDefaultServerUrl')">{{
+				<span
+					class="text-blue-500 underline cursor-pointer"
+					@click="() => emit('useDefaultServerUrl')"
+					>{{
 					t("serverForm.useDefaultUrl")
-				}}</span
+					}}</span
 				>.
 			</p>
 			<div

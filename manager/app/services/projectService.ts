@@ -1,5 +1,5 @@
-import type ProjectSetupRequest from "../types/dtos/ProjectSetupRequest";
-import type ProjectDto from "../types/dtos/ProjectDto";
+import type ProjectSetupRequest from "../../shared/types/ProjectSetupRequest";
+import type ProjectDto from "../../shared/types/ProjectDto";
 
 const useProjectService = () => {
 	async function getProjects(backendBaseUrl: string): Promise<ProjectDto[]> {
@@ -12,7 +12,9 @@ const useProjectService = () => {
 				},
 			});
 			if (!response.ok) {
-				throw new Error(`Failed to fetch projects: ${response.status} ${response.statusText}`);
+				throw new Error(
+					`Failed to fetch projects: ${response.status} ${response.statusText}`
+				);
 			}
 
 			const fetchedProjects = await response.json();
@@ -36,7 +38,9 @@ const useProjectService = () => {
 				body: JSON.stringify(setupProjectRequest),
 			});
 			if (!response.ok) {
-				throw new Error(`Failed to create project: ${response.status} ${response.statusText}`);
+				throw new Error(
+					`Failed to create project: ${response.status} ${response.statusText}`
+				);
 			}
 
 			const createdProject = await response.json();

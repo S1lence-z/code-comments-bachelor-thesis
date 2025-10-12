@@ -7,6 +7,5 @@ export const appKeyboardShortcutsKey = Symbol("cc_keyboardShortcuts");
 export const offlineModeKey = Symbol("cc_offlineMode");
 
 // Keys for navigation
-export const setupPageKey = Symbol("Setup");
 export const codeReviewPageKey = Symbol("Code Review");
 export const overviewPageKey = Symbol("Overview");

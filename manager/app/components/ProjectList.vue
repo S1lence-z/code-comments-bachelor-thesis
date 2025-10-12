@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type ProjectDto from "../../types/dtos/ProjectDto";
-import Card from "../../lib/Card.vue";
+import type ProjectDto from "../../shared/types/ProjectDto"
 import { useI18n } from "vue-i18n";
+import Icon from "@iconify/vue";
 
 const { t } = useI18n();
 
@@ -46,7 +46,9 @@ const emit = defineEmits<ProjectListEmits>();
 						<div class="card-icon-sm gradient-icon-green">
 							<Icon icon="mdi:code-tags" class="w-5 h-5" />
 						</div>
-						<h3 class="text-white font-semibold group-hover:text-blue-300 transition-colors">
+						<h3
+							class="text-white font-semibold group-hover:text-blue-300 transition-colors"
+						>
 							{{ project.name.length !== 0 ? project.name : project.repository.repositoryUrl }}
 						</h3>
 					</div>

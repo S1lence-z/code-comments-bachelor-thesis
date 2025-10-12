@@ -1,15 +1,8 @@
 <script setup lang="ts">
-import { watch } from "vue";
-import { useSetupPage } from "./useSetupPage";
-import ServerForm from "../components/setup/ServerForm.vue";
-import ProjectList from "../components/setup/ProjectList.vue";
-import ProjectForm from "../components/setup/ProjectForm.vue";
-import { useQueryParams } from "../composables/core/useQueryParams";
 import { useI18n } from "vue-i18n";
+import Icon from "@iconify/vue";
 
 const { t } = useI18n();
-
-const { params } = useQueryParams();
 
 const {
 	// Form inputs
@@ -18,7 +11,7 @@ const {
 	formProjectName,
 	formServerBaseUrl,
 
-	// Computed
+	// Ref
 	isOfflineMode,
 
 	// UI state
@@ -55,7 +48,7 @@ watch(
 
 // Initialize formServerBaseUrl from the router query if available
 watch(
-	[() => params.value.serverBaseUrl, () => isOfflineMode.value],
+	[() => formServerBaseUrl.value, () => isOfflineMode.value],
 	([newServerBaseUrl, newOfflineMode]) => {
 		handleOfflineModeSwitch(newServerBaseUrl, newOfflineMode);
 	},

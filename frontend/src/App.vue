@@ -11,7 +11,7 @@ import { useKeyboardShortcutsStore } from "./stores/keyboardShortcutsStore.ts";
 import KeyboardShortcutsEditor from "./components/app/KeyboardShortcutsEditor.vue";
 import { useWorkspaceStore } from "./stores/workspaceStore.ts";
 import { useProjectDataStore } from "./stores/projectDataStore.ts";
-import { setupPageKey } from "./core/keys";
+import { codeReviewPageKey } from "./core/keys";
 
 // Router
 const router = useRouter();
@@ -29,7 +29,7 @@ const workspaceStore = useWorkspaceStore();
 const handleSwitchOfflineMode = () => {
 	if (confirm("Switching offline mode will reload the application. Continue?")) {
 		settingsStore.toggleOfflineMode();
-		router.push({ name: setupPageKey });
+		router.push({ name: codeReviewPageKey });
 	}
 	settingsStore.toggleSettingsOpen(false);
 };
