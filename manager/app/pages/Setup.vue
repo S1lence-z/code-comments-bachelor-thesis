@@ -68,7 +68,7 @@ watch(
 			</div>
 		</div>
 		<!-- Main Content -->
-		<div class="mx-auto px-6 mt-8 max-w-7xl lg:flex-row space-y-6">
+		<div class="mx-auto px-6 mt-8 max-w-7xl lg:flex-row space-y-6 pb-12">
 			<!-- Error Message -->
 			<div v-if="!projectsLoadedSuccessfully" class="flex status-message error gap">
 				<div class="flex items-center gap-3">

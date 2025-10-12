@@ -38,7 +38,7 @@ export default defineNuxtConfig({
 		head: {
 			charset: "utf-8",
 			viewport: "width=device-width, initial-scale=1",
-			title: "Code Review Manager",
+			title: "Manager | CodeComments",
 			meta: [{ name: "description", content: "Setup and manage your code review projects" }],
 		},
 	},
