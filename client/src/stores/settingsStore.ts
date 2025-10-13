@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import type AppSettings from "../types/others/AppSettings";
-import { appSettingsKey, offlineModeKey } from "../core/keys";
+import { appSettingsKey } from "../core/keys";
 
 export const useSettingsStore = defineStore("settingsStore", {
 	state: () => ({
@@ -47,7 +47,6 @@ export const useSettingsStore = defineStore("settingsStore", {
 		},
 		toggleOfflineMode(newState?: boolean) {
 			this.offlineModeState = newState !== undefined ? newState : !this.offlineModeState;
-			this.saveOfflineMode();
 		},
 		getPersistentSettings(): AppSettings {
 			return {
@@ -74,14 +73,6 @@ export const useSettingsStore = defineStore("settingsStore", {
 		applyOfflineMode(offlineMode: boolean) {
 			this.offlineModeState = offlineMode;
 		},
-		saveOfflineMode() {
-			sessionStorage.setItem(offlineModeKey.description!, JSON.stringify(this.offlineModeState));
-		},
-		loadOfflineModeFromSessionStorage() {
-			const offlineMode = sessionStorage.getItem(offlineModeKey.description!);
-			this.offlineModeState = offlineMode === "true";
-			this.applyOfflineMode(this.offlineModeState);
-		},
 		loadSettings() {
 			const savedSettingsString = localStorage.getItem(appSettingsKey.description!);
 			if (savedSettingsString) {
@@ -92,7 +83,6 @@ export const useSettingsStore = defineStore("settingsStore", {
 					console.error("Failed to parse saved settings:", error);
 				}
 			}
-			this.loadOfflineModeFromSessionStorage();
 		},
 	},
 });

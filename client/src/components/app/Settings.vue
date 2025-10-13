@@ -28,7 +28,7 @@ const settingsStore = useSettingsStore();
 			:isActive="settingsStore.keyboardModeOnState"
 			@update:isActive="settingsStore.toggleKeyboardMode"
 		/>
-		<!-- Save workspace to session storage -->
+		<!-- Save workspace to local storage -->
 		<ToggleButton
 			:label="t('settings.saveWorkspace')"
 			:isActive="settingsStore.saveWorkspaceState"
