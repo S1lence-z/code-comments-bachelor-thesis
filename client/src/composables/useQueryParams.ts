@@ -21,7 +21,7 @@ export function useQueryParams() {
 	const params = computed<QueryParams>(() => ({
 		serverBaseUrl: extractString(route.query[QUERY_PARAMS.SERVER_BASE_URL]),
 		repositoryUrl: extractString(route.query[QUERY_PARAMS.REPOSITORY_URL]),
-		rwApiUrl: extractString(route.query[QUERY_PARAMS.RW_API_URL]),
+		rwServerUrl: extractString(route.query[QUERY_PARAMS.RW_SERVER_URL]),
 		branch: extractString(route.query[QUERY_PARAMS.BRANCH]),
 		file: extractString(route.query[QUERY_PARAMS.FILE]) || undefined,
 	}));

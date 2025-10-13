@@ -26,7 +26,7 @@ export const useCommentOperations = () => {
 		try {
 			const commentData = createCommentDtoByType(payload.commentType, projectDataStore.allCategories, payload);
 
-			await projectDataStore.upsertCommentAsync(commentData, projectStore.getRwApiUrl);
+			await projectDataStore.upsertCommentAsync(commentData, projectStore.getRwServerUrl);
 			return { success: true };
 		} catch (e) {
 			console.error("Failed to submit comment:", e);
@@ -44,7 +44,7 @@ export const useCommentOperations = () => {
 	 */
 	const deleteComment = async (commentId: string): Promise<CommentOperationResult> => {
 		try {
-			await projectDataStore.deleteCommentAsync(commentId, projectStore.getRwApiUrl);
+			await projectDataStore.deleteCommentAsync(commentId, projectStore.getRwServerUrl);
 			return { success: true };
 		} catch (error) {
 			console.error("Failed to delete comment:", error);

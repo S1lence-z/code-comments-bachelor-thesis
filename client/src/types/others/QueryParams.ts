@@ -1,7 +1,7 @@
 export const QUERY_PARAMS = {
 	SERVER_BASE_URL: "serverBaseUrl",
 	REPOSITORY_URL: "repositoryUrl",
-	RW_API_URL: "rwApiUrl",
+	RW_SERVER_URL: "rwServerUrl",
 	BRANCH: "branch",
 	FILE: "file",
 };
@@ -9,7 +9,7 @@ export const QUERY_PARAMS = {
 export interface QueryParams {
 	serverBaseUrl?: string;
 	repositoryUrl?: string;
-	rwApiUrl?: string;
+	rwServerUrl?: string;
 	branch?: string;
 	file?: string;
 }

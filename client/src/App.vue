@@ -12,6 +12,7 @@ import KeyboardShortcutsEditor from "./components/app/KeyboardShortcutsEditor.vu
 import { useWorkspaceStore } from "./stores/workspaceStore.ts";
 import { useProjectDataStore } from "./stores/projectDataStore.ts";
 import { codeReviewPageKey } from "./core/keys";
+import { QUERY_PARAMS } from "./types/others/QueryParams";
 
 // Router
 const router = useRouter();
@@ -58,7 +59,7 @@ onMounted(async () => {
 			// Load the synced project data
 			await projectDataStore.loadProjectDataAsync(
 				projectStore.repositoryUrl,
-				projectStore.rwApiUrl,
+				projectStore.rwServerUrl,
 				projectStore.repositoryBranch,
 				projectStore.githubPat,
 				projectStore.getServerBaseUrl
@@ -82,7 +83,7 @@ onBeforeUnmount(() => {
 watch(
 	() => route.query,
 	async (newQuery, oldQuery) => {
-		const relevantParams = ["serverBaseUrl", "repositoryUrl", "rwApiUrl", "branch"];
+		const relevantParams = Object.values(QUERY_PARAMS);
 		const hasRelevantChanges = relevantParams.some((param) => newQuery[param] !== oldQuery[param]);
 
 		if (hasRelevantChanges) {
@@ -92,7 +93,7 @@ watch(
 			// Load the synced project data
 			await projectDataStore.loadProjectDataAsync(
 				projectStore.repositoryUrl,
-				projectStore.rwApiUrl,
+				projectStore.rwServerUrl,
 				projectStore.repositoryBranch,
 				projectStore.githubPat,
 				projectStore.getServerBaseUrl

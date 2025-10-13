@@ -4,15 +4,15 @@ import { QUERY_PARAMS, type QueryParams } from "../types/others/QueryParams";
 
 export const useProjectStore = defineStore("projectStore", {
 	state: () => ({
+		serverBaseUrl: "",
+		rwServerUrl: "",
 		repositoryUrl: "",
-		rwApiUrl: "",
 		repositoryBranch: "",
 		githubPat: import.meta.env.VITE_GITHUB_PAT || "",
-		serverBaseUrl: "",
 	}),
 	getters: {
 		getRepositoryUrl: (state) => state.repositoryUrl,
-		getRwApiUrl: (state) => state.rwApiUrl,
+		getRwServerUrl: (state) => state.rwServerUrl,
 		getRepositoryBranch: (state) => state.repositoryBranch,
 		getGithubPat: (state) => state.githubPat,
 		getRepositoryName: (state) => state.repositoryUrl.split("/").pop() || "Unknown",
@@ -28,13 +28,13 @@ export const useProjectStore = defineStore("projectStore", {
 
 			this.serverBaseUrl = extractString(newQuery[QUERY_PARAMS.SERVER_BASE_URL]);
 			this.repositoryUrl = extractString(newQuery[QUERY_PARAMS.REPOSITORY_URL]);
-			this.rwApiUrl = extractString(newQuery[QUERY_PARAMS.RW_API_URL]);
+			this.rwServerUrl = extractString(newQuery[QUERY_PARAMS.RW_SERVER_URL]);
 			this.repositoryBranch = extractString(newQuery[QUERY_PARAMS.BRANCH]);
 		},
 		updateFromParams(params: QueryParams) {
 			this.serverBaseUrl = params.serverBaseUrl || "";
 			this.repositoryUrl = params.repositoryUrl || "";
-			this.rwApiUrl = params.rwApiUrl || "";
+			this.rwServerUrl = params.rwServerUrl || "";
 			this.repositoryBranch = params.branch || "";
 		},
 	},
