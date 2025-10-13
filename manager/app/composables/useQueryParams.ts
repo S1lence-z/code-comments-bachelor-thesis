@@ -18,11 +18,14 @@ export const useQueryParams = () => {
 	const config = useRuntimeConfig();
 	const route = useRoute();
 
-	const setupServerUrl = (serverBaseUrl: string) => {
+	const setupServerUrl = async (serverBaseUrl: string) => {
 		if (serverBaseUrl) {
 			const currentServerBaseUrl = route.query[QUERY_PARAMS.SERVER_BASE_URL];
 			if (currentServerBaseUrl !== serverBaseUrl) {
-				navigateTo({ query: { [QUERY_PARAMS.SERVER_BASE_URL]: serverBaseUrl } });
+				await navigateTo({
+					path: route.path,
+					query: { [QUERY_PARAMS.SERVER_BASE_URL]: serverBaseUrl },
+				});
 			}
 		}
 	};
