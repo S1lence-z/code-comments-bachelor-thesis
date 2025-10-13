@@ -47,7 +47,7 @@ export default class CommentFormWidget extends WidgetType {
 	toDOM(): HTMLDivElement {
 		const wrap = document.createElement("div");
 		wrap.className =
-			"cm-comment-form-widget shadow-lg backdrop-blur-lg bg-[rgba(255,255,255,0.08)] text-slate-50 py-3.5 px-4 border border-[rgba(255,255,255,0.1)] rounded-xl flex flex-start gap-4 items-start w-3/4 max-w-3xl flex flex-start";
+			"cm-comment-form-widget shadow-lg backdrop-blur-lg bg-[rgba(255,255,255,0.08)] text-slate-50 py-3.5 px-4 border border-[rgba(255,255,255,0.1)] rounded-xl flex flex-start gap-4 items-start w-3/4 flex flex-start";
 
 		// Form
 		const formContainer = this.createForm();
