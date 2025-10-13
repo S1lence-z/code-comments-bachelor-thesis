@@ -3,7 +3,7 @@ import Button from "../../lib/Button.vue";
 import InputArea from "../../lib/InputArea.vue";
 import SlideoutPanel from "../../lib/SlideoutPanel.vue";
 import { useI18n } from "vue-i18n";
-import { computed, reactive, watch } from "vue";
+import { computed, reactive, watch, ref, nextTick } from "vue";
 import { useProjectDataStore } from "../../stores/projectDataStore";
 import { storeToRefs } from "pinia";
 import type RawCommentData from "../../types/others/RawCommentData";
@@ -30,6 +30,9 @@ const emit = defineEmits<FormEmits>();
 // Stores
 const projectDataStore = useProjectDataStore();
 const { comments } = storeToRefs(projectDataStore);
+
+// InputArea ref
+const inputAreaRef = ref<InstanceType<typeof InputArea> | null>(null);
 
 const isFileComment = computed(() => {
 	return props.filePath !== null;
@@ -117,6 +120,11 @@ watch(
 			commentData.startLineNumber = existingComment.location.startLineNumber ?? 0;
 			commentData.endLineNumber = existingComment.location.endLineNumber ?? 0;
 		}
+
+		// Focus the input after the DOM updates
+		nextTick(() => {
+			inputAreaRef.value?.focus();
+		});
 	},
 	{ immediate: true }
 );
@@ -137,6 +145,7 @@ watch(
 	<SlideoutPanel :title="getTitle" :subtitle="getSubtitle" v-model:isVisible="props.isVisible" class="w-110">
 		<div class="flex flex-col space-y-4">
 			<InputArea
+				ref="inputAreaRef"
 				:label="t('commentForm.commentLabel')"
 				v-model="commentData.content"
 				:placeholder="t('commentForm.commentPlaceholder')"

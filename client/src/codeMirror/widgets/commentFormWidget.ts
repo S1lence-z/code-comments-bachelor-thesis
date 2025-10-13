@@ -133,6 +133,7 @@ export default class CommentFormWidget extends WidgetType {
 		textarea.value = this.initialContent;
 		textarea.rows = 3;
 		textarea.placeholder = "Enter your comment...";
+		textarea.autofocus = true;
 
 		textarea.addEventListener("keydown", (e) => {
 			if (e.ctrlKey && e.key === "Enter") {
