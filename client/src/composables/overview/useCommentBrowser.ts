@@ -2,6 +2,7 @@ import { computed, ref } from "vue";
 import type CommentDto from "../../types/dtos/CommentDto";
 import { CommentType } from "../../types/enums/CommentType";
 import { useFileContentStore } from "../../stores/fileContentStore";
+import { useCommentBrowserStore } from "../../stores/commentBrowserStore";
 
 export interface CommentBrowserProps {
 	allCommentsByFile: Record<string, CommentDto[]>;
@@ -13,11 +14,13 @@ export interface CommentBrowserEmits {
 }
 
 export function useCommentBrowser(props: CommentBrowserProps, emit: CommentBrowserEmits) {
-	// Store access
+	// Store
 	const fileContentStore = useFileContentStore();
+	const commentBrowserStore = useCommentBrowserStore();
 
 	// Local state
-	const expandedFiles = ref<Set<string>>(new Set());
+	commentBrowserStore.loadState();
+	const expandedFiles = ref<Set<string>>(new Set(commentBrowserStore.openedFiles));
 	const showedLineOffset = ref(3);
 
 	// Computed properties
@@ -70,6 +73,7 @@ export function useCommentBrowser(props: CommentBrowserProps, emit: CommentBrows
 		} else {
 			expandedFiles.value.add(filePath);
 		}
+		commentBrowserStore.toggleFile(filePath);
 	};
 
 	const getCodePreview = (filePath: string, comment: CommentDto): string => {
@@ -119,6 +123,11 @@ export function useCommentBrowser(props: CommentBrowserProps, emit: CommentBrows
 		emit("openFileInEditor", filePath);
 	};
 
+	// Load the comment browser state from sessionStorage
+	const loadOpenCardsState = () => {
+		commentBrowserStore.loadState();
+	};
+
 	return {
 		// State
 		expandedFiles,
@@ -134,5 +143,6 @@ export function useCommentBrowser(props: CommentBrowserProps, emit: CommentBrows
 		getCodePreview,
 		hasCodePreview,
 		handleOpenFileInEditor,
+		loadOpenCardsState,
 	};
 }

@@ -10,6 +10,7 @@ import {
 	type CommentBrowserProps,
 } from "../../composables/overview/useCommentBrowser";
 import { useI18n } from "vue-i18n";
+import { onMounted } from "vue";
 
 const { t } = useI18n();
 
@@ -30,7 +31,13 @@ const {
 	getCodePreview,
 	hasCodePreview,
 	handleOpenFileInEditor,
+	loadOpenCardsState,
 } = useCommentBrowser(props, emit);
+
+// Load saved state when component mounts
+onMounted(() => {
+	loadOpenCardsState();
+});
 </script>
 
 <template>
