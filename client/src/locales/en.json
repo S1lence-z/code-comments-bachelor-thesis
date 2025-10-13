@@ -8,6 +8,22 @@
 		"codeReview": "Code Review",
 		"overview": "Overview"
 	},
+	"serverConfigList": {
+		"title": "Saved Server Configurations",
+		"projectInfo": "Project Information",
+		"repository": "Repository",
+		"branch": "Branch",
+		"noConfigs": "No saved configurations available",
+		"noConfigsSubtext": "Server configurations will appear here once saved",
+		"createProject": "Navigate to the setup page and create a new project!",
+		"goToSetup": "Go To Setup Page",
+		"availableConfigs": "Available Configurations",
+		"configName": "Configuration Name",
+		"serverBaseUrl": "Server Base URL",
+		"rwServerUrl": "Review Board Server URL",
+		"notConfigured": "Not configured",
+		"cancel": "Cancel"
+	},
 	"settings": {
 		"title": "Settings",
 		"showSidebar": "Show Sidebar",

@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { Icon } from "@iconify/vue";
+import { useI18n } from "vue-i18n";
 import Card from "../../lib/Card.vue";
 import Button from "../../lib/Button.vue";
 import type { ProjectInfo, ServerConfig } from "../../stores/projectServerConfigsStore";
+
+const { t } = useI18n();
 
 interface ServerConfigList {
 	currentProject: ProjectInfo;
@@ -35,7 +38,12 @@ const navigateToManager = () => {
 </script>
 
 <template>
-	<Card class="w-[600px] max-w-full" icon-name="archive" icon-gradient="blue" title="Saved Server Configurations">
+	<Card
+		class="w-[600px] max-w-full mx-auto"
+		icon-name="archive"
+		icon-gradient="blue"
+		:title="t('serverConfigList.title')"
+	>
 		<div class="flex flex-col gap-6">
 			<!-- Project Info Section -->
 			<div class="bg-white/5 border border-white/10 rounded-lg p-4">
@@ -56,11 +64,10 @@ const navigateToManager = () => {
 				<div class="empty-state-icon">
 					<Icon icon="mdi:inbox" class="w-8 h-8 text-slate-400" />
 				</div>
-				<p class="text-slate-400 text-lg">No saved configurations available</p>
-				<p class="text-slate-500 text-sm mt-2">Server configurations will appear here once saved</p>
-				<p class="text-slate-500 text-xl mt-4">Navigate to the setup page and create a new project!</p>
+				<p class="text-slate-400 text-base">{{ t("serverConfigList.noConfigs") }}</p>
+				<p class="text-slate-500 text-lg mt-4">{{ t("serverConfigList.createProject") }}</p>
 				<Button
-					label="Go To Setup Page"
+					:label="t('serverConfigList.goToSetup')"
 					button-style="primary"
 					button-size="large"
 					class="mt-4"
@@ -70,8 +77,10 @@ const navigateToManager = () => {
 
 			<!-- Configurations List -->
 			<div v-else class="flex flex-col gap-3">
-				<h3 class="text-slate-300 font-semibold text-sm uppercase tracking-wide">Available Configurations</h3>
-				<ul class="max-h-80 overflow-y-auto space-y-2 pr-2">
+				<h3 class="text-slate-300 font-semibold text-sm uppercase tracking-wide">
+					{{ t("serverConfigList.availableConfigs") }}
+				</h3>
+				<ul class="max-h-80 overflow-y-auto space-y-2 pr-2 truncate">
 					<li v-for="(config, index) in props.projectConfigs" :key="index">
 						<div class="card-item cursor-pointer group" @click="handleSelectServerConfig(config)">
 							<div class="flex items-start justify-between">
@@ -79,8 +88,10 @@ const navigateToManager = () => {
 									<!-- Config Name (if available) -->
 									<div v-if="config.name" class="flex items-start gap-2">
 										<Icon icon="mdi:tag" class="w-5 h-5 text-purple-400 mt-0.5 flex-shrink-0" />
-										<div class="flex-1 min-w-0">
-											<p class="text-xs text-slate-400 mb-1">Configuration Name</p>
+										<div class="flex-1">
+											<p class="text-xs text-slate-400 mb-1">
+												{{ t("serverConfigList.configName") }}
+											</p>
 											<p class="text-slate-300 font-semibold">{{ config.name }}</p>
 										</div>
 									</div>
@@ -89,8 +100,10 @@ const navigateToManager = () => {
 									<div class="flex items-start gap-2">
 										<Icon icon="mdi:server" class="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
 										<div class="flex-1 min-w-0">
-											<p class="text-xs text-slate-400 mb-1">Server Base URL</p>
-											<p class="text-white font-medium truncate">{{ config.serverBaseUrl }}</p>
+											<p class="text-xs text-slate-400 mb-1">
+												{{ t("serverConfigList.serverBaseUrl") }}
+											</p>
+											<p class="text-white font-medium">{{ config.serverBaseUrl }}</p>
 										</div>
 									</div>
 								</div>
@@ -108,7 +121,12 @@ const navigateToManager = () => {
 
 			<!-- Close Button -->
 			<div class="flex justify-end pt-4 border-t border-white/10">
-				<Button label="Close" button-style="secondary" button-size="medium" @click="emit('close')" />
+				<Button
+					:label="t('serverConfigList.cancel')"
+					button-style="secondary"
+					button-size="medium"
+					@click="emit('close')"
+				/>
 			</div>
 		</div>
 	</Card>
