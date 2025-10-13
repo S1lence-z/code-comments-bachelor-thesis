@@ -2,47 +2,53 @@ import { defineStore } from "pinia";
 import useGithubFileService from "../services/githubFileService";
 import { FileDisplayType, type ProcessedFile } from "../types/github/githubFile";
 import type CommentDto from "../types/dtos/CommentDto";
+import { CommentType } from "../types/enums/CommentType";
 
 export const useFileContentStore = defineStore("fileContentStore", {
 	state: () => ({
 		fileContentCache: new Map<string, ProcessedFile>(),
+		isBeingCached: new Set<string>(),
 	}),
 	getters: {
 		isFileCached: (state) => (filePath: string) => {
 			return state.fileContentCache.has(filePath);
 		},
-	},
-	actions: {
-		cacheFile(key: string, value: ProcessedFile) {
-			this.fileContentCache.set(key, value);
-		},
-		getFileDownloadUrl(filePath: string) {
-			const cachedFile = this.fileContentCache.get(filePath);
+		getFileDisplayType:
+			(state) =>
+			(filePath: string): FileDisplayType => {
+				const cachedFile = state.fileContentCache.get(filePath);
+				if (cachedFile) {
+					return cachedFile.displayType;
+				}
+				return FileDisplayType.Binary;
+			},
+		getFileContent:
+			(state) =>
+			(filePath: string): string => {
+				const cachedFile = state.fileContentCache.get(filePath);
+				if (cachedFile && cachedFile.content) {
+					return cachedFile.content;
+				}
+				return "";
+			},
+		getFileDownloadUrl: (state) => (filePath: string) => {
+			const cachedFile = state.fileContentCache.get(filePath);
 			if (cachedFile && cachedFile.downloadUrl) {
 				return cachedFile.downloadUrl;
 			}
 			return "";
 		},
-		getFilePreviewUrl(filePath: string) {
-			const cachedFile = this.fileContentCache.get(filePath);
+		getFilePreviewUrl: (state) => (filePath: string) => {
+			const cachedFile = state.fileContentCache.get(filePath);
 			if (cachedFile && cachedFile.previewUrl) {
 				return cachedFile.previewUrl;
 			}
 			return "";
 		},
-		getFileDisplayType(filePath: string): FileDisplayType {
-			const cachedFile = this.fileContentCache.get(filePath);
-			if (cachedFile) {
-				return cachedFile.displayType;
-			}
-			return FileDisplayType.Binary;
-		},
-		getFileContent(filePath: string): string {
-			const cachedFile = this.fileContentCache.get(filePath);
-			if (cachedFile && cachedFile.content) {
-				return cachedFile.content;
-			}
-			return "";
+	},
+	actions: {
+		cacheFile(key: string, value: ProcessedFile) {
+			this.fileContentCache.set(key, value);
 		},
 		async cacheFileAsync(
 			filePath: string,
@@ -52,9 +58,11 @@ export const useFileContentStore = defineStore("fileContentStore", {
 		): Promise<void> {
 			const githubFileService = useGithubFileService();
 
-			if (this.isFileCached(filePath)) {
+			if (this.isFileCached(filePath) || this.isBeingCached.has(filePath)) {
 				return;
 			}
+
+			this.isBeingCached.add(filePath);
 
 			try {
 				const processedFile = await githubFileService.fetchProcessedFile(
@@ -105,7 +113,11 @@ export const useFileContentStore = defineStore("fileContentStore", {
 			const filePaths = Array.from(
 				new Set(
 					comments
-						.filter((comment) => comment.location.filePath)
+						.filter(
+							(comment) =>
+								comment.location.filePath &&
+								(comment.type == CommentType.Singleline || comment.type == CommentType.Multiline)
+						)
 						.map((comment) => comment.location.filePath as string)
 				)
 			);
