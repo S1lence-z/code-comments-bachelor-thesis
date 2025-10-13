@@ -18,12 +18,17 @@ Next, create a `.env` file in the root of the project with the following content
 
 ```env
 # Port configuration
-CLIENT_PORT=3000
 SERVER_PORT=5000
+CLIENT_PORT=3000
+MANAGER_PORT=3001
 
-# Client/Server configuration
-VITE_GITHUB_PAT=
-VITE_API_BASE_URL=http://localhost/server
+# Tokens
+VITE_GITHUB_PAT=your_github_pat_here
+
+# URLs
+VITE_SERVER_URL=http://localhost/server
+VITE_MANAGER_URL=http://localhost
+VITE_CLIENT_URL=http://localhost/client
 VITE_CLIENT_BASE_PATHNAME=/client
 ```
 
