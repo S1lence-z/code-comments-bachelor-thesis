@@ -65,16 +65,13 @@ const useGithubTreeService = () => {
 		}
 
 		// Fetch the repository tree from GitHub API
-		const res = await fetch(`${apiBase}/git/trees/${branch}?recursive=1`, {
+		const response = await fetch(`${apiBase}/git/trees/${branch}?recursive=1`, {
 			headers,
 		});
-		if (!res.ok) {
-			const errorData = await res.json().catch(() => ({
-				message: `Failed to load repo tree: ${res.status} ${res.statusText}`,
-			}));
-			throw new Error(errorData.message || `Failed to load repo tree: ${res.status} ${res.statusText}`);
+		if (!response.ok) {
+			throw new Error(`Failed to load repo tree: ${response.status} ${response.statusText}`);
 		}
-		const data = await res.json();
+		const data = await response.json();
 		if (!data.tree || !Array.isArray(data.tree)) {
 			throw new Error("Invalid tree data received from GitHub API.");
 		}
