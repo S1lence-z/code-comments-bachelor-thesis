@@ -99,6 +99,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 
 			// In offline mode, do not fetch comments
 			if (settingsStore.isOfflineMode) {
+				console.log("Offline mode - skipping fetching comments from server");
 				this.comments = [];
 				return;
 			}
@@ -136,6 +137,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 
 			// In offline mode, do not fetch categories
 			if (settingsStore.isOfflineMode) {
+				console.log("Offline mode - skipping fetching categories from server");
 				this.categories = [dummyCategoryDto];
 				return;
 			}

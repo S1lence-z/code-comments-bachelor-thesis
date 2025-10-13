@@ -64,8 +64,14 @@ onMounted(async () => {
 		.then(async () => {
 			isRouterReady.value = true;
 			projectStore.syncStateWithRoute(route.query);
+
+			// Turn on offline mode
+			if (!projectStore.getServerBaseUrl || !projectStore.rwServerUrl) {
+				settingsStore.toggleOfflineMode(true);
+			}
+
 			// TODO: consider moving this to a route guard if only some routes need project data
-			// Load the synced project data
+			// Load the synced project data if not in offline mode
 			await projectDataStore.loadProjectDataAsync(
 				projectStore.repositoryUrl,
 				projectStore.rwServerUrl,
