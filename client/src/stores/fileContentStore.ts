@@ -3,6 +3,7 @@ import useGithubFileService from "../services/githubFileService";
 import { FileDisplayType, type ProcessedFile } from "../types/github/githubFile";
 import type CommentDto from "../types/dtos/CommentDto";
 import { CommentType } from "../types/enums/CommentType";
+import { useErrorHandler } from "../composables/useErrorHandler";
 
 export const useFileContentStore = defineStore("fileContentStore", {
 	state: () => ({
@@ -57,6 +58,7 @@ export const useFileContentStore = defineStore("fileContentStore", {
 			githubPat?: string
 		): Promise<void> {
 			const githubFileService = useGithubFileService();
+			const { handleError } = useErrorHandler();
 
 			if (this.isFileCached(filePath) || this.isBeingCached.has(filePath)) {
 				return;
@@ -73,7 +75,12 @@ export const useFileContentStore = defineStore("fileContentStore", {
 				);
 				this.cacheFile(filePath, processedFile);
 			} catch (error) {
-				console.error(`Failed to cache file ${filePath}:`, error);
+				handleError(error, {
+					customMessage: `Failed to cache file: ${filePath}`,
+					showToast: false,
+				});
+			} finally {
+				this.isBeingCached.delete(filePath);
 			}
 		},
 		async getFileContentAsync(
@@ -83,6 +90,7 @@ export const useFileContentStore = defineStore("fileContentStore", {
 			githubPat?: string
 		): Promise<ProcessedFile> {
 			const githubFileService = useGithubFileService();
+			const { handleError } = useErrorHandler();
 
 			if (this.isFileCached(filePath)) {
 				const cached = this.fileContentCache.get(filePath);
@@ -100,7 +108,9 @@ export const useFileContentStore = defineStore("fileContentStore", {
 				this.cacheFile(filePath, processedFile);
 				return processedFile;
 			} catch (error) {
-				console.error(`Failed to get file content for ${filePath}:`, error);
+				handleError(error, {
+					customMessage: `Failed to load file: ${filePath}`,
+				});
 				throw error;
 			}
 		},

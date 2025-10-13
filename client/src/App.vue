@@ -15,6 +15,7 @@ import { codeReviewPageKey } from "./core/keys";
 import { QUERY_PARAMS } from "./types/others/QueryParams";
 import { useProjectServerConfigsStore, type ServerConfig } from "./stores/projectServerConfigsStore.ts";
 import ServerConfigsList from "./components/app/ServerConfigsList.vue";
+import ToastContainer from "./components/app/ToastContainer.vue";
 
 // Router
 const router = useRouter();
@@ -205,4 +206,7 @@ watch(
 			@select="handleSelectServerConfig"
 		/>
 	</Modal>
+
+	<!-- Toast Notifications Container -->
+	<ToastContainer />
 </template>

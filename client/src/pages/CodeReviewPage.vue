@@ -8,28 +8,12 @@ import FileExplorer from "../components/codeReview/FileExplorer.vue";
 import SplitPanelManager from "../components/codeReview/SplitPanelManager.vue";
 import ResizeHandle from "../lib/ResizeHandle.vue";
 import { useI18n } from "vue-i18n";
-import type RawCommentData from "../types/others/RawCommentData.ts";
 import AddEditCommentForm from "../components/codeReview/AddEditCommentForm.vue";
 
 const { t } = useI18n();
 
 // Comment operations
 const { submitComment, deleteComment } = useCommentOperations();
-
-// Wrapper functions to handle results and show user feedback
-const handleCommentSubmission = async (payload: RawCommentData) => {
-	const result = await submitComment(payload);
-	if (!result.success) {
-		alert(result.error); // TODO: Replace with toast notification
-	}
-};
-
-const handleCommentDeletion = async (commentId: string) => {
-	const result = await deleteComment(commentId);
-	if (!result.success) {
-		alert(result.error); // TODO: Replace with toast notification
-	}
-};
 
 const {
 	// Store refs
@@ -167,8 +151,8 @@ onMounted(() => {
 							@drop-zone-drag-over="dragDropController.handleDropZoneDragOver"
 							@drop-zone-leave="dragDropController.handleDropZoneLeave"
 							@drop-zone-drop="dragDropController.handleDropZoneDrop"
-							@inline-form-submit="handleCommentSubmission"
-							@inline-form-delete="handleCommentDeletion"
+							@inline-form-submit="submitComment"
+							@inline-form-delete="deleteComment"
 						/>
 						<!-- Empty State -->
 						<div v-else class="text-center">
@@ -190,8 +174,8 @@ onMounted(() => {
 			<AddEditCommentForm
 				v-model:isVisible="isAddingProjectOrFileComment"
 				:filePath="projectOrFileCommentPath"
-				@submit="handleCommentSubmission"
-				@delete="handleCommentDeletion"
+				@submit="submitComment"
+				@delete="deleteComment"
 				@close="isAddingProjectOrFileComment = false"
 			/>
 		</div>

@@ -2,35 +2,34 @@ import { useProjectDataStore } from "../stores/projectDataStore";
 import { useProjectStore } from "../stores/projectStore";
 import { createCommentDtoByType } from "../utils/commentUtils";
 import type RawCommentData from "../types/others/RawCommentData";
+import { useErrorHandler } from "./useErrorHandler";
 
-/**
- * Result type for comment operations
- */
 export interface CommentOperationResult {
 	success: boolean;
 	error?: string;
 }
 
-/**
- * Composable for handling comment operations: submit and delete
- * Returns result objects for UI to handle success/error states
- * Uses projectDataStore and projectStore
- * Handles errors and logs them to console
- * Returns success status and error messages in result objects
- */
 export const useCommentOperations = () => {
 	const projectDataStore = useProjectDataStore();
 	const projectStore = useProjectStore();
+	const { handleError, showSuccess } = useErrorHandler();
 
 	const submitComment = async (payload: RawCommentData): Promise<CommentOperationResult> => {
 		try {
 			const commentData = createCommentDtoByType(payload.commentType, projectDataStore.allCategories, payload);
 
 			await projectDataStore.upsertCommentAsync(commentData, projectStore.getRwServerUrl);
+
+			// Show success toast
+			const isEditing = !!commentData.id;
+			showSuccess(isEditing ? "Comment updated successfully" : "Comment added successfully");
+
 			return { success: true };
 		} catch (e) {
-			console.error("Failed to submit comment:", e);
 			const errorMsg = e instanceof Error ? e.message : String(e);
+			handleError(e, {
+				customMessage: "Failed to submit comment: " + errorMsg,
+			});
 			return {
 				success: false,
 				error: errorMsg,
@@ -38,16 +37,18 @@ export const useCommentOperations = () => {
 		}
 	};
 
-	/**
-	 * Delete a comment by ID
-	 * Returns result object for UI to handle
-	 */
 	const deleteComment = async (commentId: string): Promise<CommentOperationResult> => {
 		try {
 			await projectDataStore.deleteCommentAsync(commentId, projectStore.getRwServerUrl);
+
+			// Show success toast
+			showSuccess("Comment deleted successfully");
+
 			return { success: true };
 		} catch (error) {
-			console.error("Failed to delete comment:", error);
+			handleError(error, {
+				customMessage: "Failed to delete comment. Please try again.",
+			});
 			return {
 				success: false,
 				error: "Failed to delete comment. Please try again.",
