@@ -1,9 +1,9 @@
 import type CommentDto from "../types/dtos/CommentDto";
 
 const useCommentsService = () => {
-	async function getComments(rwApiUrl: string): Promise<CommentDto[]> {
+	async function getComments(rwServerUrl: string): Promise<CommentDto[]> {
 		try {
-			const response = await fetch(rwApiUrl);
+			const response = await fetch(rwServerUrl);
 			if (!response.ok) {
 				throw new Error(`Failed to fetch comments: ${response.status} ${response.statusText}`);
 			}
@@ -15,9 +15,9 @@ const useCommentsService = () => {
 		}
 	}
 
-	async function addComment(rwApiUrl: string, commentData: CommentDto): Promise<CommentDto> {
+	async function addComment(rwServerUrl: string, commentData: CommentDto): Promise<CommentDto> {
 		try {
-			const response = await fetch(rwApiUrl, {
+			const response = await fetch(rwServerUrl, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -35,9 +35,9 @@ const useCommentsService = () => {
 		}
 	}
 
-	async function updateComment(rwApiUrl: string, commentId: string, commentData: CommentDto): Promise<CommentDto> {
+	async function updateComment(rwServerUrl: string, commentId: string, commentData: CommentDto): Promise<CommentDto> {
 		try {
-			const response = await fetch(`${rwApiUrl}/${commentId}`, {
+			const response = await fetch(`${rwServerUrl}/${commentId}`, {
 				method: "PUT",
 				headers: {
 					"Content-Type": "application/json",
@@ -59,9 +59,9 @@ const useCommentsService = () => {
 		}
 	}
 
-	async function deleteComment(rwApiUrl: string, commentId: string): Promise<void> {
+	async function deleteComment(rwServerUrl: string, commentId: string): Promise<void> {
 		try {
-			const response = await fetch(`${rwApiUrl}/${commentId}`, {
+			const response = await fetch(`${rwServerUrl}/${commentId}`, {
 				method: "DELETE",
 			});
 			if (!response.ok) {

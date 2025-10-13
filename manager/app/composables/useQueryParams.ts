@@ -30,7 +30,7 @@ export const useQueryParams = () => {
 	const navigateToProject = (
 		serverBaseUrl: string,
 		repositoryUrl: string,
-		rwApiUrl: string,
+		rwServerUrl: string,
 		branch: string
 	) => {
 		const query: Record<string, string> = {};
@@ -40,8 +40,8 @@ export const useQueryParams = () => {
 		if (repositoryUrl) {
 			query[QUERY_PARAMS.REPOSITORY_URL] = repositoryUrl;
 		}
-		if (rwApiUrl) {
-			query[QUERY_PARAMS.RW_SERVER_URL] = rwApiUrl;
+		if (rwServerUrl) {
+			query[QUERY_PARAMS.RW_SERVER_URL] = rwServerUrl;
 		}
 		if (branch) {
 			query[QUERY_PARAMS.BRANCH] = branch;
