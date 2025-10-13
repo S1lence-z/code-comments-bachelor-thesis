@@ -18,7 +18,7 @@ const { t } = useI18n();
 					buttonStyle="secondary"
 					buttonSize="large"
 				/>
-				<router-link to="/setup">
+				<router-link to="/">
 					<Button :label="t('notFoundPage.goToSetup')" buttonStyle="primary" buttonSize="large" />
 				</router-link>
 			</div>

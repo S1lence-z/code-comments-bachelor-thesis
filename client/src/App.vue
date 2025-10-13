@@ -30,8 +30,17 @@ const workspaceStore = useWorkspaceStore();
 const handleSwitchOfflineMode = () => {
 	if (confirm("Switching offline mode will reload the application. Continue?")) {
 		settingsStore.toggleOfflineMode();
-		router.push({ name: codeReviewPageKey });
+		// Delete the serverBaseUrl, and rwServerUrl query parameters from the URL
+		router.push({
+			name: codeReviewPageKey,
+			query: {
+				...route.query,
+				[QUERY_PARAMS.SERVER_BASE_URL]: undefined,
+				[QUERY_PARAMS.RW_SERVER_URL]: undefined,
+			},
+		});
 	}
+	// Close the settings panel
 	settingsStore.toggleSettingsOpen(false);
 };
 
