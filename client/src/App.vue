@@ -13,11 +13,16 @@ import { useWorkspaceStore } from "./stores/workspaceStore.ts";
 import { useProjectDataStore } from "./stores/projectDataStore.ts";
 import { codeReviewPageKey } from "./core/keys";
 import { QUERY_PARAMS } from "./types/others/QueryParams";
+import { useProjectServerConfigsStore, type ServerConfig } from "./stores/projectServerConfigsStore.ts";
+import ServerConfigsList from "./components/app/ServerConfigsList.vue";
 
 // Router
 const router = useRouter();
 const route = useRoute();
 const isRouterReady = ref(false);
+
+// State
+const isProjectServerConfigsModalVisible = ref(false);
 
 // Stores
 const projectStore = useProjectStore();
@@ -25,23 +30,51 @@ const projectDataStore = useProjectDataStore();
 const settingsStore = useSettingsStore();
 const keyboardShortcutsStore = useKeyboardShortcutsStore();
 const workspaceStore = useWorkspaceStore();
+const projectServerConfigsStore = useProjectServerConfigsStore();
 
 // Methods
 const handleSwitchOfflineMode = () => {
-	if (confirm("Switching offline mode will reload the application. Continue?")) {
-		settingsStore.toggleOfflineMode();
-		// Delete the serverBaseUrl, and rwServerUrl query parameters from the URL
-		router.push({
-			name: codeReviewPageKey,
-			query: {
-				...route.query,
-				[QUERY_PARAMS.SERVER_BASE_URL]: undefined,
-				[QUERY_PARAMS.RW_SERVER_URL]: undefined,
-			},
-		});
+	// State before switching
+	const wasOfflineMode = settingsStore.isOfflineMode;
+
+	// Switching to offline mode
+	if (!wasOfflineMode) {
+		if (confirm("Switching to offline mode will reload the application. Continue?")) {
+			settingsStore.toggleOfflineMode();
+			router.push({
+				name: codeReviewPageKey,
+				query: {
+					...route.query,
+					[QUERY_PARAMS.SERVER_BASE_URL]: undefined,
+					[QUERY_PARAMS.RW_SERVER_URL]: undefined,
+				},
+			});
+			return;
+		}
+	}
+	// Switching to online mode
+	if (wasOfflineMode) {
+		isProjectServerConfigsModalVisible.value = true;
 	}
 	// Close the settings panel
 	settingsStore.toggleSettingsOpen(false);
+};
+
+const handleSelectServerConfig = (serverConfig: ServerConfig) => {
+	if (!serverConfig.serverBaseUrl || !serverConfig.rwServerUrl) {
+		alert("Selected server configuration is incomplete. Please select a valid configuration.");
+		return;
+	}
+	// Switch to online mode
+	settingsStore.toggleOfflineMode();
+	router.push({
+		name: codeReviewPageKey,
+		query: {
+			...route.query,
+			[QUERY_PARAMS.SERVER_BASE_URL]: serverConfig.serverBaseUrl,
+			[QUERY_PARAMS.RW_SERVER_URL]: serverConfig.rwServerUrl,
+		},
+	});
 };
 
 const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -56,6 +89,7 @@ onMounted(async () => {
 
 	// Load settings
 	settingsStore.loadSettings();
+	projectServerConfigsStore.loadConfigs();
 	keyboardShortcutsStore.loadShortcuts();
 	workspaceStore.loadWorkspace();
 
@@ -146,5 +180,23 @@ watch(
 	<!-- Settings Keyboard Shortcuts Modal -->
 	<Modal v-if="settingsStore.isEditingKeyboardShortcuts" @close="settingsStore.toggleKeyboardShortcutsEditor">
 		<KeyboardShortcutsEditor @close="settingsStore.toggleKeyboardShortcutsEditor" />
+	</Modal>
+
+	<!-- Project Server Configurations Modal -->
+	<Modal v-if="isProjectServerConfigsModalVisible" @close="isProjectServerConfigsModalVisible = false">
+		<ServerConfigsList
+			:currentProject="{
+				repositoryUrl: projectStore.getRepositoryUrl,
+				branch: projectStore.repositoryBranch,
+			}"
+			:projectConfigs="
+				projectServerConfigsStore.getConfigsForProject({
+					repositoryUrl: projectStore.getRepositoryUrl,
+					branch: projectStore.repositoryBranch,
+				})
+			"
+			@close="isProjectServerConfigsModalVisible = false"
+			@select="handleSelectServerConfig"
+		/>
 	</Modal>
 </template>

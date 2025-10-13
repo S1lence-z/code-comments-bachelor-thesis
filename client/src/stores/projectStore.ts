@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { type LocationQuery } from "vue-router";
 import { QUERY_PARAMS, type QueryParams } from "../types/others/QueryParams";
+import { useProjectServerConfigsStore } from "./projectServerConfigsStore";
 
 export const useProjectStore = defineStore("projectStore", {
 	state: () => ({
@@ -20,6 +21,7 @@ export const useProjectStore = defineStore("projectStore", {
 	},
 	actions: {
 		syncStateWithRoute(newQuery: LocationQuery) {
+			const projectServerConfigsStore = useProjectServerConfigsStore();
 			// Simple extraction from query
 			const extractString = (value: any): string => {
 				if (Array.isArray(value)) return value[0] || "";
@@ -30,6 +32,16 @@ export const useProjectStore = defineStore("projectStore", {
 			this.repositoryUrl = extractString(newQuery[QUERY_PARAMS.REPOSITORY_URL]);
 			this.rwServerUrl = extractString(newQuery[QUERY_PARAMS.RW_SERVER_URL]);
 			this.repositoryBranch = extractString(newQuery[QUERY_PARAMS.BRANCH]);
+			projectServerConfigsStore.saveConfig(
+				{
+					repositoryUrl: this.repositoryUrl,
+					branch: this.repositoryBranch,
+				},
+				{
+					serverBaseUrl: this.serverBaseUrl,
+					rwServerUrl: this.rwServerUrl,
+				}
+			);
 		},
 		updateFromParams(params: QueryParams) {
 			this.serverBaseUrl = params.serverBaseUrl || "";
