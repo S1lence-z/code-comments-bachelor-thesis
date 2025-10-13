@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import type { Workspace } from "../types/others/Panels";
 import { appSavedWorkspaceKey } from "../core/keys";
+import { useErrorHandler } from "../composables/useErrorHandler";
 
 export const useWorkspaceStore = defineStore("workspaceStore", {
 	state: () => ({
@@ -49,19 +50,20 @@ export const useWorkspaceStore = defineStore("workspaceStore", {
 			localStorage.setItem(appSavedWorkspaceKey.description!, JSON.stringify(this.savedWorkspaces));
 		},
 		loadWorkspace(): Workspace[] {
+			const errorHandler = useErrorHandler();
 			const savedData = localStorage.getItem(appSavedWorkspaceKey.description!);
-
 			if (savedData) {
 				try {
 					const parsedWorkspace: Workspace[] = JSON.parse(savedData);
 					this.applyWorkspaces(parsedWorkspace);
 					return parsedWorkspace;
 				} catch (error) {
-					console.error("Failed to parse workspace data:", error);
+					errorHandler.handleError(error, {
+						customMessage: "Failed to parse workspace data.",
+					});
 					return [];
 				}
 			} else {
-				console.warn("No saved workspaces found.");
 				return [];
 			}
 		},

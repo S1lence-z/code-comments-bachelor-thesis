@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { projectServerConfigsKey } from "../core/keys";
+import { useErrorHandler } from "../composables/useErrorHandler";
 
 export interface ProjectInfo {
 	repositoryUrl: string;
@@ -34,6 +35,7 @@ export const useProjectServerConfigsStore = defineStore("projectServerConfigsSto
 	actions: {
 		loadConfigs() {
 			// Load from localStorage
+			const errorHandler = useErrorHandler();
 			const storedConfigs = localStorage.getItem(projectServerConfigsKey.description!);
 			if (storedConfigs) {
 				try {
@@ -52,7 +54,9 @@ export const useProjectServerConfigsStore = defineStore("projectServerConfigsSto
 						this.configs.set(projectInfo, item.value);
 					});
 				} catch (error) {
-					console.error("Failed to parse project server configs:", error);
+					errorHandler.handleError(error, {
+						customMessage: "Failed to parse project server configs.",
+					});
 				}
 			}
 		},
@@ -98,6 +102,7 @@ export const useProjectServerConfigsStore = defineStore("projectServerConfigsSto
 			this.persistConfigs();
 		},
 		persistConfigs() {
+			const errorHandler = useErrorHandler();
 			try {
 				// Convert Map to serializable array
 				const serializable = Array.from(this.configs.entries()).map(([key, value]) => ({
@@ -110,7 +115,9 @@ export const useProjectServerConfigsStore = defineStore("projectServerConfigsSto
 
 				localStorage.setItem(projectServerConfigsKey.description!, JSON.stringify(serializable));
 			} catch (error) {
-				console.error("Failed to persist project server configs:", error);
+				errorHandler.handleError(error, {
+					customMessage: "Failed to persist project server configs.",
+				});
 			}
 		},
 	},

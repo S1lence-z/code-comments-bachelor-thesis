@@ -80,8 +80,7 @@ const useGithubFileService = () => {
 		// Fetch the file content
 		const response = await fetch(contentUrl, { headers });
 		if (!response.ok) {
-			const errorText = await response.json();
-			throw new Error(`Failed to load file content for ${path}. Error ${response.status}: ${errorText || ""}`);
+			throw new Error(`Failed to load file content for ${path}. Error ${response.status}`);
 		}
 		const responseData: GithubFileContentResponse = await response.json();
 		const processedFile = processFileContent(responseData);

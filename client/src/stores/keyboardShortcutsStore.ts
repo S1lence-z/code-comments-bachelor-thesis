@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import type { AppKeyboardShortcuts, KeyboardShortcut } from "../types/others/KeyboardShortcuts";
 import { appKeyboardShortcutsKey } from "../core/keys";
+import { useErrorHandler } from "../composables/useErrorHandler";
 
 const defaultKeyBoardShortcuts: AppKeyboardShortcuts = {
 	addComment: { binding: "Ctrl-c", actionName: "Add Comment" },
@@ -33,13 +34,16 @@ export const useKeyboardShortcutsStore = defineStore("keyboardShortcutsStore", {
 			localStorage.setItem(appKeyboardShortcutsKey.description!, JSON.stringify(this.getPersistentShortcuts()));
 		},
 		loadShortcuts() {
+			const errorHandler = useErrorHandler();
 			const savedData = localStorage.getItem(appKeyboardShortcutsKey.description!);
 			if (savedData) {
 				try {
 					const parsedShortcuts: AppKeyboardShortcuts = JSON.parse(savedData);
 					this.applyShortcuts(parsedShortcuts);
 				} catch (error) {
-					console.error("Failed to parse saved keyboard shortcuts:", error);
+					errorHandler.handleError(error, {
+						customMessage: "Failed to parse saved keyboard shortcuts.",
+					});
 					this.applyShortcuts(defaultKeyBoardShortcuts);
 				}
 			} else {

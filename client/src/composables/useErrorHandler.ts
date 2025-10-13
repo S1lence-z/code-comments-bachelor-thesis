@@ -39,7 +39,7 @@ export const useErrorHandler = () => {
 	};
 
 	const handleError = (error: unknown, options: ErrorHandlerOptions = {}) => {
-		const { showToast = true, toastDuration = 5000, logToConsole = true, customMessage, onError } = options;
+		const { showToast = true, toastDuration = 5000, logToConsole = false, customMessage, onError } = options;
 
 		const errorMessage = customMessage || extractErrorMessage(error);
 

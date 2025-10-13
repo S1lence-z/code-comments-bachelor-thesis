@@ -16,6 +16,7 @@ import { QUERY_PARAMS } from "./types/others/QueryParams";
 import { useProjectServerConfigsStore, type ServerConfig } from "./stores/projectServerConfigsStore.ts";
 import ServerConfigsList from "./components/app/ServerConfigsList.vue";
 import ToastContainer from "./components/app/ToastContainer.vue";
+import { useErrorHandler } from "./composables/useErrorHandler.ts";
 
 // Router
 const router = useRouter();
@@ -25,6 +26,7 @@ const isRouterReady = ref(false);
 // State
 const isProjectServerConfigsModalVisible = ref(false);
 const hasInitialLoadCompleted = ref(false);
+const errorHandler = useErrorHandler();
 
 // Stores
 const projectStore = useProjectStore();
@@ -120,7 +122,9 @@ onMounted(async () => {
 			hasInitialLoadCompleted.value = true;
 		})
 		.catch((error) => {
-			console.error("Router is not ready:", error);
+			errorHandler.handleError(error, {
+				customMessage: "Router is not ready",
+			});
 		});
 });
 

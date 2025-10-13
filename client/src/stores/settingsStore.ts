@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import type AppSettings from "../types/others/AppSettings";
 import { appSettingsKey } from "../core/keys";
+import { useErrorHandler } from "../composables/useErrorHandler";
 
 export const useSettingsStore = defineStore("settingsStore", {
 	state: () => ({
@@ -74,13 +75,16 @@ export const useSettingsStore = defineStore("settingsStore", {
 			this.offlineModeState = offlineMode;
 		},
 		loadSettings() {
+			const errorHandler = useErrorHandler();
 			const savedSettingsString = localStorage.getItem(appSettingsKey.description!);
 			if (savedSettingsString) {
 				try {
 					const parsedSettings: AppSettings = JSON.parse(savedSettingsString);
 					this.applySettings(parsedSettings);
 				} catch (error) {
-					console.error("Failed to parse saved settings:", error);
+					errorHandler.handleError(error, {
+						customMessage: "Failed to parse saved settings.",
+					});
 				}
 			}
 		},

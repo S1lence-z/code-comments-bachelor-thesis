@@ -1,6 +1,7 @@
 import { EditorView, ViewPlugin, ViewUpdate, Decoration, type DecorationSet } from "@codemirror/view";
 import { Range } from "@codemirror/state";
 import type CommentDto from "../../types/dtos/CommentDto";
+import { useErrorHandler } from "../../composables/useErrorHandler";
 
 // Create decorations for line numbers and gutter markers
 const multilineCommentLineNumberDeco = Decoration.line({
@@ -9,6 +10,8 @@ const multilineCommentLineNumberDeco = Decoration.line({
 
 // Plugin to apply multiline comment highlighting
 export function multilineCommentHighlightExtension(comments: CommentDto[]) {
+	const { showWarning } = useErrorHandler();
+
 	return ViewPlugin.fromClass(
 		class {
 			decorations: DecorationSet;
@@ -40,7 +43,9 @@ export function multilineCommentHighlightExtension(comments: CommentDto[]) {
 							decorations.push(multilineCommentLineNumberDeco.range(line.from));
 						} catch (e) {
 							// Line might not exist, skip it
-							console.warn(`Line ${lineNum} does not exist in document`);
+							showWarning(
+								`Line ${lineNum} does not exist in document ${comment.location.filePath}. Skipping decoration.`
+							);
 						}
 					}
 				});
@@ -56,6 +61,7 @@ export function multilineCommentHighlightExtension(comments: CommentDto[]) {
 	);
 }
 
+// TODO: move this styling to a tailwind class
 // Theme extension for styling
 export const multilineCommentTheme = EditorView.theme({
 	".cm-line.multiline-comment-line-number": {

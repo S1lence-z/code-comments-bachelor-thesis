@@ -50,7 +50,7 @@ const handleResize = (event: MouseEvent) => {
 	const containerRect = props.resizableElement.parentElement?.getBoundingClientRect();
 
 	if (!containerRect) {
-		console.error("ResizeHandle: Parent element not found");
+		console.warn("Resizable element has no parent element. Cannot calculate bounds.");
 		return;
 	}
 

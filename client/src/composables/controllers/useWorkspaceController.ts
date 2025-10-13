@@ -6,6 +6,7 @@ import { useSettingsStore } from "../../stores/settingsStore";
 import { useWorkspaceStore } from "../../stores/workspaceStore";
 import { useProjectStore } from "../../stores/projectStore";
 import { useFileContentStore } from "../../stores/fileContentStore";
+import { useErrorHandler } from "../useErrorHandler";
 
 export interface WorkspaceControllerProps {
 	selectedFilePath: Ref<string | null>;
@@ -21,6 +22,7 @@ export function useWorkspaceController(props: WorkspaceControllerProps, emit: Wo
 	const workspaceStore = useWorkspaceStore();
 	const projectStore = useProjectStore();
 	const fileContentStore = useFileContentStore();
+	const { handleError } = useErrorHandler();
 
 	// Workspace state
 	const currentWorkspace = ref<Workspace>({
@@ -245,7 +247,7 @@ export function useWorkspaceController(props: WorkspaceControllerProps, emit: Wo
 	const initializeWorkspace = (): void => {
 		// Ensure project info is available
 		if (!projectStore.repositoryUrl || !projectStore.repositoryBranch) {
-			console.warn("Project information not available for workspace initialization");
+			handleError("Project information not available for workspace initialization");
 			return;
 		}
 

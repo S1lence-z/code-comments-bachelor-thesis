@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { commentBrowserStateKey } from "../core/keys";
+import { useErrorHandler } from "../composables/useErrorHandler";
 
 export const useCommentBrowserStore = defineStore("commentBrowserStore", {
 	state: () => ({
@@ -24,13 +25,16 @@ export const useCommentBrowserStore = defineStore("commentBrowserStore", {
 			sessionStorage.setItem(commentBrowserStateKey.description!, JSON.stringify(stateToSave));
 		},
 		loadState() {
+			const errorHandler = useErrorHandler();
 			const savedState = sessionStorage.getItem(commentBrowserStateKey.description!);
 			if (savedState) {
 				try {
 					const parsedState: { openedFiles: string[] } = JSON.parse(savedState);
 					this.openedFiles = new Set(parsedState.openedFiles || []);
 				} catch (error) {
-					console.error("Failed to parse comment browser state from sessionStorage:", error);
+					errorHandler.handleError(error, {
+						customMessage: "Failed to load comment browser state.",
+					});
 				}
 			}
 		},

@@ -9,6 +9,7 @@ import { useServerStatusStore } from "./serverStore";
 import { CommentType } from "../types/enums/CommentType";
 import { useFileContentStore } from "./fileContentStore";
 import { useSettingsStore } from "./settingsStore";
+import { useErrorHandler } from "../composables/useErrorHandler";
 
 // TODO: Dummy category to have at least one -> improve, add it also on the server side
 const dummyCategoryDto: CategoryDto = {
@@ -65,22 +66,26 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 		},
 		async fetchRepositoryTree(repositoryUrl: string, branch: string, githubPat: string) {
 			const githubTreeService = useGithubTreeService();
+			const { showWarning, handleError } = useErrorHandler();
+
 			this.isLoadingRepository = true;
 			try {
 				if (!repositoryUrl || !repositoryUrl.trim()) {
-					console.warn("Cannot fetch repository tree: repositoryUrl is empty or invalid");
+					showWarning("Cannot fetch repository tree: repository is not set.");
 					this.fileTreeData = [];
 					return;
 				}
 
 				if (this.githubUrlForTree === repositoryUrl) {
-					console.log("File tree already fetched, skipping API call.");
 					return;
 				}
 
 				this.fileTreeData = await githubTreeService.getRepositoryTree(repositoryUrl, branch, githubPat);
 				this.githubUrlForTree = repositoryUrl;
-			} catch (error: any) {
+			} catch (error) {
+				handleError(error, {
+					customMessage: "Failed to load repository tree.",
+				});
 				this.fileTreeData = [];
 			} finally {
 				this.isLoadingRepository = false;
@@ -96,10 +101,10 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 			const commentsService = useCommentsService();
 			const fileContentStore = useFileContentStore();
 			const settingsStore = useSettingsStore();
+			const { showWarning, handleError } = useErrorHandler();
 
 			// In offline mode, do not fetch comments
 			if (settingsStore.isOfflineMode) {
-				console.log("Offline mode - skipping fetching comments from server");
 				this.comments = [];
 				return;
 			}
@@ -110,8 +115,8 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 
 				const response = await commentsService.getComments(rwServerUrl);
 				if (!response) {
-					serverStore.setSyncError("No comments found in the response");
-					console.warn("No comments found in the response");
+					serverStore.setSyncError("No comments found on the server.");
+					showWarning("No comments found on the server.");
 					return;
 				}
 
@@ -126,6 +131,9 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				serverStore.setSynced();
 			} catch (error) {
 				serverStore.setSyncError("Failed to fetch comments");
+				handleError(error, {
+					customMessage: "Failed to load comments.",
+				});
 				this.comments = [];
 			} finally {
 				this.isLoadingComments = false;
@@ -134,10 +142,10 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 		async fetchAllCategoriesAsync(serverBaseUrl: string) {
 			const categoryService = useCategoryService();
 			const settingsStore = useSettingsStore();
+			const { handleError } = useErrorHandler();
 
 			// In offline mode, do not fetch categories
 			if (settingsStore.isOfflineMode) {
-				console.log("Offline mode - skipping fetching categories from server");
 				this.categories = [dummyCategoryDto];
 				return;
 			}
@@ -146,8 +154,10 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				this.isLoadingCategories = true;
 				const fetchedCategories = await categoryService.getAllCategories(serverBaseUrl);
 				this.categories = fetchedCategories;
-			} catch (error: any) {
-				console.error("Error fetching categories:", error);
+			} catch (error) {
+				handleError(error, {
+					customMessage: "Failed to load categories. Using default.",
+				});
 				this.categories = [dummyCategoryDto];
 			} finally {
 				this.isLoadingCategories = false;
@@ -158,6 +168,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 			const serverStore = useServerStatusStore();
 			const commentsService = useCommentsService();
 			const settingsStore = useSettingsStore();
+			const { handleError } = useErrorHandler();
 
 			try {
 				this.isSavingComment = true;
@@ -193,13 +204,13 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 
 				// Add new comment
 				const newComment = await commentsService.addComment(rwServerUrl, commentData);
-				if (!newComment.id) {
-					throw new Error("Failed to add comment");
-				}
 				this.upsertCommentLocal({ ...newComment, id: newComment.id });
 				serverStore.setSynced();
-			} catch (error: any) {
+			} catch (error) {
 				serverStore.setSyncError("Failed to upsert comment");
+				handleError(error, {
+					customMessage: "Failed to upsert comment.",
+				});
 			} finally {
 				this.isSavingComment = false;
 			}
@@ -208,13 +219,13 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 			const serverStore = useServerStatusStore();
 			const commentsService = useCommentsService();
 			const settingsStore = useSettingsStore();
+			const { handleError } = useErrorHandler();
 
 			try {
 				this.isSavingComment = true;
 
 				// Offline mode
 				if (settingsStore.isOfflineMode) {
-					console.log("Operating in offline mode - deleting comment locally only");
 					this.deleteCommentLocal(commentId);
 					return;
 				}
@@ -224,7 +235,10 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				await commentsService.deleteComment(rwServerUrl, commentId);
 				this.deleteCommentLocal(commentId);
 				serverStore.setSynced();
-			} catch (error: any) {
+			} catch (error) {
+				handleError(error, {
+					customMessage: "Failed to delete comment.",
+				});
 				serverStore.setSyncError("Failed to delete comment");
 			} finally {
 				this.isSavingComment = false;
