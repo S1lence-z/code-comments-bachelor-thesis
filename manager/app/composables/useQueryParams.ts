@@ -47,7 +47,6 @@ export const useQueryParams = () => {
 			query[QUERY_PARAMS.BRANCH] = branch;
 		}
 		if (config.public.clientUrl) {
-			alert("This will open the client in a new tab. Continue?");
 			const url = config.public.clientUrl + "?" + new URLSearchParams(query).toString();
 			const newWindow = window.open(url, "_blank", "noopener,noreferrer");
 			if (newWindow) newWindow.opener = null;
@@ -65,7 +64,6 @@ export const useQueryParams = () => {
 			query[QUERY_PARAMS.BRANCH] = branch;
 		}
 		if (config.public.clientUrl) {
-			alert("This will open the client in a new tab. Continue?");
 			const url = config.public.clientUrl + "?" + new URLSearchParams(query).toString();
 			const newWindow = window.open(url, "_blank", "noopener,noreferrer");
 			if (newWindow) newWindow.opener = null;

@@ -19,7 +19,6 @@ export function useSetupPage() {
 	const formGithubRepositoryUrl = ref("");
 	const formBranchName = ref("");
 	const formProjectName = ref("");
-	const formReadWriteApiUrl = ref("");
 	const formServerBaseUrl = ref("");
 
 	// UI state
@@ -31,6 +30,7 @@ export function useSetupPage() {
 	const isOfflineMode = ref(false);
 
 	// Data
+	const readWriteServerUrl = ref("");
 	const existingProjects = ref<ProjectDto[]>([]);
 
 	// Handle new project creation
@@ -62,15 +62,13 @@ export function useSetupPage() {
 			}
 
 			// Create offline project
-			if (isOfflineMode) {
+			if (isOfflineMode.value) {
 				createOfflineProject();
 				return;
 			}
 
 			// Create project via server
 			createProject(serverBaseUrl, repositoryUrl, branchName, projectName);
-			isProjectCreated.value = true;
-			projectCreationErrorMessage.value = "";
 		} catch (error: any) {
 			projectCreationErrorMessage.value = `Error during project setup: ${
 				error.message || "Unknown error"
@@ -92,6 +90,7 @@ export function useSetupPage() {
 		projectName: string
 	): Promise<void> => {
 		try {
+			isCreatingProject.value = true;
 			// Prepare setup data
 			const setupData: ProjectSetupRequest = {
 				serverBaseUrl,
@@ -106,15 +105,20 @@ export function useSetupPage() {
 				formServerBaseUrl.value.trim()
 			);
 
-			if (response.readWriteApiUrl && response.repository) {
-				formReadWriteApiUrl.value = response.readWriteApiUrl;
+			if (response && response.readWriteApiUrl) {
+				readWriteServerUrl.value = response.readWriteApiUrl;
+				existingProjects.value.push(response);
 			} else {
-				throw new Error("Invalid response from server");
+				projectCreationErrorMessage.value = "Server did not return a read-write API URL.";
+				return;
 			}
 		} catch (error: any) {
 			projectCreationErrorMessage.value = `Failed to create review session: ${
 				error.message || "Unknown error"
 			}`;
+		} finally {
+			isCreatingProject.value = false;
+			isProjectCreated.value = !projectCreationErrorMessage.value;
 		}
 	};
 
@@ -133,7 +137,7 @@ export function useSetupPage() {
 		navigateToProject(
 			formServerBaseUrl.value.trim(),
 			formGithubRepositoryUrl.value.trim(),
-			formReadWriteApiUrl.value.trim(),
+			readWriteServerUrl.value.trim(),
 			formBranchName.value.trim()
 		);
 	};
