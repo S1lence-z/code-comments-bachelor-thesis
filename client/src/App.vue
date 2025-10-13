@@ -117,14 +117,11 @@ onMounted(async () => {
 		.catch((error) => {
 			console.error("Router is not ready:", error);
 		});
-
-	onBeforeUnmount(() => {
-		settingsStore.saveSettings();
-		keyboardShortcutsStore.saveShortcuts();
-	});
 });
 
 onBeforeUnmount(() => {
+	settingsStore.saveSettings();
+	keyboardShortcutsStore.saveShortcuts();
 	window.removeEventListener("beforeunload", handleBeforeUnload);
 });
 
