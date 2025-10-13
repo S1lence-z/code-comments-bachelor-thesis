@@ -13,9 +13,9 @@ export function useSetupPage() {
 	const projectService = useProjectService();
 
 	// Query params composable
-	const { navigateToProject, setupServerUrl } = useQueryParams();
+	const { navigateToProject, navigateToOfflineProject, setupServerUrl } = useQueryParams();
 
-	// Form input values
+	// Form values
 	const formGithubRepositoryUrl = ref("");
 	const formBranchName = ref("");
 	const formProjectName = ref("");
@@ -35,32 +35,53 @@ export function useSetupPage() {
 
 	// Handle new project creation
 	const handleNewProjectCreation = async () => {
+		// Reset state
+		isProjectCreated.value = false;
+		projectCreationErrorMessage.value = "";
+
 		// Trim inputs
 		const repositoryUrl = formGithubRepositoryUrl.value.trim();
 		const branchName = formBranchName.value.trim();
 		const projectName = formProjectName.value.trim();
 		const serverBaseUrl = formServerBaseUrl.value.trim();
 
-		// Validate github URL
-		if (!isValidGithubUrl(repositoryUrl)) {
-			projectCreationErrorMessage.value = "Invalid GitHub repository URL.";
-			return;
-		}
+		try {
+			isCreatingProject.value = true;
 
-		// Validate the branch exists on the repository
-		const branchExists = await branchExistsInRepo(repositoryUrl, branchName);
-		if (!branchExists) {
-			projectCreationErrorMessage.value = `The branch "${branchName}" does not exist in the repository.`;
-			return;
-		}
+			// Validate github URL
+			if (!isValidGithubUrl(repositoryUrl)) {
+				projectCreationErrorMessage.value = "Invalid GitHub repository URL.";
+				return;
+			}
 
-		if (!isOfflineMode.value) {
+			// Validate the branch exists on the repository
+			const branchExists = await branchExistsInRepo(repositoryUrl, branchName);
+			if (!branchExists) {
+				projectCreationErrorMessage.value = `The branch "${branchName}" does not exist in the repository.`;
+				return;
+			}
+
+			// Create offline project
+			if (isOfflineMode) {
+				createOfflineProject();
+				return;
+			}
+
+			// Create project via server
 			createProject(serverBaseUrl, repositoryUrl, branchName, projectName);
-			return;
+			isProjectCreated.value = true;
+			projectCreationErrorMessage.value = "";
+		} catch (error: any) {
+			projectCreationErrorMessage.value = `Error during project setup: ${
+				error.message || "Unknown error"
+			}`;
+		} finally {
+			isCreatingProject.value = false;
 		}
-		// In offline mode, simulate project creation without server interaction
+	};
+
+	const createOfflineProject = () => {
 		isProjectCreated.value = true;
-		projectCreationErrorMessage.value = "";
 	};
 
 	// Create new project from form
@@ -70,11 +91,6 @@ export function useSetupPage() {
 		branchName: string,
 		projectName: string
 	): Promise<void> => {
-		isCreatingProject.value = true;
-		isProjectCreated.value = false;
-		projectCreationErrorMessage.value = "";
-
-		// Submit project setup request
 		try {
 			// Prepare setup data
 			const setupData: ProjectSetupRequest = {
@@ -91,7 +107,6 @@ export function useSetupPage() {
 			);
 
 			if (response.readWriteApiUrl && response.repository) {
-				isProjectCreated.value = true;
 				formReadWriteApiUrl.value = response.readWriteApiUrl;
 			} else {
 				throw new Error("Invalid response from server");
@@ -100,14 +115,20 @@ export function useSetupPage() {
 			projectCreationErrorMessage.value = `Failed to create review session: ${
 				error.message || "Unknown error"
 			}`;
-		} finally {
-			isCreatingProject.value = false;
 		}
 	};
 
 	// Navigate to newly created project
 	const navigateToNewProject = (): void => {
 		if (!isProjectCreated.value) return;
+
+		if (isOfflineMode.value) {
+			navigateToOfflineProject(
+				formGithubRepositoryUrl.value.trim(),
+				formBranchName.value.trim()
+			);
+			return;
+		}
 
 		navigateToProject(
 			formServerBaseUrl.value.trim(),
@@ -158,7 +179,12 @@ export function useSetupPage() {
 
 	// Use default server URL
 	const useDefaultServerUrl = () => {
-		formServerBaseUrl.value = config.public.defaultServerUrl || "";
+		if (!config.public.defaultServerUrl) {
+			alert("No default server URL is configured. Please enter a server URL.");
+			return;
+		}
+
+		formServerBaseUrl.value = config.public.defaultServerUrl;
 	};
 
 	// Handle offline mode (skip server URL configuration)

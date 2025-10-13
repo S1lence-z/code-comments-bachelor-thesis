@@ -47,16 +47,36 @@ export const useQueryParams = () => {
 			query[QUERY_PARAMS.BRANCH] = branch;
 		}
 		if (config.public.clientUrl) {
+			alert("This will open the client in a new tab. Continue?");
 			const url = config.public.clientUrl + "?" + new URLSearchParams(query).toString();
 			const newWindow = window.open(url, "_blank", "noopener,noreferrer");
 			if (newWindow) newWindow.opener = null;
 		} else {
-			alert("Viewer base URL is not configured.");
+			alert("Client URL is not configured.");
+		}
+	};
+
+	const navigateToOfflineProject = (repositoryUrl: string, branch: string) => {
+		const query: Record<string, string> = {};
+		if (repositoryUrl) {
+			query[QUERY_PARAMS.REPOSITORY_URL] = repositoryUrl;
+		}
+		if (branch) {
+			query[QUERY_PARAMS.BRANCH] = branch;
+		}
+		if (config.public.clientUrl) {
+			alert("This will open the client in a new tab. Continue?");
+			const url = config.public.clientUrl + "?" + new URLSearchParams(query).toString();
+			const newWindow = window.open(url, "_blank", "noopener,noreferrer");
+			if (newWindow) newWindow.opener = null;
+		} else {
+			alert("Client URL is not configured.");
 		}
 	};
 
 	return {
 		setupServerUrl,
 		navigateToProject,
+		navigateToOfflineProject,
 	};
 };
