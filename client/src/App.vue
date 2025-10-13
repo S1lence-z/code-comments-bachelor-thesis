@@ -66,7 +66,7 @@ const handleSwitchOfflineMode = () => {
 
 const handleSelectServerConfig = (serverConfig: ServerConfig) => {
 	if (!serverConfig.serverBaseUrl || !serverConfig.rwServerUrl) {
-		alert("Selected server configuration is incomplete. Please select a valid configuration.");
+		errorHandler.showError("Selected server configuration is incomplete. Please select a valid configuration.");
 		return;
 	}
 	// Switch to online mode

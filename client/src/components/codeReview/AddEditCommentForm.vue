@@ -9,6 +9,7 @@ import { storeToRefs } from "pinia";
 import type RawCommentData from "../../types/others/RawCommentData";
 import { CommentType } from "../../types/enums/CommentType";
 import { getCommentLocationInfoByType } from "../../utils/commentUtils";
+import { useErrorHandler } from "../../composables/useErrorHandler";
 
 const { t } = useI18n();
 
@@ -30,6 +31,7 @@ const emit = defineEmits<FormEmits>();
 // Stores
 const projectDataStore = useProjectDataStore();
 const { comments } = storeToRefs(projectDataStore);
+const errorHandler = useErrorHandler();
 
 // InputArea ref
 const inputAreaRef = ref<InstanceType<typeof InputArea> | null>(null);
@@ -69,7 +71,7 @@ const handleKeyboardEvent = (event: KeyboardEvent) => {
 
 const handleSubmit = () => {
 	if (!commentData.content.trim()) {
-		alert(t("commentForm.contentRequired"));
+		errorHandler.showWarning(t("commentForm.contentRequired"));
 		return;
 	}
 	emit("submit", commentData);
