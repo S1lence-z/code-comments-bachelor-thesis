@@ -23,6 +23,7 @@ const isRouterReady = ref(false);
 
 // State
 const isProjectServerConfigsModalVisible = ref(false);
+const hasInitialLoadCompleted = ref(false);
 
 // Stores
 const projectStore = useProjectStore();
@@ -113,6 +114,9 @@ onMounted(async () => {
 				projectStore.githubPat,
 				projectStore.getServerBaseUrl
 			);
+
+			// Mark initial load as complete
+			hasInitialLoadCompleted.value = true;
 		})
 		.catch((error) => {
 			console.error("Router is not ready:", error);
@@ -129,6 +133,11 @@ onBeforeUnmount(() => {
 watch(
 	() => route.query,
 	async (newQuery, oldQuery) => {
+		// Skip if initial load hasn't completed yet (prevents double-loading on mount)
+		if (!hasInitialLoadCompleted.value) {
+			return;
+		}
+
 		const relevantParams = Object.values(QUERY_PARAMS);
 		const hasRelevantChanges = relevantParams.some((param) => newQuery[param] !== oldQuery[param]);
 
