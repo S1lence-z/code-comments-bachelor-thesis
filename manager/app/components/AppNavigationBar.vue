@@ -13,12 +13,12 @@ const route = useRoute();
 		<div class="flex items-center justify-between h-full max-w-full px-6 py-4">
 			<!-- Logo and Navigation -->
 			<div class="flex items-center gap-3">
-				<Icon name="mdi:code-json" class="w-6 h-6 text-blue-400" />
+				<Icon name="mdi:code-json" class=" text-blue-400 flex-shrink-0" size="28" />
 				<NuxtLink
 					to="/setup"
 					class="text-white text-xl font-bold transition-colors duration-200 hover:text-blue-300 whitespace-nowrap"
 				>
-                    {{ t('appNavigationBar.title') }}
+					{{ t('appNavigationBar.title') }}
 				</NuxtLink>
 
 				<!-- Navigation Links -->
