@@ -30,5 +30,8 @@ RUN npm install -g serve
 # Copy build artifacts
 COPY --from=builder /app/dist ./dist
 
+# Create the 404.html
+RUN cp ./dist/index.html ./dist/404.html
+
 EXPOSE 3000
 CMD ["serve", "-s", "dist", "-l", "3000"]
