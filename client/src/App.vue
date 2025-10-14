@@ -17,6 +17,11 @@ import { useProjectServerConfigsStore, type ServerConfig } from "./stores/projec
 import ServerConfigsList from "./components/app/ServerConfigsList.vue";
 import ToastContainer from "./components/app/ToastContainer.vue";
 import { useErrorHandler } from "./composables/useErrorHandler.ts";
+import Card from "./lib/Card.vue";
+import Button from "./lib/Button.vue";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 // Router
 const router = useRouter();
@@ -25,6 +30,7 @@ const isRouterReady = ref(false);
 
 // State
 const isProjectServerConfigsModalVisible = ref(false);
+const isEmptyProjectModalVisible = ref(false);
 const hasInitialLoadCompleted = ref(false);
 const errorHandler = useErrorHandler();
 
@@ -88,6 +94,10 @@ const handleBeforeUnload = (event: BeforeUnloadEvent) => {
 	}
 };
 
+const navigateToManager = () => {
+	window.location.href = import.meta.env.VITE_MANAGER_URL;
+};
+
 onMounted(async () => {
 	window.addEventListener("beforeunload", handleBeforeUnload);
 
@@ -103,13 +113,19 @@ onMounted(async () => {
 			isRouterReady.value = true;
 			projectStore.syncStateWithRoute(route.query);
 
+			// Check if the project is completely empty
+			if (projectStore.isProjectCompletelyEmpty) {
+				isEmptyProjectModalVisible.value = true;
+				return;
+			}
+
 			// Turn on offline mode
 			if (!projectStore.getServerBaseUrl || !projectStore.rwServerUrl) {
 				settingsStore.toggleOfflineMode(true);
 			}
 
-			// TODO: consider moving this to a route guard if only some routes need project data
-			// Load the synced project data if not in offline mode
+			// TODO: consider moving this to a route guard
+			// Load the synced project data
 			await projectDataStore.loadProjectDataAsync(
 				projectStore.repositoryUrl,
 				projectStore.rwServerUrl,
@@ -208,7 +224,26 @@ watch(
 			"
 			@close="isProjectServerConfigsModalVisible = false"
 			@select="handleSelectServerConfig"
+			@navigateToManager="navigateToManager"
 		/>
+	</Modal>
+
+	<!-- Empty Project Modal -->
+	<Modal v-if="isEmptyProjectModalVisible">
+		<Card
+			class="w-[600px] max-w-full mx-auto"
+			icon-name="archive"
+			icon-gradient="blue"
+			:title="t('app.noProjectConfigured')"
+		>
+			<Button
+				:label="t('serverConfigList.goToSetup')"
+				button-style="primary"
+				button-size="large"
+				class="mt-4"
+				@click="navigateToManager"
+			/>
+		</Card>
 	</Modal>
 
 	<!-- Toast Notifications Container -->

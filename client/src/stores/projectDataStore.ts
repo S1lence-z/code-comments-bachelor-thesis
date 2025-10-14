@@ -54,9 +54,6 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 			githubPat: string,
 			serverBaseUrl: string
 		) {
-			const serverStore = useServerStatusStore();
-			serverStore.startSyncing();
-
 			const promises = [
 				this.fetchRepositoryTree(newRepositoryUrl, newBranch, githubPat),
 				this.fetchAllCommentsAsync(newRwServerUrl, newRepositoryUrl, newBranch, githubPat),

@@ -3,7 +3,7 @@ import type { ServerStatus } from "../types/others/ServerStatus.ts";
 
 export const useServerStatusStore = defineStore("serverStatusStore", {
 	state: () => ({
-		serverStatus: "error" as ServerStatus,
+		serverStatus: "idle" as ServerStatus,
 		errorMessage: "",
 	}),
 	getters: {
@@ -30,5 +30,6 @@ export const useServerStatusStore = defineStore("serverStatusStore", {
 				this.serverStatus = "synced";
 			}, 2000);
 		},
+		
 	},
 });

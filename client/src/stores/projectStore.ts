@@ -18,6 +18,9 @@ export const useProjectStore = defineStore("projectStore", {
 		getGithubPat: (state) => state.githubPat,
 		getRepositoryName: (state) => state.repositoryUrl.split("/").pop() || "Unknown",
 		getServerBaseUrl: (state) => state.serverBaseUrl,
+		isProjectCompletelyEmpty: (state) => {
+			return !state.serverBaseUrl && !state.rwServerUrl && !state.repositoryUrl && !state.repositoryBranch;
+		},
 	},
 	actions: {
 		syncStateWithRoute(newQuery: LocationQuery) {
