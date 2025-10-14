@@ -1,0 +1,138 @@
+{
+	"app": {
+		"title": "Reviewer",
+		"copyright": "© 2025 Code Comments"
+	},
+	"navigation": {
+		"setup": "Setup",
+		"codeReview": "Code Review",
+		"overview": "Overview"
+	},
+	"serverConfigList": {
+		"title": "Saved Server Configurations",
+		"projectInfo": "Project Information",
+		"repository": "Repository",
+		"branch": "Branch",
+		"noConfigs": "No saved configurations available",
+		"noConfigsSubtext": "Server configurations will appear here once saved",
+		"createProject": "Navigate to the setup page and create a new project!",
+		"goToSetup": "Go To Setup Page",
+		"availableConfigs": "Available Configurations",
+		"configName": "Configuration Name",
+		"serverBaseUrl": "Server Base URL",
+		"rwServerUrl": "Review Board Server URL",
+		"notConfigured": "Not configured",
+		"cancel": "Cancel"
+	},
+	"settings": {
+		"title": "Settings",
+		"showSidebar": "Show Sidebar",
+		"keyboardMode": "Keyboard Mode",
+		"saveWorkspace": "Save Workspace",
+		"compactCommentWidget": "Compact Comment Widget",
+		"offlineMode": "Offline Mode",
+		"editKeyboardShortcuts": "Edit Keyboard Shortcuts"
+	},
+	"keyboardShortcuts": {
+		"title": "Keyboard Shortcuts",
+		"resetToDefault": "Reset to Default",
+		"helpText": "Press Ctrl + any key to set the shortcut",
+		"save": "Save",
+		"cancel": "Cancel",
+		"notSet": "Not set"
+	},
+	"codeEditor": {
+		"keyboardMode": "Keyboard Navigation Mode"
+	},
+	"codeReviewPage": {
+		"loadingRepository": "Loading repository...",
+		"loadingComments": "Loading comments...",
+		"noFilesFound": "No Files Found",
+		"noFilesFoundSubtext": "Set up a project on the Home page",
+		"noFileSelected": "No File Selected",
+		"noFileSelectedSubtext": "Please select a file to view its comments"
+	},
+	"overviewPage": {
+		"title": "Comments Overview",
+		"subtitle": "Review all comments across your codebase",
+		"noCommentsFound": "No Comments Found",
+		"noCommentsFoundSubtext": "Start adding comments to your code review session",
+		"filterByCommentType": "Filter by comment type:"
+	},
+	"notFoundPage": {
+		"title": "404",
+		"subtitle": "Page Not Found",
+		"goBack": "Go Back",
+		"goToSetup": "Go to Setup",
+		"content": "The page you're looking for doesn't exist or has been moved."
+	},
+	"fileExplorer": {
+		"expandAll": "Expand All",
+		"collapseAll": "Collapse All",
+		"projectComment": "Project Comment",
+		"addComment": "Add comment"
+	},
+	"commentForm": {
+		"commentLabel": "Comment",
+		"commentPlaceholder": "Enter your comment...",
+		"cancel": "Cancel",
+		"delete": "Delete",
+		"save": "Save",
+		"edit": "Update",
+		"addComment": "Add Comment",
+		"editComment": "Edit Comment",
+		"contentRequired": "Comment content cannot be empty."
+	},
+	"commentStatistics": {
+		"totalTitle": "Total",
+		"totalSubtitle": "All comments in the codebase",
+		"fileCommentsTitle": "File Comments",
+		"fileCommentsSubtitle": "Total file comments",
+		"singlelineCommentsTitle": "Singleline Comments",
+		"singlelineCommentsSubtitle": "Total singleline comments",
+		"multilineCommentsTitle": "Multiline Comments",
+		"multilineCommentsSubtitle": "Total multiline comments",
+		"categoryDistributionTitle": "Category Distribution"
+	},
+	"commentBrowser": {
+		"viewInEditor": "View in Editor",
+		"comment": "comment",
+		"comments": "comments",
+		"noStatsAvailable": "No statistics available for the selected comment type"
+	},
+	"contentViewer": {
+		"resetZoom": "Reset Zoom",
+		"binaryFile": "Binary File",
+		"binaryFileSubtext": "Content cannot be displayed",
+		"viewOnGithub": "here",
+		"unsupportedFileType": "Unsupported File Type",
+		"noDownloadLink": "No download link available"
+	},
+	"panel": {
+		"dropTabHere": "Drop tab here",
+		"newPanel": "New Panel",
+		"closeFile": "Close file",
+		"noFileSelected": "No file selected"
+	},
+	"status": {
+		"commentsSynced": "Comments Synced",
+		"syncingComments": "Syncing Comments...",
+		"offlineMode": "Offline Mode",
+		"exportComments": "Export Comments",
+		"noCommentsToExport": "No comments to export.",
+		"confirmExport": "Are you sure you want to export {count} {commentWord} for {repositoryName}?"
+	},
+	"common": {
+		"loading": "Loading...",
+		"error": "Error",
+		"success": "Success",
+		"save": "Save",
+		"cancel": "Cancel",
+		"delete": "Delete",
+		"edit": "Edit",
+		"add": "Add",
+		"close": "Close",
+		"open": "Open",
+		"create": "Create"
+	}
+}
