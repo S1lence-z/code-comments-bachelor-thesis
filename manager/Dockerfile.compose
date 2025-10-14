@@ -18,23 +18,15 @@ ENV VITE_CLIENT_URL=${VITE_CLIENT_URL}
 
 RUN npm run build
 
-# Production stage: Run a node server to serve the Nuxt app
+# Production stage: Use serve to host static files
 FROM node:20-alpine AS runner
-
 WORKDIR /app
 
-# Copy only necessary files from builder
-COPY --from=builder /app/.output ./.output
-COPY --from=builder /app/package*.json ./
+# Install serve globally
+RUN npm install -g serve
 
-# Install only production dependencies (if any)
-RUN npm ci --omit=dev
+# Copy build artifacts
+COPY --from=builder /app/.output/public ./dist
 
-# Expose Nuxt default port
 EXPOSE 3000
-
-# Set environment to production
-ENV NODE_ENV=production
-
-# Start Nuxt SSR server
-CMD ["node", ".output/server/index.mjs"]
+CMD ["serve", "-s", "dist", "-l", "3000"]
