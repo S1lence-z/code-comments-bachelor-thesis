@@ -23,7 +23,7 @@ jobs:
             - run: npm run build
               working-directory: client
               env:
-                  VITE_MANAGER_URL: "http://localhost/server"
+                  VITE_MANAGER_URL: "https://code-comments-manager.vercel.app"
                   VITE_CLIENT_BASE_PATHNAME: "/code-comments-bachelor-thesis/"
 
             - run: cp index.html 404.html
