@@ -12,7 +12,7 @@ export default defineNuxtConfig({
 			clientUrl: process.env.VITE_CLIENT_URL,
 		},
 	},
-	modules: ["@nuxt/icon", "@nuxtjs/i18n"],
+	modules: ["@nuxt/icon", "@nuxtjs/i18n", "@pinia/nuxt"],
 	css: ["~/assets/css/tailwind.css"],
 	vite: {
 		plugins: [tailwindcss()],
