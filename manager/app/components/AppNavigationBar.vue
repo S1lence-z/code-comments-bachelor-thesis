@@ -15,7 +15,7 @@ const route = useRoute();
 			<div class="flex items-center gap-3">
 				<Icon name="mdi:code-json" class=" text-blue-400 flex-shrink-0" size="28" />
 				<NuxtLink
-					to="/setup"
+					to="/"
 					class="text-white text-xl font-bold transition-colors duration-200 hover:text-blue-300 whitespace-nowrap"
 				>
 					{{ t('appNavigationBar.title') }}
@@ -32,7 +32,10 @@ const route = useRoute();
 							inactive: route.path !== link.path,
 						}"
 					>
-						<NuxtLink :to="link.path" class="block">
+						<NuxtLink
+							:to="{ path: link.path, query: { ...route.query } }"
+							class="block"
+						>
 							{{ link.label }}
 						</NuxtLink>
 					</div>
