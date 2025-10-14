@@ -2,7 +2,7 @@ import tailwindcss from "@tailwindcss/vite";
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-	ssr: true,
+	ssr: false,
 	compatibilityDate: "2025-07-15",
 	devtools: { enabled: false },
 	srcDir: "app/",
@@ -23,8 +23,7 @@ export default defineNuxtConfig({
 		langDir: "../i18n/locales",
 	},
 	nitro: {
-		preset: "node-server",
-		compressPublicAssets: true,
+		preset: "static",
 	},
 	components: [
 		{
