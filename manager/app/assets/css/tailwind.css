@@ -147,4 +147,37 @@
 	.gradient-icon-emerald {
 		@apply bg-gradient-to-r from-emerald-500 to-teal-500;
 	}
+
+	/* Toast Notification Styles */
+	.toast-bg-success {
+		@apply bg-green-500;
+	}
+
+	.toast-bg-error {
+		@apply bg-red-500;
+	}
+
+	.toast-bg-warning {
+		@apply bg-yellow-500;
+	}
+
+	.toast-bg-info {
+		@apply bg-blue-500;
+	}
+
+	.toast-border-success {
+		@apply border-l-4 border-green-500;
+	}
+
+	.toast-border-error {
+		@apply border-l-4 border-red-500;
+	}
+
+	.toast-border-warning {
+		@apply border-l-4 border-yellow-500;
+	}
+
+	.toast-border-info {
+		@apply border-l-4 border-blue-500;
+	}
 }

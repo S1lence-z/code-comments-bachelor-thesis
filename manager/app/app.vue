@@ -7,5 +7,7 @@
 		<main class="flex-1 overflow-hidden">
 			<NuxtPage />
 		</main>
+
+		<ToastContainer />
 	</div>
 </template>

@@ -1,3 +1,5 @@
+import { useErrorHandler } from "#imports";
+
 export const QUERY_PARAMS = {
 	SERVER_BASE_URL: "serverBaseUrl",
 	REPOSITORY_URL: "repositoryUrl",
@@ -17,6 +19,7 @@ export interface QueryParams {
 export const useQueryParams = () => {
 	const config = useRuntimeConfig();
 	const route = useRoute();
+	const errorHandler = useErrorHandler();
 
 	const setupServerUrl = async (serverBaseUrl: string) => {
 		if (serverBaseUrl) {
@@ -54,7 +57,7 @@ export const useQueryParams = () => {
 			const newWindow = window.open(url, "_blank", "noopener,noreferrer");
 			if (newWindow) newWindow.opener = null;
 		} else {
-			alert("Client URL is not configured.");
+			errorHandler.showError("Client URL is not configured.");
 		}
 	};
 
@@ -71,7 +74,7 @@ export const useQueryParams = () => {
 			const newWindow = window.open(url, "_blank", "noopener,noreferrer");
 			if (newWindow) newWindow.opener = null;
 		} else {
-			alert("Client URL is not configured.");
+			errorHandler.showError("Client URL is not configured.");
 		}
 	};
 

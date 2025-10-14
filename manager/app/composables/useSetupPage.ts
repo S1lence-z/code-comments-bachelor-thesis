@@ -3,6 +3,7 @@ import useGithubBranchService from "../services/githubBranchService";
 import type ProjectSetupRequest from "../../shared/types/ProjectSetupRequest";
 import type ProjectDto from "../../shared/types/ProjectDto";
 import { isValidGithubUrl } from "../utils/urlUtils";
+import { useErrorHandler } from "#imports";
 
 export function useSetupPage() {
 	// Runtime config
@@ -11,6 +12,7 @@ export function useSetupPage() {
 	// Services
 	const { branchExistsInRepo } = useGithubBranchService();
 	const projectService = useProjectService();
+	const errorHandler = useErrorHandler();
 
 	// Query params composable
 	const { navigateToProject, navigateToOfflineProject, setupServerUrl } = useQueryParams();
@@ -24,6 +26,7 @@ export function useSetupPage() {
 	// UI state
 	const isCreatingProject = ref(false);
 	const isProjectCreated = ref(false);
+	const isLoadingProjects = ref(false);
 	const isServerUrlConfigured = ref(false);
 	const projectCreationErrorMessage = ref("");
 	const projectsLoadedSuccessfully = ref(true);
@@ -70,6 +73,7 @@ export function useSetupPage() {
 			// Create project via server
 			createProject(serverBaseUrl, repositoryUrl, branchName, projectName);
 		} catch (error: any) {
+			errorHandler.handleError(error);
 			projectCreationErrorMessage.value = `Error during project setup: ${
 				error.message || "Unknown error"
 			}`;
@@ -113,6 +117,7 @@ export function useSetupPage() {
 				return;
 			}
 		} catch (error: any) {
+			errorHandler.handleError(error);
 			projectCreationErrorMessage.value = `Failed to create review session: ${
 				error.message || "Unknown error"
 			}`;
@@ -155,6 +160,7 @@ export function useSetupPage() {
 	// Load existing projects
 	const loadExistingProjects = async (): Promise<void> => {
 		try {
+			isLoadingProjects.value = true;
 			if (!formServerBaseUrl.value || !formServerBaseUrl.value.trim()) {
 				console.warn("Server base URL is not set. Cannot load existing projects.");
 				return;
@@ -163,8 +169,12 @@ export function useSetupPage() {
 				formServerBaseUrl.value.trim()
 			);
 		} catch (error) {
-			console.error("Failed to load existing projects:", error);
+			errorHandler.handleError(error, {
+				customMessage: "Failed to load existing projects.",
+			});
 			projectsLoadedSuccessfully.value = false;
+		} finally {
+			isLoadingProjects.value = false;
 		}
 	};
 
@@ -184,7 +194,7 @@ export function useSetupPage() {
 	// Use default server URL
 	const useDefaultServerUrl = () => {
 		if (!config.public.defaultServerUrl) {
-			alert("No default server URL is configured. Please enter a server URL.");
+			errorHandler.showError("No default server URL is configured. Please enter a server URL.");
 			return;
 		}
 
@@ -213,6 +223,7 @@ export function useSetupPage() {
 		isServerUrlConfigured,
 		projectCreationErrorMessage,
 		projectsLoadedSuccessfully,
+		isLoadingProjects,
 
 		// Data
 		existingProjects,
