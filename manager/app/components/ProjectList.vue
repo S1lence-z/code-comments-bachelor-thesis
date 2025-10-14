@@ -7,6 +7,7 @@ const { t } = useI18n();
 
 interface ProjectListProps {
 	existingProjects: ProjectDto[];
+	isLoadingProjects: boolean;
 }
 
 interface ProjectListEmits {
@@ -25,8 +26,12 @@ const emit = defineEmits<ProjectListEmits>();
 		iconGradient="blue"
 		iconSize="6"
 	>
+		<!-- Loading State -->
+		<div v-if="props.isLoadingProjects" class="flex justify-center items-center h-32">
+			<Icon icon="mdi:loading" class="w-10 h-10 text-slate-400 animate-spin" />
+		</div>
 		<!-- Empty State -->
-		<div v-if="props.existingProjects.length === 0" class="empty-state">
+		<div v-else-if="props.existingProjects.length === 0" class="empty-state">
 			<div class="empty-state-icon">
 				<Icon icon="mdi:inbox" class="w-8 h-8 text-slate-400" />
 			</div>
@@ -34,7 +39,7 @@ const emit = defineEmits<ProjectListEmits>();
 			<p class="text-slate-500 text-sm mt-2">{{ t("projectList.noProjectsSubtext") }}</p>
 		</div>
 		<!-- Existing Projects List -->
-		<div class="space-y-4">
+		<div v-else class="space-y-4">
 			<div
 				v-for="project in existingProjects"
 				:key="project.id"

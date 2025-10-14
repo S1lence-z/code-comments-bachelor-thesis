@@ -2,13 +2,6 @@
 import { useI18n } from "vue-i18n";
 
 const { t, tm, rt } = useI18n();
-
-useHead({
-	title: t('aboutPage.title') + ' - Code Review Manager',
-	meta: [
-		{ name: 'description', content: t('aboutPage.subtitle') }
-	]
-});
 </script>
 
 <template>

@@ -21,6 +21,7 @@ const {
 	isServerUrlConfigured,
 	projectCreationErrorMessage,
 	projectsLoadedSuccessfully,
+	isLoadingProjects,
 
 	// Data
 	existingProjects,
@@ -97,6 +98,7 @@ watch(
 				<div v-if="isServerUrlConfigured && !isOfflineMode" class="flex-0.5">
 					<ProjectList
 						:existingProjects="existingProjects"
+						:isLoadingProjects="isLoadingProjects"
 						@navigateToExistingProject="navigateToExistingProject"
 					/>
 				</div>
