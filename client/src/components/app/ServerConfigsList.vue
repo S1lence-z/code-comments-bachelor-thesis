@@ -13,6 +13,7 @@ interface ServerConfigList {
 }
 
 interface ServerConfigsListEmits {
+	(event: "navigateToManager"): void;
 	(event: "select", payload: ServerConfig): void;
 	(event: "close"): void;
 }
@@ -30,11 +31,6 @@ const handleSelectServerConfig = (serverConfig: ServerConfig) => {
 const getRepositoryName = (url: string) => {
 	return url.split("/").pop() || url;
 };
-
-// Navigate to manager
-const navigateToManager = () => {
-	window.location.href = import.meta.env.VITE_MANAGER_URL;
-};
 </script>
 
 <template>
@@ -46,7 +42,7 @@ const navigateToManager = () => {
 	>
 		<div class="flex flex-col gap-6">
 			<!-- Project Info Section -->
-			<div class="bg-white/5 border border-white/10 rounded-lg p-4">
+			<div v-if="props.currentProject.repositoryUrl" class="bg-white/5 border border-white/10 rounded-lg p-4">
 				<div class="flex items-center gap-2 mb-2">
 					<Icon icon="mdi:source-repository" class="w-5 h-5 text-blue-400" />
 					<span class="text-slate-300 font-semibold">{{
@@ -71,7 +67,7 @@ const navigateToManager = () => {
 					button-style="primary"
 					button-size="large"
 					class="mt-4"
-					@click="navigateToManager"
+					@click="emit('navigateToManager')"
 				/>
 			</div>
 
@@ -80,30 +76,30 @@ const navigateToManager = () => {
 				<h3 class="text-slate-300 font-semibold text-sm uppercase tracking-wide">
 					{{ t("serverConfigList.availableConfigs") }}
 				</h3>
-				<ul class="max-h-80 overflow-y-auto space-y-2 pr-2 truncate">
+				<ul class="max-h-80 overflow-y-auto space-y-2 pr-2">
 					<li v-for="(config, index) in props.projectConfigs" :key="index">
 						<div class="card-item cursor-pointer group" @click="handleSelectServerConfig(config)">
-							<div class="flex items-start justify-between">
-								<div class="flex-1 space-y-3">
+							<div class="flex items-start justify-between min-w-0">
+								<div class="flex-1 space-y-3 min-w-0">
 									<!-- Config Name (if available) -->
-									<div v-if="config.name" class="flex items-start gap-2">
+									<div v-if="config.name" class="flex items-start gap-2 min-w-0">
 										<Icon icon="mdi:tag" class="w-5 h-5 text-purple-400 mt-0.5 flex-shrink-0" />
-										<div class="flex-1">
+										<div class="flex-1 min-w-0">
 											<p class="text-xs text-slate-400 mb-1">
 												{{ t("serverConfigList.configName") }}
 											</p>
-											<p class="text-slate-300 font-semibold">{{ config.name }}</p>
+											<p class="text-slate-300 font-semibold truncate">{{ config.name }}</p>
 										</div>
 									</div>
 
 									<!-- Server Base URL -->
-									<div class="flex items-start gap-2">
+									<div class="flex items-start gap-2 min-w-0">
 										<Icon icon="mdi:server" class="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
 										<div class="flex-1 min-w-0">
 											<p class="text-xs text-slate-400 mb-1">
 												{{ t("serverConfigList.serverBaseUrl") }}
 											</p>
-											<p class="text-white font-medium">{{ config.serverBaseUrl }}</p>
+											<p class="text-white font-medium truncate">{{ config.serverBaseUrl }}</p>
 										</div>
 									</div>
 								</div>
