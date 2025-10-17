@@ -2,6 +2,7 @@ import useProjectService from "../services/projectService";
 import useGithubBranchService from "../services/githubBranchService";
 import type ProjectSetupRequest from "../../shared/types/ProjectSetupRequest";
 import type ProjectDto from "../../shared/types/ProjectDto";
+import { RepositoryType } from "../../shared/types/RepositoryType";
 import { isValidGithubUrl } from "../utils/urlUtils";
 import { useErrorHandler } from "#imports";
 
@@ -18,7 +19,8 @@ export function useSetupPage() {
 	const { navigateToProject, navigateToOfflineProject, setupServerUrl } = useQueryParams();
 
 	// Form values
-	const formGithubRepositoryUrl = ref("");
+	const formRepositoryUrl = ref("");
+	const formRepositoryType = ref<RepositoryType>(RepositoryType.github);
 	const formBranchName = ref("");
 	const formProjectName = ref("");
 	const formServerBaseUrl = ref("");
@@ -43,7 +45,7 @@ export function useSetupPage() {
 		projectCreationErrorMessage.value = "";
 
 		// Trim inputs
-		const repositoryUrl = formGithubRepositoryUrl.value.trim();
+		const repositoryUrl = formRepositoryUrl.value.trim();
 		const branchName = formBranchName.value.trim();
 		const projectName = formProjectName.value.trim();
 		const serverBaseUrl = formServerBaseUrl.value.trim();
@@ -51,17 +53,19 @@ export function useSetupPage() {
 		try {
 			isCreatingProject.value = true;
 
-			// Validate github URL
-			if (!isValidGithubUrl(repositoryUrl)) {
-				projectCreationErrorMessage.value = "Invalid GitHub repository URL.";
-				return;
-			}
+			// Validate github URL only for git repository type
+			if (formRepositoryType.value === RepositoryType.github) {
+				if (!isValidGithubUrl(repositoryUrl)) {
+					projectCreationErrorMessage.value = "Invalid GitHub repository URL.";
+					return;
+				}
 
-			// Validate the branch exists on the repository
-			const branchExists = await branchExistsInRepo(repositoryUrl, branchName);
-			if (!branchExists) {
-				projectCreationErrorMessage.value = `The branch "${branchName}" does not exist in the repository.`;
-				return;
+				// Validate the branch exists on the repository
+				const branchExists = await branchExistsInRepo(repositoryUrl, branchName);
+				if (!branchExists) {
+					projectCreationErrorMessage.value = `The branch "${branchName}" does not exist in the repository.`;
+					return;
+				}
 			}
 
 			// Create offline project
@@ -133,7 +137,8 @@ export function useSetupPage() {
 
 		if (isOfflineMode.value) {
 			navigateToOfflineProject(
-				formGithubRepositoryUrl.value.trim(),
+				formRepositoryUrl.value.trim(),
+				formRepositoryType.value,
 				formBranchName.value.trim()
 			);
 			return;
@@ -141,7 +146,8 @@ export function useSetupPage() {
 
 		navigateToProject(
 			formServerBaseUrl.value.trim(),
-			formGithubRepositoryUrl.value.trim(),
+			formRepositoryUrl.value.trim(),
+			formRepositoryType.value,
 			readWriteServerUrl.value.trim(),
 			formBranchName.value.trim()
 		);
@@ -152,6 +158,7 @@ export function useSetupPage() {
 		navigateToProject(
 			project.serverBaseUrl,
 			project.repository.repositoryUrl,
+			project.repository.repositoryType,
 			project.readWriteApiUrl,
 			project.repository.branch
 		);
@@ -194,7 +201,9 @@ export function useSetupPage() {
 	// Use default server URL
 	const useDefaultServerUrl = () => {
 		if (!config.public.defaultServerUrl) {
-			errorHandler.showError("No default server URL is configured. Please enter a server URL.");
+			errorHandler.showError(
+				"No default server URL is configured. Please enter a server URL."
+			);
 			return;
 		}
 
@@ -209,7 +218,8 @@ export function useSetupPage() {
 
 	return {
 		// Form inputs
-		formGithubRepositoryUrl,
+		formRepositoryUrl,
+		formRepositoryType,
 		formBranchName,
 		formProjectName,
 		formServerBaseUrl,

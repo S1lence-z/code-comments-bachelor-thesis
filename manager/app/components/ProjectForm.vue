@@ -1,11 +1,13 @@
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import { Icon } from "@iconify/vue";
+import { RepositoryType } from "../../shared/types/RepositoryType";
 
 const { t } = useI18n();
 
 interface ProjectFormProps {
-	formGithubRepositoryUrl: string;
+	formRepositoryUrl: string;
+	formRepositoryType: RepositoryType;
 	formBranchName: string;
 	formProjectName: string;
 	isCreatingProject: boolean;
@@ -14,7 +16,8 @@ interface ProjectFormProps {
 }
 
 interface ProjectFormEmits {
-	(event: "update:formGithubRepositoryUrl", value: string): void;
+	(event: "update:formRepositoryUrl", value: string): void;
+	(event: "update:formRepositoryType", value: RepositoryType): void;
 	(event: "update:formBranchName", value: string): void;
 	(event: "update:formProjectName", value: string): void;
 	(event: "createProject"): void;
@@ -23,6 +26,19 @@ interface ProjectFormEmits {
 
 const props = defineProps<ProjectFormProps>();
 const emit = defineEmits<ProjectFormEmits>();
+
+const repositoryTypeOptions = [
+	{ value: RepositoryType.github, label: "GitHub", icon: "mdi:github" },
+	{ value: RepositoryType.httpApi, label: "HTTP API", icon: "mdi:api" },
+];
+
+const cycleThroughRepositoryTypes = () => {
+	const currentIndex = repositoryTypeOptions.findIndex(
+		(option) => option.value === props.formRepositoryType
+	);
+	const nextIndex = (currentIndex + 1) % repositoryTypeOptions.length;
+	emit("update:formRepositoryType", repositoryTypeOptions[nextIndex]?.value ?? RepositoryType.github);
+};
 </script>
 
 <template>
@@ -65,15 +81,34 @@ const emit = defineEmits<ProjectFormEmits>();
 
 		<!-- Setup Form -->
 		<form @submit.prevent="() => emit('createProject')">
-			<!-- GitHub Repository URL -->
-			<InputField
-				:label="t('projectForm.githubRepoUrlLabel')"
-				v-bind:modelValue="formGithubRepositoryUrl"
-				@update:modelValue="(value: string) => emit('update:formGithubRepositoryUrl', value)"
-				type="url"
-				:placeholder="t('projectForm.githubRepoUrlPlaceholder')"
-				:required="true"
-			/>
+			<!-- Repository Type and URL -->
+			<div class="mb-4">
+				<label class="block text-sm font-medium text-slate-300 mb-2">
+					{{ t('projectForm.repositoryLabel') }}
+				</label>
+				<div class="flex gap-2 items-center">
+					<!-- Repository Type Selector -->
+					<button
+						type="button"
+						class="bg-slate-300 border-2 rounded-lg p-2 flex items-center cursor-pointer"
+						@click="cycleThroughRepositoryTypes"
+					>
+						<Icon
+							:icon="repositoryTypeOptions.find(o => o.value === props.formRepositoryType)?.icon || 'mdi:github'"
+							class="w-8 h-8"
+						/>
+					</button>
+					<!-- Repository URL -->
+					<InputField
+						v-bind:modelValue="formRepositoryUrl"
+						@update:modelValue="(value: string) => emit('update:formRepositoryUrl', value)"
+						type="url"
+						:placeholder="props.formRepositoryType === RepositoryType.github ? t('projectForm.githubRepoUrlPlaceholder') : t('projectForm.httpApiUrlPlaceholder')"
+						:required="true"
+						class="flex-1"
+					/>
+				</div>
+			</div>
 			<span class="flex flex-row mb-4 space-x-6">
 				<!-- Branch Name -->
 				<InputField
