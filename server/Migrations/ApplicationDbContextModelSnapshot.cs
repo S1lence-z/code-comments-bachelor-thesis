@@ -187,7 +187,7 @@ namespace server.Migrations
                         .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
-                        .HasDefaultValue("git");
+                        .HasDefaultValue("github");
 
                     b.Property<string>("RepositoryUrl")
                         .IsRequired()

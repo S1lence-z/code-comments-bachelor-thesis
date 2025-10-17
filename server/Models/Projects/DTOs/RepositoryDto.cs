@@ -6,7 +6,7 @@ namespace server.Models.Projects.DTOs
 	{
 		public Guid Id { get; set; }
 
-		public RepositoryType RepositoryType { get; set; } = RepositoryType.git;
+		public RepositoryType RepositoryType { get; set; } = RepositoryType.github;
 
 		public string RepositoryUrl { get; set; } = string.Empty;
 

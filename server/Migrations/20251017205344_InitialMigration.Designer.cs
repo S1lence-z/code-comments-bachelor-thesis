@@ -11,7 +11,7 @@ using server.Data;
 namespace server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250919204028_InitialMigration")]
+    [Migration("20251017205344_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -190,7 +190,7 @@ namespace server.Migrations
                         .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
-                        .HasDefaultValue("git");
+                        .HasDefaultValue("github");
 
                     b.Property<string>("RepositoryUrl")
                         .IsRequired()

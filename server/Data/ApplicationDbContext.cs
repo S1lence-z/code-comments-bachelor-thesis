@@ -110,7 +110,7 @@ namespace server.Data
 			{
 				entity.HasKey(e => e.Id);
 				entity.Property(e => e.RepositoryType).IsRequired()
-					.HasDefaultValue(RepositoryType.git)
+					.HasDefaultValue(RepositoryType.github)
 					.HasConversion<string>();
 				entity.Property(e => e.RepositoryUrl).IsRequired();
 				entity.Property(e => e.Branch).IsRequired().HasDefaultValue("main");

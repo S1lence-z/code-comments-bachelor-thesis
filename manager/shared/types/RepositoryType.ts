@@ -1,3 +1,4 @@
 export enum RepositoryType {
-	git = "git",
+	github = "github",
+	httpApi = "httpApi",
 }

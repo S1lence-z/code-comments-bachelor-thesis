@@ -43,7 +43,7 @@ namespace server.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    RepositoryType = table.Column<string>(type: "TEXT", nullable: false, defaultValue: "git"),
+                    RepositoryType = table.Column<string>(type: "TEXT", nullable: false, defaultValue: "github"),
                     RepositoryUrl = table.Column<string>(type: "TEXT", nullable: false),
                     Branch = table.Column<string>(type: "TEXT", nullable: false, defaultValue: "main"),
                     CommitHash = table.Column<string>(type: "TEXT", nullable: false)

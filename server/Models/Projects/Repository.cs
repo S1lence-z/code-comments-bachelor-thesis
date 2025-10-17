@@ -9,7 +9,7 @@ namespace server.Models.Projects
 		public Guid Id { get; set; } = Guid.NewGuid();
 
 		[Required]
-		public RepositoryType RepositoryType { get; set; } = RepositoryType.git;
+		public RepositoryType RepositoryType { get; set; } = RepositoryType.github;
 
 		[Required]
 		public string RepositoryUrl { get; set; } = string.Empty;

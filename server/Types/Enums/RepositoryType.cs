@@ -2,6 +2,7 @@
 {
 	public enum RepositoryType
 	{
-		git
+		github,
+		httpApi
 	}
 }
