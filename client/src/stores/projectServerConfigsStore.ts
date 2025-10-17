@@ -1,9 +1,11 @@
 import { defineStore } from "pinia";
 import { projectServerConfigsKey } from "../core/keys";
 import { useErrorHandler } from "../composables/useErrorHandler";
+import type { RepositoryType } from "../types/enums/RepositoryType";
 
 export interface ProjectInfo {
 	repositoryUrl: string;
+	repositoryType: RepositoryType;
 	branch: string;
 }
 
@@ -24,7 +26,11 @@ export const useProjectServerConfigsStore = defineStore("projectServerConfigsSto
 			return (projectInfo: ProjectInfo): ServerConfig[] | undefined => {
 				// Find matching project by comparing values
 				for (const [key, value] of state.configs) {
-					if (key.repositoryUrl === projectInfo.repositoryUrl && key.branch === projectInfo.branch) {
+					if (
+						key.repositoryUrl === projectInfo.repositoryUrl &&
+						key.branch === projectInfo.branch &&
+						key.repositoryType === projectInfo.repositoryType
+					) {
 						return value;
 					}
 				}
@@ -39,8 +45,10 @@ export const useProjectServerConfigsStore = defineStore("projectServerConfigsSto
 			const storedConfigs = localStorage.getItem(projectServerConfigsKey.description!);
 			if (storedConfigs) {
 				try {
-					const parsed: Array<{ key: { repositoryUrl: string; branch: string }; value: ServerConfig[] }> =
-						JSON.parse(storedConfigs);
+					const parsed: Array<{
+						key: { repositoryUrl: string; branch: string; repositoryType: RepositoryType };
+						value: ServerConfig[];
+					}> = JSON.parse(storedConfigs);
 
 					// Clear existing configs
 					this.configs.clear();
@@ -50,6 +58,7 @@ export const useProjectServerConfigsStore = defineStore("projectServerConfigsSto
 						const projectInfo = {
 							repositoryUrl: item.key.repositoryUrl,
 							branch: item.key.branch,
+							repositoryType: item.key.repositoryType,
 						};
 						this.configs.set(projectInfo, item.value);
 					});
@@ -69,7 +78,11 @@ export const useProjectServerConfigsStore = defineStore("projectServerConfigsSto
 			// Find existing key that matches projectInfo
 			let existingKey: ProjectInfo | undefined;
 			for (const key of this.configs.keys()) {
-				if (key.repositoryUrl === projectInfo.repositoryUrl && key.branch === projectInfo.branch) {
+				if (
+					key.repositoryUrl === projectInfo.repositoryUrl &&
+					key.branch === projectInfo.branch &&
+					key.repositoryType === projectInfo.repositoryType
+				) {
 					existingKey = key;
 					break;
 				}
@@ -109,6 +122,7 @@ export const useProjectServerConfigsStore = defineStore("projectServerConfigsSto
 					key: {
 						repositoryUrl: key.repositoryUrl,
 						branch: key.branch,
+						repositoryType: key.repositoryType,
 					},
 					value: value,
 				}));

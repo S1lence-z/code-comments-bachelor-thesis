@@ -2,13 +2,14 @@ import { defineStore } from "pinia";
 import type { TreeNode } from "../types/github/githubTree";
 import type CommentDto from "../types/dtos/CommentDto";
 import type CategoryDto from "../types/dtos/CategoryDto";
-import useGithubTreeService from "../services/githubTreeService";
+import { useSourceProviderFactory } from "../services/sourceProviderFactory";
 import useCommentsService from "../services/commentsService";
 import useCategoryService from "../services/categoryService";
 import { useServerStatusStore } from "./serverStore";
 import { CommentType } from "../types/enums/CommentType";
 import { useFileContentStore } from "./fileContentStore";
 import { useSettingsStore } from "./settingsStore";
+import { useProjectStore } from "./projectStore";
 import { useErrorHandler } from "../composables/useErrorHandler";
 
 // TODO: Dummy category to have at least one -> improve, add it also on the server side
@@ -51,18 +52,19 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 			newRepositoryUrl: string,
 			newRwServerUrl: string,
 			newBranch: string,
-			githubPat: string,
+			authToken: string,
 			serverBaseUrl: string
 		) {
 			const promises = [
-				this.fetchRepositoryTree(newRepositoryUrl, newBranch, githubPat),
-				this.fetchAllCommentsAsync(newRwServerUrl, newRepositoryUrl, newBranch, githubPat),
+				this.fetchRepositoryTree(newRepositoryUrl, newBranch, authToken),
+				this.fetchAllCommentsAsync(newRwServerUrl, newRepositoryUrl, newBranch, authToken),
 				this.fetchAllCategoriesAsync(serverBaseUrl),
 			];
 			await Promise.all(promises);
 		},
-		async fetchRepositoryTree(repositoryUrl: string, branch: string, githubPat: string) {
-			const githubTreeService = useGithubTreeService();
+		async fetchRepositoryTree(repositoryUrl: string, branch: string, authToken?: string) {
+			const projectStore = useProjectStore();
+			const { createProvider } = useSourceProviderFactory();
 			const { showWarning, handleError } = useErrorHandler();
 
 			this.isLoadingRepository = true;
@@ -77,7 +79,8 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 					return;
 				}
 
-				this.fileTreeData = await githubTreeService.getRepositoryTree(repositoryUrl, branch, githubPat);
+				const provider = createProvider(projectStore.getRepositoryType);
+				this.fileTreeData = await provider.getRepositoryTree(repositoryUrl, branch, authToken);
 				this.githubUrlForTree = repositoryUrl;
 			} catch (error) {
 				handleError(error, {
@@ -92,7 +95,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 			rwServerUrl: string,
 			githubRepositoryUrl: string,
 			githubBranch: string,
-			githubPat?: string
+			authToken?: string
 		) {
 			const serverStore = useServerStatusStore();
 			const commentsService = useCommentsService();
@@ -123,7 +126,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 					this.allComments,
 					githubRepositoryUrl,
 					githubBranch,
-					githubPat
+					authToken
 				);
 				serverStore.setSynced();
 			} catch (error) {

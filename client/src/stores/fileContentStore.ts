@@ -1,8 +1,9 @@
 import { defineStore } from "pinia";
-import useGithubFileService from "../services/githubFileService";
+import { useSourceProviderFactory } from "../services/sourceProviderFactory";
 import { FileDisplayType, type ProcessedFile } from "../types/github/githubFile";
 import type CommentDto from "../types/dtos/CommentDto";
 import { CommentType } from "../types/enums/CommentType";
+import { useProjectStore } from "./projectStore";
 import { useErrorHandler } from "../composables/useErrorHandler";
 
 export const useFileContentStore = defineStore("fileContentStore", {
@@ -55,9 +56,10 @@ export const useFileContentStore = defineStore("fileContentStore", {
 			filePath: string,
 			repositoryUrl: string,
 			branch: string,
-			githubPat?: string
+			authToken?: string
 		): Promise<void> {
-			const githubFileService = useGithubFileService();
+			const projectStore = useProjectStore();
+			const { createProvider } = useSourceProviderFactory();
 			const { handleError } = useErrorHandler();
 
 			if (this.isFileCached(filePath) || this.isBeingCached.has(filePath)) {
@@ -67,12 +69,8 @@ export const useFileContentStore = defineStore("fileContentStore", {
 			this.isBeingCached.add(filePath);
 
 			try {
-				const processedFile = await githubFileService.fetchProcessedFile(
-					repositoryUrl,
-					branch,
-					filePath,
-					githubPat
-				);
+				const provider = createProvider(projectStore.getRepositoryType);
+				const processedFile = await provider.fetchProcessedFile(repositoryUrl, branch, filePath, authToken);
 				this.cacheFile(filePath, processedFile);
 			} catch (error) {
 				handleError(error, {
@@ -87,9 +85,10 @@ export const useFileContentStore = defineStore("fileContentStore", {
 			filePath: string,
 			repositoryUrl: string,
 			branch: string,
-			githubPat?: string
+			authToken?: string
 		): Promise<ProcessedFile> {
-			const githubFileService = useGithubFileService();
+			const projectStore = useProjectStore();
+			const { createProvider } = useSourceProviderFactory();
 			const { handleError } = useErrorHandler();
 
 			if (this.isFileCached(filePath)) {
@@ -99,12 +98,8 @@ export const useFileContentStore = defineStore("fileContentStore", {
 			}
 
 			try {
-				const processedFile = await githubFileService.fetchProcessedFile(
-					repositoryUrl,
-					branch,
-					filePath,
-					githubPat
-				);
+				const provider = createProvider(projectStore.getRepositoryType);
+				const processedFile = await provider.fetchProcessedFile(repositoryUrl, branch, filePath, authToken);
 				this.cacheFile(filePath, processedFile);
 				return processedFile;
 			} catch (error) {
@@ -118,7 +113,7 @@ export const useFileContentStore = defineStore("fileContentStore", {
 			comments: CommentDto[],
 			repositoryUrl: string,
 			branch: string,
-			githubPat?: string
+			authToken?: string
 		) {
 			const filePaths = Array.from(
 				new Set(
@@ -132,7 +127,7 @@ export const useFileContentStore = defineStore("fileContentStore", {
 				)
 			);
 			for (const filePath of filePaths) {
-				await this.cacheFileAsync(filePath, repositoryUrl, branch, githubPat);
+				await this.cacheFileAsync(filePath, repositoryUrl, branch, authToken);
 			}
 		},
 	},
