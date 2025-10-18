@@ -27,6 +27,7 @@ interface ProjectFormEmits {
 const props = defineProps<ProjectFormProps>();
 const emit = defineEmits<ProjectFormEmits>();
 
+// TODO: should be improved to be dynamic by only reading from RepositoryType enum and providing the icons/labels in the locales
 const repositoryTypeOptions = [
 	{ value: RepositoryType.github, label: "GitHub", icon: "mdi:github" },
 	{ value: RepositoryType.httpApi, label: "HTTP API", icon: "mdi:api" },
