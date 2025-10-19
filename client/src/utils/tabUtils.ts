@@ -18,13 +18,6 @@ export const findTabInPanel = (panel: PanelData, filePath: string): TabData | un
 };
 
 /**
- * Checks if a tab with the specified file path exists in the given panel
- */
-export const hasTabInPanel = (panel: PanelData, filePath: string): boolean => {
-	return panel.openTabs.some((tab) => tab.filePath === filePath);
-};
-
-/**
  * Gets the index of a tab with the specified file path in the given panel
  */
 export const getTabIndexInPanel = (panel: PanelData, filePath: string): number => {
