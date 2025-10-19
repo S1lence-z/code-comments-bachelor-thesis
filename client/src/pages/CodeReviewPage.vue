@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { onMounted, computed, watch } from "vue";
+import { onMounted, watch } from "vue";
 import { useCodeReviewPage } from "./useCodeReviewPage.ts";
 import { useCommentOperations } from "../composables/useCommentOperations.ts";
 import { useWorkspaceStore } from "../stores/workspaceStore.ts";
 import { useProjectStore } from "../stores/projectStore.ts";
-import { useDragDropController } from "../composables/controllers/useDragDropController.ts";
+import { useDragDropState } from "../composables/useDragDropState.ts";
+import { determineDropPosition } from "../utils/dragDropUtils.ts";
 import FileExplorer from "../components/codeReview/FileExplorer.vue";
 import SplitPanelManager from "../components/codeReview/SplitPanelManager.vue";
 import ResizeHandle from "../lib/ResizeHandle.vue";
 import { useI18n } from "vue-i18n";
 import AddEditCommentForm from "../components/codeReview/AddEditCommentForm.vue";
-import type { DraggedTabData } from "../types/domain/Panels.ts";
 
 const { t } = useI18n();
 
@@ -51,21 +51,76 @@ const {
 	isSidebarVisible,
 } = useCodeReviewPage();
 
-// Initialize drag drop controller
-const dragDropController = useDragDropController(
-	{
-		panelCount: computed(() => workspaceStore.panels.length),
-	},
-	(event: "tab-drop" | "drop-zone-drop", ...args: any[]) => {
-		if (event === "tab-drop") {
-			const [targetPanelId, draggedTab, insertIndex] = args;
-			handleTabDrop(targetPanelId, draggedTab, insertIndex);
-		} else if (event === "drop-zone-drop") {
-			const [draggedTab, insertPosition] = args;
-			handleDropZoneDrop(draggedTab, insertPosition);
-		}
+// Drag and Drop State
+const dragDropState = useDragDropState();
+
+// Drag and drop event handlers
+const handleTabDrop = (targetPanelId: number, insertIndex?: number): void => {
+	if (!dragDropState.draggedTab.value) return;
+
+	// Do not allow dropping on the same panel
+	if (dragDropState.draggedTab.value.fromPanelId === targetPanelId) {
+		dragDropState.endDrag();
+		return;
 	}
-);
+
+	// Adjust insert index if moving within the same panel and the tab is before the insert index
+	const newSelectedPath = workspaceStore.moveTabBetweenPanels(
+		targetPanelId,
+		dragDropState.draggedTab.value,
+		insertIndex
+	);
+	handleFileSelected(newSelectedPath);
+	dragDropState.endDrag();
+};
+
+const handleDropZoneDragOver = (event: DragEvent): void => {
+	event.preventDefault();
+
+	if (dragDropState.draggedTab.value) {
+		const container = event.currentTarget as HTMLElement;
+		const containerRect = container.getBoundingClientRect();
+		const relativeX = event.clientX - containerRect.left;
+
+		// Update drop zones based on mouse position
+		const isLeftActive = relativeX <= dragDropState.DROPZONE_WIDTH;
+		const isRightActive = relativeX >= containerRect.width - dragDropState.DROPZONE_WIDTH;
+		dragDropState.updateDropZones(isLeftActive, isRightActive);
+	}
+};
+
+const handleDropZoneLeave = (event: DragEvent): void => {
+	const currentTarget = event.currentTarget as HTMLElement;
+	const relatedTarget = event.relatedTarget as HTMLElement;
+	if (!currentTarget?.contains(relatedTarget)) {
+		dragDropState.clearDropZones();
+	}
+};
+
+const handleDropZoneDrop = (event: DragEvent): void => {
+	event.preventDefault();
+	dragDropState.clearDropZones();
+
+	if (!dragDropState.draggedTab.value) return;
+
+	const container = event.currentTarget as HTMLElement;
+	const containerRect = container.getBoundingClientRect();
+	const relativeX = event.clientX - containerRect.left;
+
+	// Determine drop position
+	const insertPosition = determineDropPosition(
+		relativeX,
+		containerRect.width,
+		dragDropState.DROPZONE_WIDTH,
+		workspaceStore.panels.length
+	);
+
+	if (insertPosition === null) return;
+
+	const newSelectedPath = workspaceStore.moveTabToNewPanel(dragDropState.draggedTab.value, insertPosition);
+	handleFileSelected(newSelectedPath);
+	dragDropState.endDrag();
+};
 
 // Workspace methods using store
 const handleTabSelected = (filePath: string, panelId: number): void => {
@@ -80,16 +135,6 @@ const handleTabClosed = (filePath: string, panelId: number): void => {
 	} else if (result.newSelectedFilePath) {
 		handleFileSelected(result.newSelectedFilePath);
 	}
-};
-
-const handleTabDrop = (targetPanelId: number, draggedTab: DraggedTabData, insertIndex?: number): void => {
-	const newSelectedPath = workspaceStore.moveTabBetweenPanels(targetPanelId, draggedTab, insertIndex);
-	handleFileSelected(newSelectedPath);
-};
-
-const handleDropZoneDrop = (draggedTab: DraggedTabData, insertPosition: number): void => {
-	const newSelectedPath = workspaceStore.moveTabToNewPanel(draggedTab, insertPosition);
-	handleFileSelected(newSelectedPath);
 };
 
 // Watch for selectedFilePath changes to add files to panels
@@ -184,20 +229,20 @@ onMounted(async () => {
 						<SplitPanelManager
 							v-if="isAnyFileSelected()"
 							:panels="workspaceStore.panels"
-							:dragged-tab="dragDropController.draggedTab.value"
-							:left-drop-zone-active="dragDropController.leftDropZoneActive.value"
-							:right-drop-zone-active="dragDropController.rightDropZoneActive.value"
-							:drop-zone-width="dragDropController.DROPZONE_WIDTH"
+							:dragged-tab="dragDropState.draggedTab.value"
+							:left-drop-zone-active="dragDropState.leftDropZoneActive.value"
+							:right-drop-zone-active="dragDropState.rightDropZoneActive.value"
+							:drop-zone-width="dragDropState.DROPZONE_WIDTH"
 							:side-bar-width="sidebarWidth"
 							@tab-selected="handleTabSelected"
 							@tab-closed="handleTabClosed"
-							@tab-drop="dragDropController.handleTabDrop"
-							@tab-drag-start="dragDropController.handleTabDragStart"
-							@tab-drag-end="dragDropController.handleTabDragEnd"
+							@tab-drop="handleTabDrop"
+							@tab-drag-start="dragDropState.startDrag"
+							@tab-drag-end="dragDropState.endDrag"
 							@panel-resize="workspaceStore.resizePanel"
-							@drop-zone-drag-over="dragDropController.handleDropZoneDragOver"
-							@drop-zone-leave="dragDropController.handleDropZoneLeave"
-							@drop-zone-drop="dragDropController.handleDropZoneDrop"
+							@drop-zone-drag-over="handleDropZoneDragOver"
+							@drop-zone-leave="handleDropZoneLeave"
+							@drop-zone-drop="handleDropZoneDrop"
 							@inline-form-submit="submitComment"
 							@inline-form-delete="deleteComment"
 						/>
