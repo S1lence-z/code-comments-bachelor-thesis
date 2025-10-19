@@ -1,4 +1,4 @@
-import type { RepositoryType } from "../enums/RepositoryType";
+import type { RepositoryType } from "./RepositoryType";
 
 export default interface RepositoryDto {
 	id: string;

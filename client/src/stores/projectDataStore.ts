@@ -1,12 +1,12 @@
 import { defineStore } from "pinia";
-import type { TreeNode } from "../types/github/githubTree";
+import type { TreeNode } from "../types/domain/TreeContent";
 import type CommentDto from "../types/dtos/CommentDto";
 import type CategoryDto from "../types/dtos/CategoryDto";
 import { useSourceProviderFactory } from "../services/sourceProviderFactory";
 import useCommentsService from "../services/commentsService";
 import useCategoryService from "../services/categoryService";
 import { useServerStatusStore } from "./serverStore";
-import { CommentType } from "../types/enums/CommentType";
+import { CommentType } from "../types/dtos/CommentType";
 import { useFileContentStore } from "./fileContentStore";
 import { useSettingsStore } from "./settingsStore";
 import { useProjectStore } from "./projectStore";

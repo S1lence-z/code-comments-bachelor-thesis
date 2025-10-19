@@ -5,9 +5,9 @@ import { useSettingsStore } from "../../stores/settingsStore";
 import { useKeyboardShortcutsStore } from "../../stores/keyboardShortcutsStore";
 import { useProjectDataStore } from "../../stores/projectDataStore";
 import type CommentDto from "../../types/dtos/CommentDto";
-import { CommentType } from "../../types/enums/CommentType";
+import { CommentType } from "../../types/dtos/CommentType";
 import { showCommentFormEffect, hideCommentFormEffect } from "../../codeMirror/commentFormExtension";
-import type RawCommentData from "../../types/others/RawCommentData";
+import type RawCommentData from "../../types/domain/RawCommentData";
 
 export interface CodeEditorProps {
 	filePath: string | null;

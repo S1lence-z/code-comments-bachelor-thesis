@@ -1,6 +1,6 @@
 import { computed, ref } from "vue";
 import { useProjectDataStore } from "../../stores/projectDataStore";
-import type { TreeNode } from "../../types/github/githubTree";
+import type { TreeNode } from "../../types/domain/TreeContent.ts";
 import { handleToggleExpandInTree } from "../../utils/treeNodeUtils.ts";
 
 export interface FileExplorerProps {

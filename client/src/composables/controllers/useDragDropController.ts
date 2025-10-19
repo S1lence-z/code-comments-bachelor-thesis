@@ -1,5 +1,5 @@
 import { ref, computed, type ComputedRef } from "vue";
-import type { DraggedTabData } from "../../types/others/Panels";
+import type { DraggedTabData } from "../../types/domain/Panels";
 import { determineDropPosition } from "../../utils/panelUtils";
 
 export interface DragDropControllerProps {

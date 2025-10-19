@@ -1,5 +1,5 @@
 import type { ISourceProvider } from "../types/interfaces/ISourceProvider";
-import { RepositoryType } from "../types/enums/RepositoryType";
+import { RepositoryType } from "../types/shared/RepositoryType";
 import { GithubSourceProvider } from "./providers/GithubSourceProvider";
 import { HttpApiSourceProvider } from "./providers/HttpApiSourceProvider";
 

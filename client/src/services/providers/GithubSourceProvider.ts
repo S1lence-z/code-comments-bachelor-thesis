@@ -1,8 +1,10 @@
 import type { ISourceProvider } from "../../types/interfaces/ISourceProvider";
-import type { TreeNode } from "../../types/github/githubTree";
-import { TreeNodeType, GithubTreeItemType, type GithubTreeItem } from "../../types/github/githubTree";
-import type { ProcessedFile, GithubFileContentResponse } from "../../types/github/githubFile";
-import { FileDisplayType } from "../../types/github/githubFile";
+import type { TreeNode } from "../../types/domain/TreeContent";
+import { TreeNodeType } from "../../types/domain/TreeContent";
+import { type ProcessedFile } from "../../types/domain/FileContent";
+import { type GithubTreeItem, GithubTreeItemType } from "../../types/github/TreeContent";
+import type { GithubFileContentResponse } from "../../types/github/FileContent";
+import { FileDisplayType } from "../../types/domain/FileContent";
 
 /**
  * GitHub implementation of ISourceProvider

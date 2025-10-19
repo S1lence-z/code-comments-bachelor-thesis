@@ -4,7 +4,7 @@ import { Decoration } from "@codemirror/view";
 import type { DecorationSet } from "@codemirror/view";
 import { EditorView } from "@codemirror/view";
 import type CommentDto from "../types/dtos/CommentDto.ts";
-import { CommentType } from "../types/enums/CommentType.ts";
+import { CommentType } from "../types/dtos/CommentType.ts";
 import SinglelineCommentWidget from "./widgets/singleLineCommentWidget.ts";
 import MultilineCommentWidget from "./widgets/multilineCommentWidget.ts";
 

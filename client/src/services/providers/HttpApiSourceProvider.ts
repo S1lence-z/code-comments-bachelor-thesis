@@ -1,6 +1,6 @@
 import type { ISourceProvider } from "../../types/interfaces/ISourceProvider";
-import type { TreeNode } from "../../types/github/githubTree";
-import type { ProcessedFile } from "../../types/github/githubFile";
+import type { TreeNode } from "../../types/domain/TreeContent";
+import type { ProcessedFile } from "../../types/domain/FileContent";
 
 /**
  * HTTP API implementation of ISourceProvider

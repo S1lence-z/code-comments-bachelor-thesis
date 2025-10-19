@@ -1,4 +1,4 @@
-import type { CommentType } from "../enums/CommentType";
+import type { CommentType } from "../dtos/CommentType";
 
 export default interface RawCommentData {
 	id: string | null;

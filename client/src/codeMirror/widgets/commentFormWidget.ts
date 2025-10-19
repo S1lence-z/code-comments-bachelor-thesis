@@ -1,6 +1,6 @@
 import { WidgetType } from "@codemirror/view";
 import type CategoryDto from "../../types/dtos/CategoryDto.ts";
-import { CommentType } from "../../types/enums/CommentType.ts";
+import { CommentType } from "../../types/dtos/CommentType.ts";
 
 export default class CommentFormWidget extends WidgetType {
 	private commentId: string | null;

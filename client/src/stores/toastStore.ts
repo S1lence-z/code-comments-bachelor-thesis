@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import type { Toast, ToastType } from "../types/others/Toast";
+import type { Toast, ToastType } from "../types/shared/Toast";
 
 export const useToastStore = defineStore("toastStore", {
 	state: () => ({

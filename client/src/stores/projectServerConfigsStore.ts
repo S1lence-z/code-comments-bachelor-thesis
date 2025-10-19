@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { projectServerConfigsKey } from "../core/keys";
 import { useErrorHandler } from "../composables/useErrorHandler";
-import type { RepositoryType } from "../types/enums/RepositoryType";
+import type { RepositoryType } from "../types/shared/RepositoryType";
 
 export interface ProjectInfo {
 	repositoryUrl: string;

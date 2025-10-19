@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import type AppSettings from "../types/others/AppSettings";
+import type AppSettings from "../types/domain/AppSettings";
 import { appSettingsKey } from "../core/keys";
 import { useErrorHandler } from "../composables/useErrorHandler";
 

@@ -4,7 +4,7 @@ import type { DecorationSet } from "@codemirror/view";
 import { EditorView } from "@codemirror/view";
 import CommentFormWidget from "./widgets/commentFormWidget.ts";
 import type CategoryDto from "../types/dtos/CategoryDto.ts";
-import { CommentType } from "../types/enums/CommentType.ts";
+import { CommentType } from "../types/dtos/CommentType.ts";
 
 export interface CommentFormState {
 	lineNumber: number;

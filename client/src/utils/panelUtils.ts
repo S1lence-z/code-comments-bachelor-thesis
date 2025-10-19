@@ -1,5 +1,5 @@
 import type { Ref } from "@vue/runtime-dom";
-import type { PanelData, TabData } from "../types/others/Panels";
+import type { PanelData, TabData } from "../types/domain/Panels";
 
 /**
  * Generates a new unique panel ID by incrementing the counter

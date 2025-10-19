@@ -1,5 +1,5 @@
-import type { TreeNode } from "../github/githubTree";
-import type { ProcessedFile } from "../github/githubFile";
+import type { TreeNode } from "../domain/TreeContent";
+import type { ProcessedFile } from "../domain/FileContent";
 
 /**
  * Interface for source code providers (GitHub, HTTP API, etc.)

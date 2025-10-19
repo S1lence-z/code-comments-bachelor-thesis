@@ -1,4 +1,4 @@
-import { type TreeNode, TreeNodeType } from "../types/github/githubTree";
+import { type TreeNode, TreeNodeType } from "../types/domain/TreeContent";
 
 export const handleToggleExpandInTree = (itemToToggle: TreeNode, treeData: TreeNode[]) => {
 	const findAndToggle = (nodes: TreeNode[]): boolean => {

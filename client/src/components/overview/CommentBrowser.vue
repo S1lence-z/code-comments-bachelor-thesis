@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CommentType } from "../../types/enums/CommentType";
+import { CommentType } from "../../types/dtos/CommentType";
 import Card from "../../lib/Card.vue";
 import Button from "../../lib/Button.vue";
 import { getFileName, getFileDirectory } from "../../utils/fileUtils";

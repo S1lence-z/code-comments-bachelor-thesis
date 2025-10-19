@@ -1,5 +1,5 @@
 import { ref, computed, onUnmounted } from "vue";
-import type { FileDisplayType } from "../../types/github/githubFile";
+import type { FileDisplayType } from "../../types/domain/FileContent";
 
 export interface ContentViewerProps {
 	selectedFilePath: string | null;

@@ -8,7 +8,7 @@ import { commentFormExtension } from "../commentFormExtension.ts";
 import { getLineNumbersConfig, type LineNumberConfig } from "./lineNumbersConfig.ts";
 import { multilineCommentHighlightExtension, multilineCommentTheme } from "../others/multilineCommentHighlight.ts";
 import { EditorState, type Extension } from "@codemirror/state";
-import type { AppKeyboardShortcuts } from "../../types/others/KeyboardShortcuts.ts";
+import type { AppKeyboardShortcuts } from "../../types/domain/KeyboardShortcuts.ts";
 
 /**
  * Creates the standard set of CodeMirror extensions for the code editor

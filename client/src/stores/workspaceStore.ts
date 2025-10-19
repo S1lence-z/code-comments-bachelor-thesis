@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import type { Workspace } from "../types/others/Panels";
+import type { Workspace } from "../types/domain/Panels";
 import { appSavedWorkspaceKey } from "../core/keys";
 import { useErrorHandler } from "../composables/useErrorHandler";
 
