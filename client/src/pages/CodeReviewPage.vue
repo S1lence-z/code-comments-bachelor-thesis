@@ -1,16 +1,22 @@
 <script setup lang="ts">
-import { onMounted, computed } from "vue";
+import { onMounted, computed, watch } from "vue";
 import { useCodeReviewPage } from "./useCodeReviewPage.ts";
 import { useCommentOperations } from "../composables/useCommentOperations.ts";
-import { useWorkspaceController } from "../composables/controllers/useWorkspaceController.ts";
+import { useWorkspaceStore } from "../stores/workspaceStore.ts";
+import { useProjectStore } from "../stores/projectStore.ts";
 import { useDragDropController } from "../composables/controllers/useDragDropController.ts";
 import FileExplorer from "../components/codeReview/FileExplorer.vue";
 import SplitPanelManager from "../components/codeReview/SplitPanelManager.vue";
 import ResizeHandle from "../lib/ResizeHandle.vue";
 import { useI18n } from "vue-i18n";
 import AddEditCommentForm from "../components/codeReview/AddEditCommentForm.vue";
+import type { DraggedTabData } from "../types/domain/Panels.ts";
 
 const { t } = useI18n();
+
+// Stores
+const workspaceStore = useWorkspaceStore();
+const projectStore = useProjectStore();
 
 // Comment operations
 const { submitComment, deleteComment } = useCommentOperations();
@@ -45,35 +51,76 @@ const {
 	isSidebarVisible,
 } = useCodeReviewPage();
 
-// Initialize workspace controller
-const workspaceController = useWorkspaceController(
-	{ selectedFilePath },
-	(event: "update:selectedFilePath", filePath: string | null) => {
-		if (event === "update:selectedFilePath") {
-			handleFileSelected(filePath);
-		}
-	}
-);
-
 // Initialize drag drop controller
 const dragDropController = useDragDropController(
 	{
-		panelCount: computed(() => workspaceController.panels.value.length),
+		panelCount: computed(() => workspaceStore.panels.length),
 	},
 	(event: "tab-drop" | "drop-zone-drop", ...args: any[]) => {
 		if (event === "tab-drop") {
 			const [targetPanelId, draggedTab, insertIndex] = args;
-			workspaceController.handleTabDrop(targetPanelId, draggedTab, insertIndex);
+			handleTabDrop(targetPanelId, draggedTab, insertIndex);
 		} else if (event === "drop-zone-drop") {
 			const [draggedTab, insertPosition] = args;
-			workspaceController.handleDropZoneDrop(draggedTab, insertPosition);
+			handleDropZoneDrop(draggedTab, insertPosition);
 		}
 	}
 );
 
-onMounted(() => {
+// Workspace methods using store
+const handleTabSelected = (filePath: string, panelId: number): void => {
+	const newSelectedPath = workspaceStore.selectTab(filePath, panelId);
+	handleFileSelected(newSelectedPath);
+};
+
+const handleTabClosed = (filePath: string, panelId: number): void => {
+	const result = workspaceStore.closeTab(filePath, panelId);
+	if (result.shouldClearSelection) {
+		handleFileSelected(null);
+	} else if (result.newSelectedFilePath) {
+		handleFileSelected(result.newSelectedFilePath);
+	}
+};
+
+const handleTabDrop = (targetPanelId: number, draggedTab: DraggedTabData, insertIndex?: number): void => {
+	const newSelectedPath = workspaceStore.moveTabBetweenPanels(targetPanelId, draggedTab, insertIndex);
+	handleFileSelected(newSelectedPath);
+};
+
+const handleDropZoneDrop = (draggedTab: DraggedTabData, insertPosition: number): void => {
+	const newSelectedPath = workspaceStore.moveTabToNewPanel(draggedTab, insertPosition);
+	handleFileSelected(newSelectedPath);
+};
+
+// Watch for selectedFilePath changes to add files to panels
+watch(
+	() => selectedFilePath.value,
+	(newFilePath: string | null) => {
+		if (!newFilePath) return;
+
+		// Check if file is already open in any panel
+		if (workspaceStore.isFileOpenInAnyPanel(newFilePath)) {
+			// File is already open, just make it active
+			workspaceStore.setActiveTabByFilePath(newFilePath);
+		} else {
+			// File is not open, add it to a panel
+			workspaceStore.addTabToPanel(newFilePath);
+		}
+	}
+);
+
+onMounted(async () => {
 	handleFileQueryParam();
-	workspaceController.initializeWorkspace();
+
+	// Initialize workspace from store
+	const initialFilePath = await workspaceStore.initializeWorkspace(
+		projectStore.repositoryUrl,
+		projectStore.repositoryBranch
+	);
+
+	if (initialFilePath) {
+		handleFileSelected(initialFilePath);
+	}
 });
 </script>
 
@@ -136,18 +183,18 @@ onMounted(() => {
 						<!-- SplitPanelManager -->
 						<SplitPanelManager
 							v-if="isAnyFileSelected()"
-							:panels="workspaceController.panels.value"
+							:panels="workspaceStore.panels"
 							:dragged-tab="dragDropController.draggedTab.value"
 							:left-drop-zone-active="dragDropController.leftDropZoneActive.value"
 							:right-drop-zone-active="dragDropController.rightDropZoneActive.value"
 							:drop-zone-width="dragDropController.DROPZONE_WIDTH"
 							:side-bar-width="sidebarWidth"
-							@tab-selected="workspaceController.handleTabSelected"
-							@tab-closed="workspaceController.handleTabClosed"
+							@tab-selected="handleTabSelected"
+							@tab-closed="handleTabClosed"
 							@tab-drop="dragDropController.handleTabDrop"
 							@tab-drag-start="dragDropController.handleTabDragStart"
 							@tab-drag-end="dragDropController.handleTabDragEnd"
-							@panel-resize="workspaceController.handlePanelResize"
+							@panel-resize="workspaceStore.resizePanel"
 							@drop-zone-drag-over="dragDropController.handleDropZoneDragOver"
 							@drop-zone-leave="dragDropController.handleDropZoneLeave"
 							@drop-zone-drop="dragDropController.handleDropZoneDrop"

@@ -105,7 +105,7 @@ onMounted(async () => {
 	settingsStore.loadSettings();
 	projectServerConfigsStore.loadConfigs();
 	keyboardShortcutsStore.loadShortcuts();
-	workspaceStore.loadWorkspace();
+	workspaceStore.loadWorkspacesFromStorage();
 
 	await router
 		.isReady()
