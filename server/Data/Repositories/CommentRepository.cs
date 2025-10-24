@@ -15,9 +15,9 @@ namespace server.Data.Repositories
 					.ThenInclude(p => p.Repository)
 				.Include(c => c.Location)
 				.Include(c => c.Category)
-				.Include(c => c.DirectReplies)
+				.Include(c => c.ThreadReplies.OrderBy(r => r.CreatedAt))
 					.ThenInclude(r => r.Category)
-					.OrderByDescending(c => c.CreatedAt)
+				.OrderByDescending(c => c.CreatedAt)
 				.ToListAsync();
 		}
 
@@ -28,6 +28,8 @@ namespace server.Data.Repositories
 					.ThenInclude(p => p.Repository)
 				.Include(c => c.Location)
 				.Include(c => c.Category)
+				.Include(c => c.ThreadReplies.OrderBy(r => r.CreatedAt))
+					.ThenInclude(r => r.Category)
 				.Where(c => c.Id == commentId && c.ProjectId == projectId);
 
 			return track ? await query.FirstOrDefaultAsync() : await query.AsNoTracking().FirstOrDefaultAsync();
@@ -80,6 +82,8 @@ namespace server.Data.Repositories
 					.ThenInclude(p => p.Repository)
 				.Include(c => c.Location)
 				.Include(c => c.Category)
+				.Include(c => c.ThreadReplies.OrderBy(r => r.CreatedAt))
+					.ThenInclude(r => r.Category)
 				.FirstAsync(c => c.Id == comment.Id);
 			return created;
 		}
@@ -95,6 +99,8 @@ namespace server.Data.Repositories
 					.ThenInclude(p => p.Repository)
 				.Include(c => c.Location)
 				.Include(c => c.Category)
+				.Include(c => c.ThreadReplies.OrderBy(r => r.CreatedAt))
+					.ThenInclude(r => r.Category)
 				.FirstAsync(c => c.Id == comment.Id);
 			return updated;
 		}

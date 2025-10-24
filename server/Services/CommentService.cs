@@ -19,13 +19,13 @@ namespace server.Services
 		public async Task<IEnumerable<CommentDto>> GetAllCommentsForProjectAsync(Guid projectId)
 		{
 			IEnumerable<Comment> comments = await commentRepository.GetAllByProjectIdAsync(projectId);
-			return comments.Select(c => CommentMapper.ToDto(c, includeReplies: false));
+			return comments.Select(c => CommentMapper.ToDto(c));
 		}
 
 		public async Task<CommentDto?> GetCommentByIdAsync(Guid projectId, Guid commentId)
 		{
 			Comment? comment = await commentRepository.GetByIdAsync(commentId, projectId);
-			return comment is null ? null : CommentMapper.ToDto(comment, includeReplies: false);
+			return comment is null ? null : CommentMapper.ToDto(comment);
 		}
 
 		public async Task<IEnumerable<CommentDto>> GetThreadAsync(Guid projectId, Guid rootCommentId)
@@ -37,7 +37,7 @@ namespace server.Services
 				throw new ArgumentException($"Comment thread with root ID {rootCommentId} does not exist for project {projectId}.");
 			}
 
-			return thread.Select(c => CommentMapper.ToDto(c, includeReplies: false));
+			return thread.Select(c => CommentMapper.ToDto(c));
 		}
 
 		private static Location CreateLocationFromComment(CommentDto commentDto)
@@ -133,7 +133,7 @@ namespace server.Services
 			Comment createdComment = await commentRepository.CreateAsync(newComment);
 			logger.LogInformation("Created comment {CommentId} (depth: {Depth}) for project {ProjectId}", 
 				createdComment.Id, depth, projectId);
-			return CommentMapper.ToDto(createdComment, false);
+			return CommentMapper.ToDto(createdComment);
 		}
 
 		public async Task<CommentDto> UpdateCommentAsync(Guid projectId, Guid commentId, CommentDto updatedCommentData)
@@ -164,7 +164,7 @@ namespace server.Services
 			// Persist changes
 			Comment updatedComment = await commentRepository.UpdateAsync(existingComment);
 			logger.LogInformation("Updated comment {CommentId} for project {ProjectId}", commentId, projectId);
-			return CommentMapper.ToDto(updatedComment, false);
+			return CommentMapper.ToDto(updatedComment);
 		}
 
 		public async Task<bool> DeleteCommentAsync(Guid projectId, Guid commentId)

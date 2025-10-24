@@ -4,7 +4,7 @@ namespace server.Mappers
 {
 	public static class CommentMapper
 	{
-		public static CommentDto ToDto(Comment comment, bool includeReplies = false)
+		public static CommentDto ToDto(Comment comment, bool includeReplies = true)
 		{
 			return new()
 			{
@@ -18,8 +18,8 @@ namespace server.Mappers
 				RootCommentId = comment.RootCommentId,
 				ParentCommentId = comment.ParentCommentId,
 				Depth = comment.Depth,
-				Replies = includeReplies && comment.DirectReplies.Count != 0
-					? [.. comment.DirectReplies.OrderBy(r => r.CreatedAt).Select(r => ToDto(r, false))]
+				Replies = includeReplies && comment.ThreadReplies.Count != 0
+					? [.. comment.ThreadReplies.OrderBy(r => r.CreatedAt).Select(r => ToDto(r, false))]
 					: []
 			};
 		}

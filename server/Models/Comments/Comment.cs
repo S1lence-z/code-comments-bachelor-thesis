@@ -48,8 +48,6 @@ namespace server.Models.Comments
 		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
 		// Navigation properties
-		public virtual ICollection<Comment> DirectReplies { get; set; } = [];
-
 		public virtual ICollection<Comment> ThreadReplies { get; set; } = [];
 	}
 }
