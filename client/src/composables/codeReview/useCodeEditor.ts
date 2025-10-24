@@ -53,7 +53,7 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 		return categories.length > 0 ? categories[0].label : "";
 	};
 
-	const handleCommentDeletion = async (commentId: string): Promise<void> => {
+	const handleCommentDeletion = (commentId: string): void => {
 		if (!commentId) return;
 		emit("inline-form-delete", commentId);
 		hideForm();
@@ -157,6 +157,30 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 		});
 	};
 
+	const handleReplyCommentInline = (commentId: string): void => {
+		const comment = props.commentInFile.find((c) => c.id === commentId);
+		if (!comment || !props.filePath) return;
+		if (comment.type === CommentType.Singleline) {
+			showForm(
+				comment.location.lineNumber!,
+				CommentType.Singleline,
+				props.filePath,
+				comment.location.lineNumber,
+				null,
+				null
+			);
+		} else if (comment.type === CommentType.Multiline) {
+			showForm(
+				comment.location.startLineNumber!,
+				CommentType.Multiline,
+				props.filePath,
+				comment.location.startLineNumber,
+				comment.location.endLineNumber,
+				null
+			);
+		}
+	};
+
 	const extensions = computed(() => {
 		const currentFileComments = props.commentInFile;
 		return createEditorExtensions(
@@ -169,6 +193,7 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 			// Actions
 			handleCommentDeletion,
 			handleEditCommentInline,
+			handleReplyCommentInline,
 			hideForm,
 			handleCommentUpsert,
 			handleAddNewSingleLineComment

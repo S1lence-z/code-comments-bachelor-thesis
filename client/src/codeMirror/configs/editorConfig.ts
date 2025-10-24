@@ -22,10 +22,11 @@ export function createEditorExtensions(
 	appKeyboardShortcuts: AppKeyboardShortcuts,
 	categories: CategoryDto[] = [],
 	// Callbacks
-	onDeleteComment: (commentId: string) => Promise<void>,
+	onDeleteComment: (commentId: string) => void,
 	onEditComment: (commentId: string) => void,
+	onReplyComment: (commentId: string) => void,
 	onCancelUpsertingComment: () => void,
-	onUpsertComment: (content: string, categoryLabel: string, commentId: string | null) => Promise<void>,
+	onUpsertComment: (content: string, categoryLabel: string, commentId: string | null) => void,
 	onSingleLineComment: (lineNumber: number, filePath: string) => void
 ) {
 	const langExt = getLanguageExtension(filePath);
@@ -39,7 +40,13 @@ export function createEditorExtensions(
 		multilineCommentTheme,
 		EditorView.lineWrapping,
 		...(Array.isArray(langExt) ? langExt : [langExt]),
-		commentsDisplayExtension(currentFileComments, isCompactCommentModal, onDeleteComment, onEditComment),
+		commentsDisplayExtension(
+			currentFileComments,
+			isCompactCommentModal,
+			onDeleteComment,
+			onEditComment,
+			onReplyComment
+		),
 		addCursorNavigationExtensions(isKeyboardMode),
 		addCustomKeyboardShortcuts(filePath, onSingleLineComment, appKeyboardShortcuts),
 		preventDefaultDragAndDrop(),

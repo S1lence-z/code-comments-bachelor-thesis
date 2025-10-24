@@ -28,9 +28,9 @@ export const hideCommentFormEffect = StateEffect.define<void>();
  */
 export function commentFormExtension(
 	categories: CategoryDto[],
-	onSubmit: (content: string, categoryLabel: string, commentId: string | null) => Promise<void>,
+	onSubmit: (content: string, categoryLabel: string, commentId: string | null) => void,
 	onCancel: () => void,
-	onDelete: (commentId: string) => Promise<void>
+	onDelete: (commentId: string) => void
 ) {
 	return StateField.define<DecorationSet>({
 		create() {

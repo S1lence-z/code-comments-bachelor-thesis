@@ -1,4 +1,5 @@
 import type CategoryDto from "../../types/dtos/CategoryDto";
+import type CommentDto from "../../types/dtos/CommentDto";
 import BaseCommentWidget from "./baseCommentWidget";
 
 export default class MultilineCommentWidget extends BaseCommentWidget {
@@ -7,10 +8,21 @@ export default class MultilineCommentWidget extends BaseCommentWidget {
 		commentId: string,
 		category: CategoryDto | null,
 		isCompactCommentModal: boolean,
-		deleteCommentAction: (commentId: string) => Promise<void>,
-		editCommentAction: (commentId: string) => void
+		replies: CommentDto[],
+		deleteCommentAction: (commentId: string) => void,
+		editCommentAction: (commentId: string) => void,
+		replyCommentAction: (commentId: string) => void
 	) {
-		super(content, commentId, category, isCompactCommentModal, deleteCommentAction, editCommentAction);
+		super(
+			content,
+			commentId,
+			category,
+			isCompactCommentModal,
+			replies,
+			deleteCommentAction,
+			editCommentAction,
+			replyCommentAction
+		);
 	}
 
 	protected getWidgetTypeClass(): string {

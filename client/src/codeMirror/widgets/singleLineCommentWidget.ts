@@ -1,4 +1,5 @@
 import type CategoryDto from "../../types/dtos/CategoryDto.ts";
+import type CommentDto from "../../types/dtos/CommentDto.ts";
 import BaseCommentWidget from "./baseCommentWidget.ts";
 
 /**
@@ -10,10 +11,21 @@ export default class SingleLineCommentWidget extends BaseCommentWidget {
 		commentId: string,
 		category: CategoryDto | null,
 		isCompactCommentModal: boolean,
-		deleteCommentAction: (commentId: string) => Promise<void>,
-		editCommentAction: (commentId: string) => void
+		replies: CommentDto[],
+		deleteCommentAction: (commentId: string) => void,
+		editCommentAction: (commentId: string) => void,
+		replyCommentAction: (commentId: string) => void
 	) {
-		super(content, commentId, category, isCompactCommentModal, deleteCommentAction, editCommentAction);
+		super(
+			content,
+			commentId,
+			category,
+			isCompactCommentModal,
+			replies,
+			deleteCommentAction,
+			editCommentAction,
+			replyCommentAction
+		);
 	}
 
 	protected getWidgetTypeClass(): string {

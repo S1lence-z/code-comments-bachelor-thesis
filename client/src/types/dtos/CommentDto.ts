@@ -11,4 +11,9 @@ export default interface CommentDto {
 	category?: CategoryDto;
 	type: CommentType;
 	content: string;
+	// Threading fields
+	rootCommentId: string | null;
+	parentCommentId: string | null;
+	depth?: number;
+	replies?: CommentDto[];
 }

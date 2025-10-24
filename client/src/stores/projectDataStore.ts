@@ -257,6 +257,25 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 			const index = this.comments.findIndex((c: CommentDto) => c.id === commentId);
 			if (index !== -1) {
 				this.comments.splice(index, 1);
+				return; // If we deleted a root comment, we're done
+			}
+
+			// Look in replies
+			for (let i = 0; i < this.comments.length; i++) {
+				const comment = this.comments[i];
+				if (!comment.replies || comment.replies.length === 0) continue;
+
+				const replyIndex = comment.replies.findIndex((r: CommentDto) => r.id === commentId);
+				if (replyIndex !== -1) {
+					const newReplies = [...comment.replies];
+					newReplies.splice(replyIndex, 1);
+					// Update the comment with the modified replies array
+					this.comments[i] = {
+						...comment,
+						replies: newReplies,
+					};
+					return;
+				}
 			}
 		},
 		fileContainsComments(filePath: string): boolean {

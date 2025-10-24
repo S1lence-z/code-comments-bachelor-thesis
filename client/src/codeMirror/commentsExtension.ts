@@ -15,8 +15,9 @@ function buildDecorations(
 	state: EditorState,
 	commentsToDisplay: Readonly<CommentDto[]>,
 	isCompactCommentModal: boolean,
-	deleteCommentAction: (commentId: string) => Promise<void>,
-	editCommentAction: (commentId: string) => void
+	deleteCommentAction: (commentId: string) => void,
+	editCommentAction: (commentId: string) => void,
+	replyCommentAction: (commentId: string) => void
 ): DecorationSet {
 	const builder = new RangeSetBuilder<Decoration>();
 
@@ -36,7 +37,8 @@ function buildDecorations(
 					state,
 					builder,
 					deleteCommentAction,
-					editCommentAction
+					editCommentAction,
+					replyCommentAction
 				);
 				break;
 			case CommentType.Multiline:
@@ -46,7 +48,8 @@ function buildDecorations(
 					state,
 					builder,
 					deleteCommentAction,
-					editCommentAction
+					editCommentAction,
+					replyCommentAction
 				);
 				break;
 		}
@@ -67,8 +70,9 @@ function addMultiLineCommentDecoration(
 	isCompactCommentModal: boolean,
 	state: EditorState,
 	builder: RangeSetBuilder<Decoration>,
-	deleteCommentAction: (commentId: string) => Promise<void>,
-	editCommentAction: (commentId: string) => void
+	deleteCommentAction: (commentId: string) => void,
+	editCommentAction: (commentId: string) => void,
+	replyCommentAction: (commentId: string) => void
 ): void {
 	const startLine = state.doc.line(comment.location.startLineNumber!);
 	builder.add(
@@ -80,8 +84,10 @@ function addMultiLineCommentDecoration(
 				comment.id ?? "",
 				comment.category ?? null,
 				isCompactCommentModal,
+				comment.replies ?? [],
 				deleteCommentAction,
-				editCommentAction
+				editCommentAction,
+				replyCommentAction
 			),
 			side: -1,
 			block: true,
@@ -94,8 +100,9 @@ function addSingleLineCommentDecoration(
 	isCompactCommentModal: boolean,
 	state: EditorState,
 	builder: RangeSetBuilder<Decoration>,
-	deleteCommentAction: (commentId: string) => Promise<void>,
-	editCommentAction: (commentId: string) => void
+	deleteCommentAction: (commentId: string) => void,
+	editCommentAction: (commentId: string) => void,
+	replyCommentAction: (commentId: string) => void
 ): void {
 	if (comment.location.lineNumber! > 0 && comment.location.lineNumber! <= state.doc.lines) {
 		const line = state.doc.line(comment.location.lineNumber!);
@@ -108,8 +115,10 @@ function addSingleLineCommentDecoration(
 					comment.id ?? "",
 					comment.category ?? null,
 					isCompactCommentModal,
+					comment.replies ?? [],
 					deleteCommentAction,
-					editCommentAction
+					editCommentAction,
+					replyCommentAction
 				),
 				side: -1,
 				block: true,
@@ -124,8 +133,9 @@ function addSingleLineCommentDecoration(
 export function commentsDisplayExtension(
 	currentComments: Readonly<CommentDto[]>,
 	isCompactCommentModal: boolean,
-	deleteCommentAction: (commentId: string) => Promise<void>,
-	editCommentAction: (commentId: string) => void
+	deleteCommentAction: (commentId: string) => void,
+	editCommentAction: (commentId: string) => void,
+	replyCommentAction: (commentId: string) => void
 ) {
 	return StateField.define<DecorationSet>({
 		create(state: EditorState) {
@@ -134,7 +144,8 @@ export function commentsDisplayExtension(
 				currentComments,
 				isCompactCommentModal,
 				deleteCommentAction,
-				editCommentAction
+				editCommentAction,
+				replyCommentAction
 			);
 		},
 		update(value: DecorationSet, tr) {
@@ -144,7 +155,8 @@ export function commentsDisplayExtension(
 					currentComments,
 					isCompactCommentModal,
 					deleteCommentAction,
-					editCommentAction
+					editCommentAction,
+					replyCommentAction
 				);
 			}
 			return value.map(tr.changes);
