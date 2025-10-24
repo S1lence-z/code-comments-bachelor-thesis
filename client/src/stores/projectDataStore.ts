@@ -168,7 +168,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 			const serverStore = useServerStatusStore();
 			const commentsService = useCommentsService();
 			const settingsStore = useSettingsStore();
-			const { handleError } = useErrorHandler();
+			const { handleError, showSuccess } = useErrorHandler();
 
 			try {
 				this.isSavingComment = true;
@@ -180,6 +180,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 						commentData.id = `offline-${Date.now()}-${Math.random().toString(36)}`;
 					}
 					this.upsertCommentLocal(commentData);
+					showSuccess(commentData.id ? "Comment updated successfully" : "Comment added successfully");
 					return;
 				}
 
@@ -199,6 +200,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 					// Update local state with the updated comment
 					this.upsertCommentLocal(updatedComment);
 					serverStore.setSynced();
+					showSuccess("Comment updated successfully");
 					return;
 				}
 
@@ -206,11 +208,13 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				const newComment = await commentsService.addComment(rwServerUrl, commentData);
 				this.upsertCommentLocal({ ...newComment, id: newComment.id });
 				serverStore.setSynced();
+				showSuccess("Comment added successfully");
 			} catch (error) {
 				serverStore.setSyncError("Failed to upsert comment");
 				handleError(error, {
 					customMessage: "Failed to upsert comment.",
 				});
+				throw error;
 			} finally {
 				this.isSavingComment = false;
 			}
@@ -219,7 +223,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 			const serverStore = useServerStatusStore();
 			const commentsService = useCommentsService();
 			const settingsStore = useSettingsStore();
-			const { handleError } = useErrorHandler();
+			const { handleError, showSuccess } = useErrorHandler();
 
 			try {
 				this.isSavingComment = true;
@@ -227,6 +231,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				// Offline mode
 				if (settingsStore.isOfflineMode) {
 					this.deleteCommentLocal(commentId);
+					showSuccess("Comment deleted successfully");
 					return;
 				}
 
@@ -235,11 +240,13 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				await commentsService.deleteComment(rwServerUrl, commentId);
 				this.deleteCommentLocal(commentId);
 				serverStore.setSynced();
+				showSuccess("Comment deleted successfully");
 			} catch (error) {
 				handleError(error, {
 					customMessage: "Failed to delete comment.",
 				});
 				serverStore.setSyncError("Failed to delete comment");
+				throw error;
 			} finally {
 				this.isSavingComment = false;
 			}
@@ -252,7 +259,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 			const serverStore = useServerStatusStore();
 			const commentsService = useCommentsService();
 			const settingsStore = useSettingsStore();
-			const { handleError } = useErrorHandler();
+			const { handleError, showSuccess } = useErrorHandler();
 			try {
 				this.isSavingComment = true;
 				// Offline mode
@@ -262,6 +269,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 						commentData.id = `offline-${Date.now()}-${Math.random().toString(36)}`;
 					}
 					this.replyCommentLocal(parentCommentId, commentData);
+					showSuccess("Reply added successfully");
 					return;
 				}
 				// Online mode
@@ -269,11 +277,13 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				const newReply = await commentsService.replyComment(rwServerUrl, parentCommentId, commentData);
 				this.replyCommentLocal(parentCommentId, newReply);
 				serverStore.setSynced();
+				showSuccess("Reply added successfully");
 			} catch (error) {
 				serverStore.setSyncError("Failed to add reply");
 				handleError(error, {
 					customMessage: "Failed to add reply.",
 				});
+				throw error;
 			} finally {
 				this.isSavingComment = false;
 			}
