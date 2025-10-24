@@ -18,7 +18,6 @@ namespace server.Mappers
 				RootCommentId = comment.RootCommentId,
 				ParentCommentId = comment.ParentCommentId,
 				Depth = comment.Depth,
-				CreatedAt = comment.CreatedAt,
 				Replies = includeReplies && comment.DirectReplies.Count != 0
 					? [.. comment.DirectReplies.OrderBy(r => r.CreatedAt).Select(r => ToDto(r, false))]
 					: []

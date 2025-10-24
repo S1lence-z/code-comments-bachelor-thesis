@@ -19,7 +19,6 @@ namespace server.Models.Comments
 		public Guid? RootCommentId { get; set; }
 		public Guid? ParentCommentId { get; set; }
 		public int Depth { get; set; } = 0;
-		public DateTime? CreatedAt { get; set; }
 
 		// Navigation properties (optional, loaded on demand)
 		public ICollection<CommentDto> Replies { get; set; } = [];
