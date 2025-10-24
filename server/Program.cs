@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using server.Configs;
 using server.Data;
 using server.Data.Repositories;
+using server.Middleware;
 using server.Services;
 using server.Types.Interfaces;
 using server.Types.Repositories;
@@ -53,6 +54,7 @@ namespace server
             }
 
             // Middleware
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
             EnableCors(app);
             app.UseSwagger();
             app.UseSwaggerUI();

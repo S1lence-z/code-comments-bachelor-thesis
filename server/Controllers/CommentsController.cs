@@ -11,76 +11,41 @@ namespace server.Controllers
 		[HttpGet]
 		public async Task<IActionResult> GetAllCommentsForProject(Guid projectId)
 		{
-			try
-			{
-				IEnumerable<CommentDto> commentDtos = await commentService.GetAllCommentsForProjectAsync(projectId);
-				return Ok(commentDtos);
-			}
-			catch (Exception ex)
-			{
-				return StatusCode(500, new { message = ex.Message});
-			}
+			IEnumerable<CommentDto> commentDtos = await commentService.GetAllCommentsForProjectAsync(projectId);
+			return Ok(commentDtos);
 		}
 
 		[HttpGet("{commentId}")]
 		public async Task<IActionResult> GetCommentById(Guid projectId, Guid commentId)
 		{
-			try
-			{
-				CommentDto? commentDto = await commentService.GetCommentByIdAsync(projectId, commentId);
-				if (commentDto == null)
-					return NotFound(new { message = "Comment not found" });
-				return Ok(commentDto);
-			}
-			catch (Exception ex)
-			{
-				return StatusCode(500, new { message = ex.Message });
-			}
+			CommentDto? commentDto = await commentService.GetCommentByIdAsync(projectId, commentId);
+			if (commentDto == null)
+				return NotFound(new { message = "Comment not found" });
+			return Ok(commentDto);
 		}
 
 		[HttpPost]
 		public async Task<IActionResult> CreateComment(Guid projectId, [FromBody] CommentDto newComment)
 		{
-			try
-			{
-				CommentDto commentDto = await commentService.CreateCommentAsync(projectId, newComment);
-				return CreatedAtAction(nameof(GetCommentById), new { projectId, commentId = commentDto.Id }, commentDto);
-			}
-			catch (Exception ex)
-			{
-				return StatusCode(500, new { message = ex.Message });
-			}
+			CommentDto commentDto = await commentService.CreateCommentAsync(projectId, newComment);
+			return CreatedAtAction(nameof(CreateComment), new { projectId, commentId = commentDto.Id}, commentDto);
 		}
 
 		[HttpPut("{commentId}")]
 		public async Task<IActionResult> UpdateComment(Guid projectId, Guid commentId, [FromBody] CommentDto updatedCommentData)
 		{
-			try
-			{
-				CommentDto updatedComment = await commentService.UpdateCommentAsync(projectId, commentId, updatedCommentData);
-				return Ok(updatedComment);
-			}
-			catch (Exception ex)
-			{
-				return StatusCode(500, new { message = ex.Message });
-			}
+			CommentDto updatedComment = await commentService.UpdateCommentAsync(projectId, commentId, updatedCommentData);
+			return Ok(updatedComment);
 		}
 
 		[HttpDelete("{commentId}")]
 		public async Task<IActionResult> DeleteComment(Guid projectId, Guid commentId)
 		{
-			try
-			{
-				bool wasDeleted = await commentService.DeleteCommentAsync(projectId, commentId);
-				if (wasDeleted)
-					return NoContent();
-				else
-					return NotFound(new { message = "Comment not found" });
-			}
-			catch (Exception ex)
-			{
-				return StatusCode(500, new { message = ex.Message });
-			}
+			bool wasDeleted = await commentService.DeleteCommentAsync(projectId, commentId);
+			if (wasDeleted)
+				return NoContent();
+			else
+				return NotFound(new { message = "Comment not found" });
 		}
 	}
 }

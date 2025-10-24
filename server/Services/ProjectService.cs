@@ -8,9 +8,12 @@ using server.Types.Repositories;
 
 namespace server.Services
 {
-	public class ProjectService(IProjectRepository projectRepository, IOptions<ApiUrls> apiUrls) : IProjectService
+	public class ProjectService(
+		ILogger<ProjectService> logger,
+		IProjectRepository projectRepository, 
+		IOptions<ApiUrls> apiUrls) : IProjectService
 	{
-		private readonly string BASE_BACKEND_URL = apiUrls.Value.Backend;
+		private readonly string _BASE_BACKEND_URL = apiUrls.Value.Backend;
 
 		private static string GenerateReadWriteApiUrl(Guid projectId, string baseUrl)
 		{
@@ -25,41 +28,39 @@ namespace server.Services
 
 		public async Task<ProjectDto> SetupProjectAsync(ProjectSetupRequest request)
 		{
-			try
+			// Validate if the server url in the request is the same as the base backend url
+			if (request.ServerBaseUrl.TrimEnd('/') != _BASE_BACKEND_URL.TrimEnd('/'))
 			{
-				// Create new repository
-				Guid newRepositoryId = Guid.NewGuid();
-				Repository newRepository = new()
-				{
-					Id = newRepositoryId,
-					RepositoryType = request.RepositoryType,
-					RepositoryUrl = request.RepositoryUrl,
-					Branch = request.Branch,
-					CommitHash = request.CommitHash
-				};
-
-				// Validate if the server url in the request is the same as the base backend url
-				if (request.ServerBaseUrl.TrimEnd('/') != BASE_BACKEND_URL.TrimEnd('/'))
-					throw new Exception("The ServerBaseUrl must match the backend URL.");
-
-				// Create new project
-				Guid newProjectId = Guid.NewGuid();
-				Project newProject = new()
-				{
-					Id = newProjectId,
-					Name = request.Name,
-					ServerBaseUrl = request.ServerBaseUrl,
-					ReadWriteApiUrl = GenerateReadWriteApiUrl(newProjectId, request.ServerBaseUrl),
-					RepositoryId = newRepositoryId
-				};
-
-				Project createdProject = await projectRepository.CreateWithRepositoryAsync(newProject, newRepository);
-				return ProjectMapper.ToDto(createdProject);
+				logger.LogWarning("Project setup failed: ServerBaseUrl mismatch. Expected: {Expected}, Got: {Actual}", 
+					_BASE_BACKEND_URL, request.ServerBaseUrl);
+				throw new ArgumentException("The ServerBaseUrl must match the backend URL.");
 			}
-			catch (Exception ex)
+
+			// Create new repository
+			Guid newRepositoryId = Guid.NewGuid();
+			Repository newRepository = new()
 			{
-				throw new Exception($"Failed to set up project: {ex.Message}");
-			}
+				Id = newRepositoryId,
+				RepositoryType = request.RepositoryType,
+				RepositoryUrl = request.RepositoryUrl,
+				Branch = request.Branch,
+				CommitHash = request.CommitHash
+			};
+
+			// Create new project
+			Guid newProjectId = Guid.NewGuid();
+			Project newProject = new()
+			{
+				Id = newProjectId,
+				Name = request.Name,
+				ServerBaseUrl = request.ServerBaseUrl,
+				ReadWriteApiUrl = GenerateReadWriteApiUrl(newProjectId, request.ServerBaseUrl),
+				RepositoryId = newRepositoryId
+			};
+
+			Project createdProject = await projectRepository.CreateWithRepositoryAsync(newProject, newRepository);
+			logger.LogInformation("Created project {ProjectId} with name '{ProjectName}'", createdProject.Id, createdProject.Name);
+			return ProjectMapper.ToDto(createdProject);
 		}
 	}
 }
