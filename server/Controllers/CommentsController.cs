@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Query;
-using server.Mappers;
 using server.Models.Comments;
 using server.Types.Interfaces;
 
@@ -24,13 +22,29 @@ namespace server.Controllers
 			}
 		}
 
+		[HttpGet("{commentId}")]
+		public async Task<IActionResult> GetCommentById(Guid projectId, Guid commentId)
+		{
+			try
+			{
+				CommentDto? commentDto = await commentService.GetCommentByIdAsync(projectId, commentId);
+				if (commentDto == null)
+					return NotFound(new { message = "Comment not found" });
+				return Ok(commentDto);
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, new { message = ex.Message });
+			}
+		}
+
 		[HttpPost]
 		public async Task<IActionResult> CreateComment(Guid projectId, [FromBody] CommentDto newComment)
 		{
 			try
 			{
 				CommentDto commentDto = await commentService.CreateCommentAsync(projectId, newComment);
-				return CreatedAtAction(nameof(GetAllCommentsForProject), new { projectId, commentId = commentDto.Id }, commentDto);
+				return CreatedAtAction(nameof(GetCommentById), new { projectId, commentId = commentDto.Id }, commentDto);
 			}
 			catch (Exception ex)
 			{

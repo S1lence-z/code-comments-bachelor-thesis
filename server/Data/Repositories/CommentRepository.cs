@@ -38,7 +38,10 @@ namespace server.Data.Repositories
         public async Task<Comment?> GetByIdWithProjectAsync(Guid commentId, Guid projectId, bool track = false)
         {
             var query = context.Comments
+                .Include(c => c.Project)
+                    .ThenInclude(p => p.Repository)
                 .Include(c => c.Location)
+                .Include(c => c.Category)
                 .Where(c => c.Id == commentId && c.ProjectId == projectId);
 
             return track ? await query.FirstOrDefaultAsync() : await query.AsNoTracking().FirstOrDefaultAsync();

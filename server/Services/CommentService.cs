@@ -57,6 +57,12 @@ namespace server.Services
 			};
 		}
 
+		public async Task<CommentDto?> GetCommentByIdAsync(Guid projectId, Guid commentId)
+		{
+			Comment? comment = await commentRepository.GetByIdWithProjectAsync(commentId, projectId);
+			return comment is null ? null : CommentMapper.ToDto(comment);
+		}
+
 		public async Task<CommentDto> CreateCommentAsync(Guid projectId, CommentDto newCommentData)
 		{
 			try
