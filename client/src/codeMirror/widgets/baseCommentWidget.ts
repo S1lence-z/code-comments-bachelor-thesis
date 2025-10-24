@@ -4,6 +4,7 @@ import type CategoryDto from "../../types/dtos/CategoryDto.ts";
 export default abstract class BaseCommentWidget extends WidgetType {
 	protected handleDeleteComment: (commentId: string) => Promise<void>;
 	protected handleEditComment: (commentId: string) => void;
+	protected handleReplyComment?: (commentId: string) => void;
 	protected content: string;
 	protected commentId: string;
 	protected category: CategoryDto;
@@ -15,7 +16,8 @@ export default abstract class BaseCommentWidget extends WidgetType {
 		category: CategoryDto | null,
 		isCompact: boolean,
 		handleDeleteComment: (commentId: string) => Promise<void>,
-		handleEditComment: (commentId: string) => void
+		handleEditComment: (commentId: string) => void,
+		handleReplyComment?: (commentId: string) => void
 	) {
 		super();
 		this.content = content;
@@ -24,6 +26,7 @@ export default abstract class BaseCommentWidget extends WidgetType {
 		this.isCompact = isCompact;
 		this.handleDeleteComment = handleDeleteComment;
 		this.handleEditComment = handleEditComment;
+		this.handleReplyComment = handleReplyComment;
 	}
 
 	// Template method pattern
@@ -60,11 +63,13 @@ export default abstract class BaseCommentWidget extends WidgetType {
 
 		const categoryLabel = this.createCategoryLabel(this.category);
 		const contentDiv = this.createContentDiv();
+		const replyButton = this.createReplyButton();
 		const editButton = this.createEditButton();
 		const deleteButton = this.createDeleteButton();
 
 		wrap.appendChild(categoryLabel);
 		wrap.appendChild(contentDiv);
+		wrap.appendChild(replyButton);
 		wrap.appendChild(editButton);
 		wrap.appendChild(deleteButton);
 
@@ -78,6 +83,10 @@ export default abstract class BaseCommentWidget extends WidgetType {
 		// Create and append category label
 		const categoryLabel = this.createCategoryLabel(this.category);
 		tools.appendChild(categoryLabel);
+
+		// Create and append reply button if handler is provided
+		const replyButton = this.createReplyButton();
+		tools.appendChild(replyButton);
 
 		// Create and append edit button
 		const editButton = this.createEditButton();
@@ -117,6 +126,15 @@ export default abstract class BaseCommentWidget extends WidgetType {
 
 		deleteButton.onclick = async () => await this.handleDeleteComment(this.commentId);
 		return deleteButton;
+	}
+
+	protected createReplyButton(): HTMLButtonElement {
+		const replyButton = document.createElement("button");
+		replyButton.classList.add("reply-button");
+		const icon = this.createIconElement("mdi:reply");
+		replyButton.appendChild(icon);
+		replyButton.onclick = async () => this.handleReplyComment!(this.commentId);
+		return replyButton;
 	}
 
 	protected createCategoryLabel(category: CategoryDto): HTMLSpanElement {
