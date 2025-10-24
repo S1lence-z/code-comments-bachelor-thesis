@@ -244,6 +244,40 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				this.isSavingComment = false;
 			}
 		},
+		async replyToCommentAsync(
+			rwServerUrl: string,
+			parentCommentId: string,
+			commentData: CommentDto
+		): Promise<void> {
+			const serverStore = useServerStatusStore();
+			const commentsService = useCommentsService();
+			const settingsStore = useSettingsStore();
+			const { handleError } = useErrorHandler();
+			try {
+				this.isSavingComment = true;
+				// Offline mode
+				if (settingsStore.isOfflineMode) {
+					// Generate a unique ID for new replies in offline mode
+					if (!commentData.id) {
+						commentData.id = `offline-${Date.now()}-${Math.random().toString(36)}`;
+					}
+					this.replyCommentLocal(parentCommentId, commentData);
+					return;
+				}
+				// Online mode
+				serverStore.startSyncing();
+				const newReply = await commentsService.replyComment(rwServerUrl, parentCommentId, commentData);
+				this.replyCommentLocal(parentCommentId, newReply);
+				serverStore.setSynced();
+			} catch (error) {
+				serverStore.setSyncError("Failed to add reply");
+				handleError(error, {
+					customMessage: "Failed to add reply.",
+				});
+			} finally {
+				this.isSavingComment = false;
+			}
+		},
 		// Private helper methods for local state management
 		upsertCommentLocal(comment: CommentDto) {
 			const index = this.comments.findIndex((c: CommentDto) => c.id === comment.id);
@@ -260,7 +294,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				return; // If we deleted a root comment, we're done
 			}
 
-			// Look in replies
+			// Delete from root comment's flat replies array
 			for (let i = 0; i < this.comments.length; i++) {
 				const comment = this.comments[i];
 				if (!comment.replies || comment.replies.length === 0) continue;
@@ -270,6 +304,40 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 					const newReplies = [...comment.replies];
 					newReplies.splice(replyIndex, 1);
 					// Update the comment with the modified replies array
+					this.comments[i] = {
+						...comment,
+						replies: newReplies,
+					};
+					return;
+				}
+			}
+		},
+		replyCommentLocal(parentCommentId: string, reply: CommentDto) {
+			// Helper function to find the root comment ID for a given parent
+			const findRootCommentId = (commentId: string, comments: CommentDto[]): string | null => {
+				for (const comment of comments) {
+					if (comment.id === commentId) {
+						// If this comment has a rootCommentId, return it; otherwise, it IS the root
+						return comment.rootCommentId || comment.id;
+					}
+					if (comment.replies && comment.replies.length > 0) {
+						const found = findRootCommentId(commentId, comment.replies);
+						if (found) return found;
+					}
+				}
+				return null;
+			};
+
+			// Find the root comment ID
+			const rootCommentId = findRootCommentId(parentCommentId, this.comments);
+			if (!rootCommentId) return;
+
+			// Add the reply to the root comment's flat replies array
+			for (let i = 0; i < this.comments.length; i++) {
+				const comment = this.comments[i];
+				if (comment.id === rootCommentId) {
+					const newReplies = comment.replies ? [...comment.replies, reply] : [reply];
+					// Update the root comment with the new reply
 					this.comments[i] = {
 						...comment,
 						replies: newReplies,

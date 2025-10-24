@@ -18,6 +18,7 @@ export interface CodeEditorProps {
 export interface CodeEditorEmits {
 	(event: "inline-form-submit", payload: RawCommentData): void;
 	(event: "inline-form-delete", commentId: string): void;
+	(event: "inline-form-reply", parentCommentId: string, reply: RawCommentData): void;
 }
 
 export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
@@ -39,6 +40,7 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 		filePath: string;
 		startLineNumber: number | null;
 		endLineNumber: number | null;
+		parentCommentId: string | null;
 	} | null>(null);
 
 	// Computed properties
@@ -63,25 +65,21 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 		const comment = props.commentInFile.find((c) => c.id === commentId);
 		if (!comment || !props.filePath) return;
 
-		if (comment.type === CommentType.Singleline) {
-			showForm(
-				comment.location.lineNumber!,
-				CommentType.Singleline,
-				props.filePath,
-				comment.location.lineNumber,
-				null,
-				commentId
-			);
-		} else if (comment.type === CommentType.Multiline) {
-			showForm(
-				comment.location.startLineNumber!,
-				CommentType.Multiline,
-				props.filePath,
-				comment.location.startLineNumber,
-				comment.location.endLineNumber,
-				commentId
-			);
-		}
+		const lineNumber =
+			comment.type === CommentType.Singleline ? comment.location.lineNumber! : comment.location.startLineNumber!;
+
+		const endLineNumber = comment.type === CommentType.Multiline ? comment.location.endLineNumber : null;
+
+		showForm(
+			comment.type,
+			props.filePath,
+			comment.content,
+			comment.category?.label || getDefaultCategoryLabel(),
+			lineNumber,
+			endLineNumber,
+			commentId,
+			null
+		);
 	};
 
 	const handleCommentUpsert = async (
@@ -102,25 +100,34 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 			endLineNumber: activeFormState.value.endLineNumber || activeFormState.value.lineNumber,
 		};
 
-		// Emit to parent (CodeReviewPage) to handle the actual submission
-		emit("inline-form-submit", commentData);
+		// Check if we're in reply mode
+		if (activeFormState.value.parentCommentId) {
+			// Emit reply event
+			emit("inline-form-reply", activeFormState.value.parentCommentId, commentData);
+		} else {
+			// Emit regular submit event
+			emit("inline-form-submit", commentData);
+		}
 
 		// Hide the form after submission
 		hideForm();
 	};
 
 	const showForm = (
-		lineNumber: number,
 		commentType: CommentType,
 		filePath: string,
-		startLine: number | null = null,
-		endLine: number | null = null,
-		commentId: string | null = null
+		initialContent: string,
+		initialCategoryLabel: string,
+		lineNumber: number,
+		endLineNumber: number | null = null,
+		commentId: string | null = null,
+		parentCommentId: string | null = null
 	): void => {
 		if (!editorView.value) return;
 
-		// Find existing comment if editing
-		const existingComment = commentId ? props.commentInFile.find((c) => c.id === commentId) : null;
+		// Determine start/end line based on comment type
+		const startLine = commentType === CommentType.Singleline ? lineNumber : lineNumber;
+		const endLine = commentType === CommentType.Multiline ? endLineNumber : null;
 
 		activeFormState.value = {
 			lineNumber,
@@ -129,6 +136,7 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 			filePath,
 			startLineNumber: startLine,
 			endLineNumber: endLine,
+			parentCommentId,
 		};
 
 		// Dispatch the show form effect to CodeMirror
@@ -137,8 +145,8 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 				lineNumber,
 				commentId,
 				commentType,
-				initialContent: existingComment?.content || "",
-				initialCategoryLabel: existingComment?.category?.label || getDefaultCategoryLabel(),
+				initialContent,
+				initialCategoryLabel,
 				filePath,
 				startLineNumber: startLine,
 				endLineNumber: endLine,
@@ -157,28 +165,56 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 		});
 	};
 
-	const handleReplyCommentInline = (commentId: string): void => {
-		const comment = props.commentInFile.find((c) => c.id === commentId);
-		if (!comment || !props.filePath) return;
-		if (comment.type === CommentType.Singleline) {
-			showForm(
-				comment.location.lineNumber!,
-				CommentType.Singleline,
-				props.filePath,
-				comment.location.lineNumber,
-				null,
-				null
-			);
-		} else if (comment.type === CommentType.Multiline) {
-			showForm(
-				comment.location.startLineNumber!,
-				CommentType.Multiline,
-				props.filePath,
-				comment.location.startLineNumber,
-				comment.location.endLineNumber,
-				null
-			);
+	const findCommentRecursively = (commentId: string, comments: CommentDto[]): CommentDto | null => {
+		for (const comment of comments) {
+			if (comment.id === commentId) {
+				return comment;
+			}
+			if (comment.replies && comment.replies.length > 0) {
+				const found = findCommentRecursively(commentId, comment.replies);
+				if (found) return found;
+			}
 		}
+		return null;
+	};
+
+	const findRootCommentForReply = (parentCommentId: string): CommentDto | null => {
+		// First, find the parent comment recursively
+		const parentComment = findCommentRecursively(parentCommentId, props.commentInFile);
+		if (!parentComment) return null;
+
+		// If parent has a rootCommentId, find that root comment
+		if (parentComment.rootCommentId) {
+			return findCommentRecursively(parentComment.rootCommentId, props.commentInFile);
+		}
+
+		// Otherwise, the parent IS the root
+		return parentComment;
+	};
+
+	const handleReplyCommentInline = (parentCommentId: string): void => {
+		// Find the root comment for this reply
+		const rootComment = findRootCommentForReply(parentCommentId);
+
+		if (!rootComment || !props.filePath) return;
+
+		const lineNumber =
+			rootComment.type === CommentType.Singleline
+				? rootComment.location.lineNumber!
+				: rootComment.location.startLineNumber!;
+
+		const endLineNumber = rootComment.type === CommentType.Multiline ? rootComment.location.endLineNumber : null;
+
+		showForm(
+			rootComment.type,
+			props.filePath,
+			"",
+			rootComment.category?.label || getDefaultCategoryLabel(),
+			lineNumber,
+			endLineNumber,
+			null,
+			parentCommentId
+		);
 	};
 
 	const extensions = computed(() => {
@@ -206,8 +242,16 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 			(c) => c.type === CommentType.Singleline && c.location.lineNumber === lineNumber
 		);
 
-		// Show inline form instead of emitting event
-		showForm(lineNumber, CommentType.Singleline, filePath, lineNumber, null, existingComment?.id || null);
+		showForm(
+			CommentType.Singleline,
+			filePath,
+			existingComment?.content || "",
+			existingComment?.category?.label || getDefaultCategoryLabel(),
+			lineNumber,
+			null,
+			existingComment?.id || null,
+			null
+		);
 	};
 
 	const handleEditorDoubleClick = (event: MouseEvent): void => {
@@ -261,14 +305,15 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 						c.location.endLineNumber === endLineNumber
 				);
 
-				// Show inline form for multiline comment
 				showForm(
-					startLineNumber,
 					CommentType.Multiline,
 					props.filePath!,
+					existingComment?.content || "",
+					existingComment?.category?.label || getDefaultCategoryLabel(),
 					startLineNumber,
 					endLineNumber,
-					existingComment?.id || null
+					existingComment?.id || null,
+					null
 				);
 			}
 		}, 300);

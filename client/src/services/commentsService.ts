@@ -62,7 +62,7 @@ const useCommentsService = () => {
 		parentCommentId: string,
 		commentData: CommentDto
 	): Promise<CommentDto> => {
-		const response = await fetch(`${rwServerUrl}/${parentCommentId}/replies`, {
+		const response = await fetch(`${rwServerUrl}/${parentCommentId}/reply`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",

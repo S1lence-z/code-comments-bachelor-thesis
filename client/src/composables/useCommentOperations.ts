@@ -56,8 +56,33 @@ export const useCommentOperations = () => {
 		}
 	};
 
+	const replyToComment = async (
+		parentCommentId: string,
+		payload: RawCommentData
+	): Promise<CommentOperationResult> => {
+		try {
+			const commentData = createCommentDtoByType(payload.commentType, projectDataStore.allCategories, payload);
+
+			await projectDataStore.replyToCommentAsync(projectStore.getRwServerUrl, parentCommentId, commentData);
+
+			// Show success toast
+			showSuccess("Reply added successfully");
+
+			return { success: true };
+		} catch (error) {
+			handleError(error, {
+				customMessage: "Failed to add reply. Please try again.",
+			});
+			return {
+				success: false,
+				error: "Failed to add reply. Please try again.",
+			};
+		}
+	};
+
 	return {
 		submitComment,
 		deleteComment,
+		replyToComment,
 	};
 };

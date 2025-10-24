@@ -171,7 +171,6 @@ export default abstract class BaseCommentWidget extends WidgetType {
 		const container = document.createElement("div");
 		container.className = "comment-replies-container";
 
-		// Replies should already be sorted by the server
 		for (const reply of this.replies) {
 			const replyElement = this.createReplyElement(reply);
 			container.appendChild(replyElement);
@@ -223,6 +222,5 @@ export default abstract class BaseCommentWidget extends WidgetType {
 
 		return replyDiv;
 	}
-
 	protected abstract getWidgetTypeClass(): string;
 }

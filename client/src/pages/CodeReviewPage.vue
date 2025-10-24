@@ -19,7 +19,7 @@ const workspaceStore = useWorkspaceStore();
 const projectStore = useProjectStore();
 
 // Comment operations
-const { submitComment, deleteComment } = useCommentOperations();
+const { submitComment, deleteComment, replyToComment } = useCommentOperations();
 
 const {
 	// Store refs
@@ -245,6 +245,7 @@ onMounted(async () => {
 							@drop-zone-drop="handleDropZoneDrop"
 							@inline-form-submit="submitComment"
 							@inline-form-delete="deleteComment"
+							@inline-form-reply="replyToComment"
 						/>
 						<!-- Empty State -->
 						<div v-else class="text-center">

@@ -27,6 +27,7 @@ export interface SplitPanelManagerEmits {
 	(event: "drop-zone-drop", dragEvent: DragEvent): void;
 	(event: "inline-form-submit", payload: RawCommentData): void;
 	(event: "inline-form-delete", commentId: string): void;
+	(event: "inline-form-reply", parentCommentId: string, reply: RawCommentData): void;
 }
 
 export function useSplitPanelManager(props: SplitPanelManagerProps, emit: SplitPanelManagerEmits) {
