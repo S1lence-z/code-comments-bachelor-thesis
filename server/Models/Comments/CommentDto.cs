@@ -14,5 +14,14 @@ namespace server.Models.Comments
 		public CategoryDto? Category { get; set; }
 		public CommentType Type { get; set; }
 		public string Content { get; set; } = string.Empty;
+
+		// Threading fields
+		public Guid? RootCommentId { get; set; }
+		public Guid? ParentCommentId { get; set; }
+		public int Depth { get; set; } = 0;
+		public DateTime? CreatedAt { get; set; }
+
+		// Navigation properties (optional, loaded on demand)
+		public ICollection<CommentDto> Replies { get; set; } = [];
 	}
 }

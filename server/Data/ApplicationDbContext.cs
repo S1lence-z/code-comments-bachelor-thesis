@@ -135,6 +135,8 @@ namespace server.Data
 				entity.Property(e => e.Content).IsRequired();
 				entity.Property(e => e.Type).IsRequired()
 					.HasConversion<string>();
+				entity.Property(e => e.Depth).IsRequired().HasDefaultValue(0);
+				entity.Property(e => e.CreatedAt).IsRequired();
 				entity.HasOne(e => e.Project)
 					.WithMany()
 					.HasForeignKey(e => e.ProjectId)
@@ -146,7 +148,24 @@ namespace server.Data
 				entity.HasOne(e => e.Category)
 					.WithMany()
 					.HasForeignKey(e => e.CategoryId)
+					.OnDelete(DeleteBehavior.SetNull);
+
+				// Parent comment relationship
+				entity.HasOne(e => e.ParentComment)
+					.WithMany(e => e.DirectReplies)
+					.HasForeignKey(e => e.ParentCommentId)
+					.OnDelete(DeleteBehavior.Restrict); // Prevent cascade delete loops
+
+				// Root comment relationship
+				entity.HasOne(e => e.RootComment)
+					.WithMany(e => e.ThreadReplies)
+					.HasForeignKey(e => e.RootCommentId)
 					.OnDelete(DeleteBehavior.Cascade);
+
+				// Indices for performance
+				entity.HasIndex(e => e.RootCommentId);
+				entity.HasIndex(e => new { e.ProjectId, e.RootCommentId });
+				entity.HasIndex(e => e.CreatedAt);
 			});
 		}
 	}

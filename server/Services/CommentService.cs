@@ -11,14 +11,33 @@ namespace server.Services
 {
 	public class CommentService(
 		ILogger<CommentService> logger,
-		ICommentRepository commentRepository, 
-		IProjectRepository projectRepository, 
+		ICommentRepository commentRepository,
+		IProjectRepository projectRepository,
+		ILocationRepository locationRepository,
 		ICategoryRepository categoryRepository) : ICommentService
 	{
 		public async Task<IEnumerable<CommentDto>> GetAllCommentsForProjectAsync(Guid projectId)
 		{
 			IEnumerable<Comment> comments = await commentRepository.GetAllByProjectIdAsync(projectId);
-			return comments.Select(CommentMapper.ToDto);
+			return comments.Select(c => CommentMapper.ToDto(c, includeReplies: false));
+		}
+
+		public async Task<CommentDto?> GetCommentByIdAsync(Guid projectId, Guid commentId)
+		{
+			Comment? comment = await commentRepository.GetByIdAsync(commentId, projectId);
+			return comment is null ? null : CommentMapper.ToDto(comment, includeReplies: false);
+		}
+
+		public async Task<IEnumerable<CommentDto>> GetThreadAsync(Guid projectId, Guid rootCommentId)
+		{
+			IEnumerable<Comment> thread = await commentRepository.GetThreadAsync(rootCommentId, projectId);
+			if (!thread.Any())
+			{
+				logger.LogWarning("Attempted to get thread for non-existent root comment {RootCommentId} in project {ProjectId}", rootCommentId, projectId);
+				throw new ArgumentException($"Comment thread with root ID {rootCommentId} does not exist for project {projectId}.");
+			}
+
+			return thread.Select(c => CommentMapper.ToDto(c, includeReplies: false));
 		}
 
 		private static Location CreateLocationFromComment(CommentDto commentDto)
@@ -54,12 +73,6 @@ namespace server.Services
 			};
 		}
 
-		public async Task<CommentDto?> GetCommentByIdAsync(Guid projectId, Guid commentId)
-		{
-			Comment? comment = await commentRepository.GetByIdWithProjectAsync(commentId, projectId);
-			return comment is null ? null : CommentMapper.ToDto(comment);
-		}
-
 		public async Task<CommentDto> CreateCommentAsync(Guid projectId, CommentDto newCommentData)
 		{
 			// Check if the project exists
@@ -73,8 +86,34 @@ namespace server.Services
 			// Validate category
 			Category? category = await categoryRepository.GetByIdAsync(newCommentData.CategoryId);
 
-			// Create and save the new location based on comment type
-			Location newLocation = CreateLocationFromComment(newCommentData);
+			Location? newLocation;
+			Guid? rootCommentId = null;
+			int depth = 0;
+
+			// Handle reply comments
+			if (newCommentData.ParentCommentId.HasValue)
+			{
+				Comment? parentComment = await commentRepository.GetByIdAsync(newCommentData.ParentCommentId.Value, projectId);
+				if (parentComment is null)
+				{
+					logger.LogWarning("Attempted to create reply to non-existent comment {ParentCommentId} for project {ProjectId}", 
+						newCommentData.ParentCommentId.Value, projectId);
+					throw new ArgumentException($"Parent comment with ID {newCommentData.ParentCommentId.Value} does not exist for project {projectId}.");
+				}
+
+				// Inherit location from parent
+				newLocation = parentComment.Location;
+				// Set root comment ID
+				rootCommentId = parentComment.RootCommentId ?? parentComment.Id;
+				// Increment depth
+				depth = parentComment.Depth + 1;
+			}
+			// Handle new root comments
+			else
+			{
+				newLocation = CreateLocationFromComment(newCommentData);
+				await locationRepository.CreateAsync(newLocation);
+			}
 
 			// Create and save the new comment
 			Comment newComment = new()
@@ -84,25 +123,30 @@ namespace server.Services
 				LocationId = newLocation.Id,
 				CategoryId = category?.Id,
 				Type = newCommentData.Type,
-				Content = newCommentData.Content
+				Content = newCommentData.Content,
+				ParentCommentId = newCommentData.ParentCommentId,
+				RootCommentId = rootCommentId,
+				Depth = depth,
+				CreatedAt = DateTime.UtcNow
 			};
 
-			Comment createdComment = await commentRepository.CreateAsync(newComment, newLocation);
-			logger.LogInformation("Created comment {CommentId} for project {ProjectId}", createdComment.Id, projectId);
-			return CommentMapper.ToDto(createdComment);
+			Comment createdComment = await commentRepository.CreateAsync(newComment);
+			logger.LogInformation("Created comment {CommentId} (depth: {Depth}) for project {ProjectId}", 
+				createdComment.Id, depth, projectId);
+			return CommentMapper.ToDto(createdComment, false);
 		}
 
 		public async Task<CommentDto> UpdateCommentAsync(Guid projectId, Guid commentId, CommentDto updatedCommentData)
 		{
 			// Find the existing comment
-			Comment? existingComment = await commentRepository.GetByIdWithProjectAsync(commentId, projectId, track: true);
+			Comment? existingComment = await commentRepository.GetByIdAsync(commentId, projectId, true);
 			if (existingComment is null)
 			{
 				logger.LogWarning("Attempted to update non-existent comment {CommentId} for project {ProjectId}", commentId, projectId);
 				throw new ArgumentException($"Comment with ID {commentId} for project {projectId} does not exist.");
 			}
 
-			// Validate category if possible
+			// Validate category if provided
 			if (updatedCommentData.CategoryId.HasValue)
 			{
 				bool categoryExists = await categoryRepository.ExistsAsync(updatedCommentData.CategoryId.Value);
@@ -120,18 +164,18 @@ namespace server.Services
 			// Persist changes
 			Comment updatedComment = await commentRepository.UpdateAsync(existingComment);
 			logger.LogInformation("Updated comment {CommentId} for project {ProjectId}", commentId, projectId);
-			return CommentMapper.ToDto(updatedComment);
+			return CommentMapper.ToDto(updatedComment, false);
 		}
 
 		public async Task<bool> DeleteCommentAsync(Guid projectId, Guid commentId)
 		{
-			Comment? comment = await commentRepository.GetByIdWithProjectAsync(commentId, projectId, true);
+			Comment? comment = await commentRepository.GetByIdAsync(commentId, projectId, track: true);
 			if (comment is null)
 			{
 				logger.LogWarning("Attempted to delete non-existent comment {CommentId} for project {ProjectId}", commentId, projectId);
 				throw new ArgumentException($"Comment with ID {commentId} for project {projectId} does not exist.");
 			}
-			
+
 			bool result = await commentRepository.DeleteAsync(comment);
 			if (result)
 			{

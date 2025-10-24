@@ -24,11 +24,28 @@ namespace server.Controllers
 			return Ok(commentDto);
 		}
 
+		[HttpGet("{commentId}/thread")]
+		public async Task<IActionResult> GetCommentThread(Guid projectId, Guid commentId)
+		{
+			IEnumerable<CommentDto> thread = await commentService.GetThreadAsync(projectId, commentId);
+			return Ok(thread);
+		}
+
 		[HttpPost]
 		public async Task<IActionResult> CreateComment(Guid projectId, [FromBody] CommentDto newComment)
 		{
 			CommentDto commentDto = await commentService.CreateCommentAsync(projectId, newComment);
-			return CreatedAtAction(nameof(CreateComment), new { projectId, commentId = commentDto.Id}, commentDto);
+			return CreatedAtAction(nameof(GetCommentById), new { projectId, commentId = commentDto.Id }, commentDto);
+		}
+
+		[HttpPost("{parentCommentId}/reply")]
+		public async Task<IActionResult> CreateReply(Guid projectId, Guid parentCommentId, [FromBody] CommentDto newReply)
+		{
+			// Automatically set the parent comment ID from the route
+			newReply.ParentCommentId = parentCommentId;
+
+			CommentDto replyDto = await commentService.CreateCommentAsync(projectId, newReply);
+			return CreatedAtAction(nameof(GetCommentById), new { projectId, commentId = replyDto.Id }, replyDto);
 		}
 
 		[HttpPut("{commentId}")]

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using server.Data;
 
@@ -10,9 +11,11 @@ using server.Data;
 namespace server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251024144221_AddThreadedComments")]
+    partial class AddThreadedComments
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.8");
@@ -94,14 +97,6 @@ namespace server.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("Depth")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasDefaultValue(0);
-
                     b.Property<Guid>("LocationId")
                         .HasColumnType("TEXT");
 
@@ -109,9 +104,6 @@ namespace server.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("ProjectId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid?>("RootCommentId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Type")
@@ -122,16 +114,12 @@ namespace server.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.HasIndex("CreatedAt");
-
                     b.HasIndex("LocationId")
                         .IsUnique();
 
                     b.HasIndex("ParentCommentId");
 
-                    b.HasIndex("RootCommentId");
-
-                    b.HasIndex("ProjectId", "RootCommentId");
+                    b.HasIndex("ProjectId");
 
                     b.ToTable("Comments");
                 });
@@ -277,20 +265,15 @@ namespace server.Migrations
                         .IsRequired();
 
                     b.HasOne("server.Models.Comments.Comment", "ParentComment")
-                        .WithMany("DirectReplies")
+                        .WithMany("Replies")
                         .HasForeignKey("ParentCommentId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("server.Models.Projects.Project", "Project")
                         .WithMany()
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("server.Models.Comments.Comment", "RootComment")
-                        .WithMany("ThreadReplies")
-                        .HasForeignKey("RootCommentId")
-                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Category");
 
@@ -299,8 +282,6 @@ namespace server.Migrations
                     b.Navigation("ParentComment");
 
                     b.Navigation("Project");
-
-                    b.Navigation("RootComment");
                 });
 
             modelBuilder.Entity("server.Models.Projects.Project", b =>
@@ -352,9 +333,7 @@ namespace server.Migrations
 
             modelBuilder.Entity("server.Models.Comments.Comment", b =>
                 {
-                    b.Navigation("DirectReplies");
-
-                    b.Navigation("ThreadReplies");
+                    b.Navigation("Replies");
                 });
 #pragma warning restore 612, 618
         }
