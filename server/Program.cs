@@ -28,9 +28,10 @@ namespace server
             builder.Services.AddScoped<ICommentRepository, CommentRepository>();
             builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddScoped<ILocationRepository, LocationRepository>();
 
-            // Register services
-            builder.Services.AddScoped<IProjectService, ProjectService>();
+			// Register services
+			builder.Services.AddScoped<IProjectService, ProjectService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<ICommentService, CommentService>();
 
