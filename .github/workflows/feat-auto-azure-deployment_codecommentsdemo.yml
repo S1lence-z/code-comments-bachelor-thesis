@@ -8,7 +8,6 @@ on:
 
 env:
   PROJECT_PATH: ./server
-  DOTNET_OUTPUT: ${{ github.workspace }}/output
 
 jobs:
   build:
@@ -31,13 +30,13 @@ jobs:
         run: dotnet build $PROJECT_PATH --configuration Release --no-restore
 
       - name: Publish
-        run: dotnet publish $PROJECT_PATH -c Release -o $DOTNET_OUTPUT
+        run: dotnet publish $PROJECT_PATH -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: $DOTNET_OUTPUT
+          path: ${{env.DOTNET_ROOT}}/myapp
 
   deploy:
     runs-on: ubuntu-latest
