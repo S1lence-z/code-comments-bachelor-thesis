@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using server.Configs;
 using server.Data;
 using server.Data.Repositories;
+using server.Middleware;
 using server.Services;
 using server.Types.Interfaces;
 using server.Types.Repositories;
@@ -27,9 +28,10 @@ namespace server
             builder.Services.AddScoped<ICommentRepository, CommentRepository>();
             builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddScoped<ILocationRepository, LocationRepository>();
 
-            // Register services
-            builder.Services.AddScoped<IProjectService, ProjectService>();
+			// Register services
+			builder.Services.AddScoped<IProjectService, ProjectService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<ICommentService, CommentService>();
 
@@ -53,6 +55,7 @@ namespace server
             }
 
             // Middleware
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
             EnableCors(app);
             app.UseSwagger();
             app.UseSwaggerUI();

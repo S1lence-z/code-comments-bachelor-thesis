@@ -11,8 +11,8 @@ using server.Data;
 namespace server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250919204028_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20251024144221_AddThreadedComments")]
+    partial class AddThreadedComments
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -100,6 +100,9 @@ namespace server.Migrations
                     b.Property<Guid>("LocationId")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("ParentCommentId")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("ProjectId")
                         .HasColumnType("TEXT");
 
@@ -113,6 +116,8 @@ namespace server.Migrations
 
                     b.HasIndex("LocationId")
                         .IsUnique();
+
+                    b.HasIndex("ParentCommentId");
 
                     b.HasIndex("ProjectId");
 
@@ -190,7 +195,7 @@ namespace server.Migrations
                         .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
-                        .HasDefaultValue("git");
+                        .HasDefaultValue("github");
 
                     b.Property<string>("RepositoryUrl")
                         .IsRequired()
@@ -251,13 +256,18 @@ namespace server.Migrations
                     b.HasOne("server.Models.Categories.Category", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("server.Models.Locations.Location", "Location")
                         .WithOne()
                         .HasForeignKey("server.Models.Comments.Comment", "LocationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("server.Models.Comments.Comment", "ParentComment")
+                        .WithMany("Replies")
+                        .HasForeignKey("ParentCommentId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("server.Models.Projects.Project", "Project")
                         .WithMany()
@@ -268,6 +278,8 @@ namespace server.Migrations
                     b.Navigation("Category");
 
                     b.Navigation("Location");
+
+                    b.Navigation("ParentComment");
 
                     b.Navigation("Project");
                 });
@@ -317,6 +329,11 @@ namespace server.Migrations
                         .HasForeignKey("server.Models.Locations.SinglelineLocation", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("server.Models.Comments.Comment", b =>
+                {
+                    b.Navigation("Replies");
                 });
 #pragma warning restore 612, 618
         }

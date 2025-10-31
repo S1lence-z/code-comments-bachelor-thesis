@@ -4,17 +4,23 @@ namespace server.Mappers
 {
 	public static class CommentMapper
 	{
-		public static CommentDto ToDto(Comment comment)
+		public static CommentDto ToDto(Comment comment, bool includeReplies = true)
 		{
 			return new()
 			{
 				Id = comment.Id,
-				Project = ProjectMapper.ToDto(comment.Project),
-				Location = LocationMapper.ToDto(comment.Location),
+				Project = comment.Project is not null ? ProjectMapper.ToDto(comment.Project) : null,
+				Location = comment.Location is not null ? LocationMapper.ToDto(comment.Location) : null,
 				Type = comment.Type,
 				Content = comment.Content,
 				CategoryId = comment.CategoryId,
 				Category = comment.Category is null ? null : CategoryMapper.ToDto(comment.Category),
+				RootCommentId = comment.RootCommentId,
+				ParentCommentId = comment.ParentCommentId,
+				Depth = comment.Depth,
+				Replies = includeReplies && comment.ThreadReplies.Count != 0
+					? [.. comment.ThreadReplies.OrderBy(r => r.CreatedAt).Select(r => ToDto(r, false))]
+					: []
 			};
 		}
 	}

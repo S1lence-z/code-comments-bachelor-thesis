@@ -9,15 +9,8 @@ namespace server.Services
 	{
 		public async Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync()
 		{
-			try
-			{
-				IEnumerable<Category> categories = await categoryRepository.GetAllAsync();
-				return categories.Select(CategoryMapper.ToDto);
-			}
-			catch (Exception ex)
-			{
-				throw new Exception("An error occurred while retrieving categories.", ex);
-			}
+			IEnumerable<Category> categories = await categoryRepository.GetAllAsync();
+			return categories.Select(CategoryMapper.ToDto);
 		}
 	}
 }

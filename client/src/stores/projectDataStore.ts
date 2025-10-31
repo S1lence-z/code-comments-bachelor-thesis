@@ -1,14 +1,15 @@
 import { defineStore } from "pinia";
-import type { TreeNode } from "../types/github/githubTree";
+import type { TreeNode } from "../types/domain/TreeContent";
 import type CommentDto from "../types/dtos/CommentDto";
 import type CategoryDto from "../types/dtos/CategoryDto";
-import useGithubTreeService from "../services/githubTreeService";
+import { useSourceProviderFactory } from "../services/sourceProviderFactory";
 import useCommentsService from "../services/commentsService";
 import useCategoryService from "../services/categoryService";
 import { useServerStatusStore } from "./serverStore";
-import { CommentType } from "../types/enums/CommentType";
+import { CommentType } from "../types/dtos/CommentType";
 import { useFileContentStore } from "./fileContentStore";
 import { useSettingsStore } from "./settingsStore";
+import { useProjectStore } from "./projectStore";
 import { useErrorHandler } from "../composables/useErrorHandler";
 
 // TODO: Dummy category to have at least one -> improve, add it also on the server side
@@ -51,18 +52,19 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 			newRepositoryUrl: string,
 			newRwServerUrl: string,
 			newBranch: string,
-			githubPat: string,
+			authToken: string,
 			serverBaseUrl: string
 		) {
 			const promises = [
-				this.fetchRepositoryTree(newRepositoryUrl, newBranch, githubPat),
-				this.fetchAllCommentsAsync(newRwServerUrl, newRepositoryUrl, newBranch, githubPat),
+				this.fetchRepositoryTree(newRepositoryUrl, newBranch, authToken),
+				this.fetchAllCommentsAsync(newRwServerUrl, newRepositoryUrl, newBranch, authToken),
 				this.fetchAllCategoriesAsync(serverBaseUrl),
 			];
 			await Promise.all(promises);
 		},
-		async fetchRepositoryTree(repositoryUrl: string, branch: string, githubPat: string) {
-			const githubTreeService = useGithubTreeService();
+		async fetchRepositoryTree(repositoryUrl: string, branch: string, authToken?: string) {
+			const projectStore = useProjectStore();
+			const { createProvider } = useSourceProviderFactory();
 			const { showWarning, handleError } = useErrorHandler();
 
 			this.isLoadingRepository = true;
@@ -77,7 +79,8 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 					return;
 				}
 
-				this.fileTreeData = await githubTreeService.getRepositoryTree(repositoryUrl, branch, githubPat);
+				const provider = createProvider(projectStore.getRepositoryType);
+				this.fileTreeData = await provider.getRepositoryTree(repositoryUrl, branch, authToken);
 				this.githubUrlForTree = repositoryUrl;
 			} catch (error) {
 				handleError(error, {
@@ -92,7 +95,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 			rwServerUrl: string,
 			githubRepositoryUrl: string,
 			githubBranch: string,
-			githubPat?: string
+			authToken?: string
 		) {
 			const serverStore = useServerStatusStore();
 			const commentsService = useCommentsService();
@@ -123,7 +126,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 					this.allComments,
 					githubRepositoryUrl,
 					githubBranch,
-					githubPat
+					authToken
 				);
 				serverStore.setSynced();
 			} catch (error) {
@@ -165,7 +168,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 			const serverStore = useServerStatusStore();
 			const commentsService = useCommentsService();
 			const settingsStore = useSettingsStore();
-			const { handleError } = useErrorHandler();
+			const { handleError, showSuccess } = useErrorHandler();
 
 			try {
 				this.isSavingComment = true;
@@ -177,6 +180,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 						commentData.id = `offline-${Date.now()}-${Math.random().toString(36)}`;
 					}
 					this.upsertCommentLocal(commentData);
+					showSuccess(commentData.id ? "Comment updated successfully" : "Comment added successfully");
 					return;
 				}
 
@@ -196,6 +200,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 					// Update local state with the updated comment
 					this.upsertCommentLocal(updatedComment);
 					serverStore.setSynced();
+					showSuccess("Comment updated successfully");
 					return;
 				}
 
@@ -203,11 +208,13 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				const newComment = await commentsService.addComment(rwServerUrl, commentData);
 				this.upsertCommentLocal({ ...newComment, id: newComment.id });
 				serverStore.setSynced();
+				showSuccess("Comment added successfully");
 			} catch (error) {
 				serverStore.setSyncError("Failed to upsert comment");
 				handleError(error, {
 					customMessage: "Failed to upsert comment.",
 				});
+				throw error;
 			} finally {
 				this.isSavingComment = false;
 			}
@@ -216,7 +223,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 			const serverStore = useServerStatusStore();
 			const commentsService = useCommentsService();
 			const settingsStore = useSettingsStore();
-			const { handleError } = useErrorHandler();
+			const { handleError, showSuccess } = useErrorHandler();
 
 			try {
 				this.isSavingComment = true;
@@ -224,6 +231,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				// Offline mode
 				if (settingsStore.isOfflineMode) {
 					this.deleteCommentLocal(commentId);
+					showSuccess("Comment deleted successfully");
 					return;
 				}
 
@@ -232,11 +240,50 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				await commentsService.deleteComment(rwServerUrl, commentId);
 				this.deleteCommentLocal(commentId);
 				serverStore.setSynced();
+				showSuccess("Comment deleted successfully");
 			} catch (error) {
 				handleError(error, {
 					customMessage: "Failed to delete comment.",
 				});
 				serverStore.setSyncError("Failed to delete comment");
+				throw error;
+			} finally {
+				this.isSavingComment = false;
+			}
+		},
+		async replyToCommentAsync(
+			rwServerUrl: string,
+			parentCommentId: string,
+			commentData: CommentDto
+		): Promise<void> {
+			const serverStore = useServerStatusStore();
+			const commentsService = useCommentsService();
+			const settingsStore = useSettingsStore();
+			const { handleError, showSuccess } = useErrorHandler();
+			try {
+				this.isSavingComment = true;
+				// Offline mode
+				if (settingsStore.isOfflineMode) {
+					// Generate a unique ID for new replies in offline mode
+					if (!commentData.id) {
+						commentData.id = `offline-${Date.now()}-${Math.random().toString(36)}`;
+					}
+					this.replyCommentLocal(parentCommentId, commentData);
+					showSuccess("Reply added successfully");
+					return;
+				}
+				// Online mode
+				serverStore.startSyncing();
+				const newReply = await commentsService.replyComment(rwServerUrl, parentCommentId, commentData);
+				this.replyCommentLocal(parentCommentId, newReply);
+				serverStore.setSynced();
+				showSuccess("Reply added successfully");
+			} catch (error) {
+				serverStore.setSyncError("Failed to add reply");
+				handleError(error, {
+					customMessage: "Failed to add reply.",
+				});
+				throw error;
 			} finally {
 				this.isSavingComment = false;
 			}
@@ -254,6 +301,59 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 			const index = this.comments.findIndex((c: CommentDto) => c.id === commentId);
 			if (index !== -1) {
 				this.comments.splice(index, 1);
+				return; // If we deleted a root comment, we're done
+			}
+
+			// Delete from root comment's flat replies array
+			for (let i = 0; i < this.comments.length; i++) {
+				const comment = this.comments[i];
+				if (!comment.replies || comment.replies.length === 0) continue;
+
+				const replyIndex = comment.replies.findIndex((r: CommentDto) => r.id === commentId);
+				if (replyIndex !== -1) {
+					const newReplies = [...comment.replies];
+					newReplies.splice(replyIndex, 1);
+					// Update the comment with the modified replies array
+					this.comments[i] = {
+						...comment,
+						replies: newReplies,
+					};
+					return;
+				}
+			}
+		},
+		replyCommentLocal(parentCommentId: string, reply: CommentDto) {
+			// Helper function to find the root comment ID for a given parent
+			const findRootCommentId = (commentId: string, comments: CommentDto[]): string | null => {
+				for (const comment of comments) {
+					if (comment.id === commentId) {
+						// If this comment has a rootCommentId, return it; otherwise, it IS the root
+						return comment.rootCommentId || comment.id;
+					}
+					if (comment.replies && comment.replies.length > 0) {
+						const found = findRootCommentId(commentId, comment.replies);
+						if (found) return found;
+					}
+				}
+				return null;
+			};
+
+			// Find the root comment ID
+			const rootCommentId = findRootCommentId(parentCommentId, this.comments);
+			if (!rootCommentId) return;
+
+			// Add the reply to the root comment's flat replies array
+			for (let i = 0; i < this.comments.length; i++) {
+				const comment = this.comments[i];
+				if (comment.id === rootCommentId) {
+					const newReplies = comment.replies ? [...comment.replies, reply] : [reply];
+					// Update the root comment with the new reply
+					this.comments[i] = {
+						...comment,
+						replies: newReplies,
+					};
+					return;
+				}
 			}
 		},
 		fileContainsComments(filePath: string): boolean {

@@ -7,7 +7,8 @@ const route = useRoute();
 
 const {
 	// Form inputs
-	formGithubRepositoryUrl,
+	formRepositoryUrl,
+	formRepositoryType,
 	formBranchName,
 	formProjectName,
 	formServerBaseUrl,
@@ -108,7 +109,8 @@ watch(
 						:errorMessage="projectCreationErrorMessage"
 						:isCreatingProject="isCreatingProject"
 						:isProjectCreated="isProjectCreated"
-						v-model:formGithubRepositoryUrl="formGithubRepositoryUrl"
+						v-model:formRepositoryUrl="formRepositoryUrl"
+						v-model:formRepositoryType="formRepositoryType"
 						v-model:formBranchName="formBranchName"
 						v-model:formProjectName="formProjectName"
 						@createProject="handleNewProjectCreation"

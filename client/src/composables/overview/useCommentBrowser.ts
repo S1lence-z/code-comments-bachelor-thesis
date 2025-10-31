@@ -1,6 +1,6 @@
 import { computed, ref } from "vue";
 import type CommentDto from "../../types/dtos/CommentDto";
-import { CommentType } from "../../types/enums/CommentType";
+import { CommentType } from "../../types/dtos/CommentType";
 import { useFileContentStore } from "../../stores/fileContentStore";
 import { useCommentBrowserStore } from "../../stores/commentBrowserStore";
 

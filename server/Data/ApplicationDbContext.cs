@@ -110,7 +110,7 @@ namespace server.Data
 			{
 				entity.HasKey(e => e.Id);
 				entity.Property(e => e.RepositoryType).IsRequired()
-					.HasDefaultValue(RepositoryType.git)
+					.HasDefaultValue(RepositoryType.github)
 					.HasConversion<string>();
 				entity.Property(e => e.RepositoryUrl).IsRequired();
 				entity.Property(e => e.Branch).IsRequired().HasDefaultValue("main");
@@ -135,18 +135,37 @@ namespace server.Data
 				entity.Property(e => e.Content).IsRequired();
 				entity.Property(e => e.Type).IsRequired()
 					.HasConversion<string>();
+				entity.Property(e => e.Depth).IsRequired().HasDefaultValue(0);
+				entity.Property(e => e.CreatedAt).IsRequired();
 				entity.HasOne(e => e.Project)
 					.WithMany()
 					.HasForeignKey(e => e.ProjectId)
 					.OnDelete(DeleteBehavior.Cascade);
 				entity.HasOne(e => e.Location)
-					.WithOne()
-					.HasForeignKey<Comment>(e => e.LocationId)
+					.WithMany()
+					.HasForeignKey(e => e.LocationId)
 					.OnDelete(DeleteBehavior.Cascade);
 				entity.HasOne(e => e.Category)
 					.WithMany()
 					.HasForeignKey(e => e.CategoryId)
+					.OnDelete(DeleteBehavior.SetNull);
+
+				// Parent comment relationship (no direct navigation property needed)
+				entity.HasOne(e => e.ParentComment)
+					.WithMany()
+					.HasForeignKey(e => e.ParentCommentId)
+					.OnDelete(DeleteBehavior.Restrict); // Prevent cascade delete loops
+
+				// Root comment relationship - all replies in the thread
+				entity.HasOne(e => e.RootComment)
+					.WithMany(e => e.ThreadReplies)
+					.HasForeignKey(e => e.RootCommentId)
 					.OnDelete(DeleteBehavior.Cascade);
+
+				// Indices for performance
+				entity.HasIndex(e => e.RootCommentId);
+				entity.HasIndex(e => new { e.ProjectId, e.RootCommentId });
+				entity.HasIndex(e => e.CreatedAt);
 			});
 		}
 	}

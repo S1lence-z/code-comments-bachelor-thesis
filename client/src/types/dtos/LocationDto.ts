@@ -1,4 +1,4 @@
-import type { CommentType } from "../enums/CommentType";
+import type { CommentType } from "./CommentType";
 
 export default interface LocationDto {
 	id: string | null;

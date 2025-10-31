@@ -12,7 +12,7 @@ import KeyboardShortcutsEditor from "./components/app/KeyboardShortcutsEditor.vu
 import { useWorkspaceStore } from "./stores/workspaceStore.ts";
 import { useProjectDataStore } from "./stores/projectDataStore.ts";
 import { codeReviewPageKey } from "./core/keys";
-import { QUERY_PARAMS } from "./types/others/QueryParams";
+import { QUERY_PARAMS } from "./types/shared/QueryParams.ts";
 import { useProjectServerConfigsStore, type ServerConfig } from "./stores/projectServerConfigsStore.ts";
 import ServerConfigsList from "./components/app/ServerConfigsList.vue";
 import ToastContainer from "./components/app/ToastContainer.vue";
@@ -105,7 +105,7 @@ onMounted(async () => {
 	settingsStore.loadSettings();
 	projectServerConfigsStore.loadConfigs();
 	keyboardShortcutsStore.loadShortcuts();
-	workspaceStore.loadWorkspace();
+	workspaceStore.loadWorkspacesFromStorage();
 
 	await router
 		.isReady()
@@ -214,11 +214,13 @@ watch(
 		<ServerConfigsList
 			:currentProject="{
 				repositoryUrl: projectStore.getRepositoryUrl,
+				repositoryType: projectStore.repositoryType,
 				branch: projectStore.repositoryBranch,
 			}"
 			:projectConfigs="
 				projectServerConfigsStore.getConfigsForProject({
 					repositoryUrl: projectStore.getRepositoryUrl,
+					repositoryType: projectStore.repositoryType,
 					branch: projectStore.repositoryBranch,
 				})
 			"

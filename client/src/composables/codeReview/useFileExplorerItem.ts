@@ -1,6 +1,6 @@
 import { computed } from "vue";
 import { useProjectDataStore } from "../../stores/projectDataStore";
-import { type TreeNode, TreeNodeType } from "../../types/github/githubTree";
+import { type TreeNode, TreeNodeType } from "../../types/domain/TreeContent";
 
 export interface FileExplorerItemProps {
 	currentNode: TreeNode;

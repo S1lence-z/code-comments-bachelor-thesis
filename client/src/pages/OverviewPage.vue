@@ -2,7 +2,7 @@
 import { useOverviewPage } from "./useOverviewPage";
 import CommentStatistics from "../components/overview/CommentStatistics.vue";
 import CommentBrowser from "../components/overview/CommentBrowser.vue";
-import { CommentType } from "../types/enums/CommentType";
+import { CommentType } from "../types/dtos/CommentType";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();

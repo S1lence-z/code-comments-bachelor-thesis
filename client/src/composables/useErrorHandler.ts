@@ -1,19 +1,6 @@
 import { useToastStore } from "../stores/toastStore";
-import type { ToastType } from "../types/others/Toast";
-
-export interface ErrorHandlerOptions {
-	showToast?: boolean;
-	toastDuration?: number;
-	logToConsole?: boolean;
-	customMessage?: string;
-	onError?: (error: Error) => void;
-}
-
-export interface ApiErrorResponse {
-	message?: string;
-	error?: string;
-	statusCode?: number;
-}
+import type { ToastType } from "../types/shared/Toast";
+import type { ApiErrorResponse, ErrorHandlerOptions } from "../types/shared/ErrorHandler";
 
 export const useErrorHandler = () => {
 	const toastStore = useToastStore();

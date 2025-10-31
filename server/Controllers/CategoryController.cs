@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using server.Mappers;
 using server.Models.Categories;
 using server.Types.Interfaces;
 
@@ -12,15 +11,8 @@ namespace server.Controllers
 		[HttpGet]
 		public async Task<IActionResult> GetAllCategories()
 		{
-			try
-			{
-				IEnumerable<CategoryDto> categoryDtos = await categoryService.GetAllCategoriesAsync();
-				return Ok(categoryDtos);
-			}
-			catch (Exception ex)
-			{
-				return BadRequest(new { message = ex.Message });
-			}
+			IEnumerable<CategoryDto> categoryDtos = await categoryService.GetAllCategoriesAsync();
+			return Ok(categoryDtos);
 		}
 	}
 }

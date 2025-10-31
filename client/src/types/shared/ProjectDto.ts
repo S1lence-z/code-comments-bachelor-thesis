@@ -1,4 +1,4 @@
-import type RepositoryDto from "./RepositoryDto";
+import type RepositoryDto from "./RepositoryDto.ts";
 
 export default interface ProjectDto {
 	id: string;

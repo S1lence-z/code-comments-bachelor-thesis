@@ -32,5 +32,22 @@ namespace server.Models.Comments
 		[Required]
 		public string Content { get; set; } = string.Empty;
 
+		// Threading fields
+		public Guid? RootCommentId { get; set; }
+		[ForeignKey("RootCommentId")]
+		public virtual Comment? RootComment { get; set; }
+
+		public Guid? ParentCommentId { get; set; }
+		[ForeignKey("ParentCommentId")]
+		public virtual Comment? ParentComment { get; set; }
+
+		[Required]
+		public int Depth { get; set; } = 0;
+
+		[Required]
+		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+		// Navigation properties
+		public virtual ICollection<Comment> ThreadReplies { get; set; } = [];
 	}
 }

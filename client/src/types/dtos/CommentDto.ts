@@ -1,6 +1,6 @@
-import { CommentType } from "../enums/CommentType.ts";
+import { CommentType } from "./CommentType.ts";
 import type CategoryDto from "./CategoryDto.ts";
-import type ProjectDto from "./ProjectDto.ts";
+import type ProjectDto from "../shared/ProjectDto.ts";
 import type LocationDto from "./LocationDto.ts";
 
 export default interface CommentDto {
@@ -11,4 +11,9 @@ export default interface CommentDto {
 	category?: CategoryDto;
 	type: CommentType;
 	content: string;
+	// Threading fields
+	rootCommentId: string | null;
+	parentCommentId: string | null;
+	depth?: number;
+	replies?: CommentDto[];
 }

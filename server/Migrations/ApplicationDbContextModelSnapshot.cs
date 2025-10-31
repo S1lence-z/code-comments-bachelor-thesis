@@ -94,10 +94,24 @@ namespace server.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Depth")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(0);
+
                     b.Property<Guid>("LocationId")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("ParentCommentId")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("ProjectId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("RootCommentId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Type")
@@ -108,10 +122,15 @@ namespace server.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.HasIndex("LocationId")
-                        .IsUnique();
+                    b.HasIndex("CreatedAt");
 
-                    b.HasIndex("ProjectId");
+                    b.HasIndex("LocationId");
+
+                    b.HasIndex("ParentCommentId");
+
+                    b.HasIndex("RootCommentId");
+
+                    b.HasIndex("ProjectId", "RootCommentId");
 
                     b.ToTable("Comments");
                 });
@@ -187,7 +206,7 @@ namespace server.Migrations
                         .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
-                        .HasDefaultValue("git");
+                        .HasDefaultValue("github");
 
                     b.Property<string>("RepositoryUrl")
                         .IsRequired()
@@ -248,13 +267,18 @@ namespace server.Migrations
                     b.HasOne("server.Models.Categories.Category", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("server.Models.Locations.Location", "Location")
-                        .WithOne()
-                        .HasForeignKey("server.Models.Comments.Comment", "LocationId")
+                        .WithMany()
+                        .HasForeignKey("LocationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("server.Models.Comments.Comment", "ParentComment")
+                        .WithMany()
+                        .HasForeignKey("ParentCommentId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("server.Models.Projects.Project", "Project")
                         .WithMany()
@@ -262,11 +286,20 @@ namespace server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("server.Models.Comments.Comment", "RootComment")
+                        .WithMany("ThreadReplies")
+                        .HasForeignKey("RootCommentId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.Navigation("Category");
 
                     b.Navigation("Location");
 
+                    b.Navigation("ParentComment");
+
                     b.Navigation("Project");
+
+                    b.Navigation("RootComment");
                 });
 
             modelBuilder.Entity("server.Models.Projects.Project", b =>
@@ -314,6 +347,11 @@ namespace server.Migrations
                         .HasForeignKey("server.Models.Locations.SinglelineLocation", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("server.Models.Comments.Comment", b =>
+                {
+                    b.Navigation("ThreadReplies");
                 });
 #pragma warning restore 612, 618
         }

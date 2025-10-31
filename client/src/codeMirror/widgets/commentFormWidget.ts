@@ -1,6 +1,6 @@
 import { WidgetType } from "@codemirror/view";
 import type CategoryDto from "../../types/dtos/CategoryDto.ts";
-import { CommentType } from "../../types/enums/CommentType.ts";
+import { CommentType } from "../../types/dtos/CommentType.ts";
 
 export default class CommentFormWidget extends WidgetType {
 	private commentId: string | null;
@@ -11,8 +11,8 @@ export default class CommentFormWidget extends WidgetType {
 	private filePath: string;
 	private startLine: number | null;
 	private endLine: number | null;
-	private onSubmit: (content: string, categoryLabel: string, commentId: string | null) => Promise<void>;
-	private onDelete: (commentId: string) => Promise<void>;
+	private onSubmit: (content: string, categoryLabel: string, commentId: string | null) => void;
+	private onDelete: (commentId: string) => void;
 	private onCancel: () => void;
 	private showCategorySelect: boolean;
 
@@ -25,9 +25,9 @@ export default class CommentFormWidget extends WidgetType {
 		filePath: string,
 		startLine: number | null,
 		endLine: number | null,
-		onSubmit: (content: string, categoryLabel: string, commentId: string | null) => Promise<void>,
+		onSubmit: (content: string, categoryLabel: string, commentId: string | null) => void,
 		onCancel: () => void,
-		onDelete: (commentId: string) => Promise<void>
+		onDelete: (commentId: string) => void
 	) {
 		super();
 		this.commentId = commentId;

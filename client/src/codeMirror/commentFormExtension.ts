@@ -4,7 +4,7 @@ import type { DecorationSet } from "@codemirror/view";
 import { EditorView } from "@codemirror/view";
 import CommentFormWidget from "./widgets/commentFormWidget.ts";
 import type CategoryDto from "../types/dtos/CategoryDto.ts";
-import { CommentType } from "../types/enums/CommentType.ts";
+import { CommentType } from "../types/dtos/CommentType.ts";
 
 export interface CommentFormState {
 	lineNumber: number;
@@ -28,9 +28,9 @@ export const hideCommentFormEffect = StateEffect.define<void>();
  */
 export function commentFormExtension(
 	categories: CategoryDto[],
-	onSubmit: (content: string, categoryLabel: string, commentId: string | null) => Promise<void>,
+	onSubmit: (content: string, categoryLabel: string, commentId: string | null) => void,
 	onCancel: () => void,
-	onDelete: (commentId: string) => Promise<void>
+	onDelete: (commentId: string) => void
 ) {
 	return StateField.define<DecorationSet>({
 		create() {

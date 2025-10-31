@@ -1,6 +1,6 @@
-import { CommentType } from "../types/enums/CommentType";
+import { CommentType } from "../types/dtos/CommentType";
 import type CommentDto from "../types/dtos/CommentDto";
-import type RawCommentData from "../types/others/RawCommentData";
+import type RawCommentData from "../types/domain/RawCommentData";
 import type CategoryDto from "../types/dtos/CategoryDto";
 
 export const getCommentLocationInfoByType = (

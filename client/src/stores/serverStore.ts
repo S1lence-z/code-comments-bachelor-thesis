@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import type { ServerStatus } from "../types/others/ServerStatus.ts";
+import type { ServerStatus } from "../types/domain/ServerStatus.ts";
 
 export const useServerStatusStore = defineStore("serverStatusStore", {
 	state: () => ({
@@ -30,6 +30,5 @@ export const useServerStatusStore = defineStore("serverStatusStore", {
 				this.serverStatus = "synced";
 			}, 2000);
 		},
-		
 	},
 });

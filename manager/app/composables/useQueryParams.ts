@@ -1,21 +1,3 @@
-import { useErrorHandler } from "#imports";
-
-export const QUERY_PARAMS = {
-	SERVER_BASE_URL: "serverBaseUrl",
-	REPOSITORY_URL: "repositoryUrl",
-	RW_SERVER_URL: "rwServerUrl",
-	BRANCH: "branch",
-	FILE: "file",
-};
-
-export interface QueryParams {
-	serverBaseUrl?: string;
-	repositoryUrl?: string;
-	rwServerUrl?: string;
-	branch?: string;
-	file?: string;
-}
-
 export const useQueryParams = () => {
 	const config = useRuntimeConfig();
 	const route = useRoute();
@@ -36,6 +18,7 @@ export const useQueryParams = () => {
 	const navigateToProject = (
 		serverBaseUrl: string,
 		repositoryUrl: string,
+		repositoryType: RepositoryType,
 		rwServerUrl: string,
 		branch: string
 	) => {
@@ -45,6 +28,9 @@ export const useQueryParams = () => {
 		}
 		if (repositoryUrl) {
 			query[QUERY_PARAMS.REPOSITORY_URL] = repositoryUrl;
+		}
+		if (repositoryType) {
+			query[QUERY_PARAMS.REPOSITORY_TYPE] = repositoryType;
 		}
 		if (rwServerUrl) {
 			query[QUERY_PARAMS.RW_SERVER_URL] = rwServerUrl;
@@ -61,10 +47,17 @@ export const useQueryParams = () => {
 		}
 	};
 
-	const navigateToOfflineProject = (repositoryUrl: string, branch: string) => {
+	const navigateToOfflineProject = (
+		repositoryUrl: string,
+		repositoryType: RepositoryType,
+		branch: string
+	) => {
 		const query: Record<string, string> = {};
 		if (repositoryUrl) {
 			query[QUERY_PARAMS.REPOSITORY_URL] = repositoryUrl;
+		}
+		if (repositoryType) {
+			query[QUERY_PARAMS.REPOSITORY_TYPE] = repositoryType;
 		}
 		if (branch) {
 			query[QUERY_PARAMS.BRANCH] = branch;

@@ -1,10 +1,10 @@
 import { ref } from "vue";
-import type { DraggedTabData, PanelData } from "../../types/others/Panels";
+import type { DraggedTabData, PanelData } from "../../types/domain/Panels";
 import { useFileContentStore } from "../../stores/fileContentStore";
 import { useProjectDataStore } from "../../stores/projectDataStore";
-import { FileDisplayType } from "../../types/github/githubFile";
+import { FileDisplayType } from "../../types/domain/FileContent";
 import { useSettingsStore } from "../../stores/settingsStore";
-import type RawCommentData from "../../types/others/RawCommentData";
+import type RawCommentData from "../../types/domain/RawCommentData";
 
 export interface SplitPanelManagerProps {
 	panels: PanelData[];
@@ -27,6 +27,7 @@ export interface SplitPanelManagerEmits {
 	(event: "drop-zone-drop", dragEvent: DragEvent): void;
 	(event: "inline-form-submit", payload: RawCommentData): void;
 	(event: "inline-form-delete", commentId: string): void;
+	(event: "inline-form-reply", parentCommentId: string, reply: RawCommentData): void;
 }
 
 export function useSplitPanelManager(props: SplitPanelManagerProps, emit: SplitPanelManagerEmits) {
