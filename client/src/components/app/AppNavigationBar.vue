@@ -56,7 +56,7 @@ watch(
 </script>
 +
 <template>
-	<nav class="bg-modern-black backdrop-blur-sm border-b border-white/10 shadow-lg">
+	<nav class="bg-modern-black">
 		<div class="flex items-center justify-between h-full max-w-full px-6 py-4">
 			<!-- Logo and Navigation -->
 			<div class="flex items-center gap-3">
