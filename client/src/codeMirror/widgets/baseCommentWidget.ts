@@ -205,9 +205,7 @@ export default abstract class BaseCommentWidget extends WidgetType {
 		replyActions.className = "comment-reply-actions";
 
 		const replyButton = this.createReplyButton();
-		replyButton.classList.add("small");
 		const deleteButton = this.createDeleteButton();
-		deleteButton.classList.add("small");
 
 		// Update button handlers to use the reply's ID
 		replyButton.onclick = () => this.handleReplyComment(reply.id!);
