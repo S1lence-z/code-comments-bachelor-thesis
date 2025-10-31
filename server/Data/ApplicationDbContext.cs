@@ -34,6 +34,12 @@ namespace server.Data
 			modelBuilder.Entity<Category>().HasData(
 				new Category
 				{
+					Id = Guid.Parse("00000000-0000-0000-0000-000000000067"),
+					Label = "Uncategorized",
+					Description = "Default category"
+				},
+				new Category
+				{
 					Id = Guid.Parse("00000000-0000-0000-0000-000000000001"),
 					Label = "Bug",
 					Description = "A bug in the code"
