@@ -124,7 +124,6 @@ onMounted(async () => {
 				settingsStore.toggleOfflineMode(true);
 			}
 
-			// TODO: consider moving this to a route guard
 			// Load the synced project data
 			await projectDataStore.loadProjectDataAsync(
 				projectStore.repositoryUrl,
