@@ -10,7 +10,7 @@ export interface ProjectInfo {
 }
 
 export interface ServerConfig {
-	// TODO: use name to easily identify the projects from setup (probably gonna needto add projectName query param as well)
+	// TODO: use name to easily identify the projects from setup (probably gonna need to add projectName query param as well)
 	name?: string;
 	serverBaseUrl: string;
 	rwServerUrl: string;

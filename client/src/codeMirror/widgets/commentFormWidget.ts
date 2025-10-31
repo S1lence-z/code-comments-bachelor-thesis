@@ -6,12 +6,12 @@ export default class CommentFormWidget extends WidgetType {
 	private commentId: string | null;
 	private commentType: CommentType;
 	private initialContent: string;
-	private initialCategoryLabel: string;
+	private initialCategoryId: string;
 	private categories: CategoryDto[];
 	private filePath: string;
 	private startLine: number | null;
 	private endLine: number | null;
-	private onSubmit: (content: string, categoryLabel: string, commentId: string | null) => void;
+	private onSubmit: (content: string, categoryId: string, commentId: string | null) => void;
 	private onDelete: (commentId: string) => void;
 	private onCancel: () => void;
 	private showCategorySelect: boolean;
@@ -20,12 +20,12 @@ export default class CommentFormWidget extends WidgetType {
 		commentId: string | null,
 		commentType: CommentType,
 		initialContent: string,
-		initialCategoryLabel: string,
+		initialCategoryId: string,
 		categories: CategoryDto[],
 		filePath: string,
 		startLine: number | null,
 		endLine: number | null,
-		onSubmit: (content: string, categoryLabel: string, commentId: string | null) => void,
+		onSubmit: (content: string, categoryId: string, commentId: string | null) => void,
 		onCancel: () => void,
 		onDelete: (commentId: string) => void
 	) {
@@ -33,7 +33,7 @@ export default class CommentFormWidget extends WidgetType {
 		this.commentId = commentId;
 		this.commentType = commentType;
 		this.initialContent = initialContent;
-		this.initialCategoryLabel = initialCategoryLabel;
+		this.initialCategoryId = initialCategoryId;
 		this.categories = categories;
 		this.filePath = filePath;
 		this.startLine = startLine;
@@ -114,9 +114,9 @@ export default class CommentFormWidget extends WidgetType {
 
 		this.categories.forEach((cat) => {
 			const option = document.createElement("option");
-			option.value = cat.label;
+			option.value = cat.id;
 			option.textContent = cat.label;
-			option.selected = cat.label === this.initialCategoryLabel;
+			option.selected = cat.id === this.initialCategoryId;
 			select.appendChild(option);
 		});
 
@@ -183,12 +183,12 @@ export default class CommentFormWidget extends WidgetType {
 		const textarea = formElement.querySelector(".comment-form-content-textarea") as HTMLTextAreaElement;
 		const content = textarea?.value.trim() || "";
 
-		let categoryLabel = this.initialCategoryLabel;
+		let categoryId = this.initialCategoryId;
 		if (this.showCategorySelect) {
 			const select = formElement.querySelector(".comment-form-category-select") as HTMLSelectElement;
-			categoryLabel = select?.value || "";
+			categoryId = select?.value || "";
 
-			if (!categoryLabel) {
+			if (!categoryId) {
 				alert("Please select a category.");
 				return;
 			}
@@ -199,7 +199,7 @@ export default class CommentFormWidget extends WidgetType {
 			return;
 		}
 
-		this.onSubmit(content, categoryLabel, this.commentId);
+		this.onSubmit(content, categoryId, this.commentId);
 	}
 
 	// Override to prevent CodeMirror from considering this as editable

@@ -50,11 +50,6 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 
 	const isKeyboardMode = computed(() => settingsStore.isKeyboardMode);
 
-	const getDefaultCategoryLabel = (): string => {
-		const categories = projectDataStore.allCategories;
-		return categories.length > 0 ? categories[0].label : "";
-	};
-
 	const handleCommentDeletion = (commentId: string): void => {
 		if (!commentId) return;
 		emit("inline-form-delete", commentId);
@@ -74,7 +69,7 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 			comment.type,
 			props.filePath,
 			comment.content,
-			comment.category?.label || getDefaultCategoryLabel(),
+			comment.category?.id || projectDataStore.getDefaultCategory.id,
 			lineNumber,
 			endLineNumber,
 			commentId,
@@ -84,21 +79,21 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 
 	const handleCommentUpsert = async (
 		content: string,
-		categoryLabel: string,
+		categoryId: string,
 		commentId: string | null
 	): Promise<void> => {
 		if (!activeFormState.value) return;
 
-		// TODO: instead of the label we should pass the category ID or the value, which will be resolved to ID in parent component
 		const commentData: RawCommentData = {
 			id: commentId,
 			commentType: activeFormState.value.commentType,
-			categoryLabel: categoryLabel,
+			categoryId: categoryId,
 			filePath: activeFormState.value.filePath,
 			content: content,
 			startLineNumber: activeFormState.value.startLineNumber || activeFormState.value.lineNumber,
 			endLineNumber: activeFormState.value.endLineNumber || activeFormState.value.lineNumber,
 		};
+		console.log("Upserting comment data:", commentData);
 
 		// Check if we're in reply mode
 		if (activeFormState.value.parentCommentId) {
@@ -117,7 +112,7 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 		commentType: CommentType,
 		filePath: string,
 		initialContent: string,
-		initialCategoryLabel: string,
+		initialCategoryId: string,
 		lineNumber: number,
 		endLineNumber: number | null = null,
 		commentId: string | null = null,
@@ -146,7 +141,7 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 				commentId,
 				commentType,
 				initialContent,
-				initialCategoryLabel,
+				initialCategoryId: initialCategoryId,
 				filePath,
 				startLineNumber: startLine,
 				endLineNumber: endLine,
@@ -209,7 +204,7 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 			rootComment.type,
 			props.filePath,
 			"",
-			rootComment.category?.label || getDefaultCategoryLabel(),
+			rootComment.category?.id || projectDataStore.getDefaultCategory.id,
 			lineNumber,
 			endLineNumber,
 			null,
@@ -246,7 +241,7 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 			CommentType.Singleline,
 			filePath,
 			existingComment?.content || "",
-			existingComment?.category?.label || getDefaultCategoryLabel(),
+			existingComment?.category?.id || projectDataStore.getDefaultCategory.id,
 			lineNumber,
 			null,
 			existingComment?.id || null,
@@ -309,7 +304,7 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 					CommentType.Multiline,
 					props.filePath!,
 					existingComment?.content || "",
-					existingComment?.category?.label || getDefaultCategoryLabel(),
+					existingComment?.category?.id || projectDataStore.getDefaultCategory.id,
 					startLineNumber,
 					endLineNumber,
 					existingComment?.id || null,

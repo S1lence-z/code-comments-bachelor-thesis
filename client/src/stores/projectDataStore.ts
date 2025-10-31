@@ -48,6 +48,9 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 		hasUnsavedChanges: (state) => {
 			return state.isSavingComment;
 		},
+		getDefaultCategory: (state) => {
+			return state.categories.length > 0 ? state.categories[0] : FALLBACK_CATEGORY;
+		}
 	},
 	actions: {
 		// Load project data from various sources
