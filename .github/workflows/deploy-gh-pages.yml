@@ -1,4 +1,4 @@
-name: Deploy FE to GitHub Pages
+name: Deploy Client App to GitHub Pages
 
 on:
     push:
