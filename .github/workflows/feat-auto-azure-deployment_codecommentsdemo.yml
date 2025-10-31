@@ -6,7 +6,7 @@ name: Build and deploy ASP.Net Core app to Azure Web App - codecommentsdemo
 on:
   push:
     branches:
-      - feat/auto-azure-deployment
+      - master
   workflow_dispatch:
 
 env:
