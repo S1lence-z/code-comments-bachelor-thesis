@@ -76,8 +76,7 @@ export const createCommentDtoByType = (
 	commentData: RawCommentData
 ): CommentDto => {
 	const trimmedContent = commentData.content.trim();
-	// TODO: use the value or id instead of label
-	const categoryId = allCategories.find((cat) => cat.label === commentData.categoryLabel)?.id || null;
+	const categoryId = allCategories.find((cat) => cat.id === commentData.categoryId)?.id || null;
 
 	if (!trimmedContent) {
 		throw new Error("Comment content cannot be empty.");

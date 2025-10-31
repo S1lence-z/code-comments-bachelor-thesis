@@ -43,7 +43,7 @@ const isFileComment = computed(() => {
 const commentData = reactive<RawCommentData>({
 	id: null,
 	commentType: isFileComment.value ? CommentType.File : CommentType.Project,
-	categoryLabel: "",
+	categoryId: "",
 	filePath: props.filePath ?? "",
 	content: "",
 	startLineNumber: 0,
@@ -97,7 +97,7 @@ watch(
 		// Reset form
 		commentData.id = null;
 		commentData.content = "";
-		commentData.categoryLabel = "";
+		commentData.categoryId = "";
 		commentData.commentType = filePath !== null ? CommentType.File : CommentType.Project;
 		commentData.filePath = filePath ?? "";
 		commentData.startLineNumber = 0;
@@ -116,7 +116,7 @@ watch(
 		if (existingComment) {
 			commentData.id = existingComment.id;
 			commentData.commentType = existingComment.type;
-			commentData.categoryLabel = existingComment.category?.label ?? "";
+			commentData.categoryId = existingComment.category?.id ?? "";
 			commentData.filePath = existingComment.location.filePath ?? "";
 			commentData.content = existingComment.content;
 			commentData.startLineNumber = existingComment.location.startLineNumber ?? 0;

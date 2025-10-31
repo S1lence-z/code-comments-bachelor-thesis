@@ -11,7 +11,7 @@ export interface CommentFormState {
 	commentId: string | null;
 	commentType: CommentType;
 	initialContent: string;
-	initialCategoryLabel: string;
+	initialCategoryId: string;
 	filePath: string;
 	startLineNumber: number | null;
 	endLineNumber: number | null;
@@ -28,7 +28,7 @@ export const hideCommentFormEffect = StateEffect.define<void>();
  */
 export function commentFormExtension(
 	categories: CategoryDto[],
-	onSubmit: (content: string, categoryLabel: string, commentId: string | null) => void,
+	onSubmit: (content: string, categoryId: string, commentId: string | null) => void,
 	onCancel: () => void,
 	onDelete: (commentId: string) => void
 ) {
@@ -58,7 +58,7 @@ export function commentFormExtension(
 								formState.commentId,
 								formState.commentType,
 								formState.initialContent,
-								formState.initialCategoryLabel,
+								formState.initialCategoryId,
 								categories,
 								formState.filePath,
 								formState.startLineNumber,
