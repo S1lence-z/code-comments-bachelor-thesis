@@ -9,6 +9,9 @@ on:
       - feat/auto-azure-deployment
   workflow_dispatch:
 
+env:
+  PROJECT_PATH: ./server
+
 jobs:
   build:
     runs-on: ubuntu-latest
