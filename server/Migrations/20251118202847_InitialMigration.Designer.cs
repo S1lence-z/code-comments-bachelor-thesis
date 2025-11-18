@@ -11,8 +11,8 @@ using server.Data;
 namespace server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251024144221_AddThreadedComments")]
-    partial class AddThreadedComments
+    [Migration("20251118202847_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -40,6 +40,12 @@ namespace server.Migrations
                     b.ToTable("Categories");
 
                     b.HasData(
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-000000000067"),
+                            Description = "Default category",
+                            Label = "Uncategorized"
+                        },
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0000-000000000001"),
@@ -97,6 +103,14 @@ namespace server.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Depth")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(0);
+
                     b.Property<Guid>("LocationId")
                         .HasColumnType("TEXT");
 
@@ -104,6 +118,9 @@ namespace server.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("ProjectId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("RootCommentId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Type")
@@ -114,12 +131,15 @@ namespace server.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.HasIndex("LocationId")
-                        .IsUnique();
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("LocationId");
 
                     b.HasIndex("ParentCommentId");
 
-                    b.HasIndex("ProjectId");
+                    b.HasIndex("RootCommentId");
+
+                    b.HasIndex("ProjectId", "RootCommentId");
 
                     b.ToTable("Comments");
                 });
@@ -259,21 +279,26 @@ namespace server.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("server.Models.Locations.Location", "Location")
-                        .WithOne()
-                        .HasForeignKey("server.Models.Comments.Comment", "LocationId")
+                        .WithMany()
+                        .HasForeignKey("LocationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("server.Models.Comments.Comment", "ParentComment")
-                        .WithMany("Replies")
+                        .WithMany()
                         .HasForeignKey("ParentCommentId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("server.Models.Projects.Project", "Project")
                         .WithMany()
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("server.Models.Comments.Comment", "RootComment")
+                        .WithMany("ThreadReplies")
+                        .HasForeignKey("RootCommentId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Category");
 
@@ -282,6 +307,8 @@ namespace server.Migrations
                     b.Navigation("ParentComment");
 
                     b.Navigation("Project");
+
+                    b.Navigation("RootComment");
                 });
 
             modelBuilder.Entity("server.Models.Projects.Project", b =>
@@ -333,7 +360,7 @@ namespace server.Migrations
 
             modelBuilder.Entity("server.Models.Comments.Comment", b =>
                 {
-                    b.Navigation("Replies");
+                    b.Navigation("ThreadReplies");
                 });
 #pragma warning restore 612, 618
         }

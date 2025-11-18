@@ -157,7 +157,11 @@ namespace server.Migrations
                     LocationId = table.Column<Guid>(type: "TEXT", nullable: false),
                     CategoryId = table.Column<Guid>(type: "TEXT", nullable: true),
                     Type = table.Column<string>(type: "TEXT", nullable: false),
-                    Content = table.Column<string>(type: "TEXT", nullable: false)
+                    Content = table.Column<string>(type: "TEXT", nullable: false),
+                    RootCommentId = table.Column<Guid>(type: "TEXT", nullable: true),
+                    ParentCommentId = table.Column<Guid>(type: "TEXT", nullable: true),
+                    Depth = table.Column<int>(type: "INTEGER", nullable: false, defaultValue: 0),
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -166,6 +170,18 @@ namespace server.Migrations
                         name: "FK_Comments_Categories_CategoryId",
                         column: x => x.CategoryId,
                         principalTable: "Categories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "FK_Comments_Comments_ParentCommentId",
+                        column: x => x.ParentCommentId,
+                        principalTable: "Comments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Comments_Comments_RootCommentId",
+                        column: x => x.RootCommentId,
+                        principalTable: "Comments",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -193,7 +209,8 @@ namespace server.Migrations
                     { new Guid("00000000-0000-0000-0000-000000000004"), "A question about the code or project", "Question" },
                     { new Guid("00000000-0000-0000-0000-000000000005"), "An enhancement to existing functionality", "Enhancement" },
                     { new Guid("00000000-0000-0000-0000-000000000006"), "Performance-related issues or improvements", "Performance" },
-                    { new Guid("00000000-0000-0000-0000-000000000007"), "Security vulnerabilities or concerns", "Security" }
+                    { new Guid("00000000-0000-0000-0000-000000000007"), "Security vulnerabilities or concerns", "Security" },
+                    { new Guid("00000000-0000-0000-0000-000000000067"), "Default category", "Uncategorized" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -202,15 +219,29 @@ namespace server.Migrations
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Comments_LocationId",
+                name: "IX_Comments_CreatedAt",
                 table: "Comments",
-                column: "LocationId",
-                unique: true);
+                column: "CreatedAt");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Comments_ProjectId",
+                name: "IX_Comments_LocationId",
                 table: "Comments",
-                column: "ProjectId");
+                column: "LocationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Comments_ParentCommentId",
+                table: "Comments",
+                column: "ParentCommentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Comments_ProjectId_RootCommentId",
+                table: "Comments",
+                columns: new[] { "ProjectId", "RootCommentId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Comments_RootCommentId",
+                table: "Comments",
+                column: "RootCommentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Projects_RepositoryId",
