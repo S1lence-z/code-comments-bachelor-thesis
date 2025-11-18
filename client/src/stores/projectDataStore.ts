@@ -12,11 +12,11 @@ import { useSettingsStore } from "./settingsStore";
 import { useProjectStore } from "./projectStore";
 import { useErrorHandler } from "../composables/useErrorHandler";
 
-// TODO: Dummy category to have at least one -> improve, add it also on the server side
-const dummyCategoryDto: CategoryDto = {
-	id: "dummy-id",
+// Fallback category when server doesn't respond or returns empty
+const FALLBACK_CATEGORY: CategoryDto = {
+	id: "__fallback_uncategorized__",
 	label: "Uncategorized",
-	description: "A default category for uncategorized comments",
+	description: "Default category",
 };
 
 export const useProjectDataStore = defineStore("projectDataStore", {
@@ -25,7 +25,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 		githubUrlForTree: "",
 		fileTreeData: [] as TreeNode[],
 		comments: [] as CommentDto[],
-		categories: [dummyCategoryDto] as CategoryDto[],
+		categories: [] as CategoryDto[],
 		// Loading states
 		isLoadingRepository: false,
 		isLoadingComments: false,
@@ -35,7 +35,10 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 	getters: {
 		fileTree: (state) => state.fileTreeData,
 		allComments: (state) => state.comments,
-		allCategories: (state) => state.categories,
+		allCategories: (state) => {
+			// Always return at least one category (fallback if empty)
+			return state.categories.length > 0 ? state.categories : [FALLBACK_CATEGORY];
+		},
 		getCommentsForFile: (state) => (filePath: string) => {
 			return state.comments.filter((comment: CommentDto) => comment.location.filePath === filePath) ?? [];
 		},
@@ -45,6 +48,9 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 		hasUnsavedChanges: (state) => {
 			return state.isSavingComment;
 		},
+		getDefaultCategory: (state) => {
+			return state.categories.length > 0 ? state.categories[0] : FALLBACK_CATEGORY;
+		}
 	},
 	actions: {
 		// Load project data from various sources
@@ -146,7 +152,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 
 			// In offline mode, do not fetch categories
 			if (settingsStore.isOfflineMode) {
-				this.categories = [dummyCategoryDto];
+				this.categories = [];
 				return;
 			}
 
@@ -158,7 +164,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				handleError(error, {
 					customMessage: "Failed to load categories. Using default.",
 				});
-				this.categories = [dummyCategoryDto];
+				this.categories = [];
 			} finally {
 				this.isLoadingCategories = false;
 			}

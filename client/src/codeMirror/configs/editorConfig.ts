@@ -26,7 +26,7 @@ export function createEditorExtensions(
 	onEditComment: (commentId: string) => void,
 	onReplyComment: (commentId: string) => void,
 	onCancelUpsertingComment: () => void,
-	onUpsertComment: (content: string, categoryLabel: string, commentId: string | null) => void,
+	onUpsertComment: (content: string, categoryId: string, commentId: string | null) => void,
 	onSingleLineComment: (lineNumber: number, filePath: string) => void
 ) {
 	const langExt = getLanguageExtension(filePath);

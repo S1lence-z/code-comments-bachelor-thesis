@@ -43,7 +43,7 @@ export function useCodeReviewPage() {
 			path,
 			projectStore.getRepositoryUrl,
 			projectStore.getRepositoryBranch,
-			projectStore.getGithubPat
+			projectStore.getRepoAuthToken()
 		);
 	};
 

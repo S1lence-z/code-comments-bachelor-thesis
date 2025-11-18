@@ -1,10 +1,10 @@
+/* Base comment widget with glassmorphism effect */
 .cm-comment-widget {
 	background: rgba(255, 255, 255, 0.08);
 	backdrop-filter: blur(12px);
 	-webkit-backdrop-filter: blur(12px);
 	color: #f8fafc;
 	padding: 10px 14px;
-	font-size: 0.9em;
 	white-space: pre-wrap;
 	border: 1px solid rgba(255, 255, 255, 0.1);
 	border-radius: 12px;
@@ -14,13 +14,14 @@
 	overflow: hidden;
 }
 
-/* Default hover effects (single-line) */
+/* Hover effects */
 .cm-comment-widget:hover {
 	background: rgba(255, 255, 255, 0.12);
 	border-color: rgba(0, 122, 204, 0.4);
 	transform: translateY(-1px);
 }
 
+/* Top accent gradient line */
 .cm-comment-widget::before {
 	content: "";
 	position: absolute;
@@ -31,7 +32,7 @@
 	background: linear-gradient(90deg, transparent, rgba(0, 122, 204, 0.6) 50%, transparent);
 }
 
-/* Multiline-specific overrides */
+/* Multiline comment styling */
 .cm-comment-widget.multiline {
 	border-radius: 12px 12px 0 0;
 }
@@ -40,25 +41,10 @@
 	border-color: rgba(154, 52, 18, 0.4);
 }
 
-.cm-comment-widget.multiline::before {
-	background: linear-gradient(90deg, transparent, rgba(154, 52, 18, 0.6) 50%, transparent);
-}
-
-/* Compact mode styles - layout changes */
-.cm-comment-widget.compact {
-	display: block;
-}
-
+/* Compact mode layout */
 .cm-comment-widget.compact .compact-header {
 	display: flex;
 	align-items: center;
-	gap: 12px;
-}
-
-.cm-comment-widget.compact .comment-tools {
-	margin-bottom: 0;
-	padding-bottom: 0;
-	border-bottom: none;
 	gap: 12px;
 }
 
@@ -68,7 +54,15 @@
 	margin-right: auto;
 }
 
-/* Content styling */
+/* Compact mode tools */
+.cm-comment-widget.compact .comment-tools {
+	margin-bottom: 0;
+	padding-bottom: 0;
+	border-bottom: none;
+	gap: 12px;
+}
+
+/* Comment content text */
 .cm-comment-widget .comment-content {
 	color: #e2e8f0;
 	font-size: 16px;
@@ -77,7 +71,7 @@
 	font-weight: 400;
 }
 
-/* Default category styling (blue for singleline) */
+/* Category badge */
 .cm-comment-widget .comment-category {
 	display: inline-flex;
 	align-items: center;
@@ -93,11 +87,10 @@
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
 	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-	position: relative;
-	overflow: hidden;
 	flex-shrink: 0;
 }
 
+/* Category badge hover */
 .cm-comment-widget .comment-category:hover {
 	background: rgba(0, 122, 204, 0.25);
 	border-color: rgba(0, 122, 204, 0.5);
@@ -105,7 +98,7 @@
 	transform: translateY(-1px);
 }
 
-/* Multiline category override (orange) */
+/* Multiline category badge */
 .cm-comment-widget.multiline .comment-category {
 	background: rgba(154, 52, 18, 0.15);
 	border: 1px solid rgba(154, 52, 18, 0.3);
@@ -118,90 +111,40 @@
 	color: #fed7aa;
 }
 
-/* Multiline Comment Highlighting */
-.cm-multiline-highlight {
-	background: rgba(154, 52, 18, 0.08);
-	backdrop-filter: blur(4px);
-	-webkit-backdrop-filter: blur(4px);
-	border-left: 3px solid rgba(154, 52, 18, 0.4);
-	border-radius: 0 4px 4px 0;
-	position: relative;
-}
-
-.cm-multiline-highlight::before {
-	content: "";
-	position: absolute;
-	left: -3px;
-	top: 0;
-	bottom: 0;
-	width: 1px;
-	background: linear-gradient(180deg, rgba(154, 52, 18, 0.6), rgba(154, 52, 18, 0.2));
-}
-
-/* Comment Form Widget Styles */
-.cm-comment-form-widget {
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-}
-
-/* Reply Styles */
+/* Replies container */
 .comment-replies-container {
 	margin-top: 16px;
 	padding-top: 12px;
-	border-top: 2px solid rgba(0, 122, 204, 0.2);
+	border-top: 2px solid gray;
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
 }
 
+/* Individual reply */
 .comment-reply {
-	background: linear-gradient(135deg, rgba(0, 122, 204, 0.06) 0%, rgba(0, 122, 204, 0.02) 100%);
-	border-left: 3px solid rgba(0, 122, 204, 0.4);
 	border-radius: 8px;
 	padding: 8px 12px;
-	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 	position: relative;
-	overflow: hidden;
 }
 
-.comment-reply::before {
-	content: "";
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 3px;
-	height: 100%;
-	background: linear-gradient(180deg, rgba(0, 122, 204, 0.8) 0%, rgba(0, 122, 204, 0.3) 100%);
-	transition: width 0.3s ease;
-}
-
-.comment-reply:hover {
-	background: linear-gradient(135deg, rgba(0, 122, 204, 0.12) 0%, rgba(0, 122, 204, 0.04) 100%);
-	border-left-color: rgba(0, 122, 204, 0.6);
-	transform: translateX(4px);
-}
-
-.comment-reply:hover::before {
-	width: 4px;
-}
-
-/* Single line layout for replies */
+/* Reply layout */
 .comment-reply-line {
 	display: flex;
 	align-items: center;
 	gap: 10px;
 }
 
+/* Reply category badge */
 .comment-reply-line .reply-category {
-	font-size: 10px;
-	padding: 3px 10px;
-	background: rgba(0, 122, 204, 0.2);
-	border-color: rgba(0, 122, 204, 0.4);
+	padding: 4px 12px;
 	flex-shrink: 0;
 }
 
+/* Reply content text */
 .comment-reply-content {
 	color: #e2e8f0;
-	font-size: 14px;
+	font-size: 16px;
 	line-height: 1.4;
 	white-space: nowrap;
 	overflow: hidden;
@@ -210,6 +153,7 @@
 	min-width: 0;
 }
 
+/* Reply action buttons */
 .comment-reply-actions {
 	display: flex;
 	gap: 6px;
@@ -219,28 +163,7 @@
 	transition: opacity 0.2s ease;
 }
 
+/* Reply actions on hover */
 .comment-reply:hover .comment-reply-actions {
-	opacity: 1;
-}
-
-.comment-reply-actions button {
-	background: rgba(255, 255, 255, 0.05);
-	border: 1px solid rgba(255, 255, 255, 0.1);
-	border-radius: 6px;
-	padding: 4px 8px;
-	cursor: pointer;
-	transition: all 0.2s ease;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.comment-reply-actions button:hover {
-	background: rgba(255, 255, 255, 0.1);
-	border-color: rgba(0, 122, 204, 0.5);
-	transform: translateY(-1px);
-}
-
-.comment-reply-actions button.small {
-	padding: 3px 6px;
+	opacity: 0.9;
 }

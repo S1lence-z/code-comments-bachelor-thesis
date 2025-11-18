@@ -81,17 +81,6 @@ const getRepositoryName = (url: string) => {
 						<div class="card-item cursor-pointer group" @click="handleSelectServerConfig(config)">
 							<div class="flex items-start justify-between min-w-0">
 								<div class="flex-1 space-y-3 min-w-0">
-									<!-- Config Name (if available) -->
-									<div v-if="config.name" class="flex items-start gap-2 min-w-0">
-										<Icon icon="mdi:tag" class="w-5 h-5 text-purple-400 mt-0.5 flex-shrink-0" />
-										<div class="flex-1 min-w-0">
-											<p class="text-xs text-slate-400 mb-1">
-												{{ t("serverConfigList.configName") }}
-											</p>
-											<p class="text-slate-300 font-semibold truncate">{{ config.name }}</p>
-										</div>
-									</div>
-
 									<!-- Server Base URL -->
 									<div class="flex items-start gap-2 min-w-0">
 										<Icon icon="mdi:server" class="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />

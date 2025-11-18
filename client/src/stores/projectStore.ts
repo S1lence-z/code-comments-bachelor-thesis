@@ -12,15 +12,14 @@ export const useProjectStore = defineStore("projectStore", {
 		repositoryBranch: "",
 		repositoryType: RepositoryType.github as RepositoryType,
 		githubPat: import.meta.env.VITE_GITHUB_PAT || "",
-		// TODO: add a generic auth token for other repository types, probably add it to the form
-		//! right now the githubPat is used for all repository types
+		repositoryAuthToken: "",
+		serverAuthToken: "", // TODO: add to the manager form if needed for something, currently not used
 	}),
 	getters: {
 		getRepositoryUrl: (state) => state.repositoryUrl,
 		getRwServerUrl: (state) => state.rwServerUrl,
 		getRepositoryBranch: (state) => state.repositoryBranch,
 		getRepositoryType: (state) => state.repositoryType,
-		getGithubPat: (state) => state.githubPat,
 		getRepositoryName: (state) => state.repositoryUrl.split("/").pop() || "Unknown",
 		getServerBaseUrl: (state) => state.serverBaseUrl,
 		isProjectCompletelyEmpty: (state) => {
@@ -28,6 +27,17 @@ export const useProjectStore = defineStore("projectStore", {
 		},
 	},
 	actions: {
+		// Get authentication token based on repository type
+		getRepoAuthToken(): string {
+			switch (this.repositoryType) {
+				case RepositoryType.github:
+					return this.githubPat;
+				// Future cases for other repository types can be added here
+				default:
+					return this.repositoryAuthToken;
+			}
+		},
+		// Sync state with route query parameters
 		syncStateWithRoute(newQuery: LocationQuery) {
 			const projectServerConfigsStore = useProjectServerConfigsStore();
 			// Simple extraction from query

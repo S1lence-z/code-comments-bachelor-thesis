@@ -61,9 +61,8 @@ watch(
 			<!-- Logo and Navigation -->
 			<div class="flex items-center gap-3">
 				<Icon icon="mdi:code-json" class="w-7 h-7 text-blue-400" />
-				<!-- TODO: change the navigation link -->
 				<router-link
-					:to="{ path: '/setup', query: preserveQueryParams }"
+					:to="{ path: '/review/code', query: preserveQueryParams }"
 					class="text-white text-xl font-bold transition-colors duration-200 hover:text-blue-300 whitespace-nowrap"
 				>
 					{{ t("app.title") }}

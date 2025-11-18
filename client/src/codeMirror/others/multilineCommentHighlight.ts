@@ -3,9 +3,18 @@ import { Range } from "@codemirror/state";
 import type CommentDto from "../../types/dtos/CommentDto";
 import { useErrorHandler } from "../../composables/useErrorHandler";
 
-// Create decorations for line numbers and gutter markers
+// Create a line decoration for multiline comment lines
 const multilineCommentLineNumberDeco = Decoration.line({
 	class: "multiline-comment-line-number",
+});
+
+// Theme for multiline comment lines
+export const multilineCommentTheme = EditorView.theme({
+	".multiline-comment-line-number": {
+		background: "rgba(154, 52, 18, 0.08)",
+		"border-left": "3px solid rgba(154, 52, 18)",
+		position: "relative",
+	},
 });
 
 // Plugin to apply multiline comment highlighting
@@ -60,16 +69,3 @@ export function multilineCommentHighlightExtension(comments: CommentDto[]) {
 		}
 	);
 }
-
-// TODO: move this styling to a tailwind class
-// Theme extension for styling
-export const multilineCommentTheme = EditorView.theme({
-	".cm-line.multiline-comment-line-number": {
-		background: "rgba(154, 52, 18, 0.08)",
-		"backdrop-filter": "blur(4px)",
-		"-webkit-backdrop-filter": "blur(4px)",
-		"border-left": "3px solid rgba(154, 52, 18)",
-		"border-radius": "0 4px 4px 0",
-		position: "relative",
-	},
-});
