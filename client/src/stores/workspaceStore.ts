@@ -63,7 +63,7 @@ export const useWorkspaceStore = defineStore("workspaceStore", {
 							tab.filePath,
 							repositoryUrl,
 							repositoryBranch,
-							projectStore.getGithubPat
+							projectStore.getRepoAuthToken()
 						);
 					}
 				}

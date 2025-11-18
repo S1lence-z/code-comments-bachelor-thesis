@@ -129,7 +129,7 @@ onMounted(async () => {
 				projectStore.getRepositoryUrl,
 				projectStore.getRwServerUrl,
 				projectStore.getRepositoryBranch,
-				projectStore.getGithubPat,
+				projectStore.getRepoAuthToken(),
 				projectStore.getServerBaseUrl
 			);
 
@@ -167,10 +167,10 @@ watch(
 
 			// Load the synced project data
 			await projectDataStore.loadProjectDataAsync(
-				projectStore.repositoryUrl,
-				projectStore.rwServerUrl,
-				projectStore.repositoryBranch,
-				projectStore.githubPat,
+				projectStore.getRepositoryUrl,
+				projectStore.getRwServerUrl,
+				projectStore.getRepositoryBranch,
+				projectStore.getRepoAuthToken(),
 				projectStore.getServerBaseUrl
 			);
 		}
