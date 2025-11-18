@@ -1,3 +1,4 @@
+# Basics
 .vscode/
 .vs/
 /drafts
@@ -6,3 +7,6 @@
 package-lock.json
 *.local
 .env
+
+# Testing Single File Source Provider project
+single-file-source-provider/*
