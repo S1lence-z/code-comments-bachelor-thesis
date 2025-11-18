@@ -59,6 +59,19 @@ watch(
 	},
 	{ immediate: true }
 );
+
+// If the repository type is singleFile, provide the branch name as "main" by default
+watch(
+	() => formRepositoryType.value,
+	(newType) => {
+		if (newType === RepositoryType.singleFile) {
+			formBranchName.value = "main";
+		} else {
+			formBranchName.value = "";
+		}
+	},
+	{ immediate: true }
+);
 </script>
 
 <template>

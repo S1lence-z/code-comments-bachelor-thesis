@@ -46,6 +46,7 @@ export function useSetupPage() {
 
 		// Trim inputs
 		const repositoryUrl = formRepositoryUrl.value.trim();
+		const repositoryType = formRepositoryType.value;
 		const branchName = formBranchName.value.trim();
 		const projectName = formProjectName.value.trim();
 		const serverBaseUrl = formServerBaseUrl.value.trim();
@@ -54,7 +55,7 @@ export function useSetupPage() {
 			isCreatingProject.value = true;
 
 			// Validate github URL only for git repository type
-			if (formRepositoryType.value === RepositoryType.github) {
+			if (repositoryType === RepositoryType.github) {
 				if (!isValidGithubUrl(repositoryUrl)) {
 					projectCreationErrorMessage.value = "Invalid GitHub repository URL.";
 					return;
@@ -75,7 +76,7 @@ export function useSetupPage() {
 			}
 
 			// Create project via server
-			createProject(serverBaseUrl, repositoryUrl, branchName, projectName);
+			createProject(serverBaseUrl, repositoryUrl, repositoryType, branchName, projectName);
 		} catch (error: any) {
 			errorHandler.handleError(error);
 			projectCreationErrorMessage.value = `Error during project setup: ${
@@ -94,6 +95,7 @@ export function useSetupPage() {
 	const createProject = async (
 		serverBaseUrl: string,
 		repositoryUrl: string,
+		repositoryType: RepositoryType,
 		branchName: string,
 		projectName: string
 	): Promise<void> => {
@@ -103,6 +105,7 @@ export function useSetupPage() {
 			const setupData: ProjectSetupRequest = {
 				serverBaseUrl,
 				repositoryUrl,
+				repositoryType,
 				branch: branchName,
 				name: projectName,
 			};

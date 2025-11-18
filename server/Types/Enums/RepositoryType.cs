@@ -3,6 +3,6 @@
 	public enum RepositoryType
 	{
 		github,
-		httpApi
+		singleFile
 	}
 }

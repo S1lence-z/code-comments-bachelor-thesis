@@ -30,7 +30,7 @@ const emit = defineEmits<ProjectFormEmits>();
 // TODO: should be improved to be dynamic by only reading from RepositoryType enum and providing the icons/labels in the locales
 const repositoryTypeOptions = [
 	{ value: RepositoryType.github, label: "GitHub", icon: "mdi:github" },
-	{ value: RepositoryType.httpApi, label: "HTTP API", icon: "mdi:api" },
+	{ value: RepositoryType.singleFile, label: "Static File", icon: "mdi:file-code" },
 ];
 
 const cycleThroughRepositoryTypes = () => {
@@ -104,7 +104,7 @@ const cycleThroughRepositoryTypes = () => {
 						v-bind:modelValue="formRepositoryUrl"
 						@update:modelValue="(value: string) => emit('update:formRepositoryUrl', value)"
 						type="url"
-						:placeholder="props.formRepositoryType === RepositoryType.github ? t('projectForm.githubRepoUrlPlaceholder') : t('projectForm.httpApiUrlPlaceholder')"
+						:placeholder="props.formRepositoryType === RepositoryType.github ? t('projectForm.githubRepoUrlPlaceholder') : t('projectForm.singleFileUrlPlaceholder')"
 						:required="true"
 						class="flex-1"
 					/>
@@ -113,6 +113,7 @@ const cycleThroughRepositoryTypes = () => {
 			<span class="flex flex-row mb-4 space-x-6">
 				<!-- Branch Name -->
 				<InputField
+					v-if="props.formRepositoryType === RepositoryType.github"
 					:label="t('projectForm.branchLabel')"
 					v-bind:modelValue="formBranchName"
 					@update:modelValue="(value: string) => emit('update:formBranchName', value)"
@@ -142,5 +143,11 @@ const cycleThroughRepositoryTypes = () => {
 				:disabled="props.isCreatingProject"
 			/>
 		</form>
+		<!-- Notification -->
+		<div class="mt-4 flex gap-2 text-base text-slate-300">
+			<span> Fields marked with </span>
+			<Icon icon="mdi:asterisk" class="text-red-400 w-4 h-4 my-auto" />
+			<span>are required.</span>
+		</div>
 	</Card>
 </template>

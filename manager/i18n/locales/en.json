@@ -22,7 +22,7 @@
 		"openReviewSession": "Open Review Session",
 		"repositoryLabel": "Repository",
 		"githubRepoUrlPlaceholder": "https://github.com/owner/repository",
-		"httpApiUrlPlaceholder": "https://api.example.com/source",
+		"singleFileUrlPlaceholder": "http://localhost:8000/content.json",
 		"branchLabel": "Branch",
 		"branchPlaceholder": "main",
 		"projectNameLabel": "Project Name",

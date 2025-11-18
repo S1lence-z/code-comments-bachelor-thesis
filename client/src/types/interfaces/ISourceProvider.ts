@@ -2,7 +2,7 @@ import type { TreeNode } from "../domain/TreeContent";
 import type { ProcessedFile } from "../domain/FileContent";
 
 /**
- * Interface for source code providers (GitHub, HTTP API, etc.)
+ * Interface for source code providers (GitHub, Single File, etc.)
  * Implement this interface to create a custom source provider
  */
 export interface ISourceProvider {
