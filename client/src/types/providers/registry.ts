@@ -1,4 +1,4 @@
-import type { ISourceProvider } from "../interfaces/ISourceProvider";
+import type { SourceProvider } from "../interfaces/source-provider";
 
 export interface ProviderMetadata {
 	id: string;
@@ -8,5 +8,5 @@ export interface ProviderMetadata {
 
 export interface ProviderRegistration {
 	metadata: ProviderMetadata;
-	factory: () => ISourceProvider;
+	factory: () => SourceProvider;
 }

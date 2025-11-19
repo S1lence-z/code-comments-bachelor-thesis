@@ -1,5 +1,5 @@
 import type { ProviderRegistration, ProviderMetadata } from "../types/providers/registry";
-import type { ISourceProvider } from "../types/interfaces/ISourceProvider";
+import type { SourceProvider } from "../types/interfaces/source-provider";
 
 class ProviderRegistry {
 	private providers: Map<string, ProviderRegistration> = new Map();
@@ -11,7 +11,7 @@ class ProviderRegistry {
 		this.providers.set(registration.metadata.id, registration);
 	}
 
-	public getProvider(id: string): ISourceProvider {
+	public getProvider(id: string): SourceProvider {
 		const registration = this.providers.get(id);
 		if (!registration) {
 			throw new Error(`Provider with id '${id}' is not registered.`);

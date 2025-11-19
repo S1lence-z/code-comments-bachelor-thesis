@@ -1,4 +1,4 @@
-import type { ISourceProvider } from "../../types/interfaces/ISourceProvider";
+import type { SourceProvider } from "../../types/interfaces/source-provider";
 import type { TreeNode } from "../../types/domain/TreeContent";
 import type { ProcessedFile } from "../../types/domain/FileContent";
 import { providerRegistry } from "../provider-registry";
@@ -18,7 +18,7 @@ import { providerRegistry } from "../provider-registry";
  *
  * Both requests should support an optional Authorization header for authentication
  */
-export class SingleFileSourceProvider implements ISourceProvider {
+export class SingleFileSourceProvider implements SourceProvider {
 	/**
 	 * Fetches the repository tree from a static JSON file
 	 *

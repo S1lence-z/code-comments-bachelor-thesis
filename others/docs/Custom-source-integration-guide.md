@@ -72,7 +72,7 @@ interface TreeNode {
   path: string;           // Relative path from repository root
   type: "file" | "folder"; // Node type
   fileUrl?: string;       // URL to fetch file content (required for files)
-  previewUrl?: string;    // Optional optimized URL for preview (thumbnails, etc.)
+  previewUrl?: string;    // Optional optimized URL for preview (thumbnails, images, etc.)
   children: TreeNode[];   // Child nodes (empty array for files)
   isExpanded: boolean;    // UI state (default: false)
 }
@@ -127,34 +127,14 @@ Your server should return appropriate HTTP status codes:
 | --------------------------- | ----------------------------- | ------------------------------ |
 | `200 OK`                    | Success                       | Process the response           |
 | `401 Unauthorized`          | Invalid or missing auth token | Prompt user for credentials    |
-| `403 Forbidden`             | Access denied                 | Show error, don't retry        |
 | `404 Not Found`             | File/resource doesn't exist   | Show "file not found" message  |
-| `429 Too Many Requests`     | Rate limit exceeded           | Wait and retry with backoff    |
 | `500 Internal Server Error` | Server error                  | Show error, allow manual retry |
-| `503 Service Unavailable`   | Temporary unavailability      | Retry after delay              |
-
-### Example Implementation
-
-You can generate your `content.json` file using any programming language. Here's a conceptual example:
-
-```bash
-# Generate tree structure
-find ./your-project -type f -o -type d > files.txt
-
-# Create JSON with file URLs pointing to your static file server
-# Each file should be accessible at:
-# https://your-server.com/projects/project-42/files/{path}
-```
 
 ---
 
 ## Option 2: New Provider Integration
 
 If you need to integrate a completely new provider type (e.g., GitLab, Bitbucket, Azure DevOps), follow these steps.
-
-### SourceProvider Interface
-
-All source providers must implement the `SourceProvider` interface:
 
 ### SourceProvider Interface
 
@@ -188,46 +168,18 @@ export interface SourceProvider {
 }
 ```
 
-### Step 1: Update the RepositoryType Enum
-
-Add your new type to the enum in these locations:
-
-**Client:** `client/src/types/shared/RepositoryType.ts`
-**Manager:** `manager/shared/types/RepositoryType.ts`
-**Server:** `server/Types/Enums/RepositoryType.cs`
-
-```typescript
-// TypeScript
-export enum RepositoryType {
-  github = "github",
-  singleFile = "singleFile",
-  gitlab = "gitlab",  // Add your new type
-}
-```
-
-```csharp
-// C#
-namespace server.Types.Enums
-{
-  public enum RepositoryType
-  {
-    github,
-    singleFile,
-    gitlab  // Add your new type
-  }
-}
-```
-
-### Step 2: Create Your Provider Class
+### Step 1: Create Your Provider Class
 
 **Location:** `client/src/services/providers/GitlabSourceProvider.ts`
 
+Choose a unique ID for your provider (e.g., `"gitlab"`). This ID will be used throughout the system.
+
 ```typescript
-import type { SourceProvider } from "../../types/interfaces/SourceProvider";
+import type { ISourceProvider } from "../../types/interfaces/ISourceProvider";
 import type { TreeNode } from "../../types/domain/TreeContent";
 import type { ProcessedFile } from "../../types/domain/FileContent";
 
-export class GitlabSourceProvider implements SourceProvider {
+export class GitlabSourceProvider implements ISourceProvider {
   async getRepositoryTree(repositoryUrl: string, branch: string, authToken?: string): Promise<TreeNode[]> {
     // Fetch tree data from GitLab API
     // Transform it to TreeNode[]
@@ -246,46 +198,82 @@ export class GitlabSourceProvider implements SourceProvider {
     // Return ProcessedFile
   }
 }
+
+// Register the provider
+import { providerRegistry } from "../provider-registry";
+providerRegistry.register({
+	metadata: {
+		id: "gitlab",
+		name: "GitLab",
+		requiresAuth: false,
+	},
+	factory: () => new GitlabSourceProvider(),
+});
+
 ```
 
-### Step 3: Register the New Provider
+### Step 2: Register the Provider in Factory
 
-**Location:** `client/src/services/sourceProviderFactory.ts`
+**Location:** `client/src/services/source-provider-factory.ts`
+
+Add your provider to the switch statement using the provider ID as a string:
 
 ```typescript
-import { GithubSourceProvider } from "./providers/GithubSourceProvider";
-import { SingleFileSourceProvider } from "./providers/SingleFileSourceProvider";
-import { GitlabSourceProvider } from "./providers/GitlabSourceProvider";
+import { providerRegistry } from "./provider-registry";
 
-const createProvider = (repositoryType: RepositoryType): SourceProvider => {
-  switch (repositoryType) {
-    case RepositoryType.github:
-      return new GithubSourceProvider();
-    case RepositoryType.singleFile:
-      return new SingleFileSourceProvider();
-    case RepositoryType.gitlab:  // Add this
-      return new GitlabSourceProvider();
-    default:
-      throw new Error(`Unsupported repository type: ${repositoryType}`);
-  }
+// Import all providers to register them
+import "./providers/github-source-provider";
+import "./providers/single-file-source-provider";
+import "./providers/gitlab-source-provider"; // Import your new provider
+
+export const useSourceProviderFactory = () => {
+	return {
+		createProvider: (id: string) => providerRegistry.getProvider(id),
+		getAvailableProviders: () => providerRegistry.getAllMetadata(),
+	};
 };
+
 ```
 
-### Step 4: Add UI Support
+### Step 3: Add Manager UI Support
 
-Update `manager/app/components/ProjectForm.vue` to include your new provider in the UI selector:
+For the provider to appear as an option in the Manager application, you need to update two files:
+
+#### A. Add to RepositoryType Enum
+
+**Location:** `manager/shared/types/RepositoryType.ts`
 
 ```typescript
+export enum RepositoryType {
+  github = "github",
+  singleFile = "singleFile",
+  gitlab = "gitlab",  // Add your provider ID here
+}
+```
+
+#### B. Add to Repository Type Options
+
+**Location:** `manager/shared/types/repository-type-options.ts`
+
+**Important:** The enum in the manager is only used for the UI dropdown selection. The client application uses plain strings for `repositoryType`, so the enum values must match your provider ID strings.
+
+```typescript
+import { RepositoryType } from "./RepositoryType";
+
 const repositoryTypeOptions = [
   { value: RepositoryType.github, label: "GitHub", icon: "mdi:github" },
   { value: RepositoryType.singleFile, label: "Static File", icon: "mdi:file-code" },
   { value: RepositoryType.gitlab, label: "GitLab", icon: "mdi:gitlab" },  // Add this
 ];
+
+export default repositoryTypeOptions;
 ```
 
-### Step 5: Add Translations
+### Step 4: Add Translations (Optional)
 
-Update `manager/i18n/locales/en.json`:
+If you need custom placeholder text or labels, update the translation files:
+
+**Location:** `manager/i18n/locales/en.json`
 
 ```json
 {
@@ -293,4 +281,10 @@ Update `manager/i18n/locales/en.json`:
     "gitlabRepoUrlPlaceholder": "Enter GitLab repository URL"
   }
 }
+```
+
+Then use it in the form:
+
+```typescript
+:placeholder="props.formRepositoryType === 'gitlab' ? t('projectForm.gitlabRepoUrlPlaceholder') : ..."
 ```
