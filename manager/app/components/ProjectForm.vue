@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import { Icon } from "@iconify/vue";
-import { RepositoryType } from "../../shared/types/RepositoryType";
+import repositoryTypeOptions from "../../shared/types/repository-type-options";
 
 const { t } = useI18n();
 
@@ -26,12 +26,6 @@ interface ProjectFormEmits {
 
 const props = defineProps<ProjectFormProps>();
 const emit = defineEmits<ProjectFormEmits>();
-
-// TODO: should be improved to be dynamic by only reading from RepositoryType enum and providing the icons/labels in the locales
-const repositoryTypeOptions = [
-	{ value: RepositoryType.github, label: "GitHub", icon: "mdi:github" },
-	{ value: RepositoryType.httpApi, label: "HTTP API", icon: "mdi:api" },
-];
 
 const cycleThroughRepositoryTypes = () => {
 	const currentIndex = repositoryTypeOptions.findIndex(
@@ -104,7 +98,7 @@ const cycleThroughRepositoryTypes = () => {
 						v-bind:modelValue="formRepositoryUrl"
 						@update:modelValue="(value: string) => emit('update:formRepositoryUrl', value)"
 						type="url"
-						:placeholder="props.formRepositoryType === RepositoryType.github ? t('projectForm.githubRepoUrlPlaceholder') : t('projectForm.httpApiUrlPlaceholder')"
+						:placeholder="props.formRepositoryType === RepositoryType.github ? t('projectForm.githubRepoUrlPlaceholder') : t('projectForm.singleFileUrlPlaceholder')"
 						:required="true"
 						class="flex-1"
 					/>
@@ -113,6 +107,7 @@ const cycleThroughRepositoryTypes = () => {
 			<span class="flex flex-row mb-4 space-x-6">
 				<!-- Branch Name -->
 				<InputField
+					v-if="props.formRepositoryType === RepositoryType.github"
 					:label="t('projectForm.branchLabel')"
 					v-bind:modelValue="formBranchName"
 					@update:modelValue="(value: string) => emit('update:formBranchName', value)"

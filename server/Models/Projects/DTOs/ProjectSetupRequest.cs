@@ -19,7 +19,7 @@ namespace server.Models.Projects.DTOs
 		public string CommitHash { get; set; } = string.Empty;
 
         [Required]
-        public RepositoryType RepositoryType { get; set; } = RepositoryType.github;
+        public string RepositoryType { get; set; } = "github";
 
         public string Token { get; set; } = string.Empty;
 	}

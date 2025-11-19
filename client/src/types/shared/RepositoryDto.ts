@@ -1,8 +1,6 @@
-import type { RepositoryType } from "./RepositoryType";
-
 export default interface RepositoryDto {
 	id: string;
-	repositoryType: RepositoryType;
+	repositoryType: string;
 	repositoryUrl: string;
 	branch: string;
 	commitHash: string;

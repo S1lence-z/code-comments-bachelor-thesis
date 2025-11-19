@@ -1,16 +1,17 @@
-import type { ISourceProvider } from "../../types/interfaces/ISourceProvider";
+import type { SourceProvider } from "../../types/interfaces/source-provider";
 import type { TreeNode } from "../../types/domain/TreeContent";
 import { TreeNodeType } from "../../types/domain/TreeContent";
 import { type ProcessedFile } from "../../types/domain/FileContent";
 import { type GithubTreeItem, GithubTreeItemType } from "../../types/github/TreeContent";
 import type { GithubFileContentResponse } from "../../types/github/FileContent";
 import { FileDisplayType } from "../../types/domain/FileContent";
+import { providerRegistry } from "../provider-registry";
 
 /**
  * GitHub implementation of ISourceProvider
  * Uses GitHub REST API to fetch repository trees and file contents
  */
-export class GithubSourceProvider implements ISourceProvider {
+export class GithubSourceProvider implements SourceProvider {
 	private buildFileTreeFromGitHub(gitHubItems: GithubTreeItem[]): TreeNode[] {
 		const rootNodes: TreeNode[] = [];
 		const map: { [path: string]: TreeNode } = {};
@@ -169,3 +170,13 @@ export class GithubSourceProvider implements ISourceProvider {
 		return processedFile;
 	}
 }
+
+// Register the GithubSourceProvider
+providerRegistry.register({
+	metadata: {
+		id: "github",
+		name: "GitHub",
+		requiresAuth: false,
+	},
+	factory: () => new GithubSourceProvider(),
+});

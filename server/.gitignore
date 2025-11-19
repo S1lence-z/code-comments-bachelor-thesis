@@ -122,3 +122,8 @@ src/.vs/config/applicationhost.config
 *.sqlite
 *.db-wal
 *.db-shm
+
+# Publish profiles
+Properties/PublishProfiles/
+*.pubxml
+*.pubxml.user
