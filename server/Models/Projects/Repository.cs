@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using server.Types.Enums;
 
 namespace server.Models.Projects
 {
@@ -9,7 +8,7 @@ namespace server.Models.Projects
 		public Guid Id { get; set; } = Guid.NewGuid();
 
 		[Required]
-		public RepositoryType RepositoryType { get; set; } = RepositoryType.github;
+		public string RepositoryType { get; set; } = "github";
 
 		[Required]
 		public string RepositoryUrl { get; set; } = string.Empty;
