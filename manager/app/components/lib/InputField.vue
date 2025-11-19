@@ -25,7 +25,6 @@ defineEmits<{
 				class="block font-bold text-gray-400"
 				>{{ props.label }}</label
 			>
-			<Icon v-if="props.required" icon="mdi:asterisk" class="text-red-400 w-4 h-4" />
 		</div>
 		<input
 			:type="props.type"

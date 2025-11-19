@@ -143,11 +143,5 @@ const cycleThroughRepositoryTypes = () => {
 				:disabled="props.isCreatingProject"
 			/>
 		</form>
-		<!-- Notification -->
-		<div class="mt-4 flex gap-2 text-base text-slate-300">
-			<span> Fields marked with </span>
-			<Icon icon="mdi:asterisk" class="text-red-400 w-4 h-4 my-auto" />
-			<span>are required.</span>
-		</div>
 	</Card>
 </template>
