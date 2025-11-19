@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import { Icon } from "@iconify/vue";
-import { RepositoryType } from "../../shared/types/RepositoryType";
+import repositoryTypeOptions from "../../shared/types/repository-type-options";
 
 const { t } = useI18n();
 
@@ -26,12 +26,6 @@ interface ProjectFormEmits {
 
 const props = defineProps<ProjectFormProps>();
 const emit = defineEmits<ProjectFormEmits>();
-
-// TODO: should be improved to be dynamic by only reading from RepositoryType enum and providing the icons/labels in the locales
-const repositoryTypeOptions = [
-	{ value: RepositoryType.github, label: "GitHub", icon: "mdi:github" },
-	{ value: RepositoryType.singleFile, label: "Static File", icon: "mdi:file-code" },
-];
 
 const cycleThroughRepositoryTypes = () => {
 	const currentIndex = repositoryTypeOptions.findIndex(
