@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import type { TreeNode } from "../types/domain/TreeContent";
 import type CommentDto from "../types/dtos/CommentDto";
 import type CategoryDto from "../types/dtos/CategoryDto";
-import { useSourceProviderFactory } from "../services/sourceProviderFactory";
+import { useSourceProviderFactory } from "../services/source-provider-factory";
 import useCommentsService from "../services/commentsService";
 import useCategoryService from "../services/categoryService";
 import { useServerStatusStore } from "./serverStore";
@@ -50,7 +50,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 		},
 		getDefaultCategory: (state) => {
 			return state.categories.length > 0 ? state.categories[0] : FALLBACK_CATEGORY;
-		}
+		},
 	},
 	actions: {
 		// Load project data from various sources

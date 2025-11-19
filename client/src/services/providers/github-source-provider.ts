@@ -5,6 +5,7 @@ import { type ProcessedFile } from "../../types/domain/FileContent";
 import { type GithubTreeItem, GithubTreeItemType } from "../../types/github/TreeContent";
 import type { GithubFileContentResponse } from "../../types/github/FileContent";
 import { FileDisplayType } from "../../types/domain/FileContent";
+import { providerRegistry } from "../provider-registry";
 
 /**
  * GitHub implementation of ISourceProvider
@@ -169,3 +170,13 @@ export class GithubSourceProvider implements ISourceProvider {
 		return processedFile;
 	}
 }
+
+// Register the GithubSourceProvider
+providerRegistry.register({
+	metadata: {
+		id: "github",
+		name: "GitHub",
+		requiresAuth: false,
+	},
+	factory: () => new GithubSourceProvider(),
+});

@@ -1,6 +1,7 @@
 import type { ISourceProvider } from "../../types/interfaces/ISourceProvider";
 import type { TreeNode } from "../../types/domain/TreeContent";
 import type { ProcessedFile } from "../../types/domain/FileContent";
+import { providerRegistry } from "../provider-registry";
 
 /**
  * Single File Source Provider implementation of ISourceProvider
@@ -24,7 +25,7 @@ export class SingleFileSourceProvider implements ISourceProvider {
 	 * Endpoint: GET {repositoryUrl}
 	 * Expected Response: { tree: TreeNode[] }
 	 */
-	async getRepositoryTree(repositoryUrl: string, branch: string, authToken?: string): Promise<TreeNode[]> {
+	async getRepositoryTree(repositoryUrl: string, _branch: string, authToken?: string): Promise<TreeNode[]> {
 		// Set up headers
 		const headers: HeadersInit = {
 			Accept: "application/json",
@@ -36,14 +37,18 @@ export class SingleFileSourceProvider implements ISourceProvider {
 		// Fetch the content.json file
 		const response = await fetch(repositoryUrl, { headers });
 		if (!response.ok) {
-			throw new Error(`Failed to load repository tree from Single File Source: ${response.status} ${response.statusText}`);
+			throw new Error(
+				`Failed to load repository tree from Single File Source: ${response.status} ${response.statusText}`
+			);
 		}
 
 		const data = await response.json();
 
 		// Validate the response structure
 		if (!data || !data.tree || !Array.isArray(data.tree)) {
-			throw new Error("Invalid tree data received from Single File Source. Expected an object with a 'tree' property containing TreeNode array.");
+			throw new Error(
+				"Invalid tree data received from Single File Source. Expected an object with a 'tree' property containing TreeNode array."
+			);
 		}
 
 		return data.tree as TreeNode[];
@@ -80,7 +85,9 @@ export class SingleFileSourceProvider implements ISourceProvider {
 		// Fetch the file content from the fileUrl
 		const response = await fetch(fileNode.fileUrl, { headers });
 		if (!response.ok) {
-			throw new Error(`Failed to load file content for ${filePath} from Single File Source. Error ${response.status}`);
+			throw new Error(
+				`Failed to load file content for ${filePath} from Single File Source. Error ${response.status}`
+			);
 		}
 
 		const data = await response.json();
@@ -109,3 +116,12 @@ export class SingleFileSourceProvider implements ISourceProvider {
 		return null;
 	}
 }
+
+providerRegistry.register({
+	metadata: {
+		id: "singleFile",
+		name: "Static File",
+		requiresAuth: false,
+	},
+	factory: () => new SingleFileSourceProvider(),
+});

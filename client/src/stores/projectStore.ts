@@ -2,7 +2,6 @@ import { defineStore } from "pinia";
 import { type LocationQuery } from "vue-router";
 import { QUERY_PARAMS, type QueryParams } from "../types/shared/QueryParams";
 import { useProjectServerConfigsStore } from "./projectServerConfigsStore";
-import { RepositoryType } from "../types/shared/RepositoryType";
 
 export const useProjectStore = defineStore("projectStore", {
 	state: () => ({
@@ -10,7 +9,7 @@ export const useProjectStore = defineStore("projectStore", {
 		rwServerUrl: "",
 		repositoryUrl: "",
 		repositoryBranch: "",
-		repositoryType: RepositoryType.github as RepositoryType,
+		repositoryType: "",
 		githubPat: import.meta.env.VITE_GITHUB_PAT || "",
 		repositoryAuthToken: "",
 		serverAuthToken: "", // TODO: add to the manager form if needed for something, currently not used
@@ -30,7 +29,7 @@ export const useProjectStore = defineStore("projectStore", {
 		// Get authentication token based on repository type
 		getRepoAuthToken(): string {
 			switch (this.repositoryType) {
-				case RepositoryType.github:
+				case "github":
 					return this.githubPat;
 				// Future cases for other repository types can be added here
 				default:
@@ -48,8 +47,7 @@ export const useProjectStore = defineStore("projectStore", {
 
 			this.serverBaseUrl = extractString(newQuery[QUERY_PARAMS.SERVER_BASE_URL]);
 			this.repositoryUrl = extractString(newQuery[QUERY_PARAMS.REPOSITORY_URL]);
-			this.repositoryType =
-				(extractString(newQuery[QUERY_PARAMS.REPOSITORY_TYPE]) as RepositoryType) || RepositoryType.github;
+			this.repositoryType = extractString(newQuery[QUERY_PARAMS.REPOSITORY_TYPE]);
 			this.rwServerUrl = extractString(newQuery[QUERY_PARAMS.RW_SERVER_URL]);
 			this.repositoryBranch = extractString(newQuery[QUERY_PARAMS.BRANCH]);
 			projectServerConfigsStore.saveConfig(
@@ -67,7 +65,7 @@ export const useProjectStore = defineStore("projectStore", {
 		updateFromParams(params: QueryParams) {
 			this.serverBaseUrl = params.serverBaseUrl || "";
 			this.repositoryUrl = params.repositoryUrl || "";
-			this.repositoryType = params.repositoryType || RepositoryType.github;
+			this.repositoryType = params.repositoryType || "github";
 			this.rwServerUrl = params.rwServerUrl || "";
 			this.repositoryBranch = params.branch || "";
 		},

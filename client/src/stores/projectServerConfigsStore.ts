@@ -1,11 +1,10 @@
 import { defineStore } from "pinia";
 import { projectServerConfigsKey } from "../core/keys";
 import { useErrorHandler } from "../composables/useErrorHandler";
-import type { RepositoryType } from "../types/shared/RepositoryType";
 
 export interface ProjectInfo {
 	repositoryUrl: string;
-	repositoryType: RepositoryType;
+	repositoryType: string;
 	branch: string;
 }
 
@@ -44,11 +43,9 @@ export const useProjectServerConfigsStore = defineStore("projectServerConfigsSto
 			if (storedConfigs) {
 				try {
 					const parsed: Array<{
-						key: { repositoryUrl: string; branch: string; repositoryType: RepositoryType };
+						key: { repositoryUrl: string; branch: string; repositoryType: string };
 						value: ServerConfig[];
-					}> = JSON.parse(storedConfigs);
-
-					// Clear existing configs
+					}> = JSON.parse(storedConfigs); // Clear existing configs
 					this.configs.clear();
 
 					// Reconstruct the Map with ProjectInfo instances
