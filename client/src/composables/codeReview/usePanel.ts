@@ -1,5 +1,5 @@
 import { computed, ref } from "vue";
-import type { DraggedTabData, TabData } from "../../types/domain/Panels";
+import type { DraggedTabData, TabData } from "../../types/domain/workspace-panels";
 
 export interface PanelProps {
 	panelId: number;

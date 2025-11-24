@@ -1,6 +1,6 @@
-import type CategoryDto from "../../types/dtos/CategoryDto.ts";
-import type CommentDto from "../../types/dtos/CommentDto.ts";
-import BaseCommentWidget from "./baseCommentWidget.ts";
+import type CategoryDto from "../../types/dtos/category-dto.ts";
+import type CommentDto from "../../types/dtos/comment-dto.ts";
+import BaseCommentWidget from "./base-comment-widget.ts";
 
 /**
  * A CodeMirror widget that displays comments inline with the code

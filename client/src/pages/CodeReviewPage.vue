@@ -5,7 +5,7 @@ import { useCommentOperations } from "../composables/useCommentOperations.ts";
 import { useWorkspaceStore } from "../stores/workspaceStore.ts";
 import { useProjectStore } from "../stores/projectStore.ts";
 import { useDragDropState } from "../composables/useDragDropState.ts";
-import { determineDropPosition } from "../utils/dragDropUtils.ts";
+import { determineDropPosition } from "../utils/drag-drop.ts";
 import FileExplorer from "../components/codeReview/FileExplorer.vue";
 import SplitPanelManager from "../components/codeReview/SplitPanelManager.vue";
 import ResizeHandle from "../lib/ResizeHandle.vue";

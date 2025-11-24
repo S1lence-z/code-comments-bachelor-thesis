@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import type { Workspace, PanelData, TabData, DraggedTabData } from "../types/domain/Panels";
+import type { Workspace, PanelData, TabData, DraggedTabData } from "../types/domain/workspace-panels";
 import { appSavedWorkspaceKey } from "../core/keys";
 import { useErrorHandler } from "../composables/useErrorHandler";
 import { useProjectStore } from "./projectStore";

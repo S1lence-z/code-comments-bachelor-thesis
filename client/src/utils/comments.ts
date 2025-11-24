@@ -1,7 +1,7 @@
-import { CommentType } from "../types/dtos/CommentType";
-import type CommentDto from "../types/dtos/CommentDto";
-import type RawCommentData from "../types/domain/RawCommentData";
-import type CategoryDto from "../types/dtos/CategoryDto";
+import { CommentType } from "../types/dtos/comment-type";
+import type CommentDto from "../types/dtos/comment-dto";
+import type RawCommentData from "../types/domain/raw-comment-data";
+import type CategoryDto from "../types/dtos/category-dto";
 
 export const getCommentLocationInfoByType = (
 	commentType: CommentType,

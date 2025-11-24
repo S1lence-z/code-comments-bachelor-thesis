@@ -1,6 +1,6 @@
-import type CategoryDto from "../../types/dtos/CategoryDto";
-import type CommentDto from "../../types/dtos/CommentDto";
-import BaseCommentWidget from "./baseCommentWidget";
+import type CategoryDto from "../../types/dtos/category-dto";
+import type CommentDto from "../../types/dtos/comment-dto";
+import BaseCommentWidget from "./base-comment-widget";
 
 export default class MultilineCommentWidget extends BaseCommentWidget {
 	constructor(

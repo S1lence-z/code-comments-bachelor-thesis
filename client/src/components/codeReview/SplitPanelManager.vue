@@ -8,7 +8,7 @@ import {
 	type SplitPanelManagerProps,
 	type SplitPanelManagerEmits,
 } from "../../composables/codeReview/useSplitPanelManager";
-import { getFileName } from "../../utils/fileUtils";
+import { getFileName } from "../../utils/file";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
@@ -70,7 +70,9 @@ const {
 						:commentInFile="getCommentsForFile(panel.activeTab.filePath)"
 						@inline-form-submit="(payload) => emit('inline-form-submit', payload)"
 						@inline-form-delete="(commentId) => emit('inline-form-delete', commentId)"
-						@inline-form-reply="(parentCommentId, reply) => emit('inline-form-reply', parentCommentId, reply)"
+						@inline-form-reply="
+							(parentCommentId, reply) => emit('inline-form-reply', parentCommentId, reply)
+						"
 					/>
 
 					<!-- Non-text files (images, documents, ...) -->

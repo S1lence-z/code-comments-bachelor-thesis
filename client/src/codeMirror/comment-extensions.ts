@@ -3,10 +3,10 @@ import { RangeSetBuilder, StateField } from "@codemirror/state";
 import { Decoration } from "@codemirror/view";
 import type { DecorationSet } from "@codemirror/view";
 import { EditorView } from "@codemirror/view";
-import type CommentDto from "../types/dtos/CommentDto.ts";
-import { CommentType } from "../types/dtos/CommentType.ts";
-import SinglelineCommentWidget from "./widgets/singleLineCommentWidget.ts";
-import MultilineCommentWidget from "./widgets/multilineCommentWidget.ts";
+import type CommentDto from "../types/dtos/comment-dto.ts";
+import { CommentType } from "../types/dtos/comment-type.ts";
+import SinglelineCommentWidget from "./widgets/singline-comment-widget.ts";
+import MultilineCommentWidget from "./widgets/multiline-comment-widget.ts";
 
 /**
  * Builds decorations for displaying comments in the editor

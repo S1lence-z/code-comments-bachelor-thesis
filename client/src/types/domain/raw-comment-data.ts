@@ -1,4 +1,4 @@
-import type { CommentType } from "../dtos/CommentType";
+import type { CommentType } from "../dtos/comment-type";
 
 export default interface RawCommentData {
 	id: string | null;

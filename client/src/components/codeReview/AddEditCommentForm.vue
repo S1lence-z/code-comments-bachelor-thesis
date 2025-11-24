@@ -6,9 +6,9 @@ import { useI18n } from "vue-i18n";
 import { computed, reactive, watch, ref, nextTick } from "vue";
 import { useProjectDataStore } from "../../stores/projectDataStore";
 import { storeToRefs } from "pinia";
-import type RawCommentData from "../../types/domain/RawCommentData";
-import { CommentType } from "../../types/dtos/CommentType";
-import { getCommentLocationInfoByType } from "../../utils/commentUtils";
+import type RawCommentData from "../../types/domain/raw-comment-data";
+import { CommentType } from "../../types/dtos/comment-type";
+import { getCommentLocationInfoByType } from "../../utils/comments";
 import { useErrorHandler } from "../../composables/useErrorHandler";
 
 const { t } = useI18n();

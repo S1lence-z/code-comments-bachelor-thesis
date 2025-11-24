@@ -4,7 +4,7 @@ import { useRoute } from "vue-router";
 import { navigationRoutes } from "../../core/routes";
 import { useProjectDataStore } from "../../stores/projectDataStore";
 import { useProjectStore } from "../../stores/projectStore";
-import { downloadJSON } from "../../utils/jsonUtils";
+import { downloadJSON } from "../../utils/json";
 import { useServerStatusStore } from "../../stores/serverStore";
 import Button from "../../lib/Button.vue";
 import { useSettingsStore } from "../../stores/settingsStore";

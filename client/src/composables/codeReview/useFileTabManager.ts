@@ -1,5 +1,5 @@
 import { computed, ref, watch } from "vue";
-import type { DraggedTabData } from "../../types/domain/Panels";
+import type { DraggedTabData } from "../../types/domain/workspace-panels";
 
 export interface FileTabManagerProps {
 	activeTab: string | null;

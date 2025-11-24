@@ -1,4 +1,4 @@
-import type { CommentType } from "./CommentType";
+import type { CommentType } from "./comment-type";
 
 export default interface LocationDto {
 	id: string | null;

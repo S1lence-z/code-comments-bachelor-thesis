@@ -2,9 +2,9 @@ import { RangeSetBuilder, StateField, StateEffect } from "@codemirror/state";
 import { Decoration } from "@codemirror/view";
 import type { DecorationSet } from "@codemirror/view";
 import { EditorView } from "@codemirror/view";
-import CommentFormWidget from "./widgets/commentFormWidget.ts";
-import type CategoryDto from "../types/dtos/CategoryDto.ts";
-import { CommentType } from "../types/dtos/CommentType.ts";
+import CommentFormWidget from "./widgets/comment-form-widget.ts";
+import type CategoryDto from "../types/dtos/category-dto.ts";
+import { CommentType } from "../types/dtos/comment-type.ts";
 
 export interface CommentFormState {
 	lineNumber: number;

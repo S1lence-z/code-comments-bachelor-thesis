@@ -2,8 +2,8 @@ import { ref, computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useProjectDataStore } from "../stores/projectDataStore";
 import { useProjectStore } from "../stores/projectStore";
-import { CommentType } from "../types/dtos/CommentType";
-import { groupCommentsByFile, sortCommentsByLineNumber } from "../utils/commentUtils";
+import { CommentType } from "../types/dtos/comment-type";
+import { groupCommentsByFile, sortCommentsByLineNumber } from "../utils/comments";
 import { useQueryParams } from "../composables/useQueryParams";
 
 export function useOverviewPage() {

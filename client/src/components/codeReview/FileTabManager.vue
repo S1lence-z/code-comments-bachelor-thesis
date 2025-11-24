@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getFileName } from "../../utils/fileUtils";
+import { getFileName } from "../../utils/file";
 import { useI18n } from "vue-i18n";
 import {
 	useFileTabManager,

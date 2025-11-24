@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { type LocationQuery } from "vue-router";
-import { QUERY_PARAMS, type QueryParams } from "../types/shared/QueryParams";
+import { QUERY_PARAMS, type QueryParams } from "../types/shared/query-params";
 import { useProjectServerConfigsStore } from "./projectServerConfigsStore";
 
 export const useProjectStore = defineStore("projectStore", {

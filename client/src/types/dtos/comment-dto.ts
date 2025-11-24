@@ -1,7 +1,7 @@
-import { CommentType } from "./CommentType.ts";
-import type CategoryDto from "./CategoryDto.ts";
-import type ProjectDto from "../shared/ProjectDto.ts";
-import type LocationDto from "./LocationDto.ts";
+import { CommentType } from "./comment-type.ts";
+import type CategoryDto from "./category-dto.ts";
+import type ProjectDto from "../shared/project-dto.ts";
+import type LocationDto from "./location-dto.ts";
 
 export default interface CommentDto {
 	id: string | null;

@@ -1,4 +1,4 @@
-import { type TreeNode, TreeNodeType } from "../types/domain/TreeContent";
+import { type TreeNode, TreeNodeType } from "../types/domain/tree-content";
 
 export const handleToggleExpandInTree = (itemToToggle: TreeNode, treeData: TreeNode[]) => {
 	const findAndToggle = (nodes: TreeNode[]): boolean => {

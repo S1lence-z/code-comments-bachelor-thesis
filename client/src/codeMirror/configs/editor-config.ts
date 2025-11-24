@@ -1,14 +1,14 @@
 import { oneDark } from "@codemirror/theme-one-dark";
 import { EditorView, lineNumbers, keymap } from "@codemirror/view";
-import type CommentDto from "../../types/dtos/CommentDto.ts";
-import type CategoryDto from "../../types/dtos/CategoryDto.ts";
-import { getLanguageExtension } from "../../utils/languageUtils.ts";
-import { commentsDisplayExtension } from "../commentsExtension.ts";
-import { commentFormExtension } from "../commentFormExtension.ts";
-import { getLineNumbersConfig, type LineNumberConfig } from "./lineNumbersConfig.ts";
-import { multilineCommentHighlightExtension, multilineCommentTheme } from "../others/multilineCommentHighlight.ts";
+import type CommentDto from "../../types/dtos/comment-dto.ts";
+import type CategoryDto from "../../types/dtos/category-dto.ts";
+import { getLanguageExtension } from "../../utils/language.ts";
+import { commentsDisplayExtension } from "../comment-extensions.ts";
+import { commentFormExtension } from "../comment-form-extensions.ts";
+import { getLineNumbersConfig, type LineNumberConfig } from "./line-numbers-config.ts";
+import { multilineCommentHighlightExtension, multilineCommentTheme } from "../others/multiline-comment-highlights.ts";
 import { EditorState, type Extension } from "@codemirror/state";
-import type { AppKeyboardShortcuts } from "../../types/domain/KeyboardShortcuts.ts";
+import type { AppKeyboardShortcuts } from "../../types/domain/keyboard-shortcuts.ts";
 
 /**
  * Creates the standard set of CodeMirror extensions for the code editor

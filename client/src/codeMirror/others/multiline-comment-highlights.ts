@@ -1,6 +1,6 @@
 import { EditorView, ViewPlugin, ViewUpdate, Decoration, type DecorationSet } from "@codemirror/view";
 import { Range } from "@codemirror/state";
-import type CommentDto from "../../types/dtos/CommentDto";
+import type CommentDto from "../../types/dtos/comment-dto";
 import { useErrorHandler } from "../../composables/useErrorHandler";
 
 // Create a line decoration for multiline comment lines

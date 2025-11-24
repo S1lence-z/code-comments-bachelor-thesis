@@ -1,6 +1,6 @@
 import { useToastStore } from "../stores/toastStore";
-import type { ToastType } from "../types/shared/Toast";
-import type { ApiErrorResponse, ErrorHandlerOptions } from "../types/shared/ErrorHandler";
+import type { ToastType } from "../types/shared/toasts";
+import type { ApiErrorResponse, ErrorHandlerOptions } from "../types/shared/error-handler";
 
 export const useErrorHandler = () => {
 	const toastStore = useToastStore();

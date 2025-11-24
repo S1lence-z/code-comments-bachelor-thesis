@@ -1,7 +1,7 @@
 import { computed, ref } from "vue";
 import { useProjectDataStore } from "../../stores/projectDataStore";
-import type { TreeNode } from "../../types/domain/TreeContent.ts";
-import { handleToggleExpandInTree } from "../../utils/treeNodeUtils.ts";
+import type { TreeNode } from "../../types/domain/tree-content.ts";
+import { handleToggleExpandInTree } from "../../utils/tree-node.ts";
 
 export interface FileExplorerProps {
 	treeData: TreeNode[];

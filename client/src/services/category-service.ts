@@ -1,4 +1,4 @@
-import type CategoryDto from "../types/dtos/CategoryDto";
+import type CategoryDto from "../types/dtos/category-dto";
 
 const useCategoryService = () => {
 	const getAllCategories = async (backendBaseUrl: string): Promise<CategoryDto[]> => {

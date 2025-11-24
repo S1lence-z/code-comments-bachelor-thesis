@@ -2,9 +2,9 @@
 import { ref } from "vue";
 import { useKeyboardShortcutsStore } from "../../stores/keyboardShortcutsStore";
 import Card from "../../lib/Card.vue";
-import type { AppKeyboardShortcuts } from "../../types/domain/KeyboardShortcuts";
+import type { AppKeyboardShortcuts } from "../../types/domain/keyboard-shortcuts";
 import Button from "../../lib/Button.vue";
-import { objectDeepCopy } from "../../utils/jsonUtils";
+import { objectDeepCopy } from "../../utils/json";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();

@@ -1,8 +1,8 @@
 // TODO: Implement depth-based indentation for replies visualization
 
 import { WidgetType } from "@codemirror/view";
-import type CategoryDto from "../../types/dtos/CategoryDto.ts";
-import type CommentDto from "../../types/dtos/CommentDto.ts";
+import type CategoryDto from "../../types/dtos/category-dto.ts";
+import type CommentDto from "../../types/dtos/comment-dto.ts";
 
 export default abstract class BaseCommentWidget extends WidgetType {
 	protected handleDeleteComment: (commentId: string) => void;

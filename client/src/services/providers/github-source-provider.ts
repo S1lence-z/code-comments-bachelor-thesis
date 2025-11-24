@@ -1,10 +1,10 @@
 import type { SourceProvider } from "../../types/interfaces/source-provider";
-import type { TreeNode } from "../../types/domain/TreeContent";
-import { TreeNodeType } from "../../types/domain/TreeContent";
-import { type ProcessedFile } from "../../types/domain/FileContent";
+import type { TreeNode } from "../../types/domain/tree-content";
+import { TreeNodeType } from "../../types/domain/tree-content";
+import { type ProcessedFile } from "../../types/domain/file-content";
 import { type GithubTreeItem, GithubTreeItemType } from "../../types/github/TreeContent";
 import type { GithubFileContentResponse } from "../../types/github/FileContent";
-import { FileDisplayType } from "../../types/domain/FileContent";
+import { FileDisplayType } from "../../types/domain/file-content";
 import { providerRegistry } from "../provider-registry";
 
 /**

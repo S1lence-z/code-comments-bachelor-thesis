@@ -1,13 +1,13 @@
 import { ref, computed, watch, shallowRef } from "vue";
 import { EditorView } from "@codemirror/view";
-import { createEditorExtensions } from "../../codeMirror/configs/editorConfig";
+import { createEditorExtensions } from "../../codeMirror/configs/editor-config";
 import { useSettingsStore } from "../../stores/settingsStore";
 import { useKeyboardShortcutsStore } from "../../stores/keyboardShortcutsStore";
 import { useProjectDataStore } from "../../stores/projectDataStore";
-import type CommentDto from "../../types/dtos/CommentDto";
-import { CommentType } from "../../types/dtos/CommentType";
-import { showCommentFormEffect, hideCommentFormEffect } from "../../codeMirror/commentFormExtension";
-import type RawCommentData from "../../types/domain/RawCommentData";
+import type CommentDto from "../../types/dtos/comment-dto";
+import { CommentType } from "../../types/dtos/comment-type";
+import { showCommentFormEffect, hideCommentFormEffect } from "../../codeMirror/comment-form-extensions";
+import type RawCommentData from "../../types/domain/raw-comment-data";
 
 export interface CodeEditorProps {
 	filePath: string | null;

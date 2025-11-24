@@ -1,10 +1,10 @@
 import { ref } from "vue";
-import type { DraggedTabData, PanelData } from "../../types/domain/Panels";
+import type { DraggedTabData, PanelData } from "../../types/domain/workspace-panels";
 import { useFileContentStore } from "../../stores/fileContentStore";
 import { useProjectDataStore } from "../../stores/projectDataStore";
-import { FileDisplayType } from "../../types/domain/FileContent";
+import { FileDisplayType } from "../../types/domain/file-content";
 import { useSettingsStore } from "../../stores/settingsStore";
-import type RawCommentData from "../../types/domain/RawCommentData";
+import type RawCommentData from "../../types/domain/raw-comment-data";
 
 export interface SplitPanelManagerProps {
 	panels: PanelData[];

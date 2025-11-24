@@ -1,4 +1,4 @@
-import type CommentDto from "../types/dtos/CommentDto";
+import type CommentDto from "../types/dtos/comment-dto";
 
 const useCommentsService = () => {
 	const getComments = async (rwServerUrl: string): Promise<CommentDto[]> => {

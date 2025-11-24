@@ -12,7 +12,7 @@ import KeyboardShortcutsEditor from "./components/app/KeyboardShortcutsEditor.vu
 import { useWorkspaceStore } from "./stores/workspaceStore.ts";
 import { useProjectDataStore } from "./stores/projectDataStore.ts";
 import { codeReviewPageKey } from "./core/keys";
-import { QUERY_PARAMS } from "./types/shared/QueryParams.ts";
+import { QUERY_PARAMS } from "./types/shared/query-params.ts";
 import { useProjectServerConfigsStore, type ServerConfig } from "./stores/projectServerConfigsStore.ts";
 import ServerConfigsList from "./components/app/ServerConfigsList.vue";
 import ToastContainer from "./components/app/ToastContainer.vue";

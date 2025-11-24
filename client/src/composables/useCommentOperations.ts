@@ -1,7 +1,7 @@
 import { useProjectDataStore } from "../stores/projectDataStore";
 import { useProjectStore } from "../stores/projectStore";
-import { createCommentDtoByType } from "../utils/commentUtils";
-import type RawCommentData from "../types/domain/RawCommentData";
+import { createCommentDtoByType } from "../utils/comments";
+import type RawCommentData from "../types/domain/raw-comment-data";
 
 export interface CommentOperationResult {
 	success: boolean;
