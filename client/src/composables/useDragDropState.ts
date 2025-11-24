@@ -1,5 +1,5 @@
 import { ref, computed, readonly } from "vue";
-import type { DraggedTabData } from "../types/domain/Panels";
+import type { DraggedTabData } from "../types/domain/workspace-panels";
 
 /**
  * Pure state manager for drag and drop operations.

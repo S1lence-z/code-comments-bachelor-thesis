@@ -1,6 +1,6 @@
 import { computed } from "vue";
-import type CommentDto from "../../types/dtos/CommentDto";
-import { CommentType } from "../../types/dtos/CommentType";
+import type CommentDto from "../../types/dtos/comment-dto";
+import { CommentType } from "../../types/dtos/comment-type";
 
 export interface CommentStatisticsProps {
 	allComments: CommentDto[];

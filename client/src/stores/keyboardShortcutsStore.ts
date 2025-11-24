@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import type { AppKeyboardShortcuts, KeyboardShortcut } from "../types/domain/KeyboardShortcuts";
+import type { AppKeyboardShortcuts, KeyboardShortcut } from "../types/domain/keyboard-shortcuts";
 import { appKeyboardShortcutsKey } from "../core/keys";
 import { useErrorHandler } from "../composables/useErrorHandler";
 

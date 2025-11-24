@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CommentType } from "../../types/dtos/CommentType";
+import { CommentType } from "../../types/dtos/comment-type";
 import Card from "../../lib/Card.vue";
 import { useCommentStatistics, type CommentStatisticsProps } from "../../composables/overview/useCommentStatistics";
 import { useI18n } from "vue-i18n";

@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import type { ServerStatus } from "../types/domain/ServerStatus.ts";
+import type { ServerStatus } from "../types/domain/server-status.ts";
 
 export const useServerStatusStore = defineStore("serverStatusStore", {
 	state: () => ({

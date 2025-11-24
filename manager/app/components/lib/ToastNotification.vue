@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type { ToastType } from "../../../shared/types/Toast";
+import type { ToastType } from "../../../shared/types/toast";
 import { Icon } from "@iconify/vue";
 
 interface ToastProps {

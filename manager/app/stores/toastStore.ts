@@ -1,4 +1,4 @@
-import type { Toast, ToastType } from "../../shared/types/Toast";
+import type { Toast, ToastType } from "../../shared/types/toast";
 
 export const useToastStore = defineStore("toastStore", {
 	state: () => ({

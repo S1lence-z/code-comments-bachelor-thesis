@@ -1,9 +1,9 @@
-import useProjectService from "../services/projectService";
-import useGithubBranchService from "../services/githubBranchService";
-import type ProjectSetupRequest from "../../shared/types/ProjectSetupRequest";
-import type ProjectDto from "../../shared/types/ProjectDto";
-import { RepositoryType } from "../../shared/types/RepositoryType";
-import { isValidGithubUrl } from "../utils/urlUtils";
+import useProjectService from "../services/project-service";
+import useGithubBranchService from "../services/github-branch-service";
+import type ProjectSetupRequest from "../../shared/types/project-setup-request";
+import type ProjectDto from "../../shared/types/project-dto";
+import { RepositoryType } from "../../shared/types/repository-type";
+import { isValidGithubUrl } from "../utils/url";
 import { useErrorHandler } from "#imports";
 
 export function useSetupPage() {

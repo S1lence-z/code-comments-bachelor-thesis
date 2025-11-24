@@ -1,8 +1,8 @@
 import { defineStore } from "pinia";
 import { useSourceProviderFactory } from "../services/source-provider-factory";
-import { FileDisplayType, type ProcessedFile } from "../types/domain/FileContent";
-import type CommentDto from "../types/dtos/CommentDto";
-import { CommentType } from "../types/dtos/CommentType";
+import { FileDisplayType, type ProcessedFile } from "../types/domain/file-content";
+import type CommentDto from "../types/dtos/comment-dto";
+import { CommentType } from "../types/dtos/comment-type";
 import { useProjectStore } from "./projectStore";
 import { useErrorHandler } from "../composables/useErrorHandler";
 

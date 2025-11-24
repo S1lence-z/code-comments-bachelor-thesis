@@ -1,6 +1,6 @@
 import type { SourceProvider } from "../../types/interfaces/source-provider";
-import type { TreeNode } from "../../types/domain/TreeContent";
-import type { ProcessedFile } from "../../types/domain/FileContent";
+import type { TreeNode } from "../../types/domain/tree-content";
+import type { ProcessedFile } from "../../types/domain/file-content";
 import { providerRegistry } from "../provider-registry";
 
 /**

@@ -1,6 +1,6 @@
 import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { QUERY_PARAMS, type QueryParams } from "../types/shared/QueryParams";
+import { QUERY_PARAMS, type QueryParams } from "../types/shared/query-params";
 import { codeReviewPageKey } from "../core/keys";
 
 /**
