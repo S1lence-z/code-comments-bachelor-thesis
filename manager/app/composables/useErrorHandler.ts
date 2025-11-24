@@ -1,5 +1,5 @@
 import { useToastStore } from "../stores/toastStore";
-import type { ToastType } from "../../shared/types/Toast";
+import type { ToastType } from "../../shared/types/toast";
 
 export const useErrorHandler = () => {
 	const toastStore = useToastStore();

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type ProjectDto from "../../shared/types/ProjectDto"
+import type ProjectDto from "../../shared/types/project-dto";
 import { useI18n } from "vue-i18n";
 import { Icon } from "@iconify/vue";
 

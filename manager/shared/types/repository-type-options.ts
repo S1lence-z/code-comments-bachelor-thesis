@@ -1,4 +1,4 @@
-import { RepositoryType } from "./RepositoryType";
+import { RepositoryType } from "./repository-type.ts";
 
 const repositoryTypeOptions = [
 	{ value: RepositoryType.github, label: "GitHub", icon: "mdi:github" },

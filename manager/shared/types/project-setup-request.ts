@@ -1,4 +1,4 @@
-import type { RepositoryType } from "./RepositoryType";
+import type { RepositoryType } from "./repository-type.ts";
 
 export default interface ProjectSetupRequest {
 	serverBaseUrl: string;

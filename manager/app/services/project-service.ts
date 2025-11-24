@@ -1,5 +1,5 @@
-import type ProjectSetupRequest from "../../shared/types/ProjectSetupRequest";
-import type ProjectDto from "../../shared/types/ProjectDto";
+import type ProjectSetupRequest from "../../shared/types/project-setup-request";
+import type ProjectDto from "../../shared/types/project-dto";
 
 const useProjectService = () => {
 	async function getProjects(backendBaseUrl: string): Promise<ProjectDto[]> {
