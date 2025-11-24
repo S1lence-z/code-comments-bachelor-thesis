@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import FileTabManager from "./FileTabManager.vue";
 import { useI18n } from "vue-i18n";
-import type { PanelProps, PanelEmits } from "../../composables/codeReview/usePanel";
-import { usePanel } from "../../composables/codeReview/usePanel";
+import type { PanelProps, PanelEmits } from "../../composables/code-review/usePanel";
+import { usePanel } from "../../composables/code-review/usePanel";
 
 const { t } = useI18n();
 

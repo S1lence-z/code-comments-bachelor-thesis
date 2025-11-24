@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useContentViewer, type ContentViewerProps } from "../../composables/codeReview/useContentViewer";
+import { useContentViewer, type ContentViewerProps } from "../../composables/code-review/useContentViewer";
 import { FileDisplayType } from "../../types/domain/file-content";
 import { useI18n } from "vue-i18n";
 import Button from "../../lib/Button.vue";

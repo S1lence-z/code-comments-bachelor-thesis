@@ -5,7 +5,7 @@ import {
 	useFileTabManager,
 	type FileTabManagerProps,
 	type FileTabManagerEmits,
-} from "../../composables/codeReview/useFileTabManager";
+} from "../../composables/code-review/useFileTabManager";
 
 const { t } = useI18n();
 

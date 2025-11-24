@@ -6,11 +6,11 @@ import { useWorkspaceStore } from "../stores/workspaceStore.ts";
 import { useProjectStore } from "../stores/projectStore.ts";
 import { useDragDropState } from "../composables/useDragDropState.ts";
 import { determineDropPosition } from "../utils/drag-drop.ts";
-import FileExplorer from "../components/codeReview/FileExplorer.vue";
-import SplitPanelManager from "../components/codeReview/SplitPanelManager.vue";
+import FileExplorer from "../components/code-review/FileExplorer.vue";
+import SplitPanelManager from "../components/code-review/SplitPanelManager.vue";
 import ResizeHandle from "../lib/ResizeHandle.vue";
 import { useI18n } from "vue-i18n";
-import AddEditCommentForm from "../components/codeReview/AddEditCommentForm.vue";
+import AddEditCommentForm from "../components/code-review/AddEditCommentForm.vue";
 
 const { t } = useI18n();
 

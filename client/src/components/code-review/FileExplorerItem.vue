@@ -5,7 +5,7 @@ import {
 	useFileExplorerItem,
 	type FileExplorerItemProps,
 	type FileExplorerItemEmits,
-} from "../../composables/codeReview/useFileExplorerItem.ts";
+} from "../../composables/code-review/useFileExplorerItem.ts";
 import { TreeNodeType } from "../../types/domain/tree-content.ts";
 import { useI18n } from "vue-i18n";
 
