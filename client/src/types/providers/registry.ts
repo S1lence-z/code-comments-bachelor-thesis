@@ -1,7 +1,8 @@
 import type { SourceProvider } from "../interfaces/source-provider";
+import type { RepositoryType } from "../shared/repository-type";
 
 export interface ProviderMetadata {
-	id: string;
+	id: RepositoryType;
 	name: string;
 	requiresAuth?: boolean;
 }

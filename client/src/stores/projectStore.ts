@@ -2,6 +2,8 @@ import { defineStore } from "pinia";
 import { type LocationQuery } from "vue-router";
 import { QUERY_PARAMS, type QueryParams } from "../types/shared/query-params";
 import { useProjectServerConfigsStore } from "./projectServerConfigsStore";
+import { useRepositoryAuthStore } from "./repositoryAuthStore";
+import { RepositoryType } from "../types/shared/repository-type";
 
 export const useProjectStore = defineStore("projectStore", {
 	state: () => ({
@@ -10,7 +12,6 @@ export const useProjectStore = defineStore("projectStore", {
 		repositoryUrl: "",
 		repositoryBranch: "",
 		repositoryType: "",
-		githubPat: import.meta.env.VITE_GITHUB_PAT || "",
 		repositoryAuthToken: "",
 		serverAuthToken: "", // TODO: add to the manager form if needed for something, currently not used
 	}),
@@ -28,13 +29,12 @@ export const useProjectStore = defineStore("projectStore", {
 	actions: {
 		// Get authentication token based on repository type
 		getRepoAuthToken(): string {
-			switch (this.repositoryType) {
-				case "github":
-					return this.githubPat;
-				// Future cases for other repository types can be added here
-				default:
-					return this.repositoryAuthToken;
-			}
+			// Try to get from store first
+			const repositoryAuthStore = useRepositoryAuthStore();
+			const auth = repositoryAuthStore.getAuthByType(this.repositoryType);
+			if (auth && auth.authToken) return auth.authToken;
+
+			return this.repositoryAuthToken;
 		},
 		// Sync state with route query parameters
 		syncStateWithRoute(newQuery: LocationQuery) {
@@ -65,7 +65,7 @@ export const useProjectStore = defineStore("projectStore", {
 		updateFromParams(params: QueryParams) {
 			this.serverBaseUrl = params.serverBaseUrl || "";
 			this.repositoryUrl = params.repositoryUrl || "";
-			this.repositoryType = params.repositoryType || "github";
+			this.repositoryType = params.repositoryType || RepositoryType.github;
 			this.rwServerUrl = params.rwServerUrl || "";
 			this.repositoryBranch = params.branch || "";
 		},

@@ -6,6 +6,7 @@ import { type GithubTreeItem, GithubTreeItemType } from "../../types/github/Tree
 import type { GithubFileContentResponse } from "../../types/github/FileContent";
 import { FileDisplayType } from "../../types/domain/file-content";
 import { providerRegistry } from "../provider-registry";
+import { RepositoryType } from "../../types/shared/repository-type";
 
 /**
  * GitHub implementation of ISourceProvider
@@ -174,7 +175,7 @@ export class GithubSourceProvider implements SourceProvider {
 // Register the GithubSourceProvider
 providerRegistry.register({
 	metadata: {
-		id: "github",
+		id: RepositoryType.github,
 		name: "GitHub",
 		requiresAuth: false,
 	},

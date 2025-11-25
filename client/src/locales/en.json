@@ -32,7 +32,16 @@
 		"saveWorkspace": "Save Workspace",
 		"compactCommentWidget": "Compact Comment Widget",
 		"offlineMode": "Offline Mode",
-		"editKeyboardShortcuts": "Edit Keyboard Shortcuts"
+		"editKeyboardShortcuts": "Edit Keyboard Shortcuts",
+		"editRepositoryAuth": "Edit Repository Tokens",
+		"repositoryAuth": {
+			"title": "Repository Authentication",
+			"description": "Configure authentication tokens for different repository providers to enable API access.",
+			"githubToken": "GitHub Token",
+			"githubTokenPlaceholder": "Enter GitHub Personal Access Token",
+			"singleFileToken": "Single File Token",
+			"singleFileTokenPlaceholder": "Enter Single File Token"
+		}
 	},
 	"keyboardShortcuts": {
 		"title": "Keyboard Shortcuts",

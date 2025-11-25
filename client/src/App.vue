@@ -9,6 +9,7 @@ import Settings from "./components/app/Settings.vue";
 import { useSettingsStore } from "./stores/settingsStore.ts";
 import { useKeyboardShortcutsStore } from "./stores/keyboardShortcutsStore.ts";
 import KeyboardShortcutsEditor from "./components/app/KeyboardShortcutsEditor.vue";
+import RepositoryAuthEditor from "./components/app/RepositoryAuthEditor.vue";
 import { useWorkspaceStore } from "./stores/workspaceStore.ts";
 import { useProjectDataStore } from "./stores/projectDataStore.ts";
 import { codeReviewPageKey } from "./core/keys";
@@ -206,6 +207,11 @@ watch(
 	<!-- Settings Keyboard Shortcuts Modal -->
 	<Modal v-if="settingsStore.isEditingKeyboardShortcuts" @close="settingsStore.toggleKeyboardShortcutsEditor">
 		<KeyboardShortcutsEditor @close="settingsStore.toggleKeyboardShortcutsEditor" />
+	</Modal>
+
+	<!-- Settings Repository Auth Modal -->
+	<Modal v-if="settingsStore.isEditingRepositoryAuth" @close="settingsStore.toggleRepositoryAuthEditor">
+		<RepositoryAuthEditor @close="settingsStore.toggleRepositoryAuthEditor" />
 	</Modal>
 
 	<!-- Project Server Configurations Modal -->

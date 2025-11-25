@@ -2,6 +2,7 @@ import type { SourceProvider } from "../../types/interfaces/source-provider";
 import type { TreeNode } from "../../types/domain/tree-content";
 import type { ProcessedFile } from "../../types/domain/file-content";
 import { providerRegistry } from "../provider-registry";
+import { RepositoryType } from "../../types/shared/repository-type";
 
 /**
  * Single File Source Provider implementation of ISourceProvider
@@ -119,7 +120,7 @@ export class SingleFileSourceProvider implements SourceProvider {
 
 providerRegistry.register({
 	metadata: {
-		id: "singleFile",
+		id: RepositoryType.singleFile,
 		name: "Static File",
 		requiresAuth: false,
 	},
