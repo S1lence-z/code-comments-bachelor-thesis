@@ -35,7 +35,7 @@ export function useSetupPage() {
 	const isOfflineMode = ref(false);
 
 	// Data
-	const readWriteServerUrl = ref("");
+	const projectId = ref("");
 	const existingProjects = ref<ProjectDto[]>([]);
 
 	// Handle new project creation
@@ -116,8 +116,8 @@ export function useSetupPage() {
 				formServerBaseUrl.value.trim()
 			);
 
-			if (response && response.readWriteApiUrl) {
-				readWriteServerUrl.value = response.readWriteApiUrl;
+			if (response && response.id) {
+				projectId.value = response.id;
 				existingProjects.value.push(response);
 			} else {
 				projectCreationErrorMessage.value = "Server did not return a read-write API URL.";
@@ -151,7 +151,7 @@ export function useSetupPage() {
 			formServerBaseUrl.value.trim(),
 			formRepositoryUrl.value.trim(),
 			formRepositoryType.value,
-			readWriteServerUrl.value.trim(),
+			projectId.value.trim(),
 			formBranchName.value.trim()
 		);
 	};
@@ -162,7 +162,7 @@ export function useSetupPage() {
 			project.serverBaseUrl,
 			project.repository.repositoryUrl,
 			project.repository.repositoryType,
-			project.readWriteApiUrl,
+			project.id,
 			project.repository.branch
 		);
 	};

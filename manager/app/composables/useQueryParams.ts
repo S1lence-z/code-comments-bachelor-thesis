@@ -19,7 +19,7 @@ export const useQueryParams = () => {
 		serverBaseUrl: string,
 		repositoryUrl: string,
 		repositoryType: RepositoryType,
-		rwServerUrl: string,
+		projectId: string,
 		branch: string
 	) => {
 		const query: Record<string, string> = {};
@@ -32,8 +32,8 @@ export const useQueryParams = () => {
 		if (repositoryType) {
 			query[QUERY_PARAMS.REPOSITORY_TYPE] = repositoryType;
 		}
-		if (rwServerUrl) {
-			query[QUERY_PARAMS.RW_SERVER_URL] = rwServerUrl;
+		if (projectId) {
+			query[QUERY_PARAMS.PROJECT_ID] = projectId;
 		}
 		if (branch) {
 			query[QUERY_PARAMS.BRANCH] = branch;
