@@ -141,9 +141,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				serverStore.setSynced();
 			} catch (error) {
 				serverStore.setSyncError("Failed to fetch comments");
-				handleError(error, {
-					customMessage: "Failed to load comments.",
-				});
+				handleError(error);
 				this.comments = [];
 			} finally {
 				this.isLoadingComments = false;
@@ -223,9 +221,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				showSuccess("Comment added successfully");
 			} catch (error) {
 				serverStore.setSyncError("Failed to upsert comment");
-				handleError(error, {
-					customMessage: "Failed to upsert comment.",
-				});
+				handleError(error);
 				throw error;
 			} finally {
 				this.isSavingComment = false;
@@ -257,9 +253,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				serverStore.setSynced();
 				showSuccess("Comment deleted successfully");
 			} catch (error) {
-				handleError(error, {
-					customMessage: "Failed to delete comment.",
-				});
+				handleError(error);
 				serverStore.setSyncError("Failed to delete comment");
 				throw error;
 			} finally {
@@ -295,9 +289,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				showSuccess("Reply added successfully");
 			} catch (error) {
 				serverStore.setSyncError("Failed to add reply");
-				handleError(error, {
-					customMessage: "Failed to add reply.",
-				});
+				handleError(error);
 				throw error;
 			} finally {
 				this.isSavingComment = false;
