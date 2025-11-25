@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import { Icon } from "@iconify/vue";
-import repositoryTypeOptions from "../../shared/types/repository-type-options";
 
 const { t } = useI18n();
 
@@ -22,18 +21,11 @@ interface ProjectFormEmits {
 	(event: "update:formProjectName", value: string): void;
 	(event: "createProject"): void;
 	(event: "navigateToNewProject"): void;
+	(event: "cycleThroughRepositoryTypes"): void;
 }
 
 const props = defineProps<ProjectFormProps>();
 const emit = defineEmits<ProjectFormEmits>();
-
-const cycleThroughRepositoryTypes = () => {
-	const currentIndex = repositoryTypeOptions.findIndex(
-		(option) => option.value === props.formRepositoryType
-	);
-	const nextIndex = (currentIndex + 1) % repositoryTypeOptions.length;
-	emit("update:formRepositoryType", repositoryTypeOptions[nextIndex]?.value ?? RepositoryType.github);
-};
 </script>
 
 <template>
@@ -86,7 +78,7 @@ const cycleThroughRepositoryTypes = () => {
 					<button
 						type="button"
 						class="bg-slate-300 border-2 rounded-lg p-2 flex items-center cursor-pointer"
-						@click="cycleThroughRepositoryTypes"
+						@click="emit('cycleThroughRepositoryTypes')"
 					>
 						<Icon
 							:icon="repositoryTypeOptions.find(o => o.value === props.formRepositoryType)?.icon || 'mdi:github'"
@@ -123,6 +115,17 @@ const cycleThroughRepositoryTypes = () => {
 					@update:modelValue="(value: string) => emit('update:formProjectName', value)"
 					type="text"
 					:placeholder="t('projectForm.projectNamePlaceholder')"
+					:required="true"
+					class="flex-1"
+				/>
+			</span>
+			<span class="flex mb-4">
+				<InputField
+					:label="t('projectForm.repositoryAuthLabel')"
+					v-bind:modelValue="formProjectName"
+					@update:modelValue="(value: string) => emit('update:formProjectName', value)"
+					type="text"
+					:placeholder="t('projectForm.repositoryAuthPlaceholder')"
 					:required="true"
 					class="flex-1"
 				/>

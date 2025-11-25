@@ -4,7 +4,7 @@ import type ProjectSetupRequest from "../../shared/types/project-setup-request";
 import type ProjectDto from "../../shared/types/project-dto";
 import { RepositoryType } from "../../shared/types/repository-type";
 import { isValidGithubUrl } from "../utils/url";
-import { useErrorHandler } from "#imports";
+import repositoryTypeOptions from "../../shared/types/repository-type-options";
 
 export function useSetupPage() {
 	// Runtime config
@@ -14,6 +14,7 @@ export function useSetupPage() {
 	const { branchExistsInRepo } = useGithubBranchService();
 	const projectService = useProjectService();
 	const errorHandler = useErrorHandler();
+	const repositoryAuthStore = useRepositoryAuthStore();
 
 	// Query params composable
 	const { navigateToProject, navigateToOfflineProject, setupServerUrl } = useQueryParams();
@@ -219,6 +220,16 @@ export function useSetupPage() {
 		isOfflineMode.value = true;
 	};
 
+	// Cycle through repository types
+	const cycleThroughRepositoryTypes = (currentOption: RepositoryType): RepositoryType => {
+		const currentIndex = repositoryTypeOptions.findIndex(
+			(option) => option.value === currentOption
+		);
+		const nextIndex = (currentIndex + 1) % repositoryTypeOptions.length;
+		const nextRepositoryOption = repositoryTypeOptions[nextIndex];
+		return nextRepositoryOption?.value ?? RepositoryType.github;
+	};
+
 	return {
 		// Form inputs
 		formRepositoryUrl,
@@ -249,5 +260,6 @@ export function useSetupPage() {
 		submitServerBaseUrl,
 		useDefaultServerUrl,
 		setOfflineMode,
+		cycleThroughRepositoryTypes
 	};
 }

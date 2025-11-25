@@ -27,7 +27,9 @@
 		"branchPlaceholder": "main",
 		"projectNameLabel": "Project Name",
 		"projectNamePlaceholder": "My Project",
-		"createReviewSession": "Create Review Session"
+		"createReviewSession": "Create Review Session",
+		"repositoryAuthLabel": "Auth Token (optional)",
+		"repositoryAuthPlaceholder": "ghp_xxx"
 	},
 	"projectList": {
 		"title": "Existing Projects",
