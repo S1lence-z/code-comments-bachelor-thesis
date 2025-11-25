@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using server.Models.Comments;
 using server.Types.Interfaces;
 
@@ -9,6 +10,7 @@ namespace server.Controllers
 	public class CommentsController(ICommentService commentService) : ControllerBase
 	{
 		[HttpGet]
+		[AllowAnonymous]
 		public async Task<IActionResult> GetAllCommentsForProject(Guid projectId)
 		{
 			IEnumerable<CommentDto> commentDtos = await commentService.GetAllCommentsForProjectAsync(projectId);
@@ -16,6 +18,7 @@ namespace server.Controllers
 		}
 
 		[HttpGet("{commentId}")]
+		[AllowAnonymous]
 		public async Task<IActionResult> GetCommentById(Guid projectId, Guid commentId)
 		{
 			CommentDto? commentDto = await commentService.GetCommentByIdAsync(projectId, commentId);
@@ -25,6 +28,7 @@ namespace server.Controllers
 		}
 
 		[HttpGet("{commentId}/thread")]
+		[AllowAnonymous]
 		public async Task<IActionResult> GetCommentThread(Guid projectId, Guid commentId)
 		{
 			IEnumerable<CommentDto> thread = await commentService.GetThreadAsync(projectId, commentId);
@@ -32,6 +36,7 @@ namespace server.Controllers
 		}
 
 		[HttpPost]
+		[Authorize]
 		public async Task<IActionResult> CreateComment(Guid projectId, [FromBody] CommentDto newComment)
 		{
 			CommentDto commentDto = await commentService.CreateCommentAsync(projectId, newComment);
@@ -39,6 +44,7 @@ namespace server.Controllers
 		}
 
 		[HttpPost("{parentCommentId}/reply")]
+		[AllowAnonymous]
 		public async Task<IActionResult> CreateReply(Guid projectId, Guid parentCommentId, [FromBody] CommentDto newReply)
 		{
 			// Automatically set the parent comment ID from the route
@@ -49,6 +55,7 @@ namespace server.Controllers
 		}
 
 		[HttpPut("{commentId}")]
+		[Authorize]
 		public async Task<IActionResult> UpdateComment(Guid projectId, Guid commentId, [FromBody] CommentDto updatedCommentData)
 		{
 			CommentDto updatedComment = await commentService.UpdateCommentAsync(projectId, commentId, updatedCommentData);
@@ -56,6 +63,7 @@ namespace server.Controllers
 		}
 
 		[HttpDelete("{commentId}")]
+		[Authorize]
 		public async Task<IActionResult> DeleteComment(Guid projectId, Guid commentId)
 		{
 			bool wasDeleted = await commentService.DeleteCommentAsync(projectId, commentId);
