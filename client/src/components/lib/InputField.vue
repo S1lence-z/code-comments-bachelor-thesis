@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { IconProps } from "@iconify/vue";
 import { Icon } from "@iconify/vue";
+import { ref } from "vue";
 
 const props = defineProps<{
 	label?: string;
@@ -23,11 +24,7 @@ const showPassword = ref(false);
 	<div class="space-y-2">
 		<div v-if="props.labelIcon || props.label" class="flex items-center gap-2">
 			<Icon v-if="props.labelIcon" :icon="props.labelIcon" class="text-gray-400 w-4 h-4" />
-			<label
-				:for="props.label"
-				class="block font-bold text-gray-400"
-				>{{ props.label }}</label
-			>
+			<label :for="props.label" class="block font-bold text-gray-400">{{ props.label }}</label>
 		</div>
 		<div class="flex flex-row items-center relative">
 			<input
@@ -40,7 +37,7 @@ const showPassword = ref(false);
 				class="box-border w-full p-3 text-base text-gray-200 bg-gray-900 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-400"
 			/>
 			<button
-				v-if="props.secret"
+				v-if="props.secret && props.modelValue"
 				@click="showPassword = !showPassword"
 				type="button"
 				class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-200 cursor-pointer"

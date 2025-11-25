@@ -56,5 +56,13 @@ const settingsStore = useSettingsStore();
 			buttonSize="medium"
 			@click="settingsStore.toggleKeyboardShortcutsEditor"
 		/>
+		<!-- Button for Editing Repository Auth -->
+		<Button
+			:label="t('settings.editRepositoryAuth')"
+			type="button"
+			buttonStyle="primary"
+			buttonSize="medium"
+			@click="settingsStore.toggleRepositoryAuthEditor"
+		/>
 	</div>
 </template>

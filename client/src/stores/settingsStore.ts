@@ -11,6 +11,7 @@ export const useSettingsStore = defineStore("settingsStore", {
 		saveWorkspaceState: false,
 		compactCommentWidgetState: true,
 		keyboardShortcutsEditorState: false,
+		repositoryAuthEditorState: false,
 		offlineModeState: false,
 	}),
 	getters: {
@@ -20,6 +21,7 @@ export const useSettingsStore = defineStore("settingsStore", {
 		isSaveWorkspace: (state) => state.saveWorkspaceState,
 		isCompactCommentWidget: (state) => state.compactCommentWidgetState,
 		isEditingKeyboardShortcuts: (state) => state.keyboardShortcutsEditorState,
+		isEditingRepositoryAuth: (state) => state.repositoryAuthEditorState,
 		isOfflineMode: (state) => state.offlineModeState,
 	},
 	actions: {
@@ -44,6 +46,10 @@ export const useSettingsStore = defineStore("settingsStore", {
 		},
 		toggleKeyboardShortcutsEditor() {
 			this.keyboardShortcutsEditorState = !this.keyboardShortcutsEditorState;
+			this.saveSettings();
+		},
+		toggleRepositoryAuthEditor() {
+			this.repositoryAuthEditorState = !this.repositoryAuthEditorState;
 			this.saveSettings();
 		},
 		toggleOfflineMode(newState?: boolean) {

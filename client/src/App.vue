@@ -9,6 +9,7 @@ import Settings from "./components/app/Settings.vue";
 import { useSettingsStore } from "./stores/settingsStore.ts";
 import { useKeyboardShortcutsStore } from "./stores/keyboardShortcutsStore.ts";
 import KeyboardShortcutsEditor from "./components/app/KeyboardShortcutsEditor.vue";
+import RepositoryAuthEditor from "./components/app/RepositoryAuthEditor.vue";
 import { useWorkspaceStore } from "./stores/workspaceStore.ts";
 import { useProjectDataStore } from "./stores/projectDataStore.ts";
 import { codeReviewPageKey } from "./core/keys";
@@ -20,6 +21,7 @@ import { useErrorHandler } from "./composables/useErrorHandler.ts";
 import Card from "./components/lib/Card.vue";
 import Button from "./components/lib/Button.vue";
 import { useI18n } from "vue-i18n";
+import { useRepositoryAuthStore } from "./stores/repositoryAuthStore.ts";
 
 const { t } = useI18n();
 
@@ -41,6 +43,7 @@ const settingsStore = useSettingsStore();
 const keyboardShortcutsStore = useKeyboardShortcutsStore();
 const workspaceStore = useWorkspaceStore();
 const projectServerConfigsStore = useProjectServerConfigsStore();
+const repositoryAuthStore = useRepositoryAuthStore();
 
 // Methods
 const handleSwitchOfflineMode = () => {
@@ -106,6 +109,7 @@ onMounted(async () => {
 	projectServerConfigsStore.loadConfigs();
 	keyboardShortcutsStore.loadShortcuts();
 	workspaceStore.loadWorkspacesFromStorage();
+	repositoryAuthStore.initializeFromLocalStorage();
 
 	await router
 		.isReady()
@@ -206,6 +210,11 @@ watch(
 	<!-- Settings Keyboard Shortcuts Modal -->
 	<Modal v-if="settingsStore.isEditingKeyboardShortcuts" @close="settingsStore.toggleKeyboardShortcutsEditor">
 		<KeyboardShortcutsEditor @close="settingsStore.toggleKeyboardShortcutsEditor" />
+	</Modal>
+
+	<!-- Settings Repository Auth Modal -->
+	<Modal v-if="settingsStore.isEditingRepositoryAuth" @close="settingsStore.toggleRepositoryAuthEditor">
+		<RepositoryAuthEditor @close="settingsStore.toggleRepositoryAuthEditor" />
 	</Modal>
 
 	<!-- Project Server Configurations Modal -->

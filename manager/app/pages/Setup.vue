@@ -35,7 +35,14 @@ const {
 	submitServerBaseUrl,
 	useDefaultServerUrl,
 	setOfflineMode,
+	cycleThroughRepositoryTypes,
 } = useSetupPage();
+
+// Cycle through repository types
+const setNextRepositoryType = () => {
+	const nextType = cycleThroughRepositoryTypes(formRepositoryType.value);
+	formRepositoryType.value = nextType;
+};
 
 // Watch the isServerBaseUrlSubmitted and reload existing projects when it changes
 watch(
@@ -128,6 +135,7 @@ watch(
 						v-model:formProjectName="formProjectName"
 						@createProject="handleNewProjectCreation"
 						@navigateToNewProject="navigateToNewProject"
+						@cycleThroughRepositoryTypes="setNextRepositoryType"
 					/>
 				</div>
 			</div>

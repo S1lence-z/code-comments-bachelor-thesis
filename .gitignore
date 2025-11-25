@@ -8,5 +8,8 @@ package-lock.json
 *.local
 .env
 
+# Local TODO.md file
+**/TODO.md
+
 # Testing Single File Source Provider project
 single-file-source-provider/*

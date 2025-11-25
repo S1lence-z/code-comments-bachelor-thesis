@@ -22,17 +22,12 @@ SERVER_PORT=5000
 CLIENT_PORT=3000
 MANAGER_PORT=3001
 
-# Tokens
-VITE_GITHUB_PAT=your_github_pat_here
-
 # URLs
 VITE_SERVER_URL=http://localhost/server
 VITE_MANAGER_URL=http://localhost
 VITE_CLIENT_URL=http://localhost/client
 VITE_CLIENT_BASE_PATHNAME=/client
 ```
-
-> **⚠️ Warning:** Not providing the `VITE_GITHUB_PAT` variable gives you a very limited rate of requests to the GitHub API (50 requests per hour). To increase this limit to 5000 requests per hour, you can create a [GitHub Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) and set it as the value of the `VITE_GITHUB_PAT` variable. If you do not want to create a token, you must leave the variable empty.
 
 Finally, run the following commands to build and start the application:
 
