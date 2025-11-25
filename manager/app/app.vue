@@ -1,13 +1,3 @@
-<script setup lang="ts">
-import { useRepositoryAuthStore } from '#imports';
-
-const repositoryAuthStore = useRepositoryAuthStore();
-
-onMounted(() => {
-	repositoryAuthStore.initializeFromLocalStorage();
-});
-</script>
-
 <template>
 	<div class="flex flex-col h-screen overflow-hidden">
 		<!-- Navigation Bar -->

@@ -25,6 +25,7 @@ export function useSetupPage() {
 	const formBranchName = ref("");
 	const formProjectName = ref("");
 	const formServerBaseUrl = ref("");
+	const repositoryAuthToken = ref("");
 
 	// UI state
 	const isCreatingProject = ref(false);
@@ -230,6 +231,22 @@ export function useSetupPage() {
 		return nextRepositoryOption?.value ?? RepositoryType.github;
 	};
 
+	// Get repository auth token for the selected repository type
+	const getRepositoryAuthToken = (type: RepositoryType): string | undefined => {
+		const authItem = repositoryAuthStore.getAuthByType(type);
+		return authItem?.authToken;
+	};
+
+	// Save repository auth token when it changes
+	const saveAuthToken = (type: RepositoryType, token: string) => {
+		repositoryAuthStore.upsertAuthToken(type, token);
+	};
+
+	// Initialize the repository auth store from local storage
+	const initializeRepositoryAuthStore = () => {
+		repositoryAuthStore.initializeFromLocalStorage();
+	}
+
 	return {
 		// Form inputs
 		formRepositoryUrl,
@@ -237,6 +254,7 @@ export function useSetupPage() {
 		formBranchName,
 		formProjectName,
 		formServerBaseUrl,
+		repositoryAuthToken,
 
 		// Ref
 		isOfflineMode,
@@ -260,6 +278,9 @@ export function useSetupPage() {
 		submitServerBaseUrl,
 		useDefaultServerUrl,
 		setOfflineMode,
-		cycleThroughRepositoryTypes
+		cycleThroughRepositoryTypes,
+		initializeRepositoryAuthStore,
+		getRepositoryAuthToken,
+		saveAuthToken,
 	};
 }

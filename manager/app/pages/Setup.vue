@@ -12,6 +12,7 @@ const {
 	formBranchName,
 	formProjectName,
 	formServerBaseUrl,
+	repositoryAuthToken,
 
 	// Ref
 	isOfflineMode,
@@ -35,11 +36,27 @@ const {
 	submitServerBaseUrl,
 	useDefaultServerUrl,
 	setOfflineMode,
-	cycleThroughRepositoryTypes
+	cycleThroughRepositoryTypes,
+	initializeRepositoryAuthStore,
+	getRepositoryAuthToken,
+	saveAuthToken
 } = useSetupPage();
 
+onMounted(() => {
+	// Initialize the repository auth store from local storage
+	initializeRepositoryAuthStore();
+
+	// Set the auth token if it exists
+	const authToken = getRepositoryAuthToken(formRepositoryType.value);
+	if (authToken && authToken !== undefined) {
+		repositoryAuthToken.value = authToken;
+	} else {
+		repositoryAuthToken.value = "";
+	}
+});
+
 // Cycle through repository types
-const getNextRepositoryType = () => {
+const setNextRepositoryType = () => {
 	const nextType = cycleThroughRepositoryTypes(formRepositoryType.value);
 	formRepositoryType.value = nextType;
 };
@@ -78,6 +95,26 @@ watch(
 		}
 	},
 	{ immediate: true }
+);
+
+// Watch the formRepositoryType and check for the auth token
+watch(() => formRepositoryType.value, (newType) => {
+	const authToken = getRepositoryAuthToken(newType);
+	if (authToken && authToken !== undefined) {
+		repositoryAuthToken.value = authToken;
+	} else {
+		repositoryAuthToken.value = "";
+	}
+}, { immediate: true });
+
+// Watch the repositoryAuthToken and store it when it changes
+watch(
+	() => repositoryAuthToken.value,
+	(newToken) => {
+		// Store the token based on the current repository type
+		const currentType = formRepositoryType.value;
+		saveAuthToken(currentType, newToken);
+	}
 );
 </script>
 
@@ -133,9 +170,10 @@ watch(
 						v-model:formRepositoryType="formRepositoryType"
 						v-model:formBranchName="formBranchName"
 						v-model:formProjectName="formProjectName"
+						v-model:repositoryAuthToken="repositoryAuthToken"
 						@createProject="handleNewProjectCreation"
 						@navigateToNewProject="navigateToNewProject"
-						@cycleThroughRepositoryTypes="getNextRepositoryType"
+						@cycleThroughRepositoryTypes="setNextRepositoryType"
 					/>
 				</div>
 			</div>

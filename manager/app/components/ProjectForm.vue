@@ -9,6 +9,7 @@ interface ProjectFormProps {
 	formRepositoryType: RepositoryType;
 	formBranchName: string;
 	formProjectName: string;
+	repositoryAuthToken: string;
 	isCreatingProject: boolean;
 	isProjectCreated: boolean;
 	errorMessage: string | null;
@@ -19,6 +20,7 @@ interface ProjectFormEmits {
 	(event: "update:formRepositoryType", value: RepositoryType): void;
 	(event: "update:formBranchName", value: string): void;
 	(event: "update:formProjectName", value: string): void;
+	(event: "update:repositoryAuthToken", value: string): void;
 	(event: "createProject"): void;
 	(event: "navigateToNewProject"): void;
 	(event: "cycleThroughRepositoryTypes"): void;
@@ -122,8 +124,9 @@ const emit = defineEmits<ProjectFormEmits>();
 			<span class="flex mb-4">
 				<InputField
 					:label="t('projectForm.repositoryAuthLabel')"
-					v-bind:modelValue="formProjectName"
-					@update:modelValue="(value: string) => emit('update:formProjectName', value)"
+					:secret="true"
+					v-bind:modelValue="repositoryAuthToken"
+					@update:modelValue="(value: string) => emit('update:repositoryAuthToken', value)"
 					type="text"
 					:placeholder="t('projectForm.repositoryAuthPlaceholder')"
 					:required="true"
