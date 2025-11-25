@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import Button from "../../lib/Button.vue";
-import InputArea from "../../lib/InputArea.vue";
-import SlideoutPanel from "../../lib/SlideoutPanel.vue";
+import Button from "../lib/Button.vue";
+import InputArea from "../lib/InputArea.vue";
+import SlideoutPanel from "../lib/SlideoutPanel.vue";
 import { useI18n } from "vue-i18n";
 import { computed, reactive, watch, ref, nextTick } from "vue";
 import { useProjectDataStore } from "../../stores/projectDataStore";

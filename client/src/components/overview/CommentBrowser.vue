@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { CommentType } from "../../types/dtos/comment-type";
-import Card from "../../lib/Card.vue";
-import Button from "../../lib/Button.vue";
+import Card from "../lib/Card.vue";
+import Button from "../lib/Button.vue";
 import { getFileName, getFileDirectory } from "../../utils/file";
 import { getCommentTypeIcon, getCommentLocationInfo } from "../../utils/comments";
 import {

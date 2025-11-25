@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Icon } from "@iconify/vue";
 import { useI18n } from "vue-i18n";
-import Card from "../../lib/Card.vue";
-import Button from "../../lib/Button.vue";
+import Card from "../lib/Card.vue";
+import Button from "../lib/Button.vue";
 import type { ProjectInfo, ServerConfig } from "../../stores/projectServerConfigsStore";
 
 const { t } = useI18n();

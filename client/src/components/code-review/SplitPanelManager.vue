@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Panel from "./Panel.vue";
-import ResizeHandle from "../../lib/ResizeHandle.vue";
+import ResizeHandle from "../lib/ResizeHandle.vue";
 import CodeEditor from "./CodeEditor.vue";
 import ContentViewer from "./ContentViewer.vue";
 import {

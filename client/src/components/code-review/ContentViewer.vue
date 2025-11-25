@@ -2,7 +2,7 @@
 import { useContentViewer, type ContentViewerProps } from "../../composables/code-review/useContentViewer";
 import { FileDisplayType } from "../../types/domain/file-content";
 import { useI18n } from "vue-i18n";
-import Button from "../../lib/Button.vue";
+import Button from "../lib/Button.vue";
 
 const { t } = useI18n();
 
