@@ -19,13 +19,11 @@ services:
             context: ./client
             dockerfile: ./Dockerfile.compose
             args:
-                VITE_GITHUB_PAT: ${VITE_GITHUB_PAT}
                 VITE_MANAGER_URL: ${VITE_MANAGER_URL}
                 VITE_CLIENT_BASE_PATHNAME: ${VITE_CLIENT_BASE_PATHNAME}
         ports:
             - "${CLIENT_PORT}:3000"
         environment:
-            - VITE_GITHUB_PAT=${VITE_GITHUB_PAT}
             - VITE_MANAGER_URL=${VITE_MANAGER_URL}
             - VITE_CLIENT_BASE_PATHNAME=${VITE_CLIENT_BASE_PATHNAME}
         depends_on:
