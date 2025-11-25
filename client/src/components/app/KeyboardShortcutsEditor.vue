@@ -79,67 +79,56 @@ const saveShortcuts = () => {
 </script>
 
 <template>
-	<Card class="bg-white">
-		<!-- Header -->
-		<h2 class="text-2xl font-bold mb-4">{{ t("keyboardShortcuts.title") }}</h2>
+	<Card :title="t('keyboardShortcuts.title')" class="w-[600px] max-w-full mx-auto">
+		<div class="space-y-4">
+			<!-- Help text when editing -->
+			<div class="flex items-center gap-2 text-slate-200">
+				<Icon icon="mdi:info" class="w-5 h-5 text-blue-400" />
+				<p class="text-base">{{ t("keyboardShortcuts.helpText") }}</p>
+			</div>
 
-		<!-- Help text when editing -->
-		<div class="text-gray-600 flex items-center mb-4 gap-2">
-			<Icon icon="mdi:info" class="w-6 h-6 text-blue-400" />
-			<p class="text-black text-base">{{ t("keyboardShortcuts.helpText") }}</p>
-		</div>
-
-		<div class="space-y-3">
-			<div
-				v-for="shortcut in allShortcuts"
-				:key="shortcut.actionName"
-				class="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
-			>
-				<div class="flex justify-between items-center">
-					<div class="flex-1">
-						<h3 class="text-lg font-medium text-gray-900">{{ shortcut.actionName }}</h3>
-					</div>
-
-					<div class="flex items-center">
-						<input
-							:value="
-								editingShortcutAction === shortcut.actionName
-									? tempBinding
-									: shortcut.binding || t('keyboardShortcuts.notSet')
-							"
-							@focus="startEditing(shortcut.actionName, shortcut.binding)"
-							@keydown="handleKeyCapture($event)"
-							class="px-3 py-1 border border-gray-300 rounded text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[150px] cursor-pointer"
-							:class="{
-								'text-gray-400': !shortcut.binding && editingShortcutAction !== shortcut.actionName,
-							}"
-							readonly
-						/>
-					</div>
+			<div class="space-y-4">
+				<div v-for="shortcut in allShortcuts" :key="shortcut.actionName" class="space-y-2">
+					<label class="block font-bold text-gray-400">{{ shortcut.actionName }}</label>
+					<input
+						:value="
+							editingShortcutAction === shortcut.actionName
+								? tempBinding
+								: shortcut.binding || t('keyboardShortcuts.notSet')
+						"
+						@focus="startEditing(shortcut.actionName, shortcut.binding)"
+						@keydown="handleKeyCapture($event)"
+						class="box-border w-full p-3 text-base text-gray-200 bg-gray-900 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-400 cursor-pointer"
+						:class="{
+							'text-gray-500': !shortcut.binding && editingShortcutAction !== shortcut.actionName,
+						}"
+						readonly
+					/>
 				</div>
 			</div>
+
 			<!-- Buttons -->
-			<div class="flex justify-between mt-4">
-				<div class="flex justify-start space-x-4">
-					<Button
-						:label="t('keyboardShortcuts.save')"
-						buttonStyle="primary"
-						buttonSize="medium"
-						@click="saveShortcuts"
-					/>
-					<Button
-						:label="t('keyboardShortcuts.cancel')"
-						buttonStyle="secondary"
-						buttonSize="medium"
-						@click="() => emits('close')"
-					/>
-				</div>
+			<div class="flex justify-between items-center mt-6">
 				<Button
 					:label="t('keyboardShortcuts.resetToDefault')"
 					buttonStyle="secondary"
 					buttonSize="medium"
 					@click="resetToDefault"
 				/>
+				<div class="flex space-x-3">
+					<Button
+						:label="t('keyboardShortcuts.cancel')"
+						buttonStyle="secondary"
+						buttonSize="medium"
+						@click="() => emits('close')"
+					/>
+					<Button
+						:label="t('keyboardShortcuts.save')"
+						buttonStyle="primary"
+						buttonSize="medium"
+						@click="saveShortcuts"
+					/>
+				</div>
 			</div>
 		</div>
 	</Card>

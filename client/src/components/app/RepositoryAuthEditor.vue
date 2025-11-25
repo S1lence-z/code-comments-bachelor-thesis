@@ -41,7 +41,7 @@ const saveTokens = () => {
 <template>
 	<Card :title="t('settings.repositoryAuth.title')" class="w-[600px] max-w-full mx-auto">
 		<div class="space-y-4">
-			<p class="text-sm text-slate-500">
+			<p class="text-base text-slate-200">
 				{{ t("settings.repositoryAuth.description") }}
 			</p>
 
