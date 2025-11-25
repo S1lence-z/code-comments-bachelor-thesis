@@ -73,10 +73,7 @@ export const useFileContentStore = defineStore("fileContentStore", {
 				const processedFile = await provider.fetchProcessedFile(repositoryUrl, branch, filePath, authToken);
 				this.cacheFile(filePath, processedFile);
 			} catch (error) {
-				handleError(error, {
-					customMessage: `Failed to cache file: ${filePath}`,
-					showToast: false,
-				});
+				handleError(error);
 			} finally {
 				this.isBeingCached.delete(filePath);
 			}

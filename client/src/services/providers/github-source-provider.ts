@@ -109,34 +109,33 @@ export class GithubSourceProvider implements SourceProvider {
 	}
 
 	async getRepositoryTree(repositoryUrl: string, branch: string, authToken?: string): Promise<TreeNode[]> {
-		const url = new URL(repositoryUrl);
-		// Extract owner and repo name from URL
-		const [owner, repo] = url.pathname.split("/").filter(Boolean);
-		if (!owner || !repo) {
-			throw new Error("Invalid GitHub repository URL for API construction.");
+		try {
+			const url = new URL(repositoryUrl);
+			// Extract owner and repo name from URL
+			const [owner, repo] = url.pathname.split("/").filter(Boolean);
+			if (!owner || !repo) {
+				throw new Error("Invalid GitHub repository URL for API construction.");
+			}
+			// Construct the HTTP request
+			const apiBase = `https://api.github.com/repos/${owner}/${repo}`;
+			const headers: HeadersInit = {
+				Accept: "application/vnd.github.v3+json",
+			};
+			if (authToken) {
+				headers["Authorization"] = `Bearer ${authToken}`;
+			}
+			// Fetch the repository tree from GitHub API
+			const response = await fetch(`${apiBase}/git/trees/${branch}?recursive=1`, {
+				headers,
+			});
+			const data = await response.json();
+			if (!data.tree || !Array.isArray(data.tree)) {
+				throw new Error(data.message);
+			}
+			return this.buildFileTreeFromGitHub(data.tree);
+		} catch (error) {
+			throw error;
 		}
-		// Construct the API URL
-		const apiBase = `https://api.github.com/repos/${owner}/${repo}`;
-
-		const headers: HeadersInit = {
-			Accept: "application/vnd.github.v3+json",
-		};
-		if (authToken) {
-			headers["Authorization"] = `Bearer ${authToken}`;
-		}
-
-		// Fetch the repository tree from GitHub API
-		const response = await fetch(`${apiBase}/git/trees/${branch}?recursive=1`, {
-			headers,
-		});
-		if (!response.ok) {
-			throw new Error(`Failed to load repo tree: ${response.status} ${response.statusText}`);
-		}
-		const data = await response.json();
-		if (!data.tree || !Array.isArray(data.tree)) {
-			throw new Error("Invalid tree data received from GitHub API.");
-		}
-		return this.buildFileTreeFromGitHub(data.tree as GithubTreeItem[]);
 	}
 
 	async fetchProcessedFile(
@@ -145,30 +144,34 @@ export class GithubSourceProvider implements SourceProvider {
 		filePath: string,
 		authToken?: string
 	): Promise<ProcessedFile> {
-		// Validate and parse the repository URL
-		const url = new URL(repositoryUrl);
-		const [owner, repo] = url.pathname.split("/").filter(Boolean);
-		if (!owner || !repo) {
-			throw new Error("Invalid GitHub repository URL for API construction.");
-		}
+		try {
+			// Validate and parse the repository URL
+			const url = new URL(repositoryUrl);
+			const [owner, repo] = url.pathname.split("/").filter(Boolean);
+			if (!owner || !repo) {
+				throw new Error("Invalid GitHub repository URL for API construction.");
+			}
 
-		// Construct the API call
-		const contentUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
-		const headers: HeadersInit = {
-			Accept: "application/vnd.github+json",
-		};
-		if (authToken) {
-			headers["Authorization"] = `Bearer ${authToken}`;
-		}
+			// Construct the API call
+			const contentUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
+			const headers: HeadersInit = {
+				Accept: "application/vnd.github+json",
+			};
+			if (authToken) {
+				headers["Authorization"] = `Bearer ${authToken}`;
+			}
 
-		// Fetch the file content
-		const response = await fetch(contentUrl, { headers });
-		if (!response.ok) {
-			throw new Error(`Failed to load file content for ${filePath}. Error ${response.status}`);
+			// Fetch the file content
+			const response = await fetch(contentUrl, { headers });
+			if (!response.ok) {
+				throw new Error(`Failed to load file content for ${filePath}. Error ${response.status}`);
+			}
+			const responseData: GithubFileContentResponse = await response.json();
+			const processedFile = this.processFileContent(responseData);
+			return processedFile;
+		} catch (error) {
+			throw error;
 		}
-		const responseData: GithubFileContentResponse = await response.json();
-		const processedFile = this.processFileContent(responseData);
-		return processedFile;
 	}
 }
 

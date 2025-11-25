@@ -22,7 +22,7 @@ const FALLBACK_CATEGORY: CategoryDto = {
 export const useProjectDataStore = defineStore("projectDataStore", {
 	state: () => ({
 		// Data
-		githubUrlForTree: "",
+		currentTreeUrl: "",
 		fileTreeData: [] as TreeNode[],
 		comments: [] as CommentDto[],
 		categories: [] as CategoryDto[],
@@ -81,17 +81,15 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 					return;
 				}
 
-				if (this.githubUrlForTree === repositoryUrl) {
+				if (this.currentTreeUrl === repositoryUrl) {
 					return;
 				}
 
 				const provider = createProvider(projectStore.getRepositoryType);
 				this.fileTreeData = await provider.getRepositoryTree(repositoryUrl, branch, authToken);
-				this.githubUrlForTree = repositoryUrl;
+				this.currentTreeUrl = repositoryUrl;
 			} catch (error) {
-				handleError(error, {
-					customMessage: "Failed to load repository tree.",
-				});
+				handleError(error)
 				this.fileTreeData = [];
 			} finally {
 				this.isLoadingRepository = false;
