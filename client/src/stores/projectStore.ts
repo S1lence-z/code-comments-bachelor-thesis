@@ -8,7 +8,7 @@ import { RepositoryType } from "../types/shared/repository-type";
 export const useProjectStore = defineStore("projectStore", {
 	state: () => ({
 		serverBaseUrl: "",
-		rwServerUrl: "",
+		projectId: "",
 		repositoryUrl: "",
 		repositoryBranch: "",
 		repositoryType: RepositoryType.github,
@@ -17,13 +17,13 @@ export const useProjectStore = defineStore("projectStore", {
 	}),
 	getters: {
 		getRepositoryUrl: (state) => state.repositoryUrl,
-		getRwServerUrl: (state) => state.rwServerUrl,
+		getProjectId: (state) => state.projectId,
 		getRepositoryBranch: (state) => state.repositoryBranch,
 		getRepositoryType: (state) => state.repositoryType,
 		getRepositoryName: (state) => state.repositoryUrl.split("/").pop() || "Unknown",
 		getServerBaseUrl: (state) => state.serverBaseUrl,
 		isProjectCompletelyEmpty: (state) => {
-			return !state.serverBaseUrl && !state.rwServerUrl && !state.repositoryUrl && !state.repositoryBranch;
+			return !state.serverBaseUrl && !state.projectId && !state.repositoryUrl && !state.repositoryBranch;
 		},
 	},
 	actions: {
@@ -32,7 +32,6 @@ export const useProjectStore = defineStore("projectStore", {
 			// Try to get from store first
 			const repositoryAuthStore = useRepositoryAuthStore();
 			const auth = repositoryAuthStore.getAuthByType(this.repositoryType);
-			console.log("Retrieved auth token for repository type:", this.repositoryType, auth);
 			if (auth && auth.authToken) return auth.authToken;
 
 			return this.repositoryAuthToken;
@@ -49,7 +48,7 @@ export const useProjectStore = defineStore("projectStore", {
 			this.serverBaseUrl = extractString(newQuery[QUERY_PARAMS.SERVER_BASE_URL]);
 			this.repositoryUrl = extractString(newQuery[QUERY_PARAMS.REPOSITORY_URL]);
 			this.repositoryType = extractString(newQuery[QUERY_PARAMS.REPOSITORY_TYPE]) as RepositoryType;
-			this.rwServerUrl = extractString(newQuery[QUERY_PARAMS.RW_SERVER_URL]);
+			this.projectId = extractString(newQuery[QUERY_PARAMS.PROJECT_ID]);
 			this.repositoryBranch = extractString(newQuery[QUERY_PARAMS.BRANCH]);
 			projectServerConfigsStore.saveConfig(
 				{
@@ -59,7 +58,7 @@ export const useProjectStore = defineStore("projectStore", {
 				},
 				{
 					serverBaseUrl: this.serverBaseUrl,
-					rwServerUrl: this.rwServerUrl,
+					projectId: this.projectId,
 				}
 			);
 		},
@@ -67,7 +66,7 @@ export const useProjectStore = defineStore("projectStore", {
 			this.serverBaseUrl = params.serverBaseUrl || "";
 			this.repositoryUrl = params.repositoryUrl || "";
 			this.repositoryType = (params.repositoryType || RepositoryType.github) as RepositoryType;
-			this.rwServerUrl = params.rwServerUrl || "";
+			this.projectId = params.projectId || "";
 			this.repositoryBranch = params.branch || "";
 		},
 	},

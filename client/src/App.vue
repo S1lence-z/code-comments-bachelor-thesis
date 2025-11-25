@@ -14,7 +14,8 @@ import { useWorkspaceStore } from "./stores/workspaceStore.ts";
 import { useProjectDataStore } from "./stores/projectDataStore.ts";
 import { codeReviewPageKey } from "./core/keys";
 import { QUERY_PARAMS } from "./types/shared/query-params.ts";
-import { useProjectServerConfigsStore, type ServerConfig } from "./stores/projectServerConfigsStore.ts";
+import { useProjectServerConfigsStore } from "./stores/projectServerConfigsStore.ts";
+import type { ServerConfig } from "./types/domain/server-config.ts";
 import ServerConfigsList from "./components/app/ServerConfigsList.vue";
 import ToastContainer from "./components/app/ToastContainer.vue";
 import { useErrorHandler } from "./composables/useErrorHandler.ts";
@@ -59,7 +60,7 @@ const handleSwitchOfflineMode = () => {
 				query: {
 					...route.query,
 					[QUERY_PARAMS.SERVER_BASE_URL]: undefined,
-					[QUERY_PARAMS.RW_SERVER_URL]: undefined,
+					[QUERY_PARAMS.PROJECT_ID]: undefined,
 				},
 			});
 			return;
@@ -74,7 +75,7 @@ const handleSwitchOfflineMode = () => {
 };
 
 const handleSelectServerConfig = (serverConfig: ServerConfig) => {
-	if (!serverConfig.serverBaseUrl || !serverConfig.rwServerUrl) {
+	if (!serverConfig.serverBaseUrl || !serverConfig.projectId) {
 		errorHandler.showError("Selected server configuration is incomplete. Please select a valid configuration.");
 		return;
 	}
@@ -85,7 +86,7 @@ const handleSelectServerConfig = (serverConfig: ServerConfig) => {
 		query: {
 			...route.query,
 			[QUERY_PARAMS.SERVER_BASE_URL]: serverConfig.serverBaseUrl,
-			[QUERY_PARAMS.RW_SERVER_URL]: serverConfig.rwServerUrl,
+			[QUERY_PARAMS.PROJECT_ID]: serverConfig.projectId,
 		},
 	});
 };
@@ -124,14 +125,14 @@ onMounted(async () => {
 			}
 
 			// Turn on offline mode
-			if (!projectStore.getServerBaseUrl || !projectStore.rwServerUrl) {
+			if (!projectStore.getServerBaseUrl || !projectStore.getProjectId) {
 				settingsStore.toggleOfflineMode(true);
 			}
 
 			// Load the synced project data
 			await projectDataStore.loadProjectDataAsync(
 				projectStore.getRepositoryUrl,
-				projectStore.getRwServerUrl,
+				projectStore.getProjectId,
 				projectStore.getRepositoryBranch,
 				projectStore.getRepoAuthToken(),
 				projectStore.getServerBaseUrl
@@ -172,7 +173,7 @@ watch(
 			// Load the synced project data
 			await projectDataStore.loadProjectDataAsync(
 				projectStore.getRepositoryUrl,
-				projectStore.getRwServerUrl,
+				projectStore.getProjectId,
 				projectStore.getRepositoryBranch,
 				projectStore.getRepoAuthToken(),
 				projectStore.getServerBaseUrl

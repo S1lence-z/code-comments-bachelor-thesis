@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { useSourceProviderFactory } from "../services/source-provider-factory";
+import { useSourceProviderFactory } from "../services/factories/source-provider-factory";
 import { FileDisplayType, type ProcessedFile } from "../types/domain/file-content";
 import type CommentDto from "../types/dtos/comment-dto";
 import { CommentType } from "../types/dtos/comment-type";

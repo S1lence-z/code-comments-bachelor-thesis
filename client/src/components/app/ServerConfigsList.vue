@@ -3,7 +3,7 @@ import { Icon } from "@iconify/vue";
 import { useI18n } from "vue-i18n";
 import Card from "../lib/Card.vue";
 import Button from "../lib/Button.vue";
-import type { ProjectInfo, ServerConfig } from "../../stores/projectServerConfigsStore";
+import type { ProjectInfo, ServerConfig } from "../../types/domain/server-config";
 
 const { t } = useI18n();
 
@@ -89,6 +89,20 @@ const getRepositoryName = (url: string) => {
 												{{ t("serverConfigList.serverBaseUrl") }}
 											</p>
 											<p class="text-white font-medium truncate">{{ config.serverBaseUrl }}</p>
+										</div>
+									</div>
+
+									<!-- Project ID -->
+									<div class="flex items-start gap-2 min-w-0">
+										<Icon
+											icon="mdi:identifier"
+											class="w-5 h-5 text-purple-400 mt-0.5 flex-shrink-0"
+										/>
+										<div class="flex-1 min-w-0">
+											<p class="text-xs text-slate-400 mb-1">
+												{{ t("serverConfigList.projectId") }}
+											</p>
+											<p class="text-white font-medium truncate">{{ config.projectId }}</p>
 										</div>
 									</div>
 								</div>

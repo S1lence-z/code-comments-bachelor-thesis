@@ -1,17 +1,7 @@
 import { defineStore } from "pinia";
 import { projectServerConfigsKey } from "../core/keys";
 import { useErrorHandler } from "../composables/useErrorHandler";
-
-export interface ProjectInfo {
-	repositoryUrl: string;
-	repositoryType: string;
-	branch: string;
-}
-
-export interface ServerConfig {
-	serverBaseUrl: string;
-	rwServerUrl: string;
-}
+import type { ProjectInfo, ServerConfig } from "../types/domain/server-config";
 
 export const useProjectServerConfigsStore = defineStore("projectServerConfigsStore", {
 	state: () => ({
@@ -65,8 +55,8 @@ export const useProjectServerConfigsStore = defineStore("projectServerConfigsSto
 			}
 		},
 		saveConfig(projectInfo: ProjectInfo, serverConfig: ServerConfig) {
-			// Save only if serverBaseUrl and rwServerUrl are provided
-			if (!serverConfig.serverBaseUrl || !serverConfig.rwServerUrl) {
+			// Save only if serverBaseUrl and projectId are provided
+			if (!serverConfig.serverBaseUrl || !serverConfig.projectId) {
 				return;
 			}
 

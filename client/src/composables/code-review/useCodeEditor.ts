@@ -93,7 +93,6 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 			startLineNumber: activeFormState.value.startLineNumber || activeFormState.value.lineNumber,
 			endLineNumber: activeFormState.value.endLineNumber || activeFormState.value.lineNumber,
 		};
-		console.log("Upserting comment data:", commentData);
 
 		// Check if we're in reply mode
 		if (activeFormState.value.parentCommentId) {
