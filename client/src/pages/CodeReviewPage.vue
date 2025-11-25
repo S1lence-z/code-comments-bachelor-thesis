@@ -8,7 +8,7 @@ import { useDragDropState } from "../composables/useDragDropState.ts";
 import { determineDropPosition } from "../utils/drag-drop.ts";
 import FileExplorer from "../components/code-review/FileExplorer.vue";
 import SplitPanelManager from "../components/code-review/SplitPanelManager.vue";
-import ResizeHandle from "../lib/ResizeHandle.vue";
+import ResizeHandle from "../components/lib/ResizeHandle.vue";
 import { useI18n } from "vue-i18n";
 import AddEditCommentForm from "../components/code-review/AddEditCommentForm.vue";
 

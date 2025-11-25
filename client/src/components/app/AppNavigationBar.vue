@@ -6,7 +6,7 @@ import { useProjectDataStore } from "../../stores/projectDataStore";
 import { useProjectStore } from "../../stores/projectStore";
 import { downloadJSON } from "../../utils/json";
 import { useServerStatusStore } from "../../stores/serverStore";
-import Button from "../../lib/Button.vue";
+import Button from "../lib/Button.vue";
 import { useSettingsStore } from "../../stores/settingsStore";
 import { useI18n } from "vue-i18n";
 

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { onMounted, watch, ref, onBeforeUnmount } from "vue";
 import NavigationBar from "./components/app/AppNavigationBar.vue";
-import Modal from "./lib/Modal.vue";
+import Modal from "./components/lib/Modal.vue";
 import { useRouter, useRoute } from "vue-router";
 import { useProjectStore } from "./stores/projectStore.ts";
-import SlideoutPanel from "./lib/SlideoutPanel.vue";
+import SlideoutPanel from "./components/lib/SlideoutPanel.vue";
 import Settings from "./components/app/Settings.vue";
 import { useSettingsStore } from "./stores/settingsStore.ts";
 import { useKeyboardShortcutsStore } from "./stores/keyboardShortcutsStore.ts";
@@ -17,8 +17,8 @@ import { useProjectServerConfigsStore, type ServerConfig } from "./stores/projec
 import ServerConfigsList from "./components/app/ServerConfigsList.vue";
 import ToastContainer from "./components/app/ToastContainer.vue";
 import { useErrorHandler } from "./composables/useErrorHandler.ts";
-import Card from "./lib/Card.vue";
-import Button from "./lib/Button.vue";
+import Card from "./components/lib/Card.vue";
+import Button from "./components/lib/Button.vue";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();

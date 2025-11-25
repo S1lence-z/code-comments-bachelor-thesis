@@ -2,7 +2,7 @@
 import FileExplorerItem from "./FileExplorerItem.vue";
 import type { FileExplorerProps, FileExplorerEmits } from "../../composables/code-review/useFileExplorer.ts";
 import { useFileExplorer } from "../../composables/code-review/useFileExplorer.ts";
-import Button from "../../lib/Button.vue";
+import Button from "../lib/Button.vue";
 
 const props = defineProps<FileExplorerProps>();
 const emit = defineEmits<FileExplorerEmits>();

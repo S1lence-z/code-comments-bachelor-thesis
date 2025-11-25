@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useKeyboardShortcutsStore } from "../../stores/keyboardShortcutsStore";
-import Card from "../../lib/Card.vue";
+import Card from "../lib/Card.vue";
 import type { AppKeyboardShortcuts } from "../../types/domain/keyboard-shortcuts";
-import Button from "../../lib/Button.vue";
+import Button from "../lib/Button.vue";
 import { objectDeepCopy } from "../../utils/json";
 import { useI18n } from "vue-i18n";
 
