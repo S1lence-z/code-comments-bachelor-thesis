@@ -10,7 +10,7 @@ export const useRepositoryAuthStore = defineStore("repositoryAuthStore", {
 	}),
 	getters: {
 		getAuthByType: (state) => {
-			return (type: string): RepositoryAuthItem | undefined => {
+			return (type: RepositoryType): RepositoryAuthItem | undefined => {
 				return state.repositoryAuths.find((auth) => auth.repositoryType === type);
 			};
 		},

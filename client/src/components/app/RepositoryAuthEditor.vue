@@ -21,8 +21,6 @@ const tokens = ref<Record<string, string>>({});
 const repositoryTypes = Object.values(RepositoryType);
 
 onMounted(() => {
-	repositoryAuthStore.initializeFromLocalStorage();
-
 	// Initialize tokens for all types
 	repositoryTypes.forEach((type) => {
 		const auth = repositoryAuthStore.getAuthByType(type);

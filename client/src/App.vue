@@ -21,6 +21,7 @@ import { useErrorHandler } from "./composables/useErrorHandler.ts";
 import Card from "./components/lib/Card.vue";
 import Button from "./components/lib/Button.vue";
 import { useI18n } from "vue-i18n";
+import { useRepositoryAuthStore } from "./stores/repositoryAuthStore.ts";
 
 const { t } = useI18n();
 
@@ -42,6 +43,7 @@ const settingsStore = useSettingsStore();
 const keyboardShortcutsStore = useKeyboardShortcutsStore();
 const workspaceStore = useWorkspaceStore();
 const projectServerConfigsStore = useProjectServerConfigsStore();
+const repositoryAuthStore = useRepositoryAuthStore();
 
 // Methods
 const handleSwitchOfflineMode = () => {
@@ -107,6 +109,7 @@ onMounted(async () => {
 	projectServerConfigsStore.loadConfigs();
 	keyboardShortcutsStore.loadShortcuts();
 	workspaceStore.loadWorkspacesFromStorage();
+	repositoryAuthStore.initializeFromLocalStorage();
 
 	await router
 		.isReady()

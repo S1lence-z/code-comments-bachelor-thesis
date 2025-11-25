@@ -11,7 +11,7 @@ export const useProjectStore = defineStore("projectStore", {
 		rwServerUrl: "",
 		repositoryUrl: "",
 		repositoryBranch: "",
-		repositoryType: "",
+		repositoryType: RepositoryType.github,
 		repositoryAuthToken: "",
 		serverAuthToken: "", // TODO: add to the manager form if needed for something, currently not used
 	}),
@@ -32,6 +32,7 @@ export const useProjectStore = defineStore("projectStore", {
 			// Try to get from store first
 			const repositoryAuthStore = useRepositoryAuthStore();
 			const auth = repositoryAuthStore.getAuthByType(this.repositoryType);
+			console.log("Retrieved auth token for repository type:", this.repositoryType, auth);
 			if (auth && auth.authToken) return auth.authToken;
 
 			return this.repositoryAuthToken;
@@ -47,7 +48,7 @@ export const useProjectStore = defineStore("projectStore", {
 
 			this.serverBaseUrl = extractString(newQuery[QUERY_PARAMS.SERVER_BASE_URL]);
 			this.repositoryUrl = extractString(newQuery[QUERY_PARAMS.REPOSITORY_URL]);
-			this.repositoryType = extractString(newQuery[QUERY_PARAMS.REPOSITORY_TYPE]);
+			this.repositoryType = extractString(newQuery[QUERY_PARAMS.REPOSITORY_TYPE]) as RepositoryType;
 			this.rwServerUrl = extractString(newQuery[QUERY_PARAMS.RW_SERVER_URL]);
 			this.repositoryBranch = extractString(newQuery[QUERY_PARAMS.BRANCH]);
 			projectServerConfigsStore.saveConfig(
@@ -65,7 +66,7 @@ export const useProjectStore = defineStore("projectStore", {
 		updateFromParams(params: QueryParams) {
 			this.serverBaseUrl = params.serverBaseUrl || "";
 			this.repositoryUrl = params.repositoryUrl || "";
-			this.repositoryType = params.repositoryType || RepositoryType.github;
+			this.repositoryType = (params.repositoryType || RepositoryType.github) as RepositoryType;
 			this.rwServerUrl = params.rwServerUrl || "";
 			this.repositoryBranch = params.branch || "";
 		},
