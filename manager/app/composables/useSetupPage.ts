@@ -122,7 +122,8 @@ export function useSetupPage() {
 			// Call the service to create the project
 			const response = await projectService.createProject(
 				setupData,
-				formServerBaseUrl.value.trim()
+				formServerBaseUrl.value.trim(),
+				authStore.getAuthToken(serverBaseUrl)
 			);
 
 			if (response && response.id) {

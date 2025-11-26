@@ -21,13 +21,15 @@ const useProjectService = () => {
 
 	const createProject = async (
 		setupProjectRequest: ProjectSetupRequest,
-		backendBaseUrl: string
+		backendBaseUrl: string,
+		serverAuthToken?: string
 	): Promise<ProjectDto> => {
 		const requestUrl = `${backendBaseUrl}/api/v1/project`;
 		const response = await fetch(requestUrl, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
+				"Authorization": `Bearer ${serverAuthToken}`
 			},
 			body: JSON.stringify(setupProjectRequest),
 		});
