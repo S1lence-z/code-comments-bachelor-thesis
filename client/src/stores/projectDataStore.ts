@@ -60,13 +60,13 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 			newRepositoryUrl: string,
 			newProjectId: string,
 			newBranch: string,
+			serverBaseUrl: string,
 			repositoryAuthToken: string,
-			serverBaseUrl: string
+			serverAuthToken: string
 		) {
 			// Initialize Backend Provider
 			const { createProvider } = useBackendProviderFactory();
-			// TODO: Pass auth token when available
-			this.backendProvider = createProvider("standard-rest", serverBaseUrl, newProjectId);
+			this.backendProvider = createProvider("standard-rest", serverBaseUrl, newProjectId, serverAuthToken);
 
 			const promises = [
 				this.fetchRepositoryTree(newRepositoryUrl, newBranch, repositoryAuthToken),
@@ -75,7 +75,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 			];
 			await Promise.all(promises);
 		},
-		async fetchRepositoryTree(repositoryUrl: string, branch: string, authToken?: string) {
+		async fetchRepositoryTree(repositoryUrl: string, branch: string, repositoryAuthToken?: string) {
 			const projectStore = useProjectStore();
 			const { createProvider } = useSourceProviderFactory();
 			const { showWarning, handleError } = useErrorHandler();
@@ -93,7 +93,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				}
 
 				const provider = createProvider(projectStore.getRepositoryType);
-				this.fileTreeData = await provider.getRepositoryTree(repositoryUrl, branch, authToken);
+				this.fileTreeData = await provider.getRepositoryTree(repositoryUrl, branch, repositoryAuthToken);
 				this.currentTreeUrl = repositoryUrl;
 			} catch (error) {
 				handleError(error);
@@ -102,7 +102,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				this.isLoadingRepository = false;
 			}
 		},
-		async fetchAllCommentsAsync(githubRepositoryUrl: string, githubBranch: string, authToken?: string) {
+		async fetchAllCommentsAsync(githubRepositoryUrl: string, githubBranch: string, repositoryAuthToken?: string) {
 			const serverStore = useServerStatusStore();
 			const fileContentStore = useFileContentStore();
 			const settingsStore = useSettingsStore();
@@ -136,7 +136,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 					this.allComments,
 					githubRepositoryUrl,
 					githubBranch,
-					authToken
+					repositoryAuthToken
 				);
 				serverStore.setSynced();
 			} catch (error) {

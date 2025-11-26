@@ -134,8 +134,9 @@ onMounted(async () => {
 				projectStore.getRepositoryUrl,
 				projectStore.getProjectId,
 				projectStore.getRepositoryBranch,
+				projectStore.getServerBaseUrl,
 				projectStore.getRepoAuthToken(),
-				projectStore.getServerBaseUrl
+				projectStore.getServerAuthToken
 			);
 
 			// Mark initial load as complete
@@ -175,8 +176,9 @@ watch(
 				projectStore.getRepositoryUrl,
 				projectStore.getProjectId,
 				projectStore.getRepositoryBranch,
+				projectStore.getServerBaseUrl,
 				projectStore.getRepoAuthToken(),
-				projectStore.getServerBaseUrl
+				projectStore.getServerAuthToken
 			);
 		}
 	},

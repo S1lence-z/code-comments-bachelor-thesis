@@ -7,6 +7,7 @@ export const repositoryAuthsKey = Symbol("cc_repositoryAuths");
 
 // Keys for sessionStorage
 export const commentBrowserStateKey = Symbol("cc_commentBrowserState");
+export const jwtAuthTokenKey = Symbol("cc_jwtAuthToken");
 
 // Keys for navigation
 export const codeReviewPageKey = Symbol("Code Review");

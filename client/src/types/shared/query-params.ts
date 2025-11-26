@@ -5,6 +5,7 @@ export const QUERY_PARAMS = {
 	PROJECT_ID: "projectId",
 	BRANCH: "branch",
 	FILE: "file",
+	TOKEN: "token",
 };
 
 export interface QueryParams {
@@ -14,4 +15,5 @@ export interface QueryParams {
 	projectId?: string;
 	branch?: string;
 	file?: string;
+	token?: string;
 }
