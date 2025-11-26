@@ -12,6 +12,7 @@ const {
 	formBranchName,
 	formProjectName,
 	formServerBaseUrl,
+	formServerPassword,
 
 	// Ref
 	isOfflineMode,
@@ -32,7 +33,7 @@ const {
 	navigateToNewProject,
 	navigateToExistingProject,
 	loadExistingProjects,
-	submitServerBaseUrl,
+	setServerConfiguration,
 	useDefaultServerUrl,
 	setOfflineMode,
 	cycleThroughRepositoryTypes,
@@ -61,7 +62,7 @@ watch(
 	([newServerBaseUrl]) => {
 		const serverBaseUrlFromQuery = newServerBaseUrl as string | undefined;
 		if (serverBaseUrlFromQuery && !isServerUrlConfigured.value) {
-			submitServerBaseUrl(serverBaseUrlFromQuery);
+			formServerBaseUrl.value = serverBaseUrlFromQuery;
 		}
 	},
 	{ immediate: true }
@@ -111,7 +112,8 @@ watch(
 				<ServerForm
 					v-if="!isServerUrlConfigured"
 					v-model:serverBaseUrl="formServerBaseUrl"
-					@submitServerBaseUrl="submitServerBaseUrl"
+					v-model:serverPassword="formServerPassword"
+					@submitServerBaseUrl="setServerConfiguration"
 					@useDefaultServerUrl="useDefaultServerUrl"
 					@runInOfflineMode="setOfflineMode"
 				/>

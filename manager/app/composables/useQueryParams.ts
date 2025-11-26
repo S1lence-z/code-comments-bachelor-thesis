@@ -1,9 +1,12 @@
+import { useAuthStore } from "../stores/authStore";
+
 export const useQueryParams = () => {
 	const config = useRuntimeConfig();
 	const route = useRoute();
 	const errorHandler = useErrorHandler();
+	const authStore = useAuthStore();
 
-	const setupServerUrl = async (serverBaseUrl: string) => {
+	const navigateWithServerUrl = async (serverBaseUrl: string) => {
 		if (serverBaseUrl) {
 			const currentServerBaseUrl = route.query[QUERY_PARAMS.SERVER_BASE_URL];
 			if (currentServerBaseUrl !== serverBaseUrl) {
@@ -37,6 +40,9 @@ export const useQueryParams = () => {
 		}
 		if (branch) {
 			query[QUERY_PARAMS.BRANCH] = branch;
+		}
+		if (authStore.authToken) {
+			query[QUERY_PARAMS.TOKEN] = authStore.getAuthToken;
 		}
 		if (config.public.clientUrl) {
 			const url = config.public.clientUrl + "?" + new URLSearchParams(query).toString();
@@ -72,7 +78,7 @@ export const useQueryParams = () => {
 	};
 
 	return {
-		setupServerUrl,
+		navigateWithServerUrl,
 		navigateToProject,
 		navigateToOfflineProject,
 	};

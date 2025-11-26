@@ -5,18 +5,26 @@ import type ProjectDto from "../../shared/types/project-dto";
 import { RepositoryType } from "../../shared/types/repository-type";
 import { isValidGithubUrl } from "../utils/url";
 import repositoryTypeOptions from "../../shared/types/repository-type-options";
+import useAuthService from "../services/auth-service";
 
 export function useSetupPage() {
 	// Runtime config
 	const config = useRuntimeConfig();
 
+	// i18n
+	const { t } = useI18n();
+
+	// Stores
+	const authStore = useAuthStore();
+
 	// Services
 	const { branchExistsInRepo } = useGithubBranchService();
 	const projectService = useProjectService();
+	const authService = useAuthService();
 	const errorHandler = useErrorHandler();
 
 	// Query params composable
-	const { navigateToProject, navigateToOfflineProject, setupServerUrl } = useQueryParams();
+	const { navigateToProject, navigateToOfflineProject, navigateWithServerUrl } = useQueryParams();
 
 	// Form values
 	const formRepositoryUrl = ref("");
@@ -24,6 +32,7 @@ export function useSetupPage() {
 	const formBranchName = ref("");
 	const formProjectName = ref("");
 	const formServerBaseUrl = ref("");
+	const formServerPassword = ref("");
 
 	// UI state
 	const isCreatingProject = ref(false);
@@ -189,15 +198,44 @@ export function useSetupPage() {
 	};
 
 	// Handle submission of the server base URL form
-	const submitServerBaseUrl = (serverBaseUrl?: string): void => {
-		const urlToSubmit = serverBaseUrl ? serverBaseUrl.trim() : formServerBaseUrl.value.trim();
+	const setServerConfiguration = async (serverBaseUrl?: string): Promise<void> => {
+		const urlToSubmit = serverBaseUrl ? serverBaseUrl : formServerBaseUrl.value.trim();
+		const passwordToSubmit = formServerPassword.value.trim();
 
 		if (!urlToSubmit) {
 			return;
 		}
 
 		formServerBaseUrl.value = urlToSubmit;
-		setupServerUrl(urlToSubmit);
+
+		// If given password, attempt to authorize
+		let authorizationSuccess = false;
+		if (passwordToSubmit) {
+			formServerPassword.value = passwordToSubmit;
+			try {
+				const response = await authService.serverLogin(passwordToSubmit, urlToSubmit);
+				if (!response.success) {
+					throw new Error(response.message);
+				}
+				authorizationSuccess = response.success;
+				authStore.saveAuthToken(response.token!);
+			} catch (error) {
+				errorHandler.handleError(error);
+			}
+		}
+
+		// If no password given or authorization failed, confirm to continue without password
+		if (!authorizationSuccess || !passwordToSubmit) {
+			const shouldProceedWithoutPassword = confirm(
+				t("serverForm.continueWithoutPasswordConfirm")
+			);
+			if (!shouldProceedWithoutPassword) {
+				formServerPassword.value = "";
+				return;
+			}
+		}
+		// Navigate with the server URL
+		navigateWithServerUrl(urlToSubmit);
 		isServerUrlConfigured.value = true;
 	};
 
@@ -236,6 +274,7 @@ export function useSetupPage() {
 		formBranchName,
 		formProjectName,
 		formServerBaseUrl,
+		formServerPassword,
 
 		// Ref
 		isOfflineMode,
@@ -256,7 +295,7 @@ export function useSetupPage() {
 		navigateToNewProject,
 		navigateToExistingProject,
 		loadExistingProjects,
-		submitServerBaseUrl,
+		setServerConfiguration,
 		useDefaultServerUrl,
 		setOfflineMode,
 		cycleThroughRepositoryTypes,

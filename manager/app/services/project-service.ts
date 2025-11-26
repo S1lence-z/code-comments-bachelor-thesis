@@ -2,7 +2,7 @@ import type ProjectSetupRequest from "../../shared/types/project-setup-request";
 import type ProjectDto from "../../shared/types/project-dto";
 
 const useProjectService = () => {
-	async function getProjects(backendBaseUrl: string): Promise<ProjectDto[]> {
+	const getProjects = async (backendBaseUrl: string): Promise<ProjectDto[]> => {
 		const requestUrl = `${backendBaseUrl}/api/v1/project`;
 		const response = await fetch(requestUrl, {
 			method: "GET",
@@ -17,12 +17,12 @@ const useProjectService = () => {
 
 		const fetchedProjects = await response.json();
 		return fetchedProjects;
-	}
+	};
 
-	async function createProject(
+	const createProject = async (
 		setupProjectRequest: ProjectSetupRequest,
 		backendBaseUrl: string
-	): Promise<ProjectDto> {
+	): Promise<ProjectDto> => {
 		const requestUrl = `${backendBaseUrl}/api/v1/project`;
 		const response = await fetch(requestUrl, {
 			method: "POST",
@@ -31,14 +31,14 @@ const useProjectService = () => {
 			},
 			body: JSON.stringify(setupProjectRequest),
 		});
-		
+
 		if (!response.ok) {
 			throw new Error(`Failed to create project: ${response.status} ${response.statusText}`);
 		}
 
 		const createdProject = await response.json();
 		return createdProject;
-	}
+	};
 
 	return { getProjects, createProject };
 };

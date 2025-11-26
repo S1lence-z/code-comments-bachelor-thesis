@@ -5,4 +5,5 @@ export const QUERY_PARAMS = {
 	PROJECT_ID: "projectId",
 	BRANCH: "branch",
 	FILE: "file",
+	TOKEN: "token",
 };
