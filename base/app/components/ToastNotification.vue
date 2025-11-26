@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type { ToastType } from "../../../shared/types/toast";
+import type { ToastType } from "../types/toast";
 import { Icon } from "@iconify/vue";
 
 interface ToastProps {
@@ -43,11 +43,7 @@ const handleClose = () => {
 		:class="`toast-boarder-${props.type}`"
 	>
 		<!-- Icon -->
-		<Icon
-			:icon="icon"
-			class="flex-shrink-0 w-5 h-5 text-white"
-			:class="`toast-bg-${props.type}`"
-		/>
+		<Icon :icon="icon" class="flex-shrink-0 w-5 h-5 text-white" :class="`toast-bg-${props.type}`" />
 
 		<!-- Message -->
 		<div class="flex-1 text-sm text-slate-100">

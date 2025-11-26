@@ -23,11 +23,7 @@ const showPassword = ref(false);
 	<div class="space-y-2">
 		<div v-if="props.labelIcon || props.label" class="flex items-center gap-2">
 			<Icon v-if="props.labelIcon" :icon="props.labelIcon" class="text-gray-400 w-4 h-4" />
-			<label
-				:for="props.label"
-				class="block font-bold text-gray-400"
-				>{{ props.label }}</label
-			>
+			<label :for="props.label" class="block font-bold text-gray-400">{{ props.label }}</label>
 		</div>
 		<div class="flex flex-row items-center relative">
 			<input
