@@ -23,6 +23,7 @@ import Card from "./components/lib/Card.vue";
 import Button from "./components/lib/Button.vue";
 import { useI18n } from "vue-i18n";
 import { useRepositoryAuthStore } from "./stores/repositoryAuthStore.ts";
+import { useQueryParams } from "./composables/useQueryParams.ts";
 
 const { t } = useI18n();
 
@@ -30,6 +31,7 @@ const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
 const isRouterReady = ref(false);
+const { removeTokenFromQuery } = useQueryParams();
 
 // State
 const isProjectServerConfigsModalVisible = ref(false);
@@ -117,6 +119,7 @@ onMounted(async () => {
 		.then(async () => {
 			isRouterReady.value = true;
 			projectStore.syncStateWithRoute(route.query);
+			await removeTokenFromQuery();
 
 			// Check if the project is completely empty
 			if (projectStore.isProjectCompletelyEmpty) {

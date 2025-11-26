@@ -27,7 +27,6 @@ export function useQueryParams() {
 	}));
 
 	// Navigation functions
-
 	const navigateToFile = (filePath: string) => {
 		router.push({
 			name: codeReviewPageKey,
@@ -38,11 +37,19 @@ export function useQueryParams() {
 		});
 	};
 
+	const removeTokenFromQuery = async () => {
+		// Remove token from URL
+		const newQuery = { ...route.query };
+		delete newQuery.token;
+		await router.replace({ query: newQuery });
+	};
+
 	return {
 		// Current parameters
 		params,
 
 		// Navigation
 		navigateToFile,
+		removeTokenFromQuery,
 	};
 }
