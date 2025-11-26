@@ -2,8 +2,8 @@ import { defineStore } from "pinia";
 import type { TreeNode } from "../types/domain/tree-content";
 import type CommentDto from "../types/dtos/comment-dto";
 import type CategoryDto from "../types/dtos/category-dto";
-import { useSourceProviderFactory } from "../services/factories/source-provider-factory";
-import { useBackendProviderFactory } from "../services/factories/backend-provider-factory";
+import { useSourceProviderFactory } from "../services/providers/source-provider-factory";
+import { StandardBackendProvider } from "../services/backend/standard-backend-provider";
 import type { BackendProvider } from "../types/interfaces/backend-provider";
 import { useServerStatusStore } from "./serverStore";
 import { CommentType } from "../types/dtos/comment-type";
@@ -65,8 +65,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 			serverAuthToken: string
 		) {
 			// Initialize Backend Provider
-			const { createProvider } = useBackendProviderFactory();
-			this.backendProvider = createProvider("standard-rest", serverBaseUrl, newProjectId, serverAuthToken);
+			this.backendProvider = new StandardBackendProvider(serverBaseUrl, newProjectId, serverAuthToken);
 
 			const promises = [
 				this.fetchRepositoryTree(newRepositoryUrl, newBranch, repositoryAuthToken),
