@@ -4,6 +4,7 @@ import { Icon } from "@iconify/vue";
 
 const { t } = useI18n();
 const route = useRoute();
+const authStore = useAuthStore();
 
 const {
 	// Form inputs
@@ -61,8 +62,16 @@ watch(
 	[() => route.query.serverBaseUrl],
 	([newServerBaseUrl]) => {
 		const serverBaseUrlFromQuery = newServerBaseUrl as string | undefined;
-		if (serverBaseUrlFromQuery && !isServerUrlConfigured.value) {
-			formServerBaseUrl.value = serverBaseUrlFromQuery;
+
+		if (!serverBaseUrlFromQuery) return;
+
+		// Check if we have a token for this server
+		const token = authStore.getAuthToken(serverBaseUrlFromQuery);
+
+		if (token && !isServerUrlConfigured.value) {
+			setServerConfiguration(serverBaseUrlFromQuery, token);
+		} else if (serverBaseUrlFromQuery && !isServerUrlConfigured.value) {
+			setServerConfiguration(serverBaseUrlFromQuery);
 		}
 	},
 	{ immediate: true }

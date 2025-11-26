@@ -198,7 +198,10 @@ export function useSetupPage() {
 	};
 
 	// Handle submission of the server base URL form
-	const setServerConfiguration = async (serverBaseUrl?: string): Promise<void> => {
+	const setServerConfiguration = async (
+		serverBaseUrl?: string,
+		token?: string
+	): Promise<void> => {
 		const urlToSubmit = serverBaseUrl ? serverBaseUrl : formServerBaseUrl.value.trim();
 		const passwordToSubmit = formServerPassword.value.trim();
 
@@ -207,6 +210,14 @@ export function useSetupPage() {
 		}
 
 		formServerBaseUrl.value = urlToSubmit;
+
+		// If token is provided, use it directly
+		if (token) {
+			authStore.saveAuthToken(urlToSubmit, token);
+			navigateWithServerUrl(urlToSubmit);
+			isServerUrlConfigured.value = true;
+			return;
+		}
 
 		// If given password, attempt to authorize
 		let authorizationSuccess = false;
@@ -218,7 +229,7 @@ export function useSetupPage() {
 					throw new Error(response.message);
 				}
 				authorizationSuccess = response.success;
-				authStore.saveAuthToken(response.token!);
+				authStore.saveAuthToken(urlToSubmit, response.token!);
 				errorHandler.showSuccess(response.message);
 			} catch (error) {
 				errorHandler.handleError(error);

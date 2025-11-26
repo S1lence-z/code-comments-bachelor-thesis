@@ -41,8 +41,8 @@ export const useQueryParams = () => {
 		if (branch) {
 			query[QUERY_PARAMS.BRANCH] = branch;
 		}
-		if (authStore.authToken) {
-			query[QUERY_PARAMS.TOKEN] = authStore.getAuthToken;
+		if (authStore.authTokens) {
+			query[QUERY_PARAMS.TOKEN] = authStore.getAuthToken(serverBaseUrl);
 		}
 		if (config.public.clientUrl) {
 			const url = config.public.clientUrl + "?" + new URLSearchParams(query).toString();
