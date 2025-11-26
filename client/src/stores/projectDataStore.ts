@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import type { TreeNode } from "../types/domain/tree-content";
 import type CommentDto from "../types/dtos/comment-dto";
 import type CategoryDto from "../types/dtos/category-dto";
-import { useSourceProviderFactory } from "../services/providers/source-provider-factory";
+import { useRepositoryProviderFactory } from "../services/repository-provider-factory";
 import { StandardBackendProvider } from "../services/backend/standard-backend-provider";
 import type { BackendProvider } from "../types/interfaces/backend-provider";
 import { useServerStatusStore } from "./serverStore";
@@ -76,7 +76,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 		},
 		async fetchRepositoryTree(repositoryUrl: string, branch: string, repositoryAuthToken?: string) {
 			const projectStore = useProjectStore();
-			const { createProvider } = useSourceProviderFactory();
+			const { createProvider } = useRepositoryProviderFactory();
 			const { showWarning, handleError } = useErrorHandler();
 
 			this.isLoadingRepository = true;

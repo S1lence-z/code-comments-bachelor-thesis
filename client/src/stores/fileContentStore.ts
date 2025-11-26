@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { useSourceProviderFactory } from "../services/providers/source-provider-factory";
+import { useRepositoryProviderFactory } from "../services/repository-provider-factory";
 import { FileDisplayType, type ProcessedFile } from "../types/domain/file-content";
 import type CommentDto from "../types/dtos/comment-dto";
 import { CommentType } from "../types/dtos/comment-type";
@@ -59,7 +59,7 @@ export const useFileContentStore = defineStore("fileContentStore", {
 			authToken?: string
 		): Promise<void> {
 			const projectStore = useProjectStore();
-			const { createProvider } = useSourceProviderFactory();
+			const { createProvider } = useRepositoryProviderFactory();
 			const { handleError } = useErrorHandler();
 
 			if (this.isFileCached(filePath) || this.isBeingCached.has(filePath)) {
@@ -85,7 +85,7 @@ export const useFileContentStore = defineStore("fileContentStore", {
 			authToken?: string
 		): Promise<ProcessedFile> {
 			const projectStore = useProjectStore();
-			const { createProvider } = useSourceProviderFactory();
+			const { createProvider } = useRepositoryProviderFactory();
 			const { handleError } = useErrorHandler();
 
 			if (this.isFileCached(filePath)) {

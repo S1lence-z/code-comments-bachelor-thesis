@@ -5,7 +5,7 @@ import type { ProcessedFile } from "../domain/file-content";
  * Interface for source code providers (GitHub, Single File, etc.)
  * Implement this interface to create a custom source provider
  */
-export interface SourceProvider {
+export interface RepositoryProvider {
 	/**
 	 * Fetches the complete file tree/directory structure from the source
 	 * @param repositoryUrl - The URL or identifier of the repository/source

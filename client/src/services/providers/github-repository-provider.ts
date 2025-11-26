@@ -1,18 +1,18 @@
-import type { SourceProvider } from "../../types/interfaces/source-provider";
+import type { RepositoryProvider } from "../../types/interfaces/repository-provider";
 import type { TreeNode } from "../../types/domain/tree-content";
 import { TreeNodeType } from "../../types/domain/tree-content";
 import { type ProcessedFile } from "../../types/domain/file-content";
 import { type GithubTreeItem, GithubTreeItemType } from "../../types/github/TreeContent";
 import type { GithubFileContentResponse } from "../../types/github/FileContent";
 import { FileDisplayType } from "../../types/domain/file-content";
-import { providerRegistry } from "../provider-registry";
+import { repositoryProviderRegistry } from "../repository-provider-registry";
 import { RepositoryType } from "../../types/shared/repository-type";
 
 /**
  * GitHub implementation of ISourceProvider
  * Uses GitHub REST API to fetch repository trees and file contents
  */
-export class GithubSourceProvider implements SourceProvider {
+export class GithubSourceProvider implements RepositoryProvider {
 	private buildFileTreeFromGitHub(gitHubItems: GithubTreeItem[]): TreeNode[] {
 		const rootNodes: TreeNode[] = [];
 		const map: { [path: string]: TreeNode } = {};
@@ -176,7 +176,7 @@ export class GithubSourceProvider implements SourceProvider {
 }
 
 // Register the GithubSourceProvider
-providerRegistry.register({
+repositoryProviderRegistry.register({
 	metadata: {
 		id: RepositoryType.github,
 		name: "GitHub",
