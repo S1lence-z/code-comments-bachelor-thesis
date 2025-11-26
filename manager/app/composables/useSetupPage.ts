@@ -219,6 +219,7 @@ export function useSetupPage() {
 				}
 				authorizationSuccess = response.success;
 				authStore.saveAuthToken(response.token!);
+				errorHandler.showSuccess(response.message);
 			} catch (error) {
 				errorHandler.handleError(error);
 			}
