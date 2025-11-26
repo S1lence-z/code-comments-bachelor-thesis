@@ -7,6 +7,9 @@ using server.Services;
 using server.Types.Interfaces;
 using server.Types.Repositories;
 using System.Text.Json.Serialization;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace server
 {
@@ -18,9 +21,29 @@ namespace server
 
             // Read appsettings.*.json (environment variables)
             builder.Services.Configure<ApiUrls>(builder.Configuration.GetSection("ApiUrls"));
+            builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 
-            // Add db context
-            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+            // Configure Authentication
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new()
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"]!))
+				};
+            });
+
+			// Add db context
+			builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlite(builder.Configuration.GetConnectionString("localDb"))
             );
 
@@ -34,6 +57,7 @@ namespace server
 			builder.Services.AddScoped<IProjectService, ProjectService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<ICommentService, CommentService>();
+            builder.Services.AddScoped<IAuthService, AuthService>();
 
             // Add services to the container.
             builder.Services.AddControllers().AddJsonOptions(options =>
@@ -60,8 +84,8 @@ namespace server
             app.UseSwagger();
             app.UseSwaggerUI();
 
-
-            app.UseAuthorization();
+			app.UseAuthentication();
+			app.UseAuthorization();
             app.MapControllers();
             app.Run();
         }

@@ -1,5 +1,4 @@
 import { useProjectDataStore } from "../stores/projectDataStore";
-import { useProjectStore } from "../stores/projectStore";
 import { createCommentDtoByType } from "../utils/comments";
 import type RawCommentData from "../types/domain/raw-comment-data";
 
@@ -10,16 +9,15 @@ export interface CommentOperationResult {
 
 export const useCommentOperations = () => {
 	const projectDataStore = useProjectDataStore();
-	const projectStore = useProjectStore();
 
 	const submitComment = async (payload: RawCommentData): Promise<CommentOperationResult> => {
 		const commentData = createCommentDtoByType(payload.commentType, projectDataStore.allCategories, payload);
-		await projectDataStore.upsertCommentAsync(commentData, projectStore.getRwServerUrl);
+		await projectDataStore.upsertCommentAsync(commentData);
 		return { success: true };
 	};
 
 	const deleteComment = async (commentId: string): Promise<CommentOperationResult> => {
-		await projectDataStore.deleteCommentAsync(commentId, projectStore.getRwServerUrl);
+		await projectDataStore.deleteCommentAsync(commentId);
 		return { success: true };
 	};
 
@@ -28,7 +26,7 @@ export const useCommentOperations = () => {
 		payload: RawCommentData
 	): Promise<CommentOperationResult> => {
 		const commentData = createCommentDtoByType(payload.commentType, projectDataStore.allCategories, payload);
-		await projectDataStore.replyToCommentAsync(projectStore.getRwServerUrl, parentCommentId, commentData);
+		await projectDataStore.replyToCommentAsync(parentCommentId, commentData);
 		return { success: true };
 	};
 

@@ -27,6 +27,13 @@ VITE_SERVER_URL=http://localhost/server
 VITE_MANAGER_URL=http://localhost
 VITE_CLIENT_URL=http://localhost/client
 VITE_CLIENT_BASE_PATHNAME=/client
+
+# JWT Settings (for auth)
+JWT_SECRET=3i6Iy5JKL3J5388T24Zpuv0yqIdsfasJ5J53F
+JWT_ISSUER=http://localhost/server
+JWT_EXPIRATION_MINUTES=60
+JWT_PROJECT_PASSWORD=codecomments123
+
 ```
 
 Finally, run the following commands to build and start the application:

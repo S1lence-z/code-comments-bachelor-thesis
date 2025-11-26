@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using server.Models.Categories;
 using server.Types.Interfaces;
 
@@ -9,6 +10,7 @@ namespace server.Controllers
 	public class CategoryController(ICategoryService categoryService) : ControllerBase
 	{
 		[HttpGet]
+		[AllowAnonymous]
 		public async Task<IActionResult> GetAllCategories()
 		{
 			IEnumerable<CategoryDto> categoryDtos = await categoryService.GetAllCategoriesAsync();

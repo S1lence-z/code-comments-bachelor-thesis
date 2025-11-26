@@ -12,8 +12,12 @@
 		"offlineModeInfo": "You can also run the application in offline mode! Added comments will be shown in real-time until you refresh the page. Perfect for quick prototyping and testing.",
 		"serverUrlLabel": "Server URL",
 		"serverUrlPlaceholder": "http://localhost:3000",
-		"saveAndContinue": "Save and Continue",
-		"runInOfflineMode": "Run in Offline Mode"
+		"serverPasswordLabel": "Server Password (Optional)",
+		"serverPasswordPlaceholder": "Enter your server password",
+		"continue": "Continue",
+		"authorize": "Authorize",
+		"runInOfflineMode": "Run in Offline Mode",
+		"continueWithoutPasswordConfirm": "Do you want to continue without a password?"
 	},
 	"projectForm": {
 		"title": "New Review Session",

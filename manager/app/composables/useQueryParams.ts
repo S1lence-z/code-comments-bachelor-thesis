@@ -1,9 +1,12 @@
+import { useAuthStore } from "../stores/authStore";
+
 export const useQueryParams = () => {
 	const config = useRuntimeConfig();
 	const route = useRoute();
 	const errorHandler = useErrorHandler();
+	const authStore = useAuthStore();
 
-	const setupServerUrl = async (serverBaseUrl: string) => {
+	const navigateWithServerUrl = async (serverBaseUrl: string) => {
 		if (serverBaseUrl) {
 			const currentServerBaseUrl = route.query[QUERY_PARAMS.SERVER_BASE_URL];
 			if (currentServerBaseUrl !== serverBaseUrl) {
@@ -19,7 +22,7 @@ export const useQueryParams = () => {
 		serverBaseUrl: string,
 		repositoryUrl: string,
 		repositoryType: RepositoryType,
-		rwServerUrl: string,
+		projectId: string,
 		branch: string
 	) => {
 		const query: Record<string, string> = {};
@@ -32,11 +35,14 @@ export const useQueryParams = () => {
 		if (repositoryType) {
 			query[QUERY_PARAMS.REPOSITORY_TYPE] = repositoryType;
 		}
-		if (rwServerUrl) {
-			query[QUERY_PARAMS.RW_SERVER_URL] = rwServerUrl;
+		if (projectId) {
+			query[QUERY_PARAMS.PROJECT_ID] = projectId;
 		}
 		if (branch) {
 			query[QUERY_PARAMS.BRANCH] = branch;
+		}
+		if (authStore.authTokens) {
+			query[QUERY_PARAMS.TOKEN] = authStore.getAuthToken(serverBaseUrl);
 		}
 		if (config.public.clientUrl) {
 			const url = config.public.clientUrl + "?" + new URLSearchParams(query).toString();
@@ -72,7 +78,7 @@ export const useQueryParams = () => {
 	};
 
 	return {
-		setupServerUrl,
+		navigateWithServerUrl,
 		navigateToProject,
 		navigateToOfflineProject,
 	};

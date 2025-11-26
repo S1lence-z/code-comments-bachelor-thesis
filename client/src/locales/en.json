@@ -21,7 +21,7 @@
 		"availableConfigs": "Available Configurations",
 		"configName": "Configuration Name",
 		"serverBaseUrl": "Server Base URL",
-		"rwServerUrl": "Review Board Server URL",
+		"projectId": "Project ID",
 		"notConfigured": "Not configured",
 		"cancel": "Cancel"
 	},

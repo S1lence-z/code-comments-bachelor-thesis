@@ -4,6 +4,7 @@ import { Icon } from "@iconify/vue";
 
 const { t } = useI18n();
 const route = useRoute();
+const authStore = useAuthStore();
 
 const {
 	// Form inputs
@@ -12,6 +13,7 @@ const {
 	formBranchName,
 	formProjectName,
 	formServerBaseUrl,
+	formServerPassword,
 
 	// Ref
 	isOfflineMode,
@@ -32,7 +34,7 @@ const {
 	navigateToNewProject,
 	navigateToExistingProject,
 	loadExistingProjects,
-	submitServerBaseUrl,
+	setServerConfiguration,
 	useDefaultServerUrl,
 	setOfflineMode,
 	cycleThroughRepositoryTypes,
@@ -60,8 +62,16 @@ watch(
 	[() => route.query.serverBaseUrl],
 	([newServerBaseUrl]) => {
 		const serverBaseUrlFromQuery = newServerBaseUrl as string | undefined;
-		if (serverBaseUrlFromQuery && !isServerUrlConfigured.value) {
-			submitServerBaseUrl(serverBaseUrlFromQuery);
+
+		if (!serverBaseUrlFromQuery) return;
+
+		// Check if we have a token for this server
+		const token = authStore.getAuthToken(serverBaseUrlFromQuery);
+
+		if (token && !isServerUrlConfigured.value) {
+			setServerConfiguration(serverBaseUrlFromQuery, token);
+		} else if (serverBaseUrlFromQuery && !isServerUrlConfigured.value) {
+			setServerConfiguration(serverBaseUrlFromQuery);
 		}
 	},
 	{ immediate: true }
@@ -111,7 +121,8 @@ watch(
 				<ServerForm
 					v-if="!isServerUrlConfigured"
 					v-model:serverBaseUrl="formServerBaseUrl"
-					@submitServerBaseUrl="submitServerBaseUrl"
+					v-model:serverPassword="formServerPassword"
+					@submitServerBaseUrl="setServerConfiguration"
 					@useDefaultServerUrl="useDefaultServerUrl"
 					@runInOfflineMode="setOfflineMode"
 				/>

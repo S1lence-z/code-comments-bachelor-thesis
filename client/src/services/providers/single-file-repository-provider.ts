@@ -1,7 +1,7 @@
-import type { SourceProvider } from "../../types/interfaces/source-provider";
+import type { RepositoryProvider } from "../../types/interfaces/repository-provider";
 import type { TreeNode } from "../../types/domain/tree-content";
 import type { ProcessedFile } from "../../types/domain/file-content";
-import { providerRegistry } from "../provider-registry";
+import { repositoryProviderRegistry } from "../repository-provider-registry";
 import { RepositoryType } from "../../types/shared/repository-type";
 
 /**
@@ -19,7 +19,7 @@ import { RepositoryType } from "../../types/shared/repository-type";
  *
  * Both requests should support an optional Authorization header for authentication
  */
-export class SingleFileSourceProvider implements SourceProvider {
+export class SingleFileSourceProvider implements RepositoryProvider {
 	/**
 	 * Fetches the repository tree from a static JSON file
 	 *
@@ -114,7 +114,7 @@ export class SingleFileSourceProvider implements SourceProvider {
 	}
 }
 
-providerRegistry.register({
+repositoryProviderRegistry.register({
 	metadata: {
 		id: RepositoryType.singleFile,
 		name: "Static File",

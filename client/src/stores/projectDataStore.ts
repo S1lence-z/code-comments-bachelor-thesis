@@ -2,9 +2,9 @@ import { defineStore } from "pinia";
 import type { TreeNode } from "../types/domain/tree-content";
 import type CommentDto from "../types/dtos/comment-dto";
 import type CategoryDto from "../types/dtos/category-dto";
-import { useSourceProviderFactory } from "../services/source-provider-factory";
-import useCommentsService from "../services/comments-service";
-import useCategoryService from "../services/category-service";
+import { useRepositoryProviderFactory } from "../services/repository-provider-factory";
+import { StandardBackendProvider } from "../services/backend/standard-backend-provider";
+import type { BackendProvider } from "../types/interfaces/backend-provider";
 import { useServerStatusStore } from "./serverStore";
 import { CommentType } from "../types/dtos/comment-type";
 import { useFileContentStore } from "./fileContentStore";
@@ -31,6 +31,8 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 		isLoadingComments: false,
 		isLoadingCategories: false,
 		isSavingComment: false,
+		// Backend Provider
+		backendProvider: null as BackendProvider | null,
 	}),
 	getters: {
 		fileTree: (state) => state.fileTreeData,
@@ -56,21 +58,25 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 		// Load project data from various sources
 		async loadProjectDataAsync(
 			newRepositoryUrl: string,
-			newRwServerUrl: string,
+			newProjectId: string,
 			newBranch: string,
-			authToken: string,
-			serverBaseUrl: string
+			serverBaseUrl: string,
+			repositoryAuthToken: string,
+			serverAuthToken: string
 		) {
+			// Initialize Backend Provider
+			this.backendProvider = new StandardBackendProvider(serverBaseUrl, newProjectId, serverAuthToken);
+
 			const promises = [
-				this.fetchRepositoryTree(newRepositoryUrl, newBranch, authToken),
-				this.fetchAllCommentsAsync(newRwServerUrl, newRepositoryUrl, newBranch, authToken),
-				this.fetchAllCategoriesAsync(serverBaseUrl),
+				this.fetchRepositoryTree(newRepositoryUrl, newBranch, repositoryAuthToken),
+				this.fetchAllCommentsAsync(newRepositoryUrl, newBranch, repositoryAuthToken),
+				this.fetchAllCategoriesAsync(),
 			];
 			await Promise.all(promises);
 		},
-		async fetchRepositoryTree(repositoryUrl: string, branch: string, authToken?: string) {
+		async fetchRepositoryTree(repositoryUrl: string, branch: string, repositoryAuthToken?: string) {
 			const projectStore = useProjectStore();
-			const { createProvider } = useSourceProviderFactory();
+			const { createProvider } = useRepositoryProviderFactory();
 			const { showWarning, handleError } = useErrorHandler();
 
 			this.isLoadingRepository = true;
@@ -86,23 +92,17 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				}
 
 				const provider = createProvider(projectStore.getRepositoryType);
-				this.fileTreeData = await provider.getRepositoryTree(repositoryUrl, branch, authToken);
+				this.fileTreeData = await provider.getRepositoryTree(repositoryUrl, branch, repositoryAuthToken);
 				this.currentTreeUrl = repositoryUrl;
 			} catch (error) {
-				handleError(error)
+				handleError(error);
 				this.fileTreeData = [];
 			} finally {
 				this.isLoadingRepository = false;
 			}
 		},
-		async fetchAllCommentsAsync(
-			rwServerUrl: string,
-			githubRepositoryUrl: string,
-			githubBranch: string,
-			authToken?: string
-		) {
+		async fetchAllCommentsAsync(githubRepositoryUrl: string, githubBranch: string, repositoryAuthToken?: string) {
 			const serverStore = useServerStatusStore();
-			const commentsService = useCommentsService();
 			const fileContentStore = useFileContentStore();
 			const settingsStore = useSettingsStore();
 			const { showWarning, handleError } = useErrorHandler();
@@ -113,11 +113,16 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				return;
 			}
 
+			if (!this.backendProvider) {
+				showWarning("Backend provider not initialized.");
+				return;
+			}
+
 			try {
 				serverStore.startSyncing();
 				this.isLoadingComments = true;
 
-				const response = await commentsService.getComments(rwServerUrl);
+				const response = await this.backendProvider.getComments();
 				if (!response) {
 					serverStore.setSyncError("No comments found on the server.");
 					showWarning("No comments found on the server.");
@@ -130,21 +135,18 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 					this.allComments,
 					githubRepositoryUrl,
 					githubBranch,
-					authToken
+					repositoryAuthToken
 				);
 				serverStore.setSynced();
 			} catch (error) {
 				serverStore.setSyncError("Failed to fetch comments");
-				handleError(error, {
-					customMessage: "Failed to load comments.",
-				});
+				handleError(error);
 				this.comments = [];
 			} finally {
 				this.isLoadingComments = false;
 			}
 		},
-		async fetchAllCategoriesAsync(serverBaseUrl: string) {
-			const categoryService = useCategoryService();
+		async fetchAllCategoriesAsync() {
 			const settingsStore = useSettingsStore();
 			const { handleError } = useErrorHandler();
 
@@ -154,9 +156,13 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				return;
 			}
 
+			if (!this.backendProvider) {
+				return;
+			}
+
 			try {
 				this.isLoadingCategories = true;
-				const fetchedCategories = await categoryService.getAllCategories(serverBaseUrl);
+				const fetchedCategories = await this.backendProvider.getCategories();
 				this.categories = fetchedCategories;
 			} catch (error) {
 				handleError(error, {
@@ -168,9 +174,8 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 			}
 		},
 		// Methods for server synchronization
-		async upsertCommentAsync(commentData: CommentDto, rwServerUrl: string): Promise<void> {
+		async upsertCommentAsync(commentData: CommentDto): Promise<void> {
 			const serverStore = useServerStatusStore();
-			const commentsService = useCommentsService();
 			const settingsStore = useSettingsStore();
 			const { handleError, showSuccess } = useErrorHandler();
 
@@ -188,16 +193,16 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 					return;
 				}
 
+				if (!this.backendProvider) {
+					throw new Error("Backend provider not initialized.");
+				}
+
 				// Online mode
 				serverStore.startSyncing();
 
 				// Update existing comment
 				if (commentData.id) {
-					const updatedComment = await commentsService.updateComment(
-						rwServerUrl,
-						commentData.id,
-						commentData
-					);
+					const updatedComment = await this.backendProvider.updateComment(commentData.id, commentData);
 					if (!updatedComment.id) {
 						throw new Error("Failed to update comment");
 					}
@@ -209,23 +214,20 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				}
 
 				// Add new comment
-				const newComment = await commentsService.addComment(rwServerUrl, commentData);
+				const newComment = await this.backendProvider.addComment(commentData);
 				this.upsertCommentLocal({ ...newComment, id: newComment.id });
 				serverStore.setSynced();
 				showSuccess("Comment added successfully");
 			} catch (error) {
 				serverStore.setSyncError("Failed to upsert comment");
-				handleError(error, {
-					customMessage: "Failed to upsert comment.",
-				});
+				handleError(error);
 				throw error;
 			} finally {
 				this.isSavingComment = false;
 			}
 		},
-		async deleteCommentAsync(commentId: string, rwServerUrl: string): Promise<void> {
+		async deleteCommentAsync(commentId: string): Promise<void> {
 			const serverStore = useServerStatusStore();
-			const commentsService = useCommentsService();
 			const settingsStore = useSettingsStore();
 			const { handleError, showSuccess } = useErrorHandler();
 
@@ -239,29 +241,26 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 					return;
 				}
 
+				if (!this.backendProvider) {
+					throw new Error("Backend provider not initialized.");
+				}
+
 				// Online mode
 				serverStore.startSyncing();
-				await commentsService.deleteComment(rwServerUrl, commentId);
+				await this.backendProvider.deleteComment(commentId);
 				this.deleteCommentLocal(commentId);
 				serverStore.setSynced();
 				showSuccess("Comment deleted successfully");
 			} catch (error) {
-				handleError(error, {
-					customMessage: "Failed to delete comment.",
-				});
+				handleError(error);
 				serverStore.setSyncError("Failed to delete comment");
 				throw error;
 			} finally {
 				this.isSavingComment = false;
 			}
 		},
-		async replyToCommentAsync(
-			rwServerUrl: string,
-			parentCommentId: string,
-			commentData: CommentDto
-		): Promise<void> {
+		async replyToCommentAsync(parentCommentId: string, commentData: CommentDto): Promise<void> {
 			const serverStore = useServerStatusStore();
-			const commentsService = useCommentsService();
 			const settingsStore = useSettingsStore();
 			const { handleError, showSuccess } = useErrorHandler();
 			try {
@@ -276,17 +275,20 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 					showSuccess("Reply added successfully");
 					return;
 				}
+
+				if (!this.backendProvider) {
+					throw new Error("Backend provider not initialized.");
+				}
+
 				// Online mode
 				serverStore.startSyncing();
-				const newReply = await commentsService.replyComment(rwServerUrl, parentCommentId, commentData);
+				const newReply = await this.backendProvider.replyToComment(parentCommentId, commentData);
 				this.replyCommentLocal(parentCommentId, newReply);
 				serverStore.setSynced();
 				showSuccess("Reply added successfully");
 			} catch (error) {
 				serverStore.setSyncError("Failed to add reply");
-				handleError(error, {
-					customMessage: "Failed to add reply.",
-				});
+				handleError(error);
 				throw error;
 			} finally {
 				this.isSavingComment = false;

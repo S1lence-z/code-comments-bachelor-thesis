@@ -21,13 +21,12 @@ export function useQueryParams() {
 	const params = computed<QueryParams>(() => ({
 		serverBaseUrl: extractString(route.query[QUERY_PARAMS.SERVER_BASE_URL]),
 		repositoryUrl: extractString(route.query[QUERY_PARAMS.REPOSITORY_URL]),
-		rwServerUrl: extractString(route.query[QUERY_PARAMS.RW_SERVER_URL]),
+		projectId: extractString(route.query[QUERY_PARAMS.PROJECT_ID]),
 		branch: extractString(route.query[QUERY_PARAMS.BRANCH]),
 		file: extractString(route.query[QUERY_PARAMS.FILE]) || undefined,
 	}));
 
 	// Navigation functions
-
 	const navigateToFile = (filePath: string) => {
 		router.push({
 			name: codeReviewPageKey,
@@ -38,11 +37,19 @@ export function useQueryParams() {
 		});
 	};
 
+	const removeTokenFromQuery = async () => {
+		// Remove token from URL
+		const newQuery = { ...route.query };
+		delete newQuery.token;
+		await router.replace({ query: newQuery });
+	};
+
 	return {
 		// Current parameters
 		params,
 
 		// Navigation
 		navigateToFile,
+		removeTokenFromQuery,
 	};
 }

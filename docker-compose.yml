@@ -10,6 +10,10 @@ services:
             - "${SERVER_PORT}:8080"
         environment:
             - ApiUrls__Backend=${VITE_SERVER_URL}
+            - JwtSettings__SecretKey=${JWT_SECRET}
+            - JwtSettings__Issuer=${JWT_ISSUER}
+            - JwtSettings__ExpirationMinutes=${JWT_EXPIRATION_MINUTES}
+            - JwtSettings__ProjectPassword=${JWT_PROJECT_PASSWORD}
         networks:
             - codecomments-network
 

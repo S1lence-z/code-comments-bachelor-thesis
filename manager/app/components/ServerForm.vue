@@ -6,10 +6,12 @@ const { t } = useI18n();
 
 interface ServerFormProps {
 	serverBaseUrl: string;
+	serverPassword: string;
 }
 
 interface ServerFormEmits {
 	(event: "update:serverBaseUrl", value: string): void;
+	(event: "update:serverPassword", value: string): void;
 	(event: "useDefaultServerUrl"): void;
 	(event: "submitServerBaseUrl"): void;
 	(event: "runInOfflineMode"): void;
@@ -66,9 +68,17 @@ const emit = defineEmits<ServerFormEmits>();
 				:required="true"
 				labelIcon="mdi:server"
 			/>
+			<InputField
+				:label="t('serverForm.serverPasswordLabel')"
+				v-bind:modelValue="serverPassword"
+				@update:modelValue="(value: string) => emit('update:serverPassword', value)"
+				:secret="true"
+				type="password"
+				labelIcon="mdi:lock"
+			/>
 			<div class="flex flex-col space-y-2">
 				<Button
-					:label="t('serverForm.saveAndContinue')"
+					:label="serverPassword ? t('serverForm.authorize') : t('serverForm.continue')"
 					type="submit"
 					buttonStyle="primary"
 					buttonSize="medium"

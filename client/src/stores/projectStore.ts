@@ -4,26 +4,28 @@ import { QUERY_PARAMS, type QueryParams } from "../types/shared/query-params";
 import { useProjectServerConfigsStore } from "./projectServerConfigsStore";
 import { useRepositoryAuthStore } from "./repositoryAuthStore";
 import { RepositoryType } from "../types/shared/repository-type";
+import { jwtAuthTokenKey } from "../core/keys";
 
 export const useProjectStore = defineStore("projectStore", {
 	state: () => ({
 		serverBaseUrl: "",
-		rwServerUrl: "",
+		projectId: "",
 		repositoryUrl: "",
 		repositoryBranch: "",
 		repositoryType: RepositoryType.github,
 		repositoryAuthToken: "",
-		serverAuthToken: "", // TODO: add to the manager form if needed for something, currently not used
+		serverAuthToken: "",
 	}),
 	getters: {
 		getRepositoryUrl: (state) => state.repositoryUrl,
-		getRwServerUrl: (state) => state.rwServerUrl,
+		getProjectId: (state) => state.projectId,
 		getRepositoryBranch: (state) => state.repositoryBranch,
 		getRepositoryType: (state) => state.repositoryType,
 		getRepositoryName: (state) => state.repositoryUrl.split("/").pop() || "Unknown",
 		getServerBaseUrl: (state) => state.serverBaseUrl,
+		getServerAuthToken: (state) => state.serverAuthToken,
 		isProjectCompletelyEmpty: (state) => {
-			return !state.serverBaseUrl && !state.rwServerUrl && !state.repositoryUrl && !state.repositoryBranch;
+			return !state.serverBaseUrl && !state.projectId && !state.repositoryUrl && !state.repositoryBranch;
 		},
 	},
 	actions: {
@@ -32,7 +34,6 @@ export const useProjectStore = defineStore("projectStore", {
 			// Try to get from store first
 			const repositoryAuthStore = useRepositoryAuthStore();
 			const auth = repositoryAuthStore.getAuthByType(this.repositoryType);
-			console.log("Retrieved auth token for repository type:", this.repositoryType, auth);
 			if (auth && auth.authToken) return auth.authToken;
 
 			return this.repositoryAuthToken;
@@ -49,8 +50,9 @@ export const useProjectStore = defineStore("projectStore", {
 			this.serverBaseUrl = extractString(newQuery[QUERY_PARAMS.SERVER_BASE_URL]);
 			this.repositoryUrl = extractString(newQuery[QUERY_PARAMS.REPOSITORY_URL]);
 			this.repositoryType = extractString(newQuery[QUERY_PARAMS.REPOSITORY_TYPE]) as RepositoryType;
-			this.rwServerUrl = extractString(newQuery[QUERY_PARAMS.RW_SERVER_URL]);
+			this.projectId = extractString(newQuery[QUERY_PARAMS.PROJECT_ID]);
 			this.repositoryBranch = extractString(newQuery[QUERY_PARAMS.BRANCH]);
+			// Save to project server configs store
 			projectServerConfigsStore.saveConfig(
 				{
 					repositoryUrl: this.repositoryUrl,
@@ -59,16 +61,33 @@ export const useProjectStore = defineStore("projectStore", {
 				},
 				{
 					serverBaseUrl: this.serverBaseUrl,
-					rwServerUrl: this.rwServerUrl,
+					projectId: this.projectId,
 				}
 			);
+
+			// Handle JWT token
+			const tokenFromUrl = extractString(newQuery[QUERY_PARAMS.TOKEN]);
+			if (tokenFromUrl) {
+				this.setServerAuthToken(tokenFromUrl);
+			}
+			this.loadServerAuthToken();
 		},
 		updateFromParams(params: QueryParams) {
 			this.serverBaseUrl = params.serverBaseUrl || "";
 			this.repositoryUrl = params.repositoryUrl || "";
 			this.repositoryType = (params.repositoryType || RepositoryType.github) as RepositoryType;
-			this.rwServerUrl = params.rwServerUrl || "";
+			this.projectId = params.projectId || "";
 			this.repositoryBranch = params.branch || "";
+		},
+		setServerAuthToken(token: string) {
+			this.serverAuthToken = token;
+			sessionStorage.setItem(jwtAuthTokenKey.description!, token);
+		},
+		loadServerAuthToken() {
+			const token = sessionStorage.getItem(jwtAuthTokenKey.description!);
+			if (token) {
+				this.serverAuthToken = token;
+			}
 		},
 	},
 });

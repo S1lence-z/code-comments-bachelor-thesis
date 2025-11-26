@@ -2,7 +2,8 @@ export const QUERY_PARAMS = {
 	SERVER_BASE_URL: "serverBaseUrl",
 	REPOSITORY_TYPE: "repositoryType",
 	REPOSITORY_URL: "repositoryUrl",
-	RW_SERVER_URL: "rwServerUrl",
+	PROJECT_ID: "projectId",
 	BRANCH: "branch",
 	FILE: "file",
+	TOKEN: "token",
 };
