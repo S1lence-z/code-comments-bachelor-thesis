@@ -14,8 +14,10 @@
   "devDependencies": {
     "@nuxt/eslint": "latest",
     "@nuxt/icon": "^2.1.0",
+    "@pinia/nuxt": "^0.11.3",
     "eslint": "^9.39.1",
     "nuxt": "^4.2.1",
+    "pinia": "^3.0.4",
     "typescript": "^5.9.3",
     "vue": "latest"
   }

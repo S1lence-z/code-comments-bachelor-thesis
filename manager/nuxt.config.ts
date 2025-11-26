@@ -39,4 +39,5 @@ export default defineNuxtConfig({
 			meta: [{ name: "description", content: "Setup and manage your code review projects" }],
 		},
 	},
+	extends: "../base",
 });

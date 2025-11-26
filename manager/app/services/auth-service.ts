@@ -1,4 +1,4 @@
-import type { AuthResponseDto, LoginRequestDto } from "../../shared/types/authentication";
+import type { AuthResponseDto, LoginRequestDto } from "../../../base/app/types/authentication";
 
 const useAuthService = () => {
 	const serverLogin = async (

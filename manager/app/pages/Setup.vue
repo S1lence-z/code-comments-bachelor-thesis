@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import { Icon } from "@iconify/vue";
+import { useAuthStore } from "../../../base/app/stores/authStore";
+import { RepositoryType } from "../../../base/app/types/repository-type";
 
 const { t } = useI18n();
 const route = useRoute();

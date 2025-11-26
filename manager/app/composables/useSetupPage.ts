@@ -1,11 +1,12 @@
 import useProjectService from "../services/project-service";
 import useGithubBranchService from "../services/github-branch-service";
-import type ProjectSetupRequest from "../../shared/types/project-setup-request";
-import type ProjectDto from "../../shared/types/project-dto";
-import { RepositoryType } from "../../shared/types/repository-type";
+import type ProjectSetupRequest from "../../../base/app/types/project-setup-request";
+import type ProjectDto from "../../../base/app/types/project-dto";
+import { RepositoryType } from "../../../base/app/types/repository-type";
 import { isValidGithubUrl } from "../utils/url";
-import repositoryTypeOptions from "../../shared/types/repository-type-options";
+import repositoryTypeOptions from "../../../base/app/types/repository-type-options";
 import useAuthService from "../services/auth-service";
+import { useAuthStore } from "../../../base/app/stores/authStore";
 
 export function useSetupPage() {
 	// Runtime config
