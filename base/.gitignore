@@ -22,6 +22,3 @@ dist
 
 # JetBrains/WebStorm
 .idea/
-
-# Ignore playground (only used for local testing)
-/.playground
