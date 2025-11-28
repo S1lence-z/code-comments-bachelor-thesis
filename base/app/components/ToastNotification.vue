@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from "vue";
 import type { ToastType } from "../types/toast";
 import { Icon } from "@iconify/vue";
 
@@ -43,7 +42,7 @@ const handleClose = () => {
 		:class="`toast-boarder-${props.type}`"
 	>
 		<!-- Icon -->
-		<Icon :icon="icon" class="flex-shrink-0 w-5 h-5 text-white" :class="`toast-bg-${props.type}`" />
+		<Icon :icon="icon" class="shrink-0 w-5 h-5 text-white" :class="`toast-bg-${props.type}`" />
 
 		<!-- Message -->
 		<div class="flex-1 text-sm text-slate-100">
@@ -53,7 +52,7 @@ const handleClose = () => {
 		<!-- Close Button -->
 		<button
 			@click="handleClose"
-			class="flex-shrink-0 text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
+			class="shrink-0 text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
 			aria-label="Close notification"
 		>
 			<Icon icon="mdi:close" class="w-4 h-4" />

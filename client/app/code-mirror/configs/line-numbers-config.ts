@@ -1,5 +1,5 @@
 import type { EditorState } from "@codemirror/state";
-import type CommentDto from "../../types/dtos/comment-dto";
+import type CommentDto from "../../../../base/app/types/dtos/comment-dto";
 import type { BlockInfo, EditorView } from "@codemirror/view";
 
 export interface LineNumberConfig {

@@ -17,7 +17,7 @@
 		"noConfigs": "No saved configurations available",
 		"noConfigsSubtext": "Server configurations will appear here once saved",
 		"createProject": "Navigate to the setup page and create a new project!",
-		"goToSetup": "Go To Setup Page",
+		"goToManager": "Go To Manager",
 		"availableConfigs": "Available Configurations",
 		"configName": "Configuration Name",
 		"serverBaseUrl": "Server Base URL",

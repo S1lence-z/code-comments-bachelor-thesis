@@ -1,7 +1,7 @@
 import { oneDark } from "@codemirror/theme-one-dark";
 import { EditorView, lineNumbers, keymap } from "@codemirror/view";
-import type CommentDto from "../../types/dtos/comment-dto";
-import type CategoryDto from "../../types/dtos/category-dto";
+import type CommentDto from "../../../../base/app/types/dtos/comment-dto";
+import type CategoryDto from "../../../../base/app/types/dtos/category-dto";
 import { getLanguageExtension } from "../../utils/language";
 import { commentsDisplayExtension } from "../comment-extensions";
 import { commentFormExtension } from "../comment-form-extensions";

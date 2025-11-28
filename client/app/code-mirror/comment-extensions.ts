@@ -3,8 +3,8 @@ import { RangeSetBuilder, StateField } from "@codemirror/state";
 import { Decoration } from "@codemirror/view";
 import type { DecorationSet } from "@codemirror/view";
 import { EditorView } from "@codemirror/view";
-import type CommentDto from "../types/dtos/comment-dto";
-import { CommentType } from "../types/dtos/comment-type";
+import type CommentDto from "../../../base/app/types/dtos/comment-dto";
+import { CommentType } from "../../../base/app/types/dtos/comment-type";
 import SinglelineCommentWidget from "./widgets/singline-comment-widget";
 import MultilineCommentWidget from "./widgets/multiline-comment-widget";
 

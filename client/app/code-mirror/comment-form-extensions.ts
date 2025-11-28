@@ -3,8 +3,8 @@ import { Decoration } from "@codemirror/view";
 import type { DecorationSet } from "@codemirror/view";
 import { EditorView } from "@codemirror/view";
 import CommentFormWidget from "./widgets/comment-form-widget";
-import type CategoryDto from "../types/dtos/category-dto";
-import { CommentType } from "../types/dtos/comment-type";
+import type CategoryDto from "../../../base/app/types/dtos/category-dto";
+import { CommentType } from "../../../base/app/types/dtos/comment-type";
 
 export interface CommentFormState {
 	lineNumber: number;

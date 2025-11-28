@@ -13,10 +13,6 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
 	iconGradient: "blue",
 	iconSize: "8",
-	iconName: "empty",
-	title: "",
-	subtitle: "",
-	class: "",
 });
 
 const gradientClasses = {

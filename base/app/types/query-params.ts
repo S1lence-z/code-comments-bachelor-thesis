@@ -7,3 +7,13 @@ export const QUERY_PARAMS = {
 	FILE: "file",
 	TOKEN: "token",
 };
+
+export interface QueryParams {
+	serverBaseUrl?: string;
+	repositoryUrl?: string;
+	repositoryType?: string;
+	projectId?: string;
+	branch?: string;
+	file?: string;
+	token?: string;
+}
