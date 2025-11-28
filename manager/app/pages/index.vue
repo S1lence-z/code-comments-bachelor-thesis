@@ -2,7 +2,7 @@
 // Redirect from root to setup page
 definePageMeta({
 	middleware: defineNuxtRouteMiddleware(() => {
-		return navigateTo('/setup')
+		return navigateTo('/about')
 	})
 })
 </script>
