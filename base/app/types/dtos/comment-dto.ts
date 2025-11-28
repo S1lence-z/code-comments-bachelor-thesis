@@ -1,0 +1,19 @@
+import { CommentType } from "./comment-type";
+import type CategoryDto from "./category-dto";
+import type ProjectDto from "./project-dto";
+import type LocationDto from "./location-dto";
+
+export default interface CommentDto {
+	id: string | null;
+	project?: ProjectDto;
+	location: LocationDto;
+	categoryId: string | null;
+	category?: CategoryDto;
+	type: CommentType;
+	content: string;
+	// Threading fields
+	rootCommentId: string | null;
+	parentCommentId: string | null;
+	depth?: number;
+	replies?: CommentDto[];
+}

@@ -5,12 +5,13 @@ WORKDIR /app
 ARG VITE_SERVER_URL
 ARG VITE_CLIENT_URL
 
-# Install deps
-COPY package*.json ./
-RUN npm ci
-
 # Copy source
-COPY . .
+COPY base/ ./base/
+COPY manager/ ./manager/
+
+# Install deps
+WORKDIR /app/manager
+RUN npm ci
 
 # Set environment variables for build
 ENV VITE_SERVER_URL=${VITE_SERVER_URL}
@@ -20,13 +21,13 @@ RUN npm run build
 
 # Production stage: Use serve to host static files
 FROM node:20-alpine AS runner
-WORKDIR /app
+WORKDIR /app/manager
 
 # Install serve globally
 RUN npm install -g serve
 
 # Copy build artifacts
-COPY --from=builder /app/.output/public ./dist
+COPY --from=builder /app/manager/.output/public ./dist
 
 EXPOSE 3000
 CMD ["serve", "-s", "dist", "-l", "3000"]

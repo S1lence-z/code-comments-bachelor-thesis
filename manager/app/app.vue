@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useAuthStore } from "~/stores/authStore";
+import { useAuthStore } from "../../base/app/stores/authStore";
 
 const authStore = useAuthStore();
 const isAppReady = ref(false);

@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import { Icon } from "@iconify/vue";
+import { RepositoryType } from "../../../base/app/types/repository-type";
+import repositoryTypeOptions from "../../../base/app/types/repository-type-options";
 
 const { t } = useI18n();
 

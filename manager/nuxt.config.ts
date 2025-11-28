@@ -16,6 +16,9 @@ export default defineNuxtConfig({
 	css: ["~/assets/css/tailwind.css"],
 	vite: {
 		plugins: [tailwindcss()],
+		resolve: {
+			dedupe: ["@pinia/nuxt", "pinia"],
+		},
 	},
 	i18n: {
 		locales: [{ code: "en", file: "en.json", name: "English" }],
@@ -39,4 +42,5 @@ export default defineNuxtConfig({
 			meta: [{ name: "description", content: "Setup and manage your code review projects" }],
 		},
 	},
+	extends: "../base",
 });

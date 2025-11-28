@@ -1,5 +1,5 @@
-import type ProjectSetupRequest from "../../shared/types/project-setup-request";
-import type ProjectDto from "../../shared/types/project-dto";
+import type ProjectSetupRequest from "../../../base/app/types/project-setup-request";
+import type ProjectDto from "../../../base/app/types/dtos/project-dto";
 
 const useProjectService = () => {
 	const getProjects = async (backendBaseUrl: string): Promise<ProjectDto[]> => {
@@ -29,7 +29,7 @@ const useProjectService = () => {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
-				"Authorization": `Bearer ${serverAuthToken}`
+				Authorization: `Bearer ${serverAuthToken}`,
 			},
 			body: JSON.stringify(setupProjectRequest),
 		});

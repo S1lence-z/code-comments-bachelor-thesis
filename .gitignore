@@ -11,5 +11,6 @@ package-lock.json
 # Local TODO.md file
 **/TODO.md
 
-# Testing Single File Source Provider project
+# Testing projects
 single-file-source-provider/*
+old_client/

@@ -20,8 +20,8 @@ services:
     # Client service
     client:
         build:
-            context: ./client
-            dockerfile: ./Dockerfile.compose
+            context: .
+            dockerfile: ./client/Dockerfile.compose
             args:
                 VITE_MANAGER_URL: ${VITE_MANAGER_URL}
                 VITE_CLIENT_BASE_PATHNAME: ${VITE_CLIENT_BASE_PATHNAME}
@@ -38,8 +38,8 @@ services:
     # Manager service
     manager:
         build:
-            context: ./manager
-            dockerfile: ./Dockerfile.compose
+            context: .
+            dockerfile: ./manager/Dockerfile.compose
             args:
                 VITE_SERVER_URL: ${VITE_SERVER_URL}
                 VITE_CLIENT_URL: ${VITE_CLIENT_URL}
