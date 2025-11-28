@@ -16,6 +16,9 @@ export default defineNuxtConfig({
 	css: ["~/assets/css/tailwind.css"],
 	vite: {
 		plugins: [tailwindcss()],
+		resolve: {
+			dedupe: ["@pinia/nuxt", "pinia"],
+		},
 	},
 	i18n: {
 		locales: [{ code: "en", file: "en.json", name: "English" }],
