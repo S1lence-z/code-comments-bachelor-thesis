@@ -1,14 +1,8 @@
-<div align="center">
-
 # CodeComments (Bachelor Thesis)
-
----
 
 ![Vue.js](https://img.shields.io/badge/vuejs-%2335495e.svg?style=for-the-badge&logo=vuedotjs&logoColor=%234FC08D) ![Nuxt.js](https://img.shields.io/badge/Nuxt.js-00C58E.svg?style=for-the-badge&logo=nuxt&logoColor=white) ![ASP.NET](https://img.shields.io/badge/ASP.NET-5C2D91?style=for-the-badge&logo=.net&logoColor=white) ![Docker](https://img.shields.io/badge/Docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white) ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 
 CodeComments helps teams and students annotate and discuss source code directly in the browser — supporting project reviews, inline comments, and educational workflows.
-
-</div>
 
 ## Live Demo Available
 
@@ -42,10 +36,14 @@ The applications will be available at the following URLs by default:
 -   Client: `http://localhost/client/`
 -   Server (Swagger UI): `http://localhost/server/swagger/index.html`
 
-## Bachelor Thesis Specification
+## Bachelor Thesis
 
-The full [specification](./docs/Specification.md) for the thesis is available in the following document.
-
-## Overleaf
+### Overleaf
 
 The [thesis](https://www.overleaf.com/project/679d4155c4e6d540df8ca774) is written in LaTeX and managed on Overleaf.
+
+### Wiki
+
+> ⚠️ **Warning:** The wiki is not finished yet and may contain incomplete or outdated information.
+
+The project wiki contains additional documentation about the architecture, design decisions, and implementation details. You can find it [here](https://github.com/S1lence-z/code-comments-bachelor-thesis/wiki).
