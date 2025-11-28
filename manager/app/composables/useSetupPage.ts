@@ -1,7 +1,7 @@
 import useProjectService from "../services/project-service";
 import useGithubBranchService from "../services/github-branch-service";
 import type ProjectSetupRequest from "../../../base/app/types/project-setup-request";
-import type ProjectDto from "../../../base/app/types/project-dto";
+import type ProjectDto from "../../../base/app/types/dtos/project-dto";
 import { RepositoryType } from "../../../base/app/types/repository-type";
 import { isValidGithubUrl } from "../utils/url";
 import repositoryTypeOptions from "../../../base/app/types/repository-type-options";
