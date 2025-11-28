@@ -1,6 +1,6 @@
 import { CommentType } from "./comment-type";
 import type CategoryDto from "./category-dto";
-import type ProjectDto from "../shared/project-dto";
+import type ProjectDto from "./project-dto";
 import type LocationDto from "./location-dto";
 
 export default interface CommentDto {
