@@ -6,13 +6,13 @@ export default defineNuxtConfig({
 	compatibilityDate: "2025-07-15",
 	devtools: { enabled: false },
 	srcDir: "app/",
-	modules: ["@nuxt/icon", "@nuxtjs/i18n", "@pinia/nuxt"],
-	css: ["~/assets/css/tailwind.css"],
 	runtimeConfig: {
 		public: {
 			managerUrl: process.env.VITE_MANAGER_URL,
 		},
 	},
+	modules: ["@nuxt/icon", "@nuxtjs/i18n", "@pinia/nuxt"],
+	css: ["~/assets/css/tailwind.css"],
 	vite: {
 		plugins: [tailwindcss()],
 		resolve: {
