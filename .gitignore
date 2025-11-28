@@ -4,13 +4,11 @@
 /drafts
 **/other/
 .mypy_cache
-package-lock.json
 *.local
 .env
 
 # Local TODO.md file
 **/TODO.md
 
-# Testing projects
-single-file-source-provider/*
-old_client/
+# Other projects/files
+others/

@@ -4,18 +4,18 @@ The Code Comments application provides you with the flexibility to integrate cus
 
 ## Overview
 
-By default, the application supports GitHub (using the GitHub API) and the Single File Source Provider. However, you can extend this functionality by implementing and integrating your own custom source provider.
+By default, the application supports GitHub (using the GitHub API) and the Single File Source Provider. However, you can extend this functionality by implementing and integrating your own custom Repository provider.
 
 There are two main integration options:
 
-1. **Single File Source Provider**: Use the predefined provider with your custom static JSON file that contains repository structure and file content URLs
+1. **Single File Repository Provider**: Use the predefined provider with your custom static JSON file that contains repository structure and file content URLs
 2. **New Provider Integration**: Implement a completely new source provider type like GitLab or Bitbucket
 
 ---
 
-## Option 1: Single File Source Provider
+## Option 1: Single File Repository Provider
 
-The Single File Source Provider uses a single static JSON file containing:
+The Single File Repository Provider uses a single static JSON file containing:
 
 -   Complete repository tree structure
 -   URLs to individual file contents
@@ -136,12 +136,12 @@ Your server should return appropriate HTTP status codes:
 
 If you need to integrate a completely new provider type (e.g., GitLab, Bitbucket, Azure DevOps), follow these steps.
 
-### SourceProvider Interface
+### RepositoryProvider Interface
 
-All source providers must implement the `SourceProvider` interface:
+All repository providers must implement the `RepositoryProvider` interface:
 
 ```typescript
-export interface SourceProvider {
+export interface RepositoryProvider {
   /**
    * Fetches the complete file tree/directory structure from the source
    * @param repositoryUrl - The URL or identifier of the repository/source
@@ -170,16 +170,16 @@ export interface SourceProvider {
 
 ### Step 1: Create Your Provider Class
 
-**Location:** `client/src/services/providers/GitlabSourceProvider.ts`
+**Location:** `client/src/services/providers/GitlabRepositoryProvider.ts`
 
 Choose a unique ID for your provider (e.g., `"gitlab"`). This ID will be used throughout the system.
 
 ```typescript
-import type { ISourceProvider } from "../../types/interfaces/ISourceProvider";
+import type { IRepositoryProvider } from "../../types/interfaces/IRepositoryProvider";
 import type { TreeNode } from "../../types/domain/TreeContent";
 import type { ProcessedFile } from "../../types/domain/FileContent";
 
-export class GitlabSourceProvider implements ISourceProvider {
+export class GitlabRepositoryProvider implements RepositoryProvider {
   async getRepositoryTree(repositoryUrl: string, branch: string, authToken?: string): Promise<TreeNode[]> {
     // Fetch tree data from GitLab API
     // Transform it to TreeNode[]
@@ -207,14 +207,14 @@ providerRegistry.register({
 		name: "GitLab",
 		requiresAuth: false,
 	},
-	factory: () => new GitlabSourceProvider(),
+	factory: () => new GitlabRepositoryProvider(),
 });
 
 ```
 
 ### Step 2: Register the Provider in Factory
 
-**Location:** `client/src/services/source-provider-factory.ts`
+**Location:** `client/src/services/repository-provider-factory.ts`
 
 Add your provider to the switch statement using the provider ID as a string:
 
@@ -222,9 +222,9 @@ Add your provider to the switch statement using the provider ID as a string:
 import { providerRegistry } from "./provider-registry";
 
 // Import all providers to register them
-import "./providers/github-source-provider";
-import "./providers/single-file-source-provider";
-import "./providers/gitlab-source-provider"; // Import your new provider
+import "./providers/github-repository-provider";
+import "./providers/single-file-repository-provider";
+import "./providers/gitlab-repository-provider"; // Import your new provider
 
 export const useSourceProviderFactory = () => {
 	return {
