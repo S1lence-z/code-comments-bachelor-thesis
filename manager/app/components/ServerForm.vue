@@ -50,7 +50,7 @@ const emit = defineEmits<ServerFormEmits>();
 				>.
 			</p>
 			<div
-				class="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-300/30 rounded-lg p-2 flex gap-4 items-center"
+				class="bg-linear-to-r from-purple-500/10 to-pink-500/10 border border-purple-300/30 rounded-lg p-2 flex gap-4 items-center"
 			>
 				<Icon icon="mdi:info" class="text-purple-300 w-6 h-6" />
 				<p class="text-purple-300 text-lg font-medium">
