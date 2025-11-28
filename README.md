@@ -21,7 +21,24 @@ cd code-comments-bachelor-thesis
 
 Next, create a `.env` file in the root of the project with the following content (or just rename the file `.env.example` to `.env`):
 
-![.env example](./.env.example)
+```env
+# Port configuration
+SERVER_PORT=5000
+CLIENT_PORT=3000
+MANAGER_PORT=3001
+
+# URLs (for reverse proxy setup)
+VITE_SERVER_URL=http://localhost/server
+VITE_MANAGER_URL=http://localhost
+VITE_CLIENT_URL=http://localhost/client
+VITE_CLIENT_BASE_PATHNAME=/client
+
+# JWT Settings (for auth)
+JWT_SECRET=aslkdjfaljeliqtlijflisjdfliaj774343kjljFFLKFJSLKFJSLKDf
+JWT_ISSUER=http://localhost/server
+JWT_EXPIRATION_MINUTES=60
+JWT_PROJECT_PASSWORD=testing123
+```
 
 Finally, run the following commands to build and start the application:
 
