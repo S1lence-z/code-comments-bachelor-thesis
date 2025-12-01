@@ -47,7 +47,7 @@ const {
 						:key="file"
 						class="file-tab"
 						:class="{
-							active: file === activeTab,
+							'active': file === activeTab,
 							'opacity-50 scale-95': isDragging && file === draggedFilePath,
 							'ml-4': index === 0,
 							'mr-4': index === currentTabs.length - 1,
