@@ -58,7 +58,7 @@ const emit = defineEmits<ProjectListEmits>();
 						</h3>
 					</div>
 					<div class="card-icon-sm">
-						<Icon icon="mdi:external-link" class="w-5 h-5" />
+						<Icon icon="mdi:external-link" class="w-5 h-5 text-white" />
 					</div>
 				</div>
 			</div>
