@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Icon } from "@iconify/vue";
+
 interface SlideoutPanelProps {
 	title?: string;
 	subtitle?: string;
@@ -21,11 +23,9 @@ const emit = defineEmits(["update:isVisible"]);
 	<div v-if="isVisible" class="panel flex flex-col z-50 max-w-xl h-full" :class="props.class">
 		<!-- Tools Panel -->
 		<div class="flex flex-row justify-end">
-			<span
-				class="font-bold cursor-pointer hover:bg-amber-900 hover:rounded-lg p-1 text-black"
-				@click="emit('update:isVisible', false)"
-				>✕</span
-			>
+			<span class="hover:bg-amber-900 hover:rounded-lg p-1" @click="emit('update:isVisible', false)">
+				<Icon icon="mdi:close" class="w-6 h-6 text-black hover:text-white cursor-pointer" />
+			</span>
 		</div>
 
 		<div class="flex flex-col space-y-4">
