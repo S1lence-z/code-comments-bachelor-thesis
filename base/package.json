@@ -20,9 +20,5 @@
     "pinia": "^3.0.4",
     "typescript": "^5.9.3",
     "vue": "latest"
-  },
-  "dependencies": {
-    "@tailwindcss/vite": "^4.1.17",
-    "tailwindcss": "^4.1.17"
   }
 }
