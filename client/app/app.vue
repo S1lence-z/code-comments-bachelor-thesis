@@ -2,6 +2,7 @@
 import { QUERY_PARAMS } from "../../base/app/types/query-params";
 import type { ServerConfig } from "./types/domain/server-config";
 import { useRepositoryAuthStore } from "./stores/repositoryAuthStore";
+import { Icon } from "@iconify/vue";
 
 const { t } = useI18n();
 
@@ -169,7 +170,7 @@ watch(
 		</main>
 		<!-- Fallback for when router is not ready -->
 		<div v-else class="flex flex-1 items-center justify-center">
-			<span class="spinner" />
+			<Icon icon="mdi:loading" class="w-10 h-10 animate-spin" />
 		</div>
 		<!-- Footer -->
 	</div>
