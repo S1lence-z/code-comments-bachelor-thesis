@@ -94,10 +94,10 @@ watch(
 </script>
 
 <template>
-	<div class="page">
+	<div>
 		<!-- Header -->
 		<div class="bg-white/5 backdrop-blur-sm border-b border-white/10">
-			<div class="mx-auto px-6 py-8">
+			<div class="mx-auto max-w-7xl px-6 py-8">
 				<div class="text-center">
 					<h1 class="text-4xl font-bold text-white mb-2">{{ t("setupPage.title") }}</h1>
 					<p class="text-slate-300 text-lg">{{ t("setupPage.subtitle") }}</p>
@@ -105,7 +105,7 @@ watch(
 			</div>
 		</div>
 		<!-- Main Content -->
-		<div class="mx-auto px-6 mt-8 max-w-7xl lg:flex-row space-y-6 pb-12">
+		<div class="mx-auto max-w-7xl px-6 mt-8 lg:flex-row space-y-6 pb-12">
 			<!-- Error Message -->
 			<div v-if="!projectsLoadedSuccessfully" class="flex status-message error gap">
 				<div class="flex items-center gap-3">

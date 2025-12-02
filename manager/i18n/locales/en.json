@@ -2,6 +2,10 @@
 	"appNavigationBar": {
 		"title": "Manager"
 	},
+	"appFooter": {
+		"githubRepoUrl": "https://github.com/S1lence-z/code-comments-bachelor-thesis",
+		"contactEmail": "{'j3.zelenka@gmail.com'}"
+	},
 	"serverForm": {
 		"title": "Comments Server URL",
 		"subtitle": "Configure the URL for your comments server",
@@ -47,39 +51,48 @@
 		"errorLoadingExistingProjects": "There was an error loading existing projects from the selected server. Please, check the server URL or switch to offline mode in settings."
 	},
 	"aboutPage": {
-		"title": "About",
-		"subtitle": "Learn more about the Code Review Manager",
-		"whatIsThis": {
-			"title": "What is Code Review Manager?",
-			"description1": "Code Review Manager is a setup and project management tool for your code review workflow. It helps you configure your code review environment and manage your review projects efficiently.",
-			"description2": "This application serves as the entry point to the code review system, allowing you to:",
-			"features": [
-				"Connect to your backend server",
-				"Create new code review projects",
-				"Access existing projects",
-				"Work in offline mode when needed"
-			]
+		"hero": {
+			"title": "Code Comments",
+			"subtitle": "An IDE-like code reviewing platform for educators and students",
+			"description": "Streamline code feedback and collaboration in academic environments"
+		},
+		"gettingStarted": {
+			"title": "How It Works",
+			"description": "A simple workflow designed for educators and students to collaborate effectively on code projects.",
+			"step1": "Student uploads their project to GitHub and shares the repository with their educator",
+			"step2": "Educator creates a new project, adds detailed comments and feedback on the code",
+			"step3": "Student receives a shareable link to view comments and reply directly in a VS Code-like interface",
+			"ctaLink": "Get Started"
 		},
 		"features": {
 			"title": "Features",
+			"subtitle": "Everything educators need to provide effective code feedback",
 			"serverConfiguration": {
-				"title": "Server Configuration",
-				"description": "Easily configure and connect to your backend server for synchronized code reviews."
+				"title": "Self-Hosted Solution",
+				"description": "Deploy your own server instance for full control and privacy of student submissions and feedback."
 			},
 			"githubIntegration": {
 				"title": "GitHub Integration",
-				"description": "Connect to your GitHub repositories and branches for seamless code review."
+				"description": "Seamlessly import student repositories from GitHub to begin the review process instantly."
 			},
-			"offlineMode": {
-				"title": "Offline Mode",
-				"description": "Work without a server connection when you need to review code locally."
+			"noLoginRequired": {
+				"title": "No Login for Students",
+				"description": "Students access their feedback through a simple link without any registration or account setup."
+			},
+			"projectManagement": {
+				"title": "Project Management",
+				"description": "Organize multiple student projects, track feedback progress, and manage assignments efficiently."
 			}
 		},
-		"gettingStarted": {
-			"title": "Getting Started",
-			"description": "Ready to start reviewing code? Head over to the",
-			"setupLink": "Setup page",
-			"descriptionEnd": "to configure your first project."
+		"tryItOut": {
+			"title": "Try It Out",
+			"description": "Want to explore Code Comments before setting up your own server? Try the offline demo mode to experience the platform with sample projects and see how it works.",
+			"ctaLink": "Launch Offline Demo"
+		},
+		"contribute": {
+			"title": "Thinking of Using Code Comments in Your Classroom?",
+			"description": "Code Comments is an open-source educational tool developed with customizability and collaboration in mind. Explore the code, suggest features, or deploy your own instance.",
+			"repository": "View on GitHub"
 		}
 	}
 }
