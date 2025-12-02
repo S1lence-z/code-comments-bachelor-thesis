@@ -95,15 +95,6 @@ watch(
 
 <template>
 	<div>
-		<!-- Header -->
-		<div class="bg-white/5 backdrop-blur-sm border-b border-white/10">
-			<div class="mx-auto max-w-7xl px-6 py-8">
-				<div class="text-center">
-					<h1 class="text-4xl font-bold text-white mb-2">{{ t("setupPage.title") }}</h1>
-					<p class="text-slate-300 text-lg">{{ t("setupPage.subtitle") }}</p>
-				</div>
-			</div>
-		</div>
 		<!-- Main Content -->
 		<div class="mx-auto max-w-7xl px-6 mt-8 lg:flex-row space-y-6 pb-12">
 			<!-- Error Message -->
