@@ -3,6 +3,7 @@ import { QUERY_PARAMS } from "../../base/app/types/query-params";
 import type { ServerConfig } from "./types/domain/server-config";
 import { useRepositoryAuthStore } from "./stores/repositoryAuthStore";
 import { Icon } from "@iconify/vue";
+import { navigationRoutes } from "./core/routes";
 
 const { t } = useI18n();
 
@@ -25,6 +26,7 @@ const keyboardShortcutsStore = useKeyboardShortcutsStore();
 const workspaceStore = useWorkspaceStore();
 const projectServerConfigsStore = useProjectServerConfigsStore();
 const repositoryAuthStore = useRepositoryAuthStore();
+const serverStore = useServerStatusStore();
 
 // Methods
 const handleSwitchOfflineMode = async () => {
@@ -158,20 +160,98 @@ watch(
 	},
 	{ immediate: false }
 );
+
+// Comments export functionality
+const exportLocalComments = () => {
+	const localComments = projectDataStore.allComments;
+	if (localComments.length === 0) {
+		alert(t("status.noCommentsToExport"));
+		return;
+	}
+	// Get the repository name from the project store and confirm export
+	const repositoryName = projectStore.getRepositoryName;
+	const commentWord = localComments.length === 1 ? t("commentBrowser.comment") : t("commentBrowser.comments");
+
+	if (confirm(`${t("status.confirmExport", { count: localComments.length, commentWord, repositoryName })}`)) {
+		downloadJSON(localComments, `${repositoryName}-comments.json`);
+	}
+};
 </script>
 
 <template>
 	<div class="flex flex-col h-screen overflow-hidden">
 		<!-- Navigation Bar -->
-		<AppNavigationBar class="z-10" />
+		<AppNavigationBar :title="t('app.title')" :navigation-routes="navigationRoutes">
+			<!-- Synced Status, Export, Options -->
+			<div class="flex items-center gap-8">
+				<!-- Synced Status -->
+				<div v-if="!settingsStore.isOfflineMode" class="flex items-center space-x-8">
+					<!-- Synced Status -->
+					<div v-if="serverStore.getStatus === 'synced'" class="flex items-center gap-2">
+						<div class="w-2 h-2 bg-emerald-400 rounded-full"></div>
+						<span
+							class="text-emerald-400 font-medium text-md"
+							>{{ t("status.commentsSynced") }}</span
+						>
+					</div>
+					<div
+						v-else-if="serverStore.getStatus === 'syncing'"
+						class="flex items-center gap-2"
+					>
+						<div class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+						<span
+							class="text-yellow-400 font-medium text-md"
+							>{{ t("status.syncingComments") }}</span
+						>
+					</div>
+					<div
+						v-else-if="serverStore.getStatus === 'error'"
+						class="flex items-center gap-2"
+					>
+						<div class="w-2 h-2 bg-red-400 rounded-full"></div>
+						<span
+							class="text-red-400 font-medium text-md"
+							>{{ serverStore.getErrorMessage }}</span
+						>
+					</div>
+				</div>
+				<div v-else class="flex items-center gap-2">
+					<div class="w-2 h-2 bg-gray-400 rounded-full"></div>
+					<span
+						class="text-gray-400 font-medium text-md"
+						>{{ t("status.offlineMode") }}</span
+					>
+				</div>
+
+				<div class="flex flex-row gap-4">
+					<!-- Dropdown for Export Options -->
+					<Button
+						:label="t('status.exportComments')"
+						buttonStyle="secondary"
+						buttonSize="medium"
+						@click="exportLocalComments"
+					/>
+					<!-- Button for Settings slideout panel -->
+					<Button
+						:label="t('settings.title')"
+						buttonStyle="secondary"
+						buttonSize="medium"
+						@click="settingsStore.toggleSettingsOpen"
+					/>
+				</div>
+			</div>
+		</AppNavigationBar>
+
 		<!-- Main Content -->
 		<main v-if="isRouterReady" class="flex-1 overflow-hidden">
 			<NuxtPage />
 		</main>
+
 		<!-- Fallback for when router is not ready -->
 		<div v-else class="flex flex-1 items-center justify-center">
 			<Icon icon="mdi:loading" class="w-10 h-10 animate-spin" />
 		</div>
+
 		<!-- Footer -->
 		<AppFooter />
 	</div>

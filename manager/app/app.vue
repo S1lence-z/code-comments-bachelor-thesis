@@ -18,6 +18,7 @@ onMounted(() => {
 		<AppNavigationBar
 			:title="t('appNavigationBar.title')"
 			:navigation-routes="navigationLinks"
+			max-width="max-w-7xl"
 		/>
 
 		<!-- Main Content -->

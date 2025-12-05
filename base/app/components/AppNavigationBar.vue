@@ -5,6 +5,7 @@ import { Icon } from "@iconify/vue";
 interface NavigationBarProps {
 	title: string;
 	navigationRoutes: NavigationRoute[];
+	maxWidth?: string;
 }
 const props = defineProps<NavigationBarProps>();
 
@@ -14,7 +15,7 @@ const route = useRoute();
 
 <template>
 	<nav class="border-b border-white/10 bg-modern-black">
-		<div class="mx-auto max-w-7xl px-6 py-4">
+		<div :class="['mx-auto px-6 py-4', props.maxWidth]">
 			<div class="flex items-center justify-between h-full">
 				<!-- Logo and Navigation -->
 				<div class="flex items-center gap-3">
@@ -43,6 +44,8 @@ const route = useRoute();
 						</div>
 					</div>
 				</div>
+				<!-- Placeholder for Right Side Content -->
+				<slot></slot>
 			</div>
 		</div>
 	</nav>
