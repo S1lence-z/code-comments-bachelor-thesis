@@ -173,6 +173,7 @@ watch(
 			<Icon icon="mdi:loading" class="w-10 h-10 animate-spin" />
 		</div>
 		<!-- Footer -->
+		<AppFooter />
 	</div>
 
 	<!-- Settings Slideout Panel -->
