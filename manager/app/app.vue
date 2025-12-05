@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useAuthStore } from "../../base/app/stores/authStore";
+import { navigationLinks } from "./core/routes";
 
 const authStore = useAuthStore();
 const isAppReady = ref(false);
@@ -14,7 +15,10 @@ onMounted(() => {
 <template>
 	<div v-if="isAppReady" class="flex flex-col min-h-screen overflow-hidden">
 		<!-- Navigation Bar -->
-		<AppNavigationBar class="z-10" />
+		<AppNavigationBar
+			:title="t('appNavigationBar.title')"
+			:navigation-routes="navigationLinks"
+		/>
 
 		<!-- Main Content -->
 		<main

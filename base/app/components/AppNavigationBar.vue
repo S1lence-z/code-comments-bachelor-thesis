@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { useRoute } from 'vue-router';
-import { navigationLinks } from '../core/routes';
-import { useI18n } from 'vue-i18n';
-import { Icon } from '@iconify/vue';
+import type { NavigationRoute } from "../types/navigation-routes";
+import { Icon } from "@iconify/vue";
 
-const { t } = useI18n();
+interface NavigationBarProps {
+	title: string;
+	navigationRoutes: NavigationRoute[];
+}
+const props = defineProps<NavigationBarProps>();
 
+// Composables
 const route = useRoute();
 </script>
 
@@ -15,18 +18,18 @@ const route = useRoute();
 			<div class="flex items-center justify-between h-full">
 				<!-- Logo and Navigation -->
 				<div class="flex items-center gap-3">
-					<Icon icon="mdi:code" class=" text-blue-400 w-8 h-8" />
+					<Icon icon="mdi:code" class="text-blue-400 w-8 h-8" />
 					<NuxtLink
 						to="/"
 						class="text-white text-xl font-bold transition-colors duration-200 hover:text-blue-300 whitespace-nowrap"
 					>
-						{{ t('appNavigationBar.title') }}
+						{{ props.title }}
 					</NuxtLink>
 
 					<!-- Navigation Links -->
 					<div class="nav-tabs">
 						<div
-							v-for="link in navigationLinks"
+							v-for="link in props.navigationRoutes"
 							:key="link.path"
 							class="nav-tab"
 							:class="{
@@ -34,10 +37,7 @@ const route = useRoute();
 								inactive: route.path !== link.path,
 							}"
 						>
-							<NuxtLink
-								:to="{ path: link.path, query: { ...route.query } }"
-								class="block"
-							>
+							<NuxtLink :to="{ path: link.path, query: { ...route.query } }" class="block">
 								{{ link.label }}
 							</NuxtLink>
 						</div>
