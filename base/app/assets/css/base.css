@@ -44,10 +44,6 @@
 		@apply fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm;
 	}
 
-	.modal-content {
-		@apply bg-slate-800/95 border border-slate-700 rounded-2xl p-8 max-w-2xl w-full mx-4 shadow-2xl;
-	}
-
 	/* Navigation Tab Styles */
 	.nav-tabs {
 		@apply flex items-center gap-2;
