@@ -243,7 +243,10 @@ const exportLocalComments = () => {
 		</AppNavigationBar>
 
 		<!-- Main Content -->
-		<main v-if="isRouterReady" class="flex-1 overflow-hidden">
+		<main
+			v-if="isRouterReady"
+			class="flex-1 overflow-hidden bg-linear-to-br from-slate-900 via-slate-800 to-slate-900"
+		>
 			<NuxtPage />
 		</main>
 

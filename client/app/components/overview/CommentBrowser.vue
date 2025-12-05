@@ -36,7 +36,7 @@ onMounted(() => {
 </script>
 
 <template>
-	<!-- Project Comments -->
+	<!-- Project Comment -->
 	<div v-for="comment in projectComments" :key="comment.id ?? ''" class="">
 		<Card>
 			<!-- Comment Header -->
@@ -45,7 +45,7 @@ onMounted(() => {
 					<div class="card-icon-sm">
 						<Icon
 							:icon="getCommentTypeIcon(comment.type)"
-							class="w-8 h-8 text-blue-400"
+							class="w-8 h-8 text-purple-400"
 						/>
 					</div>
 					<div>
