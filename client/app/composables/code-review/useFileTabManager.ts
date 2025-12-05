@@ -79,22 +79,6 @@ export const useFileTabManager = (props: FileTabManagerProps, emit: FileTabManag
 
 	const fileTabsContainer = ref<HTMLElement | null>(null);
 
-	const handleHorizontalTabScroll = (event: WheelEvent) => {
-		if (!fileTabsContainer.value) return;
-
-		const { deltaX, deltaY } = event;
-		event.preventDefault();
-
-		if (Math.abs(deltaY) >= Math.abs(deltaX)) {
-			fileTabsContainer.value.scrollLeft += deltaY;
-			return;
-		}
-
-		if (deltaX !== 0) {
-			fileTabsContainer.value.scrollLeft += deltaX;
-		}
-	};
-
 	// Get the current tabs to display
 	const currentTabs = computed(() => props.openTabs || openFileTabs.value);
 
@@ -109,6 +93,5 @@ export const useFileTabManager = (props: FileTabManagerProps, emit: FileTabManag
 		isDragging,
 		draggedFilePath,
 		fileTabsContainer,
-		handleHorizontalTabScroll,
 	};
 };

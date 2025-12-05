@@ -212,9 +212,7 @@ onMounted(async () => {
 					/>
 
 					<!-- Code Editor and Comments -->
-					<div
-						class="flex flex-col grow overflow-hidden backdrop-blur-sm bg-white/5 w-full"
-					>
+					<div class="flex flex-col grow min-w-0 backdrop-blur-sm bg-slate-900/50">
 						<!-- SplitPanelManager -->
 						<SplitPanelManager
 							v-if="isAnyFileSelected()"

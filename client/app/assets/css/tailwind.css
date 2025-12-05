@@ -23,6 +23,19 @@
 		scrollbar-width: none; /* Firefox */
 	}
 
+	/* Minimal scrollbar styles */
+	.scrollbar-minimal::-webkit-scrollbar {
+		height: 6px;
+		width: 6px;
+	}
+	.scrollbar-minimal::-webkit-scrollbar-track {
+		background: transparent;
+	}
+	.scrollbar-minimal::-webkit-scrollbar-thumb {
+		background-color: rgba(255, 255, 255, 0.2);
+		border-radius: 3px;
+	}
+
 	/* File Tab Manager Styles */
 	.file-tabs {
 		@apply flex items-center gap-2 overflow-x-auto;
@@ -33,7 +46,7 @@
 	}
 
 	.file-tab.active {
-		@apply bg-white/10 text-white font-semibold;
+		@apply bg-blue-500/20 text-purple-200 font-semibold border-blue-500/30;
 	}
 
 	/* Slideout Panel */
