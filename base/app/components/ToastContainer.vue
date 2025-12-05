@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from "vue";
 import ToastNotification from "./ToastNotification.vue";
 import { useToastStore } from "../stores/toastStore";
 

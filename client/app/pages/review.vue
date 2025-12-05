@@ -11,33 +11,27 @@ const projectStore = useProjectStore();
 const { submitComment, deleteComment, replyToComment } = useCommentOperations();
 
 const {
-	// Store refs
-	fileTree,
+	// Computed
+	isSidebarVisible,
+	getFileTree,
 	isLoadingRepository,
-
 	// Local state
 	selectedFilePath,
-
 	// Sidebar state
 	sidebarWidth,
 	minSidebarWidth,
 	maxSidebarWidth,
 	sidebar,
-
 	// Project/File comment form state
 	isAddingProjectOrFileComment,
 	projectOrFileCommentPath,
 	handleFileCommentRequest,
 	handleProjectCommentRequest,
-
 	// Methods
 	handleFileSelected,
 	handleSidebarResize,
 	handleFileQueryParam,
 	isAnyFileSelected,
-
-	// Computed
-	isSidebarVisible,
 } = useCodeReviewPage();
 
 // Drag and Drop State
@@ -187,10 +181,10 @@ onMounted(async () => {
 
 						<!-- File Explorer -->
 						<FileExplorer
-							v-else-if="fileTree.length > 0"
+							v-else-if="getFileTree.length > 0"
 							:selectedPath="selectedFilePath"
 							@update:selected-path="handleFileSelected"
-							:treeData="fileTree"
+							:treeData="getFileTree"
 							@project-comment-requested="handleProjectCommentRequest"
 							@file-comment-requested="handleFileCommentRequest"
 						/>

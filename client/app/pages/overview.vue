@@ -5,17 +5,13 @@ import { Icon } from "@iconify/vue";
 const { t } = useI18n();
 
 const {
-	// Store refs
+	// Computed
 	isLoadingComments,
 	allComments,
-
-	// Local state
-	selectedCommentTypeFilter,
-
-	// Computed
 	totalCommentCount,
 	groupedCommentsByFile,
-
+	// Local state
+	selectedCommentTypeFilter,
 	// Methods
 	openFileInEditor,
 	setCommentTypeFilter,

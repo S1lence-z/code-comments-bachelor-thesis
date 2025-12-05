@@ -41,7 +41,7 @@ export function useSplitPanelManager(props: SplitPanelManagerProps, emit: SplitP
 	const projectDataStore = useProjectDataStore();
 	const settingsStore = useSettingsStore();
 
-	// Component refs
+	// Component state
 	const containerElement = ref<HTMLElement>();
 
 	// Helper functions for content rendering

@@ -6,20 +6,17 @@ export function useOverviewPage() {
 	const { navigateToCodeEditorWithFile } = useQueryParams();
 
 	// Stores
-	const projectStore = useProjectStore();
 	const projectDataStore = useProjectDataStore();
-
-	// Store refs
-	const { allComments, isLoadingComments } = storeToRefs(projectDataStore);
 
 	// Filtering state
 	const selectedCommentTypeFilter = ref<CommentType | null>(null);
-
-	const totalCommentCount = computed(() => allComments.value.length);
+	const totalCommentCount = computed(() => projectDataStore.getAllComments.length);
+	const isLoadingComments = computed(() => projectDataStore.isLoadingComments);
+	const allComments = computed(() => projectDataStore.getAllComments);
 
 	const groupedCommentsByFile = computed(() => {
 		// Use utility function to group comments by file
-		const grouped = groupCommentsByFile(allComments.value);
+		const grouped = groupCommentsByFile(projectDataStore.getAllComments);
 
 		// Sort comments within each file by line number using utility function
 		Object.keys(grouped).forEach((filePath) => {
@@ -39,21 +36,13 @@ export function useOverviewPage() {
 	};
 
 	return {
-		// Store refs
-		allComments,
-		isLoadingComments,
-
-		// Stores (for direct access if needed)
-		projectStore,
-		projectDataStore,
-
 		// Local state
 		selectedCommentTypeFilter,
-
 		// Computed
 		totalCommentCount,
 		groupedCommentsByFile,
-
+		allComments,
+		isLoadingComments,
 		// Methods
 		openFileInEditor,
 		setCommentTypeFilter,

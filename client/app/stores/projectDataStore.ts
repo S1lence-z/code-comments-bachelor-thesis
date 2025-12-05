@@ -33,9 +33,9 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 		backendProvider: null as BackendProvider | null,
 	}),
 	getters: {
-		fileTree: (state) => state.fileTreeData,
-		allComments: (state) => state.comments,
-		allCategories: (state) => {
+		getFileTree: (state) => state.fileTreeData,
+		getAllComments: (state) => state.comments,
+		getAllCategories: (state) => {
 			// Always return at least one category (fallback if empty)
 			return state.categories.length > 0 ? state.categories : [FALLBACK_CATEGORY];
 		},
@@ -150,7 +150,7 @@ export const useProjectDataStore = defineStore("projectDataStore", {
 				// Load commented files content
 				this.comments = response || [];
 				await fileContentStore.loadCommentedFilesContent(
-					this.allComments,
+					this.getAllComments,
 					githubRepositoryUrl,
 					githubBranch,
 					repositoryAuthToken

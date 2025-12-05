@@ -10,7 +10,11 @@ export const useCommentOperations = () => {
 	const projectDataStore = useProjectDataStore();
 
 	const submitComment = async (payload: RawCommentData): Promise<CommentOperationResult> => {
-		const commentData = createCommentDtoByType(payload.commentType, projectDataStore.allCategories, payload);
+		const commentData = createCommentDtoByType(
+			payload.commentType,
+			projectDataStore.getAllCategories,
+			payload
+		);
 		await projectDataStore.upsertCommentAsync(commentData);
 		return { success: true };
 	};
@@ -24,7 +28,11 @@ export const useCommentOperations = () => {
 		parentCommentId: string,
 		payload: RawCommentData
 	): Promise<CommentOperationResult> => {
-		const commentData = createCommentDtoByType(payload.commentType, projectDataStore.allCategories, payload);
+		const commentData = createCommentDtoByType(
+			payload.commentType,
+			projectDataStore.getAllCategories,
+			payload
+		);
 		await projectDataStore.replyToCommentAsync(parentCommentId, commentData);
 		return { success: true };
 	};

@@ -163,7 +163,7 @@ watch(
 
 // Comments export functionality
 const exportLocalComments = () => {
-	const localComments = projectDataStore.allComments;
+	const localComments = projectDataStore.getAllComments;
 	if (localComments.length === 0) {
 		alert(t("status.noCommentsToExport"));
 		return;
