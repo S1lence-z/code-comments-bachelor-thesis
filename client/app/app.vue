@@ -256,7 +256,6 @@ const exportLocalComments = () => {
 		</div>
 
 		<!-- Footer -->
-		<AppFooter />
 	</div>
 
 	<!-- Settings Slideout Panel -->
