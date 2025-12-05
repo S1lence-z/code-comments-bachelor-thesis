@@ -14,6 +14,7 @@ interface ProjectFormProps {
 	isCreatingProject: boolean;
 	isProjectCreated: boolean;
 	errorMessage: string | null;
+	isOfflineMode: boolean;
 }
 
 interface ProjectFormEmits {
@@ -24,6 +25,7 @@ interface ProjectFormEmits {
 	(event: "createProject"): void;
 	(event: "navigateToNewProject"): void;
 	(event: "cycleThroughRepositoryTypes"): void;
+	(event: "cancelOfflineModeSetup"): void;
 }
 
 const props = defineProps<ProjectFormProps>();
@@ -121,15 +123,24 @@ const emit = defineEmits<ProjectFormEmits>();
 					class="flex-1"
 				/>
 			</span>
-			<!-- Submit Button -->
-			<Button
-				class="w-full"
-				:label="t('projectForm.createReviewSession')"
-				buttonStyle="primary"
-				buttonSize="medium"
-				type="submit"
-				:disabled="props.isCreatingProject"
-			/>
+			<div class="flex flex-col space-y-2">
+				<!-- Submit Button -->
+				<Button
+					:label="t('projectForm.createReviewSession')"
+					buttonStyle="primary"
+					buttonSize="medium"
+					type="submit"
+					:disabled="props.isCreatingProject"
+				/>
+				<!-- Cancel Offline Mode Setup Button -->
+				<Button
+					v-if="props.isOfflineMode"
+					:label="t('projectForm.cancelOfflineModeSetup')"
+					buttonStyle="secondary"
+					buttonSize="medium"
+					@click="emit('cancelOfflineModeSetup')"
+				/>
+			</div>
 		</form>
 	</Card>
 </template>

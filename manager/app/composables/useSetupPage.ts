@@ -17,6 +17,7 @@ export function useSetupPage() {
 
 	// Stores
 	const authStore = useAuthStore();
+	const offlineModeStore = useOfflineModeStore();
 
 	// Services
 	const { branchExistsInRepo } = useGithubBranchService();
@@ -39,10 +40,8 @@ export function useSetupPage() {
 	const isCreatingProject = ref(false);
 	const isProjectCreated = ref(false);
 	const isLoadingProjects = ref(false);
-	const isServerUrlConfigured = ref(false);
 	const projectCreationErrorMessage = ref("");
 	const projectsLoadedSuccessfully = ref(true);
-	const isOfflineMode = ref(false);
 
 	// Data
 	const projectId = ref("");
@@ -80,7 +79,7 @@ export function useSetupPage() {
 			}
 
 			// Create offline project
-			if (isOfflineMode.value) {
+			if (offlineModeStore.isOfflineMode) {
 				createOfflineProject();
 				return;
 			}
@@ -149,7 +148,7 @@ export function useSetupPage() {
 	const navigateToNewProject = (): void => {
 		if (!isProjectCreated.value) return;
 
-		if (isOfflineMode.value) {
+		if (offlineModeStore.isOfflineMode) {
 			navigateToOfflineProject(
 				formRepositoryUrl.value.trim(),
 				formRepositoryType.value,
@@ -217,7 +216,7 @@ export function useSetupPage() {
 		if (token) {
 			authStore.saveAuthToken(urlToSubmit, token);
 			navigateWithServerUrl(urlToSubmit);
-			isServerUrlConfigured.value = true;
+			offlineModeStore.setServerUrlConfigured(true);
 			return;
 		}
 
@@ -250,7 +249,7 @@ export function useSetupPage() {
 		}
 		// Navigate with the server URL
 		navigateWithServerUrl(urlToSubmit);
-		isServerUrlConfigured.value = true;
+		offlineModeStore.setServerUrlConfigured(true);
 	};
 
 	// Use default server URL
@@ -263,12 +262,6 @@ export function useSetupPage() {
 		}
 
 		formServerBaseUrl.value = config.public.defaultServerUrl;
-	};
-
-	// Handle offline mode (skip server URL configuration)
-	const setOfflineMode = () => {
-		isServerUrlConfigured.value = true;
-		isOfflineMode.value = true;
 	};
 
 	// Cycle through repository types
@@ -290,13 +283,9 @@ export function useSetupPage() {
 		formServerBaseUrl,
 		formServerPassword,
 
-		// Ref
-		isOfflineMode,
-
 		// UI state
 		isCreatingProject,
 		isProjectCreated,
-		isServerUrlConfigured,
 		projectCreationErrorMessage,
 		projectsLoadedSuccessfully,
 		isLoadingProjects,
@@ -311,7 +300,6 @@ export function useSetupPage() {
 		loadExistingProjects,
 		setServerConfiguration,
 		useDefaultServerUrl,
-		setOfflineMode,
 		cycleThroughRepositoryTypes,
 	};
 }

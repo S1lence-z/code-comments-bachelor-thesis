@@ -1,8 +1,16 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import { Icon } from "@iconify/vue";
+import { off } from "process";
 
 const { t } = useI18n();
+const offlineModeStore = useOfflineModeStore();
+
+// Start offline mode and navigate to setup page
+const startOfflineMode = () => {
+	offlineModeStore.startOfflineMode();
+	navigateTo("/setup");
+};
 </script>
 
 <template>
@@ -149,20 +157,23 @@ const { t } = useI18n();
 						</p>
 					</div>
 
-					<!-- Project Management -->
+					<!-- Custom Repository Support -->
 					<div class="space-y-3">
 						<div class="flex items-center gap-3">
 							<div
-								class="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center"
+								class="w-12 h-12 rounded-xl bg-yellow-500/10 flex items-center justify-center"
 							>
-								<Icon icon="mdi:folder-multiple" class="w-6 h-6 text-emerald-400" />
+								<Icon
+									icon="mdi:source-repository"
+									class="w-6 h-6 text-yellow-400"
+								/>
 							</div>
 							<h3 class="text-xl font-semibold text-white">
-								{{ t('aboutPage.features.projectManagement.title') }}
+								{{ t('aboutPage.features.customRepositorySupport.title') }}
 							</h3>
 						</div>
 						<p class="text-slate-300">
-							{{ t('aboutPage.features.projectManagement.description') }}
+							{{ t('aboutPage.features.customRepositorySupport.description') }}
 						</p>
 					</div>
 				</div>
@@ -185,8 +196,11 @@ const { t } = useI18n();
 						{{ t('aboutPage.tryItOut.description') }}
 					</p>
 					<div class="pt-4">
-						<button class="btn btn-primary btn-large inline-flex items-center gap-2">
-							<Icon icon="mdi:laptop" class="w-6 h-6" />
+						<button
+							class="btn btn-primary btn-large inline-flex items-center gap-2"
+							@click="startOfflineMode"
+						>
+							<Icon icon="mdi:offline" class="w-6 h-6" />
 							{{ t('aboutPage.tryItOut.ctaLink') }}
 						</button>
 					</div>

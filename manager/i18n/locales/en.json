@@ -37,7 +37,8 @@
 		"projectNamePlaceholder": "My Project",
 		"createReviewSession": "Create Review Session",
 		"repositoryAuthLabel": "Auth Token (optional)",
-		"repositoryAuthPlaceholder": "ghp_xxx"
+		"repositoryAuthPlaceholder": "ghp_xxx",
+		"cancelOfflineModeSetup": "Cancel Offline Mode Setup"
 	},
 	"projectList": {
 		"title": "Existing Projects",
@@ -77,15 +78,15 @@
 				"title": "No Login for Students",
 				"description": "Students access their feedback through a simple link without any registration or account setup."
 			},
-			"projectManagement": {
-				"title": "Project Management",
-				"description": "Organize multiple student projects, track feedback progress, and manage assignments efficiently."
+			"customRepositorySupport": {
+				"title": "Custom Repository Support",
+				"description": "Do you self-host your code repositories? No problem! Expose it via an API and Code Comments can fetch the code for review."
 			}
 		},
 		"tryItOut": {
-			"title": "Try It Out",
-			"description": "Want to explore Code Comments before setting up your own server? Try the offline demo mode to experience the platform with sample projects and see how it works.",
-			"ctaLink": "Launch Offline Demo"
+			"title": "Try It Now — No Setup Required",
+			"description": "In offline mode, comments are local-only and won't be saved anywhere, so you can experiment freely without any setup. Just provide a repository URL and start adding comments right away!",
+			"ctaLink": "Try Offline Mode"
 		},
 		"contribute": {
 			"title": "Thinking of Using Code Comments in Your Classroom?",
