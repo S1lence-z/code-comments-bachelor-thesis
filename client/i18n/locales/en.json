@@ -63,8 +63,6 @@
 		"noFileSelectedSubtext": "Please select a file to view its comments"
 	},
 	"overviewPage": {
-		"title": "Comments Overview",
-		"subtitle": "Review all comments across your codebase",
 		"noCommentsFound": "No Comments Found",
 		"noCommentsFoundSubtext": "Start adding comments to your code review session",
 		"filterByCommentType": "Filter by comment type:"

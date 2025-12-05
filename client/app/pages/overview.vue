@@ -20,18 +20,6 @@ const {
 
 <template>
 	<div class="page">
-		<!-- Header -->
-		<div class="bg-white/5 backdrop-blur-sm border-b border-white/10">
-			<div class="mx-auto px-6 py-8">
-				<div class="text-center">
-					<h1 class="text-4xl font-bold text-white mb-2">
-						{{ t("overviewPage.title") }}
-					</h1>
-					<p class="text-slate-300 text-lg">{{ t("overviewPage.subtitle") }}</p>
-				</div>
-			</div>
-		</div>
-
 		<!-- Main Content -->
 		<div class="mx-auto mt-8 mb-8">
 			<div class="max-w-7xl mx-auto space-y-8">
