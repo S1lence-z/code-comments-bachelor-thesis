@@ -226,7 +226,7 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 			settingsStore.isKeyboardMode,
 			settingsStore.isCompactCommentWidget,
 			keyboardShortcutsStore.getShortcuts,
-			projectDataStore.allCategories,
+			projectDataStore.getAllCategories,
 			// Actions
 			handleCommentDeletion,
 			handleEditCommentInline,

@@ -5,17 +5,13 @@ import { Icon } from "@iconify/vue";
 const { t } = useI18n();
 
 const {
-	// Store refs
+	// Computed
 	isLoadingComments,
 	allComments,
-
-	// Local state
-	selectedCommentTypeFilter,
-
-	// Computed
 	totalCommentCount,
 	groupedCommentsByFile,
-
+	// Local state
+	selectedCommentTypeFilter,
 	// Methods
 	openFileInEditor,
 	setCommentTypeFilter,
@@ -24,21 +20,9 @@ const {
 
 <template>
 	<div class="page">
-		<!-- Header -->
-		<div class="bg-white/5 backdrop-blur-sm border-b border-white/10">
-			<div class="mx-auto px-6 py-8">
-				<div class="text-center">
-					<h1 class="text-4xl font-bold text-white mb-2">
-						{{ t("overviewPage.title") }}
-					</h1>
-					<p class="text-slate-300 text-lg">{{ t("overviewPage.subtitle") }}</p>
-				</div>
-			</div>
-		</div>
-
 		<!-- Main Content -->
-		<div class="mx-auto mt-8 mb-8">
-			<div class="max-w-7xl mx-auto space-y-8">
+		<div class="mx-auto mt-8 mb-8 w-full max-w-7xl px-4">
+			<div class="space-y-8">
 				<!-- Filtering Bar -->
 				<div class="flex items-center gap-4">
 					<label class="text-slate-300 font-semibold uppercase text-lg mr-6">{{
@@ -58,13 +42,13 @@ const {
 					<div
 						v-for="commentType in Object.values(CommentType)"
 						:key="commentType"
-						class="flex items-center backdrop-blur-sm rounded-lg border border-white/10 duration-200 hover:bg-white/10 text-lg uppercase px-4 py-2 cursor-pointer"
+						class="flex items-center backdrop-blur-sm rounded-lg border border-purple-500/20 duration-200 hover:bg-purple-500/10 text-lg uppercase px-4 py-2 cursor-pointer"
 						:class="{
 							' text-blue-200': commentType === CommentType.Singleline,
 							' text-green-200': commentType === CommentType.Multiline,
 							' text-yellow-200': commentType === CommentType.File,
 							' text-purple-200': commentType === CommentType.Project,
-							'bg-white/20': selectedCommentTypeFilter === commentType,
+							'bg-purple-500/20': selectedCommentTypeFilter === commentType,
 						}"
 						@click="setCommentTypeFilter(commentType)"
 					>

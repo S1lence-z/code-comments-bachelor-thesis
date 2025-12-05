@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { AppKeyboardShortcuts } from "../../types/domain/keyboard-shortcuts";
-import { objectDeepCopy } from "../../utils/json";
+import type { AppKeyboardShortcuts } from "../types/domain/keyboard-shortcuts";
+import { objectDeepCopy } from "../utils/json";
 import { Icon } from "@iconify/vue";
 
 const { t } = useI18n();
@@ -75,7 +75,10 @@ const saveShortcuts = () => {
 </script>
 
 <template>
-	<Card :title="t('keyboardShortcuts.title')" class="w-[600px] max-w-full mx-auto">
+	<Card
+		:title="t('keyboardShortcuts.title')"
+		class="min-w-[600px] max-w-full mx-auto bg-slate-800/95"
+	>
 		<div class="space-y-4">
 			<!-- Help text when editing -->
 			<div class="flex items-center gap-2 text-slate-200">

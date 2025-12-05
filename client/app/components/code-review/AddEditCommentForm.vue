@@ -22,7 +22,6 @@ const emit = defineEmits<FormEmits>();
 
 // Stores
 const projectDataStore = useProjectDataStore();
-const { comments } = storeToRefs(projectDataStore);
 const errorHandler = useErrorHandler();
 
 // InputArea ref
@@ -96,7 +95,7 @@ watch(
 		commentData.endLineNumber = 0;
 
 		// Find existing comment
-		const existingComment = comments.value.find((comment) => {
+		const existingComment = projectDataStore.getAllComments.find((comment) => {
 			if (filePath !== null) {
 				return comment.type === CommentType.File && comment.location.filePath === filePath;
 			} else {

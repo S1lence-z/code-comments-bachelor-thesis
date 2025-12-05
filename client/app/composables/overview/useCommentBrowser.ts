@@ -15,9 +15,9 @@ export function useCommentBrowser(props: CommentBrowserProps, emit: CommentBrows
 	// Store
 	const fileContentStore = useFileContentStore();
 	const commentBrowserStore = useCommentBrowserStore();
+	commentBrowserStore.loadState();
 
 	// Local state
-	commentBrowserStore.loadState();
 	const expandedFiles = ref<Set<string>>(new Set(commentBrowserStore.openedFiles));
 	const showedLineOffset = ref(3);
 

@@ -7,6 +7,7 @@ import { RepositoryType } from "../../../base/app/types/repository-type";
 const { t } = useI18n();
 const route = useRoute();
 const authStore = useAuthStore();
+const offlineModeStore = useOfflineModeStore();
 
 const {
 	// Form inputs
@@ -17,13 +18,9 @@ const {
 	formServerBaseUrl,
 	formServerPassword,
 
-	// Ref
-	isOfflineMode,
-
 	// UI state
 	isCreatingProject,
 	isProjectCreated,
-	isServerUrlConfigured,
 	projectCreationErrorMessage,
 	projectsLoadedSuccessfully,
 	isLoadingProjects,
@@ -38,7 +35,6 @@ const {
 	loadExistingProjects,
 	setServerConfiguration,
 	useDefaultServerUrl,
-	setOfflineMode,
 	cycleThroughRepositoryTypes,
 } = useSetupPage();
 
@@ -50,7 +46,7 @@ const setNextRepositoryType = () => {
 
 // Watch the isServerBaseUrlSubmitted and reload existing projects when it changes
 watch(
-	() => isServerUrlConfigured.value,
+	() => offlineModeStore.isServerUrlConfigured,
 	(newValue) => {
 		if (newValue) {
 			loadExistingProjects();
@@ -70,9 +66,9 @@ watch(
 		// Check if we have a token for this server
 		const token = authStore.getAuthToken(serverBaseUrlFromQuery);
 
-		if (token && !isServerUrlConfigured.value) {
+		if (token && !offlineModeStore.isServerUrlConfigured) {
 			setServerConfiguration(serverBaseUrlFromQuery, token);
-		} else if (serverBaseUrlFromQuery && !isServerUrlConfigured.value) {
+		} else if (serverBaseUrlFromQuery && !offlineModeStore.isServerUrlConfigured) {
 			setServerConfiguration(serverBaseUrlFromQuery);
 		}
 	},
@@ -94,18 +90,9 @@ watch(
 </script>
 
 <template>
-	<div class="page">
-		<!-- Header -->
-		<div class="bg-white/5 backdrop-blur-sm border-b border-white/10">
-			<div class="mx-auto px-6 py-8">
-				<div class="text-center">
-					<h1 class="text-4xl font-bold text-white mb-2">{{ t("setupPage.title") }}</h1>
-					<p class="text-slate-300 text-lg">{{ t("setupPage.subtitle") }}</p>
-				</div>
-			</div>
-		</div>
+	<div>
 		<!-- Main Content -->
-		<div class="mx-auto px-6 mt-8 max-w-7xl lg:flex-row space-y-6 pb-12">
+		<div class="mx-auto max-w-7xl px-6 mt-8 lg:flex-row space-y-6 pb-12">
 			<!-- Error Message -->
 			<div v-if="!projectsLoadedSuccessfully" class="flex status-message error gap">
 				<div class="flex items-center gap-3">
@@ -121,15 +108,18 @@ watch(
 			<div class="flex flex-col gap-6 lg:flex-row">
 				<!-- Server Form -->
 				<ServerForm
-					v-if="!isServerUrlConfigured"
+					v-if="!offlineModeStore.isServerUrlConfigured"
 					v-model:serverBaseUrl="formServerBaseUrl"
 					v-model:serverPassword="formServerPassword"
 					@submitServerBaseUrl="setServerConfiguration"
 					@useDefaultServerUrl="useDefaultServerUrl"
-					@runInOfflineMode="setOfflineMode"
+					@runInOfflineMode="offlineModeStore.startOfflineMode"
 				/>
 				<!-- Existing Projects List -->
-				<div v-if="isServerUrlConfigured && !isOfflineMode" class="flex-0.5">
+				<div
+					v-if="offlineModeStore.isServerUrlConfigured && !offlineModeStore.isOfflineMode"
+					class="flex-0.5"
+				>
 					<ProjectList
 						:existingProjects="existingProjects"
 						:isLoadingProjects="isLoadingProjects"
@@ -137,8 +127,9 @@ watch(
 					/>
 				</div>
 				<!-- Setup Form -->
-				<div v-if="isServerUrlConfigured" class="flex-1">
+				<div v-if="offlineModeStore.isServerUrlConfigured" class="flex-1">
 					<ProjectForm
+						:isOfflineMode="offlineModeStore.isOfflineMode"
 						:errorMessage="projectCreationErrorMessage"
 						:isCreatingProject="isCreatingProject"
 						:isProjectCreated="isProjectCreated"
@@ -149,6 +140,7 @@ watch(
 						@createProject="handleNewProjectCreation"
 						@navigateToNewProject="navigateToNewProject"
 						@cycleThroughRepositoryTypes="setNextRepositoryType"
+						@cancelOfflineModeSetup="offlineModeStore.cancelOfflineMode"
 					/>
 				</div>
 			</div>

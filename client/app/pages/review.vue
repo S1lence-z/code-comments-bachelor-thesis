@@ -11,33 +11,27 @@ const projectStore = useProjectStore();
 const { submitComment, deleteComment, replyToComment } = useCommentOperations();
 
 const {
-	// Store refs
-	fileTree,
+	// Computed
+	isSidebarVisible,
+	getFileTree,
 	isLoadingRepository,
-
 	// Local state
 	selectedFilePath,
-
 	// Sidebar state
 	sidebarWidth,
 	minSidebarWidth,
 	maxSidebarWidth,
 	sidebar,
-
 	// Project/File comment form state
 	isAddingProjectOrFileComment,
 	projectOrFileCommentPath,
 	handleFileCommentRequest,
 	handleProjectCommentRequest,
-
 	// Methods
 	handleFileSelected,
 	handleSidebarResize,
 	handleFileQueryParam,
 	isAnyFileSelected,
-
-	// Computed
-	isSidebarVisible,
 } = useCodeReviewPage();
 
 // Drag and Drop State
@@ -187,10 +181,10 @@ onMounted(async () => {
 
 						<!-- File Explorer -->
 						<FileExplorer
-							v-else-if="fileTree.length > 0"
+							v-else-if="getFileTree.length > 0"
 							:selectedPath="selectedFilePath"
 							@update:selected-path="handleFileSelected"
-							:treeData="fileTree"
+							:treeData="getFileTree"
 							@project-comment-requested="handleProjectCommentRequest"
 							@file-comment-requested="handleFileCommentRequest"
 						/>
@@ -218,9 +212,7 @@ onMounted(async () => {
 					/>
 
 					<!-- Code Editor and Comments -->
-					<div
-						class="flex flex-col grow overflow-hidden backdrop-blur-sm bg-white/5 w-full"
-					>
+					<div class="flex flex-col grow min-w-0 backdrop-blur-sm bg-slate-900/50">
 						<!-- SplitPanelManager -->
 						<SplitPanelManager
 							v-if="isAnyFileSelected()"

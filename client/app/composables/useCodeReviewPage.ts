@@ -8,9 +8,6 @@ export function useCodeReviewPage() {
 	const fileContentStore = useFileContentStore();
 	const settingsStore = useSettingsStore();
 
-	// Store refs
-	const { fileTree, isLoadingRepository } = storeToRefs(projectDataStore);
-
 	// State
 	const selectedFilePath = ref<string | null>(null);
 
@@ -19,6 +16,13 @@ export function useCodeReviewPage() {
 	const minSidebarWidth = 200;
 	const maxSidebarWidth = 450;
 	const sidebar = ref<HTMLElement | null>(null);
+
+	// Computed
+	const isSidebarVisible = computed(() => {
+		return settingsStore.isSidebarOpen;
+	});
+	const getFileTree = computed(() => projectDataStore.getFileTree);
+	const isLoadingRepository = computed(() => projectDataStore.isLoadingRepository);
 
 	// Handle file selection and loading
 	const handleFileSelected = async (path: string | null): Promise<void> => {
@@ -58,10 +62,6 @@ export function useCodeReviewPage() {
 		return !!selectedFilePath.value;
 	};
 
-	const isSidebarVisible = computed(() => {
-		return settingsStore.isSidebarOpen;
-	});
-
 	// Project/File comment form state
 	const isAddingProjectOrFileComment = ref(false);
 	const projectOrFileCommentPath = ref<string | null>(null);
@@ -77,31 +77,26 @@ export function useCodeReviewPage() {
 	};
 
 	return {
-		// Store refs
-		fileTree,
-		isLoadingRepository,
-
 		// Local state
 		selectedFilePath,
-
+		// Computed
+		isSidebarVisible,
+		getFileTree,
+		isLoadingRepository,
 		// Sidebar state
 		sidebarWidth,
 		minSidebarWidth,
 		maxSidebarWidth,
 		sidebar,
-
 		// Project/File comment form state
 		isAddingProjectOrFileComment,
 		projectOrFileCommentPath,
 		handleFileCommentRequest,
 		handleProjectCommentRequest,
-
 		// Methods
 		handleFileSelected,
 		handleSidebarResize,
 		handleFileQueryParam,
 		isAnyFileSelected,
-
-		isSidebarVisible,
 	};
 }

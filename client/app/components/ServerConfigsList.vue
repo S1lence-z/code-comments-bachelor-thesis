@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Icon } from "@iconify/vue";
-import type { ProjectInfo, ServerConfig } from "../../types/domain/server-config";
+import type { ProjectInfo, ServerConfig } from "../types/domain/server-config";
 
 const { t } = useI18n();
 
@@ -32,7 +32,7 @@ const getRepositoryName = (url: string) => {
 
 <template>
 	<Card
-		class="w-[600px] max-w-full mx-auto"
+		class="w-[600px] max-w-full mx-auto bg-slate-800/95"
 		icon-name="archive"
 		icon-gradient="blue"
 		:title="t('serverConfigList.title')"

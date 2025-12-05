@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { ref, onUnmounted, onMounted } from "vue";
-
 interface ResizeHandleProps {
 	/** The element that should be resized */
 	resizableElement: HTMLElement | null;

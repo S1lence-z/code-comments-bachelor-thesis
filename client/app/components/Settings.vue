@@ -42,7 +42,7 @@ const settingsStore = useSettingsStore();
 			@update:isActive="emit('handleSwitchOfflineMode')"
 		/>
 		<!-- Divider -->
-		<div class="border-t border-gray-200 w-full"></div>
+		<div class="border-t border-white w-full"></div>
 		<!-- Button for Editing Keyboard Shortcuts -->
 		<Button
 			:label="t('settings.editKeyboardShortcuts')"

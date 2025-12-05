@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { RepositoryType } from "../../../../base/app/types/repository-type";
+import { RepositoryType } from "../../../base/app/types/repository-type";
 
 const { t } = useI18n();
 const repositoryAuthStore = useRepositoryAuthStore();
@@ -31,7 +31,10 @@ const saveTokens = () => {
 </script>
 
 <template>
-	<Card :title="t('settings.repositoryAuth.title')" class="w-[600px] max-w-full mx-auto">
+	<Card
+		:title="t('settings.repositoryAuth.title')"
+		class="w-[600px] max-w-full mx-auto bg-slate-800/95"
+	>
 		<div class="space-y-4">
 			<p class="text-base text-slate-200">
 				{{ t("settings.repositoryAuth.description") }}
