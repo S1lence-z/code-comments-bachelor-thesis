@@ -44,8 +44,8 @@ namespace server
 
 			// Add db context
 			builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlite(builder.Configuration.GetConnectionString("localDb"))
-            );
+                options.UseNpgsql(builder.Configuration.GetConnectionString("pgsqlConnection"))
+                );
 
             // Register repositories
             builder.Services.AddScoped<ICommentRepository, CommentRepository>();
