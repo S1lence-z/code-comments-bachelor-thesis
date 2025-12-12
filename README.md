@@ -59,7 +59,8 @@ The applications will be available at the following URLs by default:
 
 -   Manager: `http://localhost/`
 -   Client: `http://localhost/client/`
--   Server (Swagger UI): `http://localhost/server/swagger/index.html`
+-   Backend (Swagger UI): `http://localhost/server/swagger/index.html`
+-   Adminer (Database Management): `http://localhost/adminer/`
 
 ## Bachelor Thesis
 
