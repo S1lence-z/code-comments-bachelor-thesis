@@ -35,13 +35,13 @@ services:
     server:
         build:
             context: ./server
-            dockerfile: ./Dockerfile.compose
-            args:
-                SERVER_URL: ${VITE_SERVER_URL}
+            dockerfile: ./Dockerfile
         ports:
             - "${SERVER_PORT}:8080"
         environment:
-            - ApiUrls__Backend=${VITE_SERVER_URL}
+            - UrlSettings__BackendUrl=${VITE_SERVER_URL}
+            - UrlSettings__ManagerUrl=${VITE_MANAGER_URL}
+            - UrlSettings__ClientUrl=${VITE_CLIENT_URL}
             - JwtSettings__SecretKey=${JWT_SECRET}
             - JwtSettings__Issuer=${JWT_ISSUER}
             - JwtSettings__ExpirationMinutes=${JWT_EXPIRATION_MINUTES}
@@ -57,7 +57,7 @@ services:
     client:
         build:
             context: .
-            dockerfile: ./client/Dockerfile.compose
+            dockerfile: ./client/Dockerfile
             args:
                 VITE_MANAGER_URL: ${VITE_MANAGER_URL}
                 VITE_CLIENT_BASE_PATHNAME: ${VITE_CLIENT_BASE_PATHNAME}
@@ -75,7 +75,7 @@ services:
     manager:
         build:
             context: .
-            dockerfile: ./manager/Dockerfile.compose
+            dockerfile: ./manager/Dockerfile
             args:
                 VITE_SERVER_URL: ${VITE_SERVER_URL}
                 VITE_CLIENT_URL: ${VITE_CLIENT_URL}
