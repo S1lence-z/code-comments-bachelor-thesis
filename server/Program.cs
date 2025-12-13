@@ -101,21 +101,5 @@ namespace server
             app.MapControllers();
             app.Run();
         }
-
-        private static string ConfigureCorsPolicy(WebApplicationBuilder builder, string policyName, UrlSettings urlSettings)
-        {
-            string[] allowedOrigins = [urlSettings.ManagerUrl, urlSettings.ClientUrl];
-            // Configure CORS
-            builder.Services.AddCors(options =>
-            {
-                options.AddPolicy(policyName, policy =>
-                {
-                    policy.WithOrigins(allowedOrigins)
-                        .AllowAnyHeader()
-                        .AllowAnyMethod();
-                });
-            });
-            return policyName;
-        }
     }
 }
