@@ -42,7 +42,6 @@ JWT_EXPIRATION_MINUTES=60
 JWT_PROJECT_PASSWORD=testing123
 
 # PostgreSQL Database configuration
-DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=verysecure123
 DB_NAME=code_comments
