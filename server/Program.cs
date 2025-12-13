@@ -20,7 +20,7 @@ namespace server
             var builder = WebApplication.CreateBuilder(args);
 
             // Read appsettings.*.json (environment variables)
-            builder.Services.Configure<ApiUrls>(builder.Configuration.GetSection("ApiUrls"));
+            builder.Services.Configure<UrlSettings>(builder.Configuration.GetSection("UrlSettings"));
             builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 
             // Configure Authentication
@@ -44,8 +44,8 @@ namespace server
 
 			// Add db context
 			builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlite(builder.Configuration.GetConnectionString("localDb"))
-            );
+                options.UseNpgsql(builder.Configuration.GetConnectionString("pgsqlConnection"))
+                );
 
             // Register repositories
             builder.Services.AddScoped<ICommentRepository, CommentRepository>();
@@ -69,6 +69,18 @@ namespace server
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            // Configure CORS policy
+            string[] allowedOrigins = [builder.Configuration["UrlSettings:ManagerUrl"]!, builder.Configuration["UrlSettings:ClientUrl"]!];
+            builder.Services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(policy =>
+                {
+                    policy.WithOrigins(allowedOrigins)
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
+
             var app = builder.Build();
 
             // Automatically apply migrations
@@ -79,8 +91,8 @@ namespace server
             }
 
             // Middleware
+            app.UseCors();
             app.UseMiddleware<ExceptionHandlingMiddleware>();
-            EnableCors(app);
             app.UseSwagger();
             app.UseSwaggerUI();
 
@@ -88,16 +100,6 @@ namespace server
 			app.UseAuthorization();
             app.MapControllers();
             app.Run();
-        }
-
-        private static void EnableCors(IApplicationBuilder app)
-        {
-            app.UseCors(builder =>
-            {
-                builder.AllowAnyOrigin()
-                    .AllowAnyMethod()
-                    .AllowAnyHeader();
-            });
         }
     }
 }

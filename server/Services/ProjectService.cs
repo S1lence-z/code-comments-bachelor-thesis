@@ -11,9 +11,9 @@ namespace server.Services
 	public class ProjectService(
 		ILogger<ProjectService> logger,
 		IProjectRepository projectRepository, 
-		IOptions<ApiUrls> apiUrls) : IProjectService
+		IOptions<UrlSettings> apiUrls) : IProjectService
 	{
-		private readonly string _BASE_BACKEND_URL = apiUrls.Value.Backend;
+		private readonly string _BASE_BACKEND_URL = apiUrls.Value.BackendUrl;
 
 		private static string GenerateReadWriteApiUrl(Guid projectId, string baseUrl)
 		{
