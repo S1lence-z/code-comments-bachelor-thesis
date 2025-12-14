@@ -26,6 +26,8 @@ Next, create a `.env` file in the root of the project with the following content
 SERVER_PORT=5000
 CLIENT_PORT=3000
 MANAGER_PORT=3001
+DB_PORT=5432
+ADMINER_PORT=8081
 
 # URLs (for reverse proxy setup)
 VITE_SERVER_URL=http://localhost/server
@@ -38,6 +40,11 @@ JWT_SECRET=aslkdjfaljeliqtlijflisjdfliaj774343kjljFFLKFJSLKFJSLKDf
 JWT_ISSUER=http://localhost/server
 JWT_EXPIRATION_MINUTES=60
 JWT_PROJECT_PASSWORD=testing123
+
+# PostgreSQL Database configuration
+DB_USER=root
+DB_PASSWORD=verysecure123
+DB_NAME=code_comments
 ```
 
 Finally, run the following commands to build and start the application:
@@ -51,7 +58,8 @@ The applications will be available at the following URLs by default:
 
 -   Manager: `http://localhost/`
 -   Client: `http://localhost/client/`
--   Server (Swagger UI): `http://localhost/server/swagger/index.html`
+-   Backend (Swagger UI): `http://localhost/server/swagger/index.html`
+-   Adminer (Database Management): `http://localhost/adminer/`
 
 ## Bachelor Thesis
 

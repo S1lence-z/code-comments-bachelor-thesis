@@ -1,27 +1,63 @@
 services:
-    # Default server service
+    # PostgreSQL database
+    pgsql:
+        image: postgres
+        restart: always
+        environment:
+            - POSTGRES_USER=${DB_USER}
+            - POSTGRES_PASSWORD=${DB_PASSWORD}
+            - POSTGRES_DB=${DB_NAME}
+        ports:
+            - "${DB_PORT}:5432"
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+            interval: 5s
+            timeout: 5s
+            retries: 5
+        networks:
+            - codecomments-network
+
+    # Adminer
+    adminer:
+        image: adminer:latest
+        restart: always
+        ports:
+            - "${ADMINER_PORT}:8080"
+        depends_on:
+            pgsql:
+                condition: service_healthy
+        networks:
+            - codecomments-network
+
+    # Backend server service
     server:
         build:
             context: ./server
-            dockerfile: ./Dockerfile.compose
-            args:
-                SERVER_URL: ${VITE_SERVER_URL}
+            dockerfile: ./Dockerfile
         ports:
             - "${SERVER_PORT}:8080"
         environment:
-            - ApiUrls__Backend=${VITE_SERVER_URL}
+            - UrlSettings__BackendUrl=${VITE_SERVER_URL}
+            - UrlSettings__ManagerUrl=${VITE_MANAGER_URL}
+            - UrlSettings__ClientUrl=${VITE_CLIENT_URL}
             - JwtSettings__SecretKey=${JWT_SECRET}
             - JwtSettings__Issuer=${JWT_ISSUER}
             - JwtSettings__ExpirationMinutes=${JWT_EXPIRATION_MINUTES}
             - JwtSettings__ProjectPassword=${JWT_PROJECT_PASSWORD}
+            - ConnectionStrings__pgsqlConnection=Host=pgsql;Port=5432;Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}
+        depends_on:
+            pgsql:
+                condition: service_healthy
         networks:
             - codecomments-network
 
-    # Client service
+    # Client FE service
     client:
         build:
             context: .
-            dockerfile: ./client/Dockerfile.compose
+            dockerfile: ./client/Dockerfile
             args:
                 VITE_MANAGER_URL: ${VITE_MANAGER_URL}
                 VITE_CLIENT_BASE_PATHNAME: ${VITE_CLIENT_BASE_PATHNAME}
@@ -35,11 +71,11 @@ services:
         networks:
             - codecomments-network
 
-    # Manager service
+    # Manager FE service
     manager:
         build:
             context: .
-            dockerfile: ./manager/Dockerfile.compose
+            dockerfile: ./manager/Dockerfile
             args:
                 VITE_SERVER_URL: ${VITE_SERVER_URL}
                 VITE_CLIENT_URL: ${VITE_CLIENT_URL}
@@ -70,3 +106,6 @@ services:
 networks:
     codecomments-network:
         driver: bridge
+
+volumes:
+    pgdata:
