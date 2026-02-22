@@ -88,13 +88,22 @@ export function useCommentBrowser(props: CommentBrowserProps, emit: CommentBrows
 
 		const lines = cachedFile.content.split("\n");
 
+		const formatWithLineNumbers = (slicedLines: string[], startLine: number): string => {
+			return slicedLines
+				.map((line, index) => {
+					const lineNum = startLine + index + 1;
+					return `${String(lineNum).padStart(4)} | ${line}`;
+				})
+				.join("\n");
+		};
+
 		if (comment.type === CommentType.Singleline && comment.location.lineNumber) {
 			const startLine = Math.max(0, comment.location.lineNumber - showedLineOffset.value);
 			const endLine = Math.min(
 				lines.length,
 				comment.location.lineNumber + showedLineOffset.value
 			);
-			return lines.slice(startLine, endLine).join("\n");
+			return formatWithLineNumbers(lines.slice(startLine, endLine), startLine);
 		}
 
 		if (
@@ -110,7 +119,7 @@ export function useCommentBrowser(props: CommentBrowserProps, emit: CommentBrows
 				lines.length,
 				comment.location.endLineNumber + showedLineOffset.value
 			);
-			return lines.slice(startLine, endLine).join("\n");
+			return formatWithLineNumbers(lines.slice(startLine, endLine), startLine);
 		}
 
 		return "No preview available";
