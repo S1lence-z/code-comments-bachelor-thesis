@@ -144,15 +144,16 @@ watch(
 );
 
 onMounted(async () => {
-	handleFileQueryParam();
-
 	// Initialize workspace from store
 	const initialFilePath = await workspaceStore.initializeWorkspace(
 		projectStore.repositoryUrl,
 		projectStore.repositoryBranch
 	);
 
-	if (initialFilePath) {
+	// Query param file takes priority over workspace default
+	handleFileQueryParam();
+
+	if (!selectedFilePath.value && initialFilePath) {
 		handleFileSelected(initialFilePath);
 	}
 });
