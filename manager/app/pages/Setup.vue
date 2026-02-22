@@ -63,13 +63,19 @@ watch(
 
 		if (!serverBaseUrlFromQuery) return;
 
-		// Check if we have a token for this server
-		const token = authStore.getAuthToken(serverBaseUrlFromQuery);
+		// Restore the URL from query params
+		formServerBaseUrl.value = serverBaseUrlFromQuery;
 
-		if (token && !offlineModeStore.isServerUrlConfigured) {
-			setServerConfiguration(serverBaseUrlFromQuery, token);
-		} else if (serverBaseUrlFromQuery && !offlineModeStore.isServerUrlConfigured) {
-			setServerConfiguration(serverBaseUrlFromQuery);
+		if (!offlineModeStore.isServerUrlConfigured) {
+			// Run full configuration flow
+			const token = authStore.getAuthToken(serverBaseUrlFromQuery);
+			if (token) {
+				setServerConfiguration(serverBaseUrlFromQuery, token);
+			} else {
+				setServerConfiguration(serverBaseUrlFromQuery);
+			}
+		} else {
+			loadExistingProjects();
 		}
 	},
 	{ immediate: true }
