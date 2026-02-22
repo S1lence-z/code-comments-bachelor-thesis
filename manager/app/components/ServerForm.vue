@@ -7,6 +7,7 @@ const { t } = useI18n();
 interface ServerFormProps {
 	serverBaseUrl: string;
 	serverPassword: string;
+	isAuthorizing?: boolean;
 }
 
 interface ServerFormEmits {
@@ -17,7 +18,7 @@ interface ServerFormEmits {
 	(event: "runInOfflineMode"): void;
 }
 
-defineProps<ServerFormProps>();
+const props = defineProps<ServerFormProps>();
 const emit = defineEmits<ServerFormEmits>();
 </script>
 
@@ -83,12 +84,14 @@ const emit = defineEmits<ServerFormEmits>();
 					buttonStyle="primary"
 					buttonSize="medium"
 					:disabled="!serverBaseUrl || serverBaseUrl.trim() === ''"
+					:isLoading="props.isAuthorizing"
 				/>
 				<Button
 					:label="t('serverForm.runInOfflineMode')"
 					type="button"
 					buttonStyle="secondary"
 					buttonSize="medium"
+					:disabled="props.isAuthorizing"
 					@click="emit('runInOfflineMode')"
 				/>
 			</div>

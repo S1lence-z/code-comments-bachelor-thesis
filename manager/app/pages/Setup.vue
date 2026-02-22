@@ -19,6 +19,7 @@ const {
 	formServerPassword,
 
 	// UI state
+	isAuthorizing,
 	isCreatingProject,
 	isProjectCreated,
 	projectCreationErrorMessage,
@@ -118,6 +119,7 @@ watch(
 					v-if="!offlineModeStore.isServerUrlConfigured"
 					v-model:serverBaseUrl="formServerBaseUrl"
 					v-model:serverPassword="formServerPassword"
+					:isAuthorizing="isAuthorizing"
 					@submitServerBaseUrl="setServerConfiguration"
 					@useDefaultServerUrl="useDefaultServerUrl"
 					@runInOfflineMode="offlineModeStore.startOfflineMode"
