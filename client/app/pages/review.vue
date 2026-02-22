@@ -10,6 +10,12 @@ const projectStore = useProjectStore();
 // Comment operations
 const { submitComment, deleteComment, replyToComment } = useCommentOperations();
 
+// Error handling
+const errorHandler = useErrorHandler();
+const handleFormValidationError = (message: string) => {
+	errorHandler.showError(message);
+};
+
 const {
 	// Computed
 	isSidebarVisible,
@@ -259,6 +265,7 @@ onMounted(async () => {
 				:filePath="projectOrFileCommentPath"
 				@submit="submitComment"
 				@delete="deleteComment"
+				@error="handleFormValidationError"
 				@close="isAddingProjectOrFileComment = false"
 			/>
 		</div>

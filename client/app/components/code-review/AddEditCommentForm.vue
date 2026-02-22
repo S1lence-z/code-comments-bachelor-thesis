@@ -2,6 +2,7 @@
 import type RawCommentData from "../../types/domain/raw-comment-data";
 import { CommentType } from "../../../../base/app/types/dtos/comment-type";
 import CustomInputArea from "../../../../base/app/components/CustomInputArea.vue";
+import CustomSelect from "../../../../base/app/components/CustomSelect.vue";
 
 const { t } = useI18n();
 
@@ -15,6 +16,7 @@ interface FormEmits {
 	(event: "submit", payload: RawCommentData): void;
 	(event: "delete", commentId: string): void;
 	(event: "close"): void;
+	(event: "error", message: string): void;
 }
 
 const props = defineProps<FormProps>();
@@ -22,7 +24,6 @@ const emit = defineEmits<FormEmits>();
 
 // Stores
 const projectDataStore = useProjectDataStore();
-const errorHandler = useErrorHandler();
 
 // InputArea ref
 const inputAreaRef = ref<InstanceType<typeof CustomInputArea> | null>(null);
@@ -61,8 +62,12 @@ const handleKeyboardEvent = (event: KeyboardEvent) => {
 };
 
 const handleSubmit = () => {
-	if (!commentData.content.trim()) {
-		errorHandler.showWarning(t("commentForm.contentRequired"));
+	if (!commentData.content) {
+		emit("error", t("commentForm.contentRequired"));
+		return;
+	}
+	if (!commentData.categoryId) {
+		emit("error", t("commentForm.categoryRequired"));
 		return;
 	}
 	emit("submit", commentData);
@@ -138,10 +143,17 @@ watch(
 	<SlideoutPanel
 		:title="getTitle"
 		:subtitle="getSubtitle"
-		v-model:isVisible="props.isVisible"
+		:is-visible="props.isVisible"
+		@update:is-visible="emit('update:isVisible', false)"
 		class="w-110"
 	>
 		<div class="flex flex-col space-y-4">
+			<CustomSelect
+				v-if="projectDataStore.getAllCategories"
+				:label="t('commentForm.categoryLabel')"
+				:options="projectDataStore.getAllCategories.map((cat) => ({ value: cat.id, label: cat.label }))"
+				v-model="commentData.categoryId"
+			/>
 			<CustomInputArea
 				ref="inputAreaRef"
 				:label="t('commentForm.commentLabel')"
