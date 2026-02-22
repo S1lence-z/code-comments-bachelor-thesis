@@ -100,7 +100,6 @@ namespace server.Data
 				entity.HasKey(e => e.Id);
 				entity.Property(e => e.Name).IsRequired();
 				entity.Property(e => e.Version).IsRequired().HasDefaultValue("1.0");
-				entity.Property(e => e.ReadWriteApiUrl).IsRequired();
 				entity.Property(e => e.ServerBaseUrl).IsRequired();
 				entity.HasOne(e => e.Repository)
 					.WithMany()

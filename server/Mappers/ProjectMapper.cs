@@ -12,7 +12,6 @@ namespace server.Mappers
 				Id = project.Id,
 				Version = project.Version,
 				Name = project.Name,
-				ReadWriteApiUrl = project.ReadWriteApiUrl,
 				ServerBaseUrl = project.ServerBaseUrl,
 				Repository = RepositoryMapper.ToDto(project.Repository)
 			};
