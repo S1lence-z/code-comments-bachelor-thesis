@@ -165,7 +165,7 @@ watch(
 const exportLocalComments = () => {
 	const localComments = projectDataStore.getAllComments;
 	if (localComments.length === 0) {
-		alert(t("status.noCommentsToExport"));
+		errorHandler.showError(t("status.noCommentsToExport"));
 		return;
 	}
 	// Get the repository name from the project store and confirm export

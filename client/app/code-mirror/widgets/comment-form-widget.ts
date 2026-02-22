@@ -14,6 +14,7 @@ export default class CommentFormWidget extends WidgetType {
 	private onSubmit: (content: string, categoryId: string, commentId: string | null) => void;
 	private onDelete: (commentId: string) => void;
 	private onCancel: () => void;
+	private onError: (message: string) => void;
 	private showCategorySelect: boolean;
 
 	constructor(
@@ -27,7 +28,8 @@ export default class CommentFormWidget extends WidgetType {
 		endLine: number | null,
 		onSubmit: (content: string, categoryId: string, commentId: string | null) => void,
 		onCancel: () => void,
-		onDelete: (commentId: string) => void
+		onDelete: (commentId: string) => void,
+		onError: (message: string) => void
 	) {
 		super();
 		this.commentId = commentId;
@@ -41,6 +43,7 @@ export default class CommentFormWidget extends WidgetType {
 		this.onCancel = onCancel;
 		this.onSubmit = onSubmit;
 		this.onDelete = onDelete;
+		this.onError = onError;
 		this.showCategorySelect =
 			commentType !== CommentType.Project && commentType !== CommentType.File;
 	}
@@ -196,13 +199,13 @@ export default class CommentFormWidget extends WidgetType {
 			categoryId = select?.value || "";
 
 			if (!categoryId) {
-				alert("Please select a category.");
+				this.onError("Please select a category.");
 				return;
 			}
 		}
 
 		if (!content) {
-			alert("Comment cannot be empty.");
+			this.onError("Comment cannot be empty.");
 			return;
 		}
 
