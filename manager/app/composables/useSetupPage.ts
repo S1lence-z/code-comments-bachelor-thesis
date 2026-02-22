@@ -264,6 +264,16 @@ export function useSetupPage() {
 		formServerBaseUrl.value = config.public.defaultServerUrl;
 	};
 
+	// Reset form for setting up a new session
+	const resetProjectForm = (): void => {
+		formRepositoryUrl.value = "";
+		formRepositoryType.value = RepositoryType.github;
+		formBranchName.value = "";
+		formProjectName.value = "";
+		isProjectCreated.value = false;
+		projectCreationErrorMessage.value = "";
+	};
+
 	// Cycle through repository types
 	const cycleThroughRepositoryTypes = (currentOption: RepositoryType): RepositoryType => {
 		const currentIndex = repositoryTypeOptions.findIndex(
@@ -301,5 +311,6 @@ export function useSetupPage() {
 		setServerConfiguration,
 		useDefaultServerUrl,
 		cycleThroughRepositoryTypes,
+		resetProjectForm,
 	};
 }

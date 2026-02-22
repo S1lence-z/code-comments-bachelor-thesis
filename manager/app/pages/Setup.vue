@@ -36,6 +36,7 @@ const {
 	setServerConfiguration,
 	useDefaultServerUrl,
 	cycleThroughRepositoryTypes,
+	resetProjectForm,
 } = useSetupPage();
 
 // Cycle through repository types
@@ -147,6 +148,7 @@ watch(
 						@navigateToNewProject="navigateToNewProject"
 						@cycleThroughRepositoryTypes="setNextRepositoryType"
 						@cancelOfflineModeSetup="offlineModeStore.cancelOfflineMode"
+						@setupNewSession="resetProjectForm"
 					/>
 				</div>
 			</div>

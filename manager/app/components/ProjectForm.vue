@@ -26,6 +26,7 @@ interface ProjectFormEmits {
 	(event: "navigateToNewProject"): void;
 	(event: "cycleThroughRepositoryTypes"): void;
 	(event: "cancelOfflineModeSetup"): void;
+	(event: "setupNewSession"): void;
 }
 
 const props = defineProps<ProjectFormProps>();
@@ -51,7 +52,7 @@ const emit = defineEmits<ProjectFormEmits>();
 				</div>
 			</div>
 			<!-- Success Message -->
-			<div v-if="props.isProjectCreated" class="status-message success flex flex-col gap-4">
+			<div v-if="props.isProjectCreated" class="status-message success">
 				<div class="flex items-center gap-3">
 					<div class="card-icon-sm">
 						<Icon icon="mdi:check-circle" class="w-5 h-5 text-emerald-400" />
@@ -60,13 +61,6 @@ const emit = defineEmits<ProjectFormEmits>();
 						{{ t("projectForm.successMessage") }}
 					</p>
 				</div>
-				<Button
-					class="w-full"
-					:label="t('projectForm.openReviewSession')"
-					buttonStyle="secondary"
-					buttonSize="medium"
-					@click="emit('navigateToNewProject')"
-				/>
 			</div>
 		</div>
 
@@ -124,22 +118,42 @@ const emit = defineEmits<ProjectFormEmits>();
 				/>
 			</span>
 			<div class="flex flex-col space-y-2">
-				<!-- Submit Button -->
-				<Button
-					:label="t('projectForm.createReviewSession')"
-					buttonStyle="primary"
-					buttonSize="medium"
-					type="submit"
-					:disabled="props.isCreatingProject"
-				/>
-				<!-- Cancel Offline Mode Setup Button -->
-				<Button
-					v-if="props.isOfflineMode"
-					:label="t('projectForm.cancelOfflineModeSetup')"
-					buttonStyle="secondary"
-					buttonSize="medium"
-					@click="emit('cancelOfflineModeSetup')"
-				/>
+				<template v-if="props.isProjectCreated">
+					<!-- Open Review Session Button -->
+					<Button
+						:label="t('projectForm.openReviewSession')"
+						buttonStyle="primary"
+						buttonSize="medium"
+						type="button"
+						@click="emit('navigateToNewProject')"
+					/>
+					<!-- Set Up New Session Button -->
+					<Button
+						:label="t('projectForm.setupNewSession')"
+						buttonStyle="secondary"
+						buttonSize="medium"
+						type="button"
+						@click="emit('setupNewSession')"
+					/>
+				</template>
+				<template v-else>
+					<!-- Submit Button -->
+					<Button
+						:label="t('projectForm.createReviewSession')"
+						buttonStyle="primary"
+						buttonSize="medium"
+						type="submit"
+						:disabled="props.isCreatingProject"
+					/>
+					<!-- Cancel Offline Mode Setup Button -->
+					<Button
+						v-if="props.isOfflineMode"
+						:label="t('projectForm.cancelOfflineModeSetup')"
+						buttonStyle="secondary"
+						buttonSize="medium"
+						@click="emit('cancelOfflineModeSetup')"
+					/>
+				</template>
 			</div>
 		</form>
 	</Card>

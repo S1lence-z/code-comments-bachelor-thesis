@@ -38,7 +38,8 @@
 		"createReviewSession": "Create Review Session",
 		"repositoryAuthLabel": "Auth Token (optional)",
 		"repositoryAuthPlaceholder": "ghp_xxx",
-		"cancelOfflineModeSetup": "Cancel Offline Mode Setup"
+		"cancelOfflineModeSetup": "Cancel Offline Mode Setup",
+		"setupNewSession": "Set Up New Session"
 	},
 	"projectList": {
 		"title": "Existing Projects",
