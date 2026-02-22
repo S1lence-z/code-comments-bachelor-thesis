@@ -1,9 +1,12 @@
 <script setup lang="ts">
+import { Icon } from "@iconify/vue";
+
 interface ButtonProps {
 	label: string;
 	buttonStyle: "primary" | "secondary" | "danger";
 	buttonSize: "small" | "medium" | "large";
 	disabled?: boolean;
+	isLoading?: boolean;
 }
 
 interface ButtonEmits {
@@ -18,9 +21,10 @@ const emit = defineEmits<ButtonEmits>();
 	<button
 		class="btn"
 		:class="`btn-${props.buttonStyle} btn-${props.buttonSize}`"
-		:disabled="props.disabled"
+		:disabled="props.disabled || props.isLoading"
 		@click="emit('click')"
 	>
-		{{ props.label }}
+		<Icon v-if="props.isLoading" icon="mdi:loading" class="animate-spin w-5 h-5" />
+		<template v-else>{{ props.label }}</template>
 	</button>
 </template>
