@@ -30,7 +30,8 @@ export function commentFormExtension(
 	categories: CategoryDto[],
 	onSubmit: (content: string, categoryId: string, commentId: string | null) => void,
 	onCancel: () => void,
-	onDelete: (commentId: string) => void
+	onDelete: (commentId: string) => void,
+	onError: (message: string) => void
 ) {
 	return StateField.define<DecorationSet>({
 		create() {
@@ -65,7 +66,8 @@ export function commentFormExtension(
 								formState.endLineNumber,
 								onSubmit,
 								onCancel,
-								onDelete
+								onDelete,
+								onError
 							),
 							side: -1,
 							block: true,

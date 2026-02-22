@@ -81,6 +81,7 @@
 		"addComment": "Add comment"
 	},
 	"commentForm": {
+		"categoryLabel": "Category",
 		"commentLabel": "Comment",
 		"commentPlaceholder": "Enter your comment...",
 		"cancel": "Cancel",
@@ -89,7 +90,8 @@
 		"edit": "Update",
 		"addComment": "Add Comment",
 		"editComment": "Edit Comment",
-		"contentRequired": "Comment content cannot be empty."
+		"contentRequired": "Comment content cannot be empty.",
+		"categoryRequired": "Please select a category for the comment."
 	},
 	"commentStatistics": {
 		"totalTitle": "Total",

@@ -1,7 +1,7 @@
 services:
     # PostgreSQL database
     pgsql:
-        image: postgres
+        image: postgres:17
         restart: always
         environment:
             - POSTGRES_USER=${DB_USER}
@@ -21,7 +21,7 @@ services:
 
     # Adminer
     adminer:
-        image: adminer:latest
+        image: adminer:5
         restart: always
         ports:
             - "${ADMINER_PORT}:8080"
@@ -91,7 +91,7 @@ services:
 
     # Nginx proxy service
     nginx:
-        image: nginx:latest
+        image: nginx:1.27
         ports:
             - "80:80"
         volumes:

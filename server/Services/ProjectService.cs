@@ -15,11 +15,6 @@ namespace server.Services
 	{
 		private readonly string _BASE_BACKEND_URL = apiUrls.Value.BackendUrl;
 
-		private static string GenerateReadWriteApiUrl(Guid projectId, string baseUrl)
-		{
-			return $"{baseUrl}/api/v1/project/{projectId}/comments";
-		}
-
 		public async Task<IEnumerable<ProjectDto>> GetAllProjectsAsync()
 		{
 			IEnumerable<Project> projects = await projectRepository.GetAllAsync();
@@ -54,7 +49,6 @@ namespace server.Services
 				Id = newProjectId,
 				Name = request.Name,
 				ServerBaseUrl = request.ServerBaseUrl,
-				ReadWriteApiUrl = GenerateReadWriteApiUrl(newProjectId, request.ServerBaseUrl),
 				RepositoryId = newRepositoryId
 			};
 

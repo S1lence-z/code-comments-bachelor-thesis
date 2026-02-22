@@ -12,9 +12,6 @@ export function useSetupPage() {
 	// Runtime config
 	const config = useRuntimeConfig();
 
-	// i18n
-	const { t } = useI18n();
-
 	// Stores
 	const authStore = useAuthStore();
 	const offlineModeStore = useOfflineModeStore();
@@ -37,6 +34,7 @@ export function useSetupPage() {
 	const formServerPassword = ref("");
 
 	// UI state
+	const isAuthorizing = ref(false);
 	const isCreatingProject = ref(false);
 	const isProjectCreated = ref(false);
 	const isLoadingProjects = ref(false);
@@ -221,30 +219,20 @@ export function useSetupPage() {
 		}
 
 		// If given password, attempt to authorize
-		let authorizationSuccess = false;
 		if (passwordToSubmit) {
-			formServerPassword.value = passwordToSubmit;
+			isAuthorizing.value = true;
 			try {
 				const response = await authService.serverLogin(passwordToSubmit, urlToSubmit);
 				if (!response.success) {
 					throw new Error(response.message);
 				}
-				authorizationSuccess = response.success;
 				authStore.saveAuthToken(urlToSubmit, response.token!);
 				errorHandler.showSuccess(response.message);
 			} catch (error) {
 				errorHandler.handleError(error);
-			}
-		}
-
-		// If no password given or authorization failed, confirm to continue without password
-		if (!authorizationSuccess || !passwordToSubmit) {
-			const shouldProceedWithoutPassword = confirm(
-				t("serverForm.continueWithoutPasswordConfirm")
-			);
-			if (!shouldProceedWithoutPassword) {
-				formServerPassword.value = "";
 				return;
+			} finally {
+				isAuthorizing.value = false;
 			}
 		}
 		// Navigate with the server URL
@@ -262,6 +250,27 @@ export function useSetupPage() {
 		}
 
 		formServerBaseUrl.value = config.public.defaultServerUrl;
+	};
+
+	// Reset form for setting up a new session
+	const resetProjectForm = (): void => {
+		formRepositoryUrl.value = "";
+		formRepositoryType.value = RepositoryType.github;
+		formBranchName.value = "";
+		formProjectName.value = "";
+		isProjectCreated.value = false;
+		projectCreationErrorMessage.value = "";
+	};
+
+	// Disconnect from current server and go back to server form
+	const disconnectServer = async (): Promise<void> => {
+		offlineModeStore.setServerUrlConfigured(false);
+		offlineModeStore.isOfflineMode = false;
+		formServerPassword.value = "";
+		existingProjects.value = [];
+		projectsLoadedSuccessfully.value = true;
+		resetProjectForm();
+		await navigateTo({ path: "/setup", query: {} });
 	};
 
 	// Cycle through repository types
@@ -284,6 +293,7 @@ export function useSetupPage() {
 		formServerPassword,
 
 		// UI state
+		isAuthorizing,
 		isCreatingProject,
 		isProjectCreated,
 		projectCreationErrorMessage,
@@ -301,5 +311,7 @@ export function useSetupPage() {
 		setServerConfiguration,
 		useDefaultServerUrl,
 		cycleThroughRepositoryTypes,
+		resetProjectForm,
+		disconnectServer,
 	};
 }

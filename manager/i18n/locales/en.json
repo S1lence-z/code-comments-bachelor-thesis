@@ -18,7 +18,7 @@
 		"serverUrlPlaceholder": "http://localhost:3000",
 		"serverPasswordLabel": "Server Password (Optional)",
 		"serverPasswordPlaceholder": "Enter your server password",
-		"continue": "Continue",
+		"continue": "Continue without password",
 		"authorize": "Authorize",
 		"runInOfflineMode": "Run in Offline Mode",
 		"continueWithoutPasswordConfirm": "Do you want to continue without a password?"
@@ -38,7 +38,8 @@
 		"createReviewSession": "Create Review Session",
 		"repositoryAuthLabel": "Auth Token (optional)",
 		"repositoryAuthPlaceholder": "ghp_xxx",
-		"cancelOfflineModeSetup": "Cancel Offline Mode Setup"
+		"cancelOfflineModeSetup": "Cancel Offline Mode Setup",
+		"setupNewSession": "Set Up New Session"
 	},
 	"projectList": {
 		"title": "Existing Projects",
@@ -47,7 +48,9 @@
 		"noProjectsSubtext": "Create your first review session to get started"
 	},
 	"setupPage": {
-		"errorLoadingExistingProjects": "There was an error loading existing projects from the selected server. Please, check the server URL or switch to offline mode in settings."
+		"errorLoadingExistingProjects": "There was an error loading existing projects from the selected server. Please, check the server URL or switch to offline mode in settings.",
+		"connectedTo": "Connected to",
+		"changeServer": "Change Server"
 	},
 	"aboutPage": {
 		"hero": {

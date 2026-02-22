@@ -32,7 +32,7 @@ export class GithubSourceProvider implements RepositoryProvider {
 				type:
 					item.type === GithubTreeItemType.blob ? TreeNodeType.file : TreeNodeType.folder,
 				children: [],
-				isExpanded: item.type === GithubTreeItemType.tree && parts.length === 1, // Expand top-level folders by default
+				isExpanded: false,
 			};
 			map[item.path] = node;
 
@@ -112,7 +112,7 @@ export class GithubSourceProvider implements RepositoryProvider {
 	async getRepositoryTree(
 		repositoryUrl: string,
 		branch: string,
-		authToken?: string
+		authToken?: string,
 	): Promise<TreeNode[]> {
 		try {
 			const url = new URL(repositoryUrl);
@@ -147,7 +147,7 @@ export class GithubSourceProvider implements RepositoryProvider {
 		repositoryUrl: string,
 		branch: string,
 		filePath: string,
-		authToken?: string
+		authToken?: string,
 	): Promise<ProcessedFile> {
 		try {
 			// Validate and parse the repository URL
@@ -170,7 +170,7 @@ export class GithubSourceProvider implements RepositoryProvider {
 			const response = await fetch(contentUrl, { headers });
 			if (!response.ok) {
 				throw new Error(
-					`Failed to load file content for ${filePath}. Error ${response.status}`
+					`Failed to load file content for ${filePath}. Error ${response.status}`,
 				);
 			}
 			const responseData: GithubFileContentResponse = await response.json();

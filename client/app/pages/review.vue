@@ -10,6 +10,12 @@ const projectStore = useProjectStore();
 // Comment operations
 const { submitComment, deleteComment, replyToComment } = useCommentOperations();
 
+// Error handling
+const errorHandler = useErrorHandler();
+const handleFormValidationError = (message: string) => {
+	errorHandler.showError(message);
+};
+
 const {
 	// Computed
 	isSidebarVisible,
@@ -138,15 +144,16 @@ watch(
 );
 
 onMounted(async () => {
-	handleFileQueryParam();
-
 	// Initialize workspace from store
 	const initialFilePath = await workspaceStore.initializeWorkspace(
 		projectStore.repositoryUrl,
 		projectStore.repositoryBranch
 	);
 
-	if (initialFilePath) {
+	// Query param file takes priority over workspace default
+	handleFileQueryParam();
+
+	if (!selectedFilePath.value && initialFilePath) {
 		handleFileSelected(initialFilePath);
 	}
 });
@@ -259,6 +266,7 @@ onMounted(async () => {
 				:filePath="projectOrFileCommentPath"
 				@submit="submitComment"
 				@delete="deleteComment"
+				@error="handleFormValidationError"
 				@close="isAddingProjectOrFileComment = false"
 			/>
 		</div>

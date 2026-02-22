@@ -134,7 +134,6 @@ namespace server.Migrations
                     Name = table.Column<string>(type: "text", nullable: false),
                     Version = table.Column<string>(type: "text", nullable: false, defaultValue: "1.0"),
                     ServerBaseUrl = table.Column<string>(type: "text", nullable: false),
-                    ReadWriteApiUrl = table.Column<string>(type: "text", nullable: false),
                     RepositoryId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>

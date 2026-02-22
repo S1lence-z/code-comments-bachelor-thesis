@@ -176,10 +176,6 @@ namespace server.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("ReadWriteApiUrl")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<Guid>("RepositoryId")
                         .HasColumnType("uuid");
 

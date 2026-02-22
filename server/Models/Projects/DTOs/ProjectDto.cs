@@ -10,8 +10,6 @@
 
 		public string ServerBaseUrl { get; set; } = string.Empty;
 
-		public string ReadWriteApiUrl { get; set; } = string.Empty;
-
 		public RepositoryDto Repository { get; set; } = null!;
 	}
 }

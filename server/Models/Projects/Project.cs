@@ -18,9 +18,6 @@ namespace server.Models.Projects
 		public string ServerBaseUrl { get; set; } = string.Empty;
 
 		[Required]
-		public string ReadWriteApiUrl { get; set; } = string.Empty;
-
-		[Required]
 		public Guid RepositoryId { get; set; }
 
 		[ForeignKey("RepositoryId")]

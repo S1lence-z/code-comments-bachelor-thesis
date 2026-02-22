@@ -30,7 +30,8 @@ export function createEditorExtensions(
 	onReplyComment: (commentId: string) => void,
 	onCancelUpsertingComment: () => void,
 	onUpsertComment: (content: string, categoryId: string, commentId: string | null) => void,
-	onSingleLineComment: (lineNumber: number, filePath: string) => void
+	onSingleLineComment: (lineNumber: number, filePath: string) => void,
+	onFormValidationError: (message: string) => void
 ) {
 	const langExt = getLanguageExtension(filePath);
 	const currentFileComments = comments || [];
@@ -57,7 +58,8 @@ export function createEditorExtensions(
 			categories,
 			onUpsertComment,
 			onCancelUpsertingComment,
-			onDeleteComment
+			onDeleteComment,
+			onFormValidationError
 		),
 	];
 

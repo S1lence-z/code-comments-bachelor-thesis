@@ -49,6 +49,11 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 
 	const isKeyboardMode = computed(() => settingsStore.isKeyboardMode);
 
+	const { showError } = useErrorHandler();
+	const handleFormValidationError = (message: string): void => {
+		showError(message);
+	};
+
 	const handleCommentDeletion = (commentId: string): void => {
 		if (!commentId) return;
 		emit("inline-form-delete", commentId);
@@ -75,14 +80,14 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 			lineNumber,
 			endLineNumber,
 			commentId,
-			null
+			null,
 		);
 	};
 
 	const handleCommentUpsert = async (
 		content: string,
 		categoryId: string,
-		commentId: string | null
+		commentId: string | null,
 	): Promise<void> => {
 		if (!activeFormState.value) return;
 
@@ -118,7 +123,7 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 		lineNumber: number,
 		endLineNumber: number | null = null,
 		commentId: string | null = null,
-		parentCommentId: string | null = null
+		parentCommentId: string | null = null,
 	): void => {
 		if (!editorView.value) return;
 
@@ -164,7 +169,7 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 
 	const findCommentRecursively = (
 		commentId: string,
-		comments: CommentDto[]
+		comments: CommentDto[],
 	): CommentDto | null => {
 		for (const comment of comments) {
 			if (comment.id === commentId) {
@@ -214,7 +219,7 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 			lineNumber,
 			endLineNumber,
 			null,
-			parentCommentId
+			parentCommentId,
 		);
 	};
 
@@ -233,14 +238,15 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 			handleReplyCommentInline,
 			hideForm,
 			handleCommentUpsert,
-			handleAddNewSingleLineComment
+			handleAddNewSingleLineComment,
+			handleFormValidationError,
 		);
 	});
 
 	const handleAddNewSingleLineComment = (lineNumber: number, filePath: string): void => {
 		// Check if there's an existing comment at this line
 		const existingComment = props.commentInFile.find(
-			(c) => c.type === CommentType.Singleline && c.location.lineNumber === lineNumber
+			(c) => c.type === CommentType.Singleline && c.location.lineNumber === lineNumber,
 		);
 
 		showForm(
@@ -251,7 +257,7 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 			lineNumber,
 			null,
 			existingComment?.id || null,
-			null
+			null,
 		);
 	};
 
@@ -303,7 +309,7 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 					(c) =>
 						c.type === CommentType.Multiline &&
 						c.location.startLineNumber === startLineNumber &&
-						c.location.endLineNumber === endLineNumber
+						c.location.endLineNumber === endLineNumber,
 				);
 
 				showForm(
@@ -314,7 +320,7 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 					startLineNumber,
 					endLineNumber,
 					existingComment?.id || null,
-					null
+					null,
 				);
 			}
 		}, 300);
@@ -326,7 +332,7 @@ export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
 		(newVal: string | null | undefined) => {
 			currentContent.value = newVal ?? "";
 		},
-		{ immediate: true }
+		{ immediate: true },
 	);
 
 	return {

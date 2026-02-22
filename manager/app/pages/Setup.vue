@@ -19,6 +19,7 @@ const {
 	formServerPassword,
 
 	// UI state
+	isAuthorizing,
 	isCreatingProject,
 	isProjectCreated,
 	projectCreationErrorMessage,
@@ -36,6 +37,8 @@ const {
 	setServerConfiguration,
 	useDefaultServerUrl,
 	cycleThroughRepositoryTypes,
+	resetProjectForm,
+	disconnectServer,
 } = useSetupPage();
 
 // Cycle through repository types
@@ -63,13 +66,19 @@ watch(
 
 		if (!serverBaseUrlFromQuery) return;
 
-		// Check if we have a token for this server
-		const token = authStore.getAuthToken(serverBaseUrlFromQuery);
+		// Restore the URL from query params
+		formServerBaseUrl.value = serverBaseUrlFromQuery;
 
-		if (token && !offlineModeStore.isServerUrlConfigured) {
-			setServerConfiguration(serverBaseUrlFromQuery, token);
-		} else if (serverBaseUrlFromQuery && !offlineModeStore.isServerUrlConfigured) {
-			setServerConfiguration(serverBaseUrlFromQuery);
+		if (!offlineModeStore.isServerUrlConfigured) {
+			// Run full configuration flow
+			const token = authStore.getAuthToken(serverBaseUrlFromQuery);
+			if (token) {
+				setServerConfiguration(serverBaseUrlFromQuery, token);
+			} else {
+				setServerConfiguration(serverBaseUrlFromQuery);
+			}
+		} else {
+			loadExistingProjects();
 		}
 	},
 	{ immediate: true }
@@ -104,6 +113,24 @@ watch(
 					</p>
 				</div>
 			</div>
+			<!-- Server Status Bar -->
+			<div
+				v-if="offlineModeStore.isServerUrlConfigured && !offlineModeStore.isOfflineMode"
+				class="flex items-center justify-between bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-3"
+			>
+				<div class="flex items-center gap-2 text-slate-300">
+					<Icon icon="mdi:server" class="w-5 h-5 text-emerald-400" />
+					<span>{{ t("setupPage.connectedTo") }}</span>
+					<span class="font-semibold text-white">{{ formServerBaseUrl }}</span>
+				</div>
+				<Button
+					:label="t('setupPage.changeServer')"
+					buttonStyle="secondary"
+					buttonSize="small"
+					type="button"
+					@click="disconnectServer"
+				/>
+			</div>
 			<!-- Setup Card -->
 			<div class="flex flex-col gap-6 lg:flex-row">
 				<!-- Server Form -->
@@ -111,6 +138,7 @@ watch(
 					v-if="!offlineModeStore.isServerUrlConfigured"
 					v-model:serverBaseUrl="formServerBaseUrl"
 					v-model:serverPassword="formServerPassword"
+					:isAuthorizing="isAuthorizing"
 					@submitServerBaseUrl="setServerConfiguration"
 					@useDefaultServerUrl="useDefaultServerUrl"
 					@runInOfflineMode="offlineModeStore.startOfflineMode"
@@ -141,6 +169,7 @@ watch(
 						@navigateToNewProject="navigateToNewProject"
 						@cycleThroughRepositoryTypes="setNextRepositoryType"
 						@cancelOfflineModeSetup="offlineModeStore.cancelOfflineMode"
+						@setupNewSession="resetProjectForm"
 					/>
 				</div>
 			</div>

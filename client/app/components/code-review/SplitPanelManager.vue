@@ -51,7 +51,7 @@ const {
 				@tab-drop-with-index="(panelId, insertIndex) => emit('tab-drop', panelId, insertIndex)"
 			>
 				<!-- Content for the active tab -->
-				<div v-if="panel.activeTab" class="h-full w-full">
+				<div v-if="panel.activeTab" :key="panel.activeTab.filePath" class="h-full w-full">
 					<!-- Loading state -->
 					<div
 						v-if="!isFileCached(panel.activeTab.filePath)"
