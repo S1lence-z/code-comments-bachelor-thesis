@@ -48,7 +48,9 @@
 		"noProjectsSubtext": "Create your first review session to get started"
 	},
 	"setupPage": {
-		"errorLoadingExistingProjects": "There was an error loading existing projects from the selected server. Please, check the server URL or switch to offline mode in settings."
+		"errorLoadingExistingProjects": "There was an error loading existing projects from the selected server. Please, check the server URL or switch to offline mode in settings.",
+		"connectedTo": "Connected to",
+		"changeServer": "Change Server"
 	},
 	"aboutPage": {
 		"hero": {

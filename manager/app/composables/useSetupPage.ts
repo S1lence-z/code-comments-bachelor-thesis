@@ -262,6 +262,17 @@ export function useSetupPage() {
 		projectCreationErrorMessage.value = "";
 	};
 
+	// Disconnect from current server and go back to server form
+	const disconnectServer = async (): Promise<void> => {
+		offlineModeStore.setServerUrlConfigured(false);
+		offlineModeStore.isOfflineMode = false;
+		formServerPassword.value = "";
+		existingProjects.value = [];
+		projectsLoadedSuccessfully.value = true;
+		resetProjectForm();
+		await navigateTo({ path: "/setup", query: {} });
+	};
+
 	// Cycle through repository types
 	const cycleThroughRepositoryTypes = (currentOption: RepositoryType): RepositoryType => {
 		const currentIndex = repositoryTypeOptions.findIndex(
@@ -301,5 +312,6 @@ export function useSetupPage() {
 		useDefaultServerUrl,
 		cycleThroughRepositoryTypes,
 		resetProjectForm,
+		disconnectServer,
 	};
 }

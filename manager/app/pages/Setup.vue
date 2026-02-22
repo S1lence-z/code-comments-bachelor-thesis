@@ -38,6 +38,7 @@ const {
 	useDefaultServerUrl,
 	cycleThroughRepositoryTypes,
 	resetProjectForm,
+	disconnectServer,
 } = useSetupPage();
 
 // Cycle through repository types
@@ -111,6 +112,24 @@ watch(
 						{{ t("setupPage.errorLoadingExistingProjects") }}
 					</p>
 				</div>
+			</div>
+			<!-- Server Status Bar -->
+			<div
+				v-if="offlineModeStore.isServerUrlConfigured && !offlineModeStore.isOfflineMode"
+				class="flex items-center justify-between bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-3"
+			>
+				<div class="flex items-center gap-2 text-slate-300">
+					<Icon icon="mdi:server" class="w-5 h-5 text-emerald-400" />
+					<span>{{ t("setupPage.connectedTo") }}</span>
+					<span class="font-semibold text-white">{{ formServerBaseUrl }}</span>
+				</div>
+				<Button
+					:label="t('setupPage.changeServer')"
+					buttonStyle="secondary"
+					buttonSize="small"
+					type="button"
+					@click="disconnectServer"
+				/>
 			</div>
 			<!-- Setup Card -->
 			<div class="flex flex-col gap-6 lg:flex-row">
