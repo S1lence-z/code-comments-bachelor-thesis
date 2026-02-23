@@ -6,8 +6,11 @@ using server.Models.Comments;
 
 namespace server.Data
 {
-	public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
+	public class ApplicationDbContext : DbContext
 	{
+		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+		protected ApplicationDbContext(DbContextOptions options) : base(options) { }
+
 		public DbSet<Category> Categories { get; set; }
 		public DbSet<Project> Projects { get; set; }
 		public DbSet<Repository> Repositories { get; set; }
