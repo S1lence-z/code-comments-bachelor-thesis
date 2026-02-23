@@ -41,6 +41,13 @@ JWT_ISSUER=http://localhost/server
 JWT_EXPIRATION_MINUTES=60
 JWT_PROJECT_PASSWORD=testing123
 
+# Database Provider (PostgreSql or Sqlite) - if not set, defaults to Sqlite
+DATABASE_PROVIDER=Sqlite
+
+# SQLite path (if DATABASE_PROVIDER=Sqlite)
+# If not set, defaults to a file named 'comments.db' in the 'Data' directory relative to the /app working directory
+SQLITE_DB_PATH=./Data/comments.db
+
 # PostgreSQL Database configuration
 DB_USER=root
 DB_PASSWORD=verysecure123
@@ -56,10 +63,24 @@ docker compose up
 
 The applications will be available at the following URLs by default:
 
--   Manager: `http://localhost/`
--   Client: `http://localhost/client/`
--   Backend (Swagger UI): `http://localhost/server/swagger/index.html`
--   Adminer (Database Management): `http://localhost/adminer/`
+- Manager: `http://localhost/`
+- Client: `http://localhost/client/`
+- Backend (Swagger UI): `http://localhost/server/swagger/index.html`
+- Adminer (Database Management): `http://localhost/adminer/`
+
+## Running Migrations
+
+In case you want to run database migrations manually (for example, if you want to run them outside of Docker), you can use the dotnet [EF CLI tools](https://learn.microsoft.com/en-us/ef/core/cli/dotnet).
+
+You can run the following commands to apply migrations to the database specified in the `DATABASE_PROVIDER` environment variable:
+
+```bash
+# Sqlite
+dotnet ef migrations add <Name> --context SqliteDbContext --output-dir Migrations/Sqlite
+
+# PostgreSQL
+DatabaseProvider=PostgreSql dotnet ef migrations add <Name> --context PgsqlDbContext --output-dir Migrations/Pgsql
+```
 
 ## Bachelor Thesis
 
