@@ -9,18 +9,18 @@ using server.Data;
 
 #nullable disable
 
-namespace server.Migrations
+namespace server.Migrations.Pgsql
 {
-    [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251212192713_InitialPgsqlMigration")]
-    partial class InitialPgsqlMigration
+    [DbContext(typeof(PgsqlDbContext))]
+    [Migration("20260223211813_InitPgsql")]
+    partial class InitPgsql
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.11")
+                .HasAnnotation("ProductVersion", "10.0.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);

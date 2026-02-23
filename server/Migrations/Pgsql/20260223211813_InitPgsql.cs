@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace server.Migrations
+namespace server.Migrations.Pgsql
 {
     /// <inheritdoc />
-    public partial class InitialPgsqlMigration : Migration
+    public partial class InitPgsql : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
