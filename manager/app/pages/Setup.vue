@@ -116,9 +116,9 @@ watch(
 			<!-- Server Status Bar -->
 			<div
 				v-if="offlineModeStore.isServerUrlConfigured && !offlineModeStore.isOfflineMode"
-				class="flex items-center justify-between bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-3"
+				class="flex flex-col gap-4 md:gap-0 md:flex-row items-center justify-between bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-3"
 			>
-				<div class="flex items-center gap-2 text-slate-300">
+				<div class="flex flex-col sm:flex-row items-center gap-2 text-slate-300">
 					<Icon icon="mdi:server" class="w-5 h-5 text-emerald-400" />
 					<span>{{ t("setupPage.connectedTo") }}</span>
 					<span class="font-semibold text-white">{{ formServerBaseUrl }}</span>
