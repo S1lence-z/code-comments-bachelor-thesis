@@ -42,10 +42,21 @@ namespace server
 				};
             });
 
-			// Add db context
-			builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseNpgsql(builder.Configuration.GetConnectionString("pgsqlConnection"))
-                );
+			// Add db context with provider-specific subclass for migrations
+            DatabaseType databaseType = builder.Configuration.GetValue("DatabaseProvider", DatabaseType.Sqlite);
+            switch (databaseType)
+            {
+                case DatabaseType.PostgreSql:
+                    builder.Services.AddDbContext<ApplicationDbContext, PgsqlDbContext>(options =>
+                        options.UseNpgsql(builder.Configuration.GetConnectionString("pgsqlConnection")));
+                    break;
+                case DatabaseType.Sqlite:
+                    builder.Services.AddDbContext<ApplicationDbContext, SqliteDbContext>(options =>
+                        options.UseSqlite(builder.Configuration.GetConnectionString("sqliteConnection")));
+                    break;
+                default:
+                    throw new InvalidOperationException("Invalid database provider specified in configuration.");
+            }
 
             // Register repositories
             builder.Services.AddScoped<ICommentRepository, CommentRepository>();

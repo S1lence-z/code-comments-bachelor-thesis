@@ -46,6 +46,8 @@ services:
             - JwtSettings__Issuer=${JWT_ISSUER}
             - JwtSettings__ExpirationMinutes=${JWT_EXPIRATION_MINUTES}
             - JwtSettings__ProjectPassword=${JWT_PROJECT_PASSWORD}
+            - DatabaseProvider=${DATABASE_PROVIDER}
+            - ConnectionStrings__sqliteConnection=Data Source=${SQLITE_DB_PATH-./Data/comments.db}
             - ConnectionStrings__pgsqlConnection=Host=pgsql;Port=5432;Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}
         depends_on:
             pgsql:
