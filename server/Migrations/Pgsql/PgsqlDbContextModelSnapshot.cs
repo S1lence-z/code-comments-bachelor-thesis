@@ -39,7 +39,7 @@ namespace server.Migrations.Pgsql
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Category", (string)null);
 
                     b.HasData(
                         new
@@ -143,7 +143,7 @@ namespace server.Migrations.Pgsql
 
                     b.HasIndex("ProjectId", "RootCommentId");
 
-                    b.ToTable("Comments");
+                    b.ToTable("Comment", (string)null);
                 });
 
             modelBuilder.Entity("server.Models.Locations.Location", b =>
@@ -158,7 +158,7 @@ namespace server.Migrations.Pgsql
 
                     b.HasKey("Id");
 
-                    b.ToTable("Locations", (string)null);
+                    b.ToTable("Location", (string)null);
 
                     b.UseTptMappingStrategy();
                 });
@@ -190,7 +190,7 @@ namespace server.Migrations.Pgsql
 
                     b.HasIndex("RepositoryId");
 
-                    b.ToTable("Projects");
+                    b.ToTable("Project", (string)null);
                 });
 
             modelBuilder.Entity("server.Models.Projects.Repository", b =>
@@ -221,7 +221,7 @@ namespace server.Migrations.Pgsql
 
                     b.HasKey("Id");
 
-                    b.ToTable("Repositories");
+                    b.ToTable("Repository", (string)null);
                 });
 
             modelBuilder.Entity("server.Models.Locations.FileLocation", b =>
@@ -232,7 +232,7 @@ namespace server.Migrations.Pgsql
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.ToTable("FileLocations", (string)null);
+                    b.ToTable("FileLocation", (string)null);
                 });
 
             modelBuilder.Entity("server.Models.Locations.MultilineLocation", b =>
@@ -245,7 +245,7 @@ namespace server.Migrations.Pgsql
                     b.Property<int>("StartLineNumber")
                         .HasColumnType("integer");
 
-                    b.ToTable("MultilineLocations", (string)null);
+                    b.ToTable("MultilineLocation", (string)null);
                 });
 
             modelBuilder.Entity("server.Models.Locations.ProjectLocation", b =>
@@ -256,7 +256,7 @@ namespace server.Migrations.Pgsql
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.ToTable("ProjectLocations", (string)null);
+                    b.ToTable("ProjectLocation", (string)null);
                 });
 
             modelBuilder.Entity("server.Models.Locations.SinglelineLocation", b =>
@@ -266,7 +266,7 @@ namespace server.Migrations.Pgsql
                     b.Property<int>("LineNumber")
                         .HasColumnType("integer");
 
-                    b.ToTable("SinglelineLocations", (string)null);
+                    b.ToTable("SinglelineLocation", (string)null);
                 });
 
             modelBuilder.Entity("server.Models.Comments.Comment", b =>

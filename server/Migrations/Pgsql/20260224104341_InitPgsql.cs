@@ -5,200 +5,200 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace server.Migrations.Sqlite
+namespace server.Migrations.Pgsql
 {
     /// <inheritdoc />
-    public partial class InitSqlite : Migration
+    public partial class InitPgsql : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Categories",
+                name: "Category",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Label = table.Column<string>(type: "TEXT", nullable: false),
-                    Description = table.Column<string>(type: "TEXT", maxLength: 500, nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Label = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Categories", x => x.Id);
+                    table.PrimaryKey("PK_Category", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Locations",
+                name: "Location",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    FilePath = table.Column<string>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    FilePath = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Locations", x => x.Id);
+                    table.PrimaryKey("PK_Location", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Repositories",
+                name: "Repository",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    RepositoryType = table.Column<string>(type: "TEXT", nullable: false, defaultValue: "github"),
-                    RepositoryUrl = table.Column<string>(type: "TEXT", nullable: false),
-                    Branch = table.Column<string>(type: "TEXT", nullable: false, defaultValue: "main"),
-                    CommitHash = table.Column<string>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    RepositoryType = table.Column<string>(type: "text", nullable: false, defaultValue: "github"),
+                    RepositoryUrl = table.Column<string>(type: "text", nullable: false),
+                    Branch = table.Column<string>(type: "text", nullable: false, defaultValue: "main"),
+                    CommitHash = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Repositories", x => x.Id);
+                    table.PrimaryKey("PK_Repository", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "FileLocations",
+                name: "FileLocation",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Description = table.Column<string>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_FileLocations", x => x.Id);
+                    table.PrimaryKey("PK_FileLocation", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_FileLocations_Locations_Id",
+                        name: "FK_FileLocation_Location_Id",
                         column: x => x.Id,
-                        principalTable: "Locations",
+                        principalTable: "Location",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "MultilineLocations",
+                name: "MultilineLocation",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    StartLineNumber = table.Column<int>(type: "INTEGER", nullable: false),
-                    EndLineNumber = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    StartLineNumber = table.Column<int>(type: "integer", nullable: false),
+                    EndLineNumber = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MultilineLocations", x => x.Id);
+                    table.PrimaryKey("PK_MultilineLocation", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_MultilineLocations_Locations_Id",
+                        name: "FK_MultilineLocation_Location_Id",
                         column: x => x.Id,
-                        principalTable: "Locations",
+                        principalTable: "Location",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProjectLocations",
+                name: "ProjectLocation",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Description = table.Column<string>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProjectLocations", x => x.Id);
+                    table.PrimaryKey("PK_ProjectLocation", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ProjectLocations_Locations_Id",
+                        name: "FK_ProjectLocation_Location_Id",
                         column: x => x.Id,
-                        principalTable: "Locations",
+                        principalTable: "Location",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "SinglelineLocations",
+                name: "SinglelineLocation",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    LineNumber = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    LineNumber = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SinglelineLocations", x => x.Id);
+                    table.PrimaryKey("PK_SinglelineLocation", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SinglelineLocations_Locations_Id",
+                        name: "FK_SinglelineLocation_Location_Id",
                         column: x => x.Id,
-                        principalTable: "Locations",
+                        principalTable: "Location",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Projects",
+                name: "Project",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
-                    Version = table.Column<string>(type: "TEXT", nullable: false, defaultValue: "1.0"),
-                    ServerBaseUrl = table.Column<string>(type: "TEXT", nullable: false),
-                    RepositoryId = table.Column<Guid>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Version = table.Column<string>(type: "text", nullable: false, defaultValue: "1.0"),
+                    ServerBaseUrl = table.Column<string>(type: "text", nullable: false),
+                    RepositoryId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Projects", x => x.Id);
+                    table.PrimaryKey("PK_Project", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Projects_Repositories_RepositoryId",
+                        name: "FK_Project_Repository_RepositoryId",
                         column: x => x.RepositoryId,
-                        principalTable: "Repositories",
+                        principalTable: "Repository",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Comments",
+                name: "Comment",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    ProjectId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    LocationId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CategoryId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    Type = table.Column<string>(type: "TEXT", nullable: false),
-                    Content = table.Column<string>(type: "TEXT", nullable: false),
-                    RootCommentId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    ParentCommentId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    Depth = table.Column<int>(type: "INTEGER", nullable: false, defaultValue: 0),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProjectId = table.Column<Guid>(type: "uuid", nullable: false),
+                    LocationId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CategoryId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Type = table.Column<string>(type: "text", nullable: false),
+                    Content = table.Column<string>(type: "text", nullable: false),
+                    RootCommentId = table.Column<Guid>(type: "uuid", nullable: true),
+                    ParentCommentId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Depth = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Comments", x => x.Id);
+                    table.PrimaryKey("PK_Comment", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Comments_Categories_CategoryId",
+                        name: "FK_Comment_Category_CategoryId",
                         column: x => x.CategoryId,
-                        principalTable: "Categories",
+                        principalTable: "Category",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
-                        name: "FK_Comments_Comments_ParentCommentId",
+                        name: "FK_Comment_Comment_ParentCommentId",
                         column: x => x.ParentCommentId,
-                        principalTable: "Comments",
+                        principalTable: "Comment",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Comments_Comments_RootCommentId",
+                        name: "FK_Comment_Comment_RootCommentId",
                         column: x => x.RootCommentId,
-                        principalTable: "Comments",
+                        principalTable: "Comment",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Comments_Locations_LocationId",
+                        name: "FK_Comment_Location_LocationId",
                         column: x => x.LocationId,
-                        principalTable: "Locations",
+                        principalTable: "Location",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Comments_Projects_ProjectId",
+                        name: "FK_Comment_Project_ProjectId",
                         column: x => x.ProjectId,
-                        principalTable: "Projects",
+                        principalTable: "Project",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.InsertData(
-                table: "Categories",
+                table: "Category",
                 columns: new[] { "Id", "Description", "Label" },
                 values: new object[,]
                 {
@@ -213,38 +213,38 @@ namespace server.Migrations.Sqlite
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Comments_CategoryId",
-                table: "Comments",
+                name: "IX_Comment_CategoryId",
+                table: "Comment",
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Comments_CreatedAt",
-                table: "Comments",
+                name: "IX_Comment_CreatedAt",
+                table: "Comment",
                 column: "CreatedAt");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Comments_LocationId",
-                table: "Comments",
+                name: "IX_Comment_LocationId",
+                table: "Comment",
                 column: "LocationId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Comments_ParentCommentId",
-                table: "Comments",
+                name: "IX_Comment_ParentCommentId",
+                table: "Comment",
                 column: "ParentCommentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Comments_ProjectId_RootCommentId",
-                table: "Comments",
+                name: "IX_Comment_ProjectId_RootCommentId",
+                table: "Comment",
                 columns: new[] { "ProjectId", "RootCommentId" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Comments_RootCommentId",
-                table: "Comments",
+                name: "IX_Comment_RootCommentId",
+                table: "Comment",
                 column: "RootCommentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Projects_RepositoryId",
-                table: "Projects",
+                name: "IX_Project_RepositoryId",
+                table: "Project",
                 column: "RepositoryId");
         }
 
@@ -252,31 +252,31 @@ namespace server.Migrations.Sqlite
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Comments");
+                name: "Comment");
 
             migrationBuilder.DropTable(
-                name: "FileLocations");
+                name: "FileLocation");
 
             migrationBuilder.DropTable(
-                name: "MultilineLocations");
+                name: "MultilineLocation");
 
             migrationBuilder.DropTable(
-                name: "ProjectLocations");
+                name: "ProjectLocation");
 
             migrationBuilder.DropTable(
-                name: "SinglelineLocations");
+                name: "SinglelineLocation");
 
             migrationBuilder.DropTable(
-                name: "Categories");
+                name: "Category");
 
             migrationBuilder.DropTable(
-                name: "Projects");
+                name: "Project");
 
             migrationBuilder.DropTable(
-                name: "Locations");
+                name: "Location");
 
             migrationBuilder.DropTable(
-                name: "Repositories");
+                name: "Repository");
         }
     }
 }
