@@ -102,15 +102,16 @@ namespace serverTests.IntegrationTests.Repositories
         public async Task GetByIdAsync_ExistingComment_ReturnsWithRelations()
         {
             // Arrange
-            var (project, _) = await _fixture.SeedProjectAsync();
-            var comment = await _fixture.SeedCommentAsync(project.Id, content: "Find me");
+            string testContent = "Test content";
+			var (project, _) = await _fixture.SeedProjectAsync();
+            var comment = await _fixture.SeedCommentAsync(project.Id, content: testContent);
 
             // Act
             var result = await _sut.GetByIdAsync(comment.Id, project.Id);
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal("Find me", result.Content);
+            Assert.Equal(testContent, result.Content);
             Assert.NotNull(result.Project);
             Assert.NotNull(result.Location);
         }
@@ -211,11 +212,12 @@ namespace serverTests.IntegrationTests.Repositories
         public async Task CreateAsync_PersistsAndReloadsComment()
         {
             // Arrange
-            var (project, _) = await _fixture.SeedProjectAsync();
+            string testContent = "New comment";
+			var (project, _) = await _fixture.SeedProjectAsync();
             var location = new SinglelineLocation
             {
                 Id = Guid.NewGuid(),
-                FilePath = "new.cs",
+                FilePath = "test.cs",
                 LineNumber = 5
             };
             _fixture.Context.Locations.Add(location);
@@ -227,7 +229,7 @@ namespace serverTests.IntegrationTests.Repositories
                 ProjectId = project.Id,
                 LocationId = location.Id,
                 Type = CommentType.Singleline,
-                Content = "New comment",
+                Content = testContent,
                 Depth = 0,
                 CreatedAt = DateTime.UtcNow
             };
@@ -236,7 +238,7 @@ namespace serverTests.IntegrationTests.Repositories
             var result = await _sut.CreateAsync(comment);
 
             // Assert
-            Assert.Equal("New comment", result.Content);
+            Assert.Equal(testContent, result.Content);
             Assert.NotNull(result.Project);
             Assert.NotNull(result.Location);
             Assert.IsType<SinglelineLocation>(result.Location);
