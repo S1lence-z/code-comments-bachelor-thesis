@@ -27,8 +27,8 @@ namespace server.Data
 			SetupCategories(modelBuilder);
 			SetupProjects(modelBuilder);
 			SetupRepositories(modelBuilder);
-			SetupLocations(modelBuilder);
 			SetupComments(modelBuilder);
+			SetupTableNames(modelBuilder);
 		}
 
 		private static void SeedCategories(ModelBuilder modelBuilder)
@@ -125,13 +125,18 @@ namespace server.Data
 			});
 		}
 
-		private static void SetupLocations(ModelBuilder modelBuilder)
+		private static void SetupTableNames(ModelBuilder modelBuilder)
 		{
-			modelBuilder.Entity<Location>().ToTable("Locations");
-			modelBuilder.Entity<SinglelineLocation>().ToTable("SinglelineLocations");
-			modelBuilder.Entity<MultilineLocation>().ToTable("MultilineLocations");
-			modelBuilder.Entity<FileLocation>().ToTable("FileLocations");
-			modelBuilder.Entity<ProjectLocation>().ToTable("ProjectLocations");
+			modelBuilder.Entity<Category>().ToTable("Category");
+			modelBuilder.Entity<Project>().ToTable("Project");
+			modelBuilder.Entity<Repository>().ToTable("Repository");
+			modelBuilder.Entity<Comment>().ToTable("Comment");
+			// Location
+			modelBuilder.Entity<Location>().ToTable("Location");
+			modelBuilder.Entity<SinglelineLocation>().ToTable("SinglelineLocation");
+			modelBuilder.Entity<MultilineLocation>().ToTable("MultilineLocation");
+			modelBuilder.Entity<FileLocation>().ToTable("FileLocation");
+			modelBuilder.Entity<ProjectLocation>().ToTable("ProjectLocation");
 		}
 
 		private static void SetupComments(ModelBuilder modelBuilder)

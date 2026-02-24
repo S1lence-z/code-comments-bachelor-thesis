@@ -75,11 +75,17 @@ In case you want to run database migrations manually (for example, if you want t
 You can run the following commands to apply migrations to the database specified in the `DATABASE_PROVIDER` environment variable:
 
 ```bash
-# Sqlite
+# Linux/MacOS
+## Sqlite
 dotnet ef migrations add <Name> --context SqliteDbContext --output-dir Migrations/Sqlite
-
-# PostgreSQL
+## PostgreSQL
 DatabaseProvider=PostgreSql dotnet ef migrations add <Name> --context PgsqlDbContext --output-dir Migrations/Pgsql
+
+# PowerShell (Windows)
+## Sqlite
+dotnet ef migrations add <Name> --context SqliteDbContext --output-dir Migrations/Sqlite
+## PostgreSQL
+$env:DatabaseProvider="PostgreSql"; dotnet ef migrations add <Name> --context PgsqlDbContext --output-dir Migrations/Pgsql
 ```
 
 ## Bachelor Thesis

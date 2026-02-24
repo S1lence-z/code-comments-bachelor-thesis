@@ -11,7 +11,7 @@ using server.Data;
 namespace server.Migrations.Sqlite
 {
     [DbContext(typeof(SqliteDbContext))]
-    [Migration("20260223211753_InitSqlite")]
+    [Migration("20260224104131_InitSqlite")]
     partial class InitSqlite
     {
         /// <inheritdoc />
@@ -37,7 +37,7 @@ namespace server.Migrations.Sqlite
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Category", (string)null);
 
                     b.HasData(
                         new
@@ -141,7 +141,7 @@ namespace server.Migrations.Sqlite
 
                     b.HasIndex("ProjectId", "RootCommentId");
 
-                    b.ToTable("Comments");
+                    b.ToTable("Comment", (string)null);
                 });
 
             modelBuilder.Entity("server.Models.Locations.Location", b =>
@@ -156,7 +156,7 @@ namespace server.Migrations.Sqlite
 
                     b.HasKey("Id");
 
-                    b.ToTable("Locations", (string)null);
+                    b.ToTable("Location", (string)null);
 
                     b.UseTptMappingStrategy();
                 });
@@ -188,7 +188,7 @@ namespace server.Migrations.Sqlite
 
                     b.HasIndex("RepositoryId");
 
-                    b.ToTable("Projects");
+                    b.ToTable("Project", (string)null);
                 });
 
             modelBuilder.Entity("server.Models.Projects.Repository", b =>
@@ -219,7 +219,7 @@ namespace server.Migrations.Sqlite
 
                     b.HasKey("Id");
 
-                    b.ToTable("Repositories");
+                    b.ToTable("Repository", (string)null);
                 });
 
             modelBuilder.Entity("server.Models.Locations.FileLocation", b =>
@@ -230,7 +230,7 @@ namespace server.Migrations.Sqlite
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.ToTable("FileLocations", (string)null);
+                    b.ToTable("FileLocation", (string)null);
                 });
 
             modelBuilder.Entity("server.Models.Locations.MultilineLocation", b =>
@@ -243,7 +243,7 @@ namespace server.Migrations.Sqlite
                     b.Property<int>("StartLineNumber")
                         .HasColumnType("INTEGER");
 
-                    b.ToTable("MultilineLocations", (string)null);
+                    b.ToTable("MultilineLocation", (string)null);
                 });
 
             modelBuilder.Entity("server.Models.Locations.ProjectLocation", b =>
@@ -254,7 +254,7 @@ namespace server.Migrations.Sqlite
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.ToTable("ProjectLocations", (string)null);
+                    b.ToTable("ProjectLocation", (string)null);
                 });
 
             modelBuilder.Entity("server.Models.Locations.SinglelineLocation", b =>
@@ -264,7 +264,7 @@ namespace server.Migrations.Sqlite
                     b.Property<int>("LineNumber")
                         .HasColumnType("INTEGER");
 
-                    b.ToTable("SinglelineLocations", (string)null);
+                    b.ToTable("SinglelineLocation", (string)null);
                 });
 
             modelBuilder.Entity("server.Models.Comments.Comment", b =>
