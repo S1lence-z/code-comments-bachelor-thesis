@@ -9,10 +9,10 @@ import { repositoryProviderRegistry } from "../repository-provider-registry";
 import { RepositoryType } from "../../../../base/app/types/repository-type";
 
 /**
- * GitHub implementation of ISourceProvider
+ * GitHub implementation of RepositoryProvider
  * Uses GitHub REST API to fetch repository trees and file contents
  */
-export class GithubSourceProvider implements RepositoryProvider {
+export class GithubRepositoryProvider implements RepositoryProvider {
 	private buildFileTreeFromGitHub(gitHubItems: GithubTreeItem[]): TreeNode[] {
 		const rootNodes: TreeNode[] = [];
 		const map: { [path: string]: TreeNode } = {};
@@ -182,12 +182,12 @@ export class GithubSourceProvider implements RepositoryProvider {
 	}
 }
 
-// Register the GithubSourceProvider
+// Register the GithubRepositoryProvider with the RepositoryProviderRegistry
 repositoryProviderRegistry.register({
 	metadata: {
 		id: RepositoryType.github,
 		name: "GitHub",
 		requiresAuth: false,
 	},
-	factory: () => new GithubSourceProvider(),
+	factory: () => new GithubRepositoryProvider(),
 });

@@ -5,7 +5,7 @@ import { repositoryProviderRegistry } from "../repository-provider-registry";
 import { RepositoryType } from "../../../../base/app/types/repository-type";
 
 /**
- * Single File Source Provider implementation of ISourceProvider
+ * Single File Repository Provider implementation of RepositoryProvider
  * Fetches a single static JSON file containing the complete tree structure
  * and URLs to individual file contents for lazy loading
  *
@@ -19,7 +19,7 @@ import { RepositoryType } from "../../../../base/app/types/repository-type";
  *
  * Both requests should support an optional Authorization header for authentication
  */
-export class SingleFileSourceProvider implements RepositoryProvider {
+export class SingleFileRepositoryProvider implements RepositoryProvider {
 	/**
 	 * Fetches the repository tree from a static JSON file
 	 *
@@ -46,7 +46,7 @@ export class SingleFileSourceProvider implements RepositoryProvider {
 				throw new Error(
 					data.message
 						? data.message
-						: "Invalid tree data received from Single File Source."
+						: "Invalid tree data received from Single File Repository."
 				);
 			}
 			return data.tree as TreeNode[];
@@ -88,7 +88,7 @@ export class SingleFileSourceProvider implements RepositoryProvider {
 			const response = await fetch(fileNode.fileUrl, { headers });
 			if (!response.ok) {
 				throw new Error(
-					`Failed to load file content for ${filePath} from Single File Source. Error ${response.status}`
+					`Failed to load file content for ${filePath} from Single File Repository. Error ${response.status}`
 				);
 			}
 
@@ -97,7 +97,7 @@ export class SingleFileSourceProvider implements RepositoryProvider {
 			// Validate the response structure
 			if (!data || typeof data !== "object") {
 				throw new Error(
-					"Invalid file data received from Single File Source. Expected a ProcessedFile object."
+					"Invalid file data received from Single File Repository. Expected a ProcessedFile object."
 				);
 			}
 
@@ -130,5 +130,5 @@ repositoryProviderRegistry.register({
 		name: "Static File",
 		requiresAuth: false,
 	},
-	factory: () => new SingleFileSourceProvider(),
+	factory: () => new SingleFileRepositoryProvider(),
 });
