@@ -44,7 +44,6 @@ The `content.json` file must contain:
           "name": "app.ts",
           "path": "src/app.ts",
           "type": "file",
-          "fileUrl": "https://your-server.com/projects/project-42/files/src/app.ts",
           "children": [],
           "isExpanded": false
         },
@@ -52,8 +51,7 @@ The `content.json` file must contain:
           "name": "logo.png",
           "path": "src/logo.png",
           "type": "file",
-          "fileUrl": "https://your-server.com/projects/project-42/files/src/logo.png",
-          "previewUrl": "https://your-server.com/projects/project-42/files/src/logo.png?preview=true",
+          "previewUrl": "https://your-server.com/projects/project-42/previews/src/logo.png",
           "children": [],
           "isExpanded": false
         }
@@ -71,16 +69,17 @@ interface TreeNode {
   name: string;           // File or folder name
   path: string;           // Relative path from repository root
   type: "file" | "folder"; // Node type
-  fileUrl?: string;       // URL to fetch file content (required for files)
   previewUrl?: string;    // Optional optimized URL for preview (thumbnails, images, etc.)
   children: TreeNode[];   // Child nodes (empty array for files)
   isExpanded: boolean;    // UI state (default: false)
 }
 ```
 
+**File URL Convention:** The application derives the file content URL automatically as `{baseUrl}/{path}`, where `{baseUrl}` is the repository URL with the last path segment (e.g., `content.json`) removed. For example, if your repository URL is `https://your-server.com/projects/project-42/content.json`, a file with path `src/app.ts` will be fetched from `https://your-server.com/projects/project-42/src/app.ts`.
+
 ### File Content Response
 
-When the application requests a file from the `fileUrl`, your server should return:
+When the application requests a file at `{baseUrl}/{path}`, your server should return:
 
 ```json
 {
