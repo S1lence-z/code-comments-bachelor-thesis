@@ -5,21 +5,13 @@ import { repositoryProviderRegistry } from "../repository-provider-registry";
 import { RepositoryType } from "../../../../base/app/types/repository-type";
 
 /**
- * Single File Source Provider implementation of ISourceProvider
+ * Single File Repository Provider implementation of RepositoryProvider
  * Fetches a single static JSON file containing the complete tree structure
- * and URLs to individual file contents for lazy loading
+ * and serves individual file contents from the same base URL
  *
- * Expected API Contract:
- *
- * 1. GET {repositoryUrl} (the content.json file)
- *    Returns: { tree: TreeNode[] } - The complete directory structure with file URLs
- *
- * 2. GET {fileUrl} (from TreeNode.fileUrl)
- *    Returns: ProcessedFile - The file content and metadata
- *
- * Both requests should support an optional Authorization header for authentication
+ * Both requests support an optional Authorization header for authentication
  */
-export class SingleFileSourceProvider implements RepositoryProvider {
+export class SingleFileRepositoryProvider implements RepositoryProvider {
 	/**
 	 * Fetches the repository tree from a static JSON file
 	 *
@@ -28,37 +20,31 @@ export class SingleFileSourceProvider implements RepositoryProvider {
 	 */
 	async getRepositoryTree(
 		repositoryUrl: string,
-		_branch: string,
+		branch: string,
 		authToken?: string
 	): Promise<TreeNode[]> {
-		try {
-			// Set up headers
-			const headers: HeadersInit = {
-				Accept: "application/json",
-			};
-			if (authToken) {
-				headers["Authorization"] = `Bearer ${authToken}`;
-			}
-			const response = await fetch(repositoryUrl, { headers });
-			const data = await response.json();
-			// Validate the response structure
-			if (!data || !data.tree || !Array.isArray(data.tree)) {
-				throw new Error(
-					data.message
-						? data.message
-						: "Invalid tree data received from Single File Source."
-				);
-			}
-			return data.tree as TreeNode[];
-		} catch (error) {
-			throw error;
+		const headers: HeadersInit = {
+			Accept: "application/json",
+		};
+		if (authToken) {
+			headers["Authorization"] = `Bearer ${authToken}`;
 		}
+		const response = await fetch(repositoryUrl, { headers });
+		const data = await response.json();
+		if (!data || !data.tree || !Array.isArray(data.tree)) {
+			throw new Error(
+				data.message
+					? data.message
+					: "Invalid tree data received from Single File Repository."
+			);
+		}
+		return data.tree as TreeNode[];
 	}
 
 	/**
-	 * Fetches and processes a single file from its fileUrl
+	 * Fetches and processes a single file by deriving its URL from the repository base URL
 	 *
-	 * Uses the fileUrl from the TreeNode to fetch the file content
+	 * Endpoint: GET {baseUrl}/{filePath}
 	 * Expected Response: ProcessedFile
 	 */
 	async fetchProcessedFile(
@@ -67,60 +53,31 @@ export class SingleFileSourceProvider implements RepositoryProvider {
 		filePath: string,
 		authToken?: string
 	): Promise<ProcessedFile> {
-		try {
-			// First, we need to get the tree to find the fileUrl for this path
-			const tree = await this.getRepositoryTree(repositoryUrl, branch, authToken);
-			const fileNode = this.findFileInTree(tree, filePath);
+		const baseUrl = repositoryUrl.substring(0, repositoryUrl.lastIndexOf("/"));
+		const fileContentUrl = `${baseUrl}/${filePath}`;
 
-			if (!fileNode || !fileNode.fileUrl) {
-				throw new Error(`File not found in tree or missing fileUrl: ${filePath}`);
-			}
-
-			// Set up headers
-			const headers: HeadersInit = {
-				Accept: "application/json",
-			};
-			if (authToken) {
-				headers["Authorization"] = `Bearer ${authToken}`;
-			}
-
-			// Fetch the file content from the fileUrl
-			const response = await fetch(fileNode.fileUrl, { headers });
-			if (!response.ok) {
-				throw new Error(
-					`Failed to load file content for ${filePath} from Single File Source. Error ${response.status}`
-				);
-			}
-
-			const data = await response.json();
-
-			// Validate the response structure
-			if (!data || typeof data !== "object") {
-				throw new Error(
-					"Invalid file data received from Single File Source. Expected a ProcessedFile object."
-				);
-			}
-
-			return data as ProcessedFile;
-		} catch (error) {
-			throw error;
+		const headers: HeadersInit = {
+			Accept: "application/json",
+		};
+		if (authToken) {
+			headers["Authorization"] = `Bearer ${authToken}`;
 		}
-	}
 
-	/**
-	 * Helper method to find a file node in the tree by its path
-	 */
-	private findFileInTree(tree: TreeNode[], targetPath: string): TreeNode | null {
-		for (const node of tree) {
-			if (node.path === targetPath) {
-				return node;
-			}
-			if (node.children && node.children.length > 0) {
-				const found = this.findFileInTree(node.children, targetPath);
-				if (found) return found;
-			}
+		const response = await fetch(fileContentUrl, { headers });
+		if (!response.ok) {
+			throw new Error(
+				`Failed to load file content for ${filePath} from Single File Repository. Error ${response.status}`
+			);
 		}
-		return null;
+
+		const data = await response.json();
+		if (!data || typeof data !== "object") {
+			throw new Error(
+				"Invalid file data received from Single File Repository. Expected a ProcessedFile object."
+			);
+		}
+
+		return data as ProcessedFile;
 	}
 }
 
@@ -130,5 +87,5 @@ repositoryProviderRegistry.register({
 		name: "Static File",
 		requiresAuth: false,
 	},
-	factory: () => new SingleFileSourceProvider(),
+	factory: () => new SingleFileRepositoryProvider(),
 });
