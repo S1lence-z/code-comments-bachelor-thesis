@@ -3,13 +3,9 @@ export function useCodeReviewPage() {
 	const { params } = useQueryParams();
 
 	// Stores
-	const projectStore = useProjectStore();
 	const projectDataStore = useProjectDataStore();
-	const fileContentStore = useFileContentStore();
 	const settingsStore = useSettingsStore();
-
-	// State
-	const selectedFilePath = ref<string | null>(null);
+	const workspaceStore = useWorkspaceStore();
 
 	// Sidebar state
 	const sidebarWidth = ref(280);
@@ -24,25 +20,6 @@ export function useCodeReviewPage() {
 	const getFileTree = computed(() => projectDataStore.getFileTree);
 	const isLoadingRepository = computed(() => projectDataStore.isLoadingRepository);
 
-	// Handle file selection and loading
-	const handleFileSelected = async (path: string | null): Promise<void> => {
-		if (!path) {
-			selectedFilePath.value = null;
-			return;
-		}
-
-		// Update selected file path
-		selectedFilePath.value = path;
-
-		// Fetch the file content
-		await fileContentStore.cacheFileAsync(
-			path,
-			projectStore.getRepositoryUrl,
-			projectStore.getRepositoryBranch,
-			projectStore.getRepoAuthToken()
-		);
-	};
-
 	// Handle resize events from ResizeHandle component
 	const handleSidebarResize = (newWidth: number): void => {
 		sidebarWidth.value = Math.max(minSidebarWidth, Math.min(maxSidebarWidth, newWidth));
@@ -51,15 +28,8 @@ export function useCodeReviewPage() {
 	const handleFileQueryParam = (): void => {
 		const filePathToOpen = params.value.file;
 		if (filePathToOpen) {
-			handleFileSelected(filePathToOpen);
-		} else {
-			selectedFilePath.value = null;
+			workspaceStore.openFile(filePathToOpen);
 		}
-	};
-
-	// Is current workspace empty
-	const isAnyFileSelected = () => {
-		return !!selectedFilePath.value;
 	};
 
 	// Project/File comment form state
@@ -77,8 +47,6 @@ export function useCodeReviewPage() {
 	};
 
 	return {
-		// Local state
-		selectedFilePath,
 		// Computed
 		isSidebarVisible,
 		getFileTree,
@@ -94,9 +62,7 @@ export function useCodeReviewPage() {
 		handleFileCommentRequest,
 		handleProjectCommentRequest,
 		// Methods
-		handleFileSelected,
 		handleSidebarResize,
 		handleFileQueryParam,
-		isAnyFileSelected,
 	};
 }
