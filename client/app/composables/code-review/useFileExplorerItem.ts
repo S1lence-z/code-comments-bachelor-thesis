@@ -10,6 +10,7 @@ export interface FileExplorerItemEmits {
 	(event: "update:filePath", value: string | null): void;
 	(event: "toggle-expand-item", item: TreeNode): void;
 	(event: "file-comment-requested", filePath: string): void;
+	(event: "file-pin-requested", filePath: string): void;
 }
 
 export function useFileExplorerItem(props: FileExplorerItemProps, emit: FileExplorerItemEmits) {
@@ -30,6 +31,12 @@ export function useFileExplorerItem(props: FileExplorerItemProps, emit: FileExpl
 			emit("update:filePath", item.path);
 		} else if (item.type === TreeNodeType.folder) {
 			emit("toggle-expand-item", item);
+		}
+	};
+
+	const handleItemDoubleClick = (item: TreeNode): void => {
+		if (item.type === TreeNodeType.file) {
+			emit("file-pin-requested", item.path);
 		}
 	};
 
@@ -57,6 +64,7 @@ export function useFileExplorerItem(props: FileExplorerItemProps, emit: FileExpl
 
 	return {
 		handleItemClick,
+		handleItemDoubleClick,
 		handleToggleExpand,
 		fileContainsAnyComments,
 		fileContainsFileComment,

@@ -1,6 +1,7 @@
 export interface TabData {
 	filePath: string;
 	panelId: number;
+	isPreview?: boolean;
 }
 
 export interface PanelData {

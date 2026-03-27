@@ -25,6 +25,8 @@ const {
 	handleDrop,
 	setActiveFileTab,
 	removeFileTab,
+	pinFileTab,
+	isPreviewTab,
 } = useFileTabManager(props, emit);
 </script>
 
@@ -37,15 +39,17 @@ const {
 				ref="fileTabsContainer"
 				class="flex items-center py-2 overflow-scroll scrollbar-minimal overflow-y-hidden"
 			>
-				<!-- Mutliple File Tabs -->
-				<div v-if="currentTabs.length > 1" class="flex items-center gap-2 px-4">
+				<!-- File Tabs -->
+				<div class="flex items-center gap-2 px-4">
 					<div
 						v-for="(file, index) in currentTabs"
 						:key="file"
 						class="file-tab"
 						:class="{
-							'active': file === activeTab,
+							'active': file === activeTab && !isPreviewTab(file),
+							'active-preview': file === activeTab && isPreviewTab(file),
 							'opacity-50 scale-95': isDragging && file === draggedFilePath,
+							'opacity-75': isPreviewTab(file) && file !== activeTab,
 						}"
 						@dragover="handleDragOver"
 						@drop="handleDrop($event, index)"
@@ -55,6 +59,7 @@ const {
 							@dragstart="handleDragStart($event, file)"
 							@dragend="handleDragEnd"
 							@click="setActiveFileTab(file)"
+							@dblclick="pinFileTab(file)"
 							:title="file"
 							class="flex items-center gap-2 px-3 py-1 duration-200 cursor-pointer"
 							:class="{
@@ -64,36 +69,28 @@ const {
 								'select-none cursor-grab active:cursor-grabbing': props.panelId,
 							}"
 						>
-							<span class="truncate max-w-32">{{ getFileName(file) }}</span>
+							<span
+								class="truncate max-w-32"
+								:class="{ 'italic': isPreviewTab(file) }"
+								>{{ getFileName(file) }}</span
+							>
 						</button>
 
-						<!-- Close tab button -->
+						<!-- Close/Preview indicator button -->
 						<button
 							@click="removeFileTab(file)"
-							class="flex items-center justify-center w-6 h-6 text-slate-400 hover:text-white hover:bg-white/10 rounded-md duration-200 mr-1 cursor-pointer text-sm"
+							class="group flex items-center justify-center w-6 h-6 text-slate-400 hover:text-white hover:bg-white/10 rounded-md duration-200 mr-1 cursor-pointer text-sm"
 							:title="t('panel.closeFile')"
 						>
-							<Icon icon="mdi:close" class="w-6 h-6" />
+							<template v-if="isPreviewTab(file)">
+								<span
+									class="w-2 h-2 rounded-full bg-slate-400 group-hover:hidden"
+								></span>
+								<Icon icon="mdi:close" class="w-6 h-6 hidden group-hover:block" />
+							</template>
+							<Icon v-else icon="mdi:close" class="w-6 h-6" />
 						</button>
 					</div>
-				</div>
-
-				<!-- Single Open File Label -->
-				<div v-else class="flex items-center gap-2 px-2 py-1 text-slate-300">
-					<!-- TODO: take a look at the null checkers -->
-					<span
-						class="text-slate-300 font-semibold ml-4"
-						>{{ getFileName(currentTabs[0] ?? '') }}</span
-					>
-
-					<!-- Close tab button -->
-					<button
-						@click="removeFileTab(currentTabs[0] ?? '')"
-						class="flex items-center justify-center w-6 h-6 text-slate-400 hover:text-white hover:bg-slate-700 rounded-md duration-200 cursor-pointer"
-						:title="t('panel.closeFile')"
-					>
-						<Icon icon="mdi:close" class="w-6 h-6" />
-					</button>
 				</div>
 			</div>
 		</div>

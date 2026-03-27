@@ -21,13 +21,20 @@ export const useWorkspaceStore = defineStore("workspaceStore", {
 		getCurrentWorkspace: (state): Workspace | null => state.currentWorkspace,
 		getAllSavedWorkspaces: (state): Workspace[] => state.savedWorkspaces,
 		panels: (state): PanelData[] => state.currentWorkspace?.panels || [],
+		activeFilePath: (state): string | null => {
+			const firstPanel = state.currentWorkspace?.panels[0];
+			return firstPanel?.activeTab?.filePath ?? null;
+		},
+		hasOpenFiles: (state): boolean => {
+			return (state.currentWorkspace?.panels.length ?? 0) > 0;
+		},
 		getWorkspaceByRepository:
 			(state) =>
 			(repositoryUrl: string, repositoryBranch: string): Workspace | undefined => {
 				return state.savedWorkspaces.find(
 					(ws) =>
 						ws.repositoryUrl === repositoryUrl &&
-						ws.repositoryBranch === repositoryBranch
+						ws.repositoryBranch === repositoryBranch,
 				);
 			},
 	},
@@ -35,7 +42,7 @@ export const useWorkspaceStore = defineStore("workspaceStore", {
 		// Workspace Initialization
 		async initializeWorkspace(
 			repositoryUrl: string,
-			repositoryBranch: string
+			repositoryBranch: string,
 		): Promise<string | null> {
 			const { handleError } = useErrorHandler();
 			const fileContentStore = useFileContentStore();
@@ -49,7 +56,7 @@ export const useWorkspaceStore = defineStore("workspaceStore", {
 			// Load existing workspace or create new one
 			const existingWorkspace = this.getWorkspaceByRepository(
 				repositoryUrl,
-				repositoryBranch
+				repositoryBranch,
 			);
 
 			if (existingWorkspace && existingWorkspace.panels.length > 0) {
@@ -74,7 +81,7 @@ export const useWorkspaceStore = defineStore("workspaceStore", {
 							tab.filePath,
 							repositoryUrl,
 							repositoryBranch,
-							projectStore.getRepoAuthToken()
+							projectStore.getRepoAuthToken(),
 						);
 					}
 				}
@@ -103,7 +110,7 @@ export const useWorkspaceStore = defineStore("workspaceStore", {
 			return this.savedWorkspaces.some(
 				(ws) =>
 					ws.repositoryUrl === workspace.repositoryUrl &&
-					ws.repositoryBranch === workspace.repositoryBranch
+					ws.repositoryBranch === workspace.repositoryBranch,
 			);
 		},
 		applyWorkspaces(workspaces: Workspace[]) {
@@ -115,21 +122,37 @@ export const useWorkspaceStore = defineStore("workspaceStore", {
 			const settingsStore = useSettingsStore();
 			if (!settingsStore.isSaveWorkspace) return;
 
+			// Filter out preview tabs before persisting
+			const workspaceToSave: Workspace = {
+				...this.currentWorkspace,
+				panels: this.currentWorkspace.panels
+					.map((panel) => {
+						const pinnedTabs = panel.openTabs.filter((tab) => !tab.isPreview);
+						return {
+							...panel,
+							openTabs: pinnedTabs,
+							activeTab: panel.activeTab?.isPreview
+								? (pinnedTabs[0] ?? null)
+								: panel.activeTab,
+						};
+					})
+					.filter((panel) => panel.openTabs.length > 0),
+			};
+
 			if (this.hasWorkspace(this.currentWorkspace)) {
 				// Update existing workspace
 				this.savedWorkspaces = this.savedWorkspaces.map((ws) =>
 					ws.repositoryUrl === this.currentWorkspace!.repositoryUrl &&
 					ws.repositoryBranch === this.currentWorkspace!.repositoryBranch
-						? { ...this.currentWorkspace! }
-						: ws
+						? workspaceToSave
+						: ws,
 				);
 			} else {
-				// Add new workspace
-				this.savedWorkspaces.push({ ...this.currentWorkspace });
+				this.savedWorkspaces.push(workspaceToSave);
 			}
 			localStorage.setItem(
 				appSavedWorkspaceKey.description!,
-				JSON.stringify(this.savedWorkspaces)
+				JSON.stringify(this.savedWorkspaces),
 			);
 		},
 		loadWorkspacesFromStorage(): Workspace[] {
@@ -183,46 +206,18 @@ export const useWorkspaceStore = defineStore("workspaceStore", {
 			return newPanel;
 		},
 
-		closePanel(panelId: number): {
-			shouldClearSelection: boolean;
-			newSelectedFilePath: string | null;
-		} {
-			if (!this.currentWorkspace) {
-				return { shouldClearSelection: false, newSelectedFilePath: null };
-			}
+		closePanel(panelId: number): void {
+			if (!this.currentWorkspace) return;
 
-			// Find the panel index
 			const panelIndex = this.currentWorkspace.panels.findIndex(
-				(p: PanelData) => p.id === panelId
+				(p: PanelData) => p.id === panelId,
 			);
-			if (panelIndex === -1) {
-				return { shouldClearSelection: false, newSelectedFilePath: null };
-			}
-
-			// Get the panel to close
-			const panelToClose = this.currentWorkspace.panels[panelIndex];
-			let newSelectedFilePath: string | null = null;
-
-			// If this panel has an active tab, we might need to switch to another panel
-			if (panelToClose?.activeTab) {
-				const remainingPanels = this.currentWorkspace.panels.filter(
-					(p: PanelData) => p.id !== panelId
-				);
-				const nextActivePanel = remainingPanels[0];
-				if (nextActivePanel?.activeTab) {
-					newSelectedFilePath = nextActivePanel.activeTab.filePath;
-				}
-			}
+			if (panelIndex === -1) return;
 
 			// Remove panel and redistribute sizes
 			this.currentWorkspace.panels.splice(panelIndex, 1);
 			this.redistributePanelSizes();
 			this.saveCurrentWorkspace();
-
-			return {
-				shouldClearSelection: this.currentWorkspace.panels.length === 0,
-				newSelectedFilePath,
-			};
 		},
 
 		redistributePanelSizes(): void {
@@ -239,7 +234,7 @@ export const useWorkspaceStore = defineStore("workspaceStore", {
 		resizePanel(
 			currentPanel: PanelData,
 			nextPanel: PanelData,
-			newWidthPercentage: number
+			newWidthPercentage: number,
 		): void {
 			// Calculate total width of current + next panel
 			const totalWidthPercentage = currentPanel.size + nextPanel.size;
@@ -247,7 +242,7 @@ export const useWorkspaceStore = defineStore("workspaceStore", {
 			// Clamp the new width to ensure both panels have minimum size
 			const clampedCurrentWidthPercentage = Math.max(
 				this.minPanelSizePercentage,
-				Math.min(totalWidthPercentage - this.minPanelSizePercentage, newWidthPercentage)
+				Math.min(totalWidthPercentage - this.minPanelSizePercentage, newWidthPercentage),
 			);
 			const clampedNextWidthPercentage = totalWidthPercentage - clampedCurrentWidthPercentage;
 
@@ -309,73 +304,124 @@ export const useWorkspaceStore = defineStore("workspaceStore", {
 			return filePath;
 		},
 
-		selectTab(filePath: string, panelId: number): string {
+		async openFile(filePath: string | null): Promise<void> {
+			if (!filePath) return;
+
+			const fileContentStore = useFileContentStore();
+			const projectStore = useProjectStore();
+
+			// Cache the file content
+			await fileContentStore.cacheFileAsync(
+				filePath,
+				projectStore.getRepositoryUrl,
+				projectStore.getRepositoryBranch,
+				projectStore.getRepoAuthToken(),
+			);
+
+			// If already open in any panel, just activate it; otherwise add a new tab
+			if (this.isFileOpenInAnyPanel(filePath)) {
+				this.setActiveTabByFilePath(filePath);
+			} else {
+				this.addTabToPanel(filePath);
+			}
+		},
+
+		async openPreviewFile(filePath: string | null): Promise<void> {
+			if (!filePath) return;
+
+			const fileContentStore = useFileContentStore();
+			const projectStore = useProjectStore();
+
+			await fileContentStore.cacheFileAsync(
+				filePath,
+				projectStore.getRepositoryUrl,
+				projectStore.getRepositoryBranch,
+				projectStore.getRepoAuthToken(),
+			);
+
+			// If already open in any panel, just activate it (don't downgrade pinned to preview)
+			if (this.isFileOpenInAnyPanel(filePath)) {
+				this.setActiveTabByFilePath(filePath);
+				return;
+			}
+
+			if (!this.currentWorkspace) return;
+
+			const targetPanel =
+				this.currentWorkspace.panels[0] ?? this.createPanel();
+
+			// Find existing preview tab and replace it
+			const previewIndex = targetPanel.openTabs.findIndex((tab) => tab.isPreview);
+			const newTab: TabData = {
+				filePath,
+				panelId: targetPanel.id,
+				isPreview: true,
+			};
+
+			if (previewIndex !== -1) {
+				targetPanel.openTabs.splice(previewIndex, 1, newTab);
+			} else {
+				targetPanel.openTabs.push(newTab);
+			}
+
+			targetPanel.activeTab = newTab;
+			this.saveCurrentWorkspace();
+		},
+
+		pinTab(filePath: string, panelId: number): void {
 			const panel = this.findPanelById(panelId);
-			if (!panel) return filePath;
+			if (!panel) return;
+
+			const tab = this.findTabInPanel(panel, filePath);
+			if (tab) {
+				tab.isPreview = false;
+				this.saveCurrentWorkspace();
+			}
+		},
+
+		selectTab(filePath: string, panelId: number): void {
+			const panel = this.findPanelById(panelId);
+			if (!panel) return;
 
 			const tab = this.findTabInPanel(panel, filePath);
 			if (tab) {
 				panel.activeTab = tab;
 				this.saveCurrentWorkspace();
-				return filePath;
 			}
-			return filePath;
 		},
 
-		closeTab(
-			filePath: string,
-			panelId: number
-		): { shouldClearSelection: boolean; newSelectedFilePath: string | null } {
-			if (!this.currentWorkspace) {
-				return { shouldClearSelection: false, newSelectedFilePath: null };
-			}
+		closeTab(filePath: string, panelId: number): void {
+			if (!this.currentWorkspace) return;
 
-			// Find the panel
 			const panel = this.findPanelById(panelId);
-			if (!panel) {
-				return { shouldClearSelection: false, newSelectedFilePath: null };
-			}
+			if (!panel) return;
 
-			// Find the tab index
 			const tabIndex = this.getTabIndexInPanel(panel, filePath);
-			if (tabIndex === -1) {
-				return { shouldClearSelection: false, newSelectedFilePath: null };
-			}
+			if (tabIndex === -1) return;
 
 			// Remove the tab
 			panel.openTabs.splice(tabIndex, 1);
 
-			let newSelectedFilePath: string | null = null;
-
-			// Current panel still has some tabs
 			if (panel.openTabs.length > 0) {
-				// If the closed tab was active, set a new active tab
+				// If the closed tab was active, set the next active tab
 				if (panel.activeTab?.filePath === filePath) {
 					panel.activeTab = panel.openTabs[0] ?? null;
-					newSelectedFilePath = panel.activeTab?.filePath || null;
 				}
 			} else {
-				// Panel has no tabs left
+				// Panel has no tabs left, close the panel
 				panel.activeTab = null;
-				const closeResult = this.closePanel(panelId);
-				newSelectedFilePath = closeResult.newSelectedFilePath;
+				this.closePanel(panelId);
 			}
 
 			this.saveCurrentWorkspace();
-
-			// If no panels left, clear selected file path
-			return {
-				shouldClearSelection: this.currentWorkspace.panels.length === 0,
-				newSelectedFilePath,
-			};
 		},
 
 		// Drag & Drop Actions
 		moveTabBetweenPanels(
 			targetPanelId: number,
 			draggedTab: DraggedTabData,
-			insertIndex?: number
-		): string {
+			insertIndex?: number,
+		): void {
 			if (!this.currentWorkspace) {
 				throw new Error("Cannot move tab: no current workspace");
 			}
@@ -383,14 +429,12 @@ export const useWorkspaceStore = defineStore("workspaceStore", {
 			const { filePath, fromPanelId } = draggedTab;
 
 			// Don't allow dropping on the same panel
-			if (fromPanelId === targetPanelId) {
-				return filePath;
-			}
+			if (fromPanelId === targetPanelId) return;
 
 			const sourcePanel = this.findPanelById(fromPanelId);
 			const targetPanel = this.findPanelById(targetPanelId);
 
-			if (!sourcePanel || !targetPanel) return filePath;
+			if (!sourcePanel || !targetPanel) return;
 
 			// Remove tab from source panel
 			const sourceTabIndex = this.getTabIndexInPanel(sourcePanel, filePath);
@@ -423,10 +467,9 @@ export const useWorkspaceStore = defineStore("workspaceStore", {
 			}
 
 			this.saveCurrentWorkspace();
-			return filePath;
 		},
 
-		moveTabToNewPanel(draggedTab: DraggedTabData, insertPosition: number): string {
+		moveTabToNewPanel(draggedTab: DraggedTabData, insertPosition: number): void {
 			if (!this.currentWorkspace) {
 				throw new Error("Cannot move tab: no current workspace");
 			}
@@ -468,21 +511,20 @@ export const useWorkspaceStore = defineStore("workspaceStore", {
 			}
 
 			this.saveCurrentWorkspace();
-			return filePath;
 		},
 
 		// Utility Actions
 		isFileOpenInAnyPanel(filePath: string): boolean {
 			if (!this.currentWorkspace) return false;
 			return this.currentWorkspace.panels.some((panel: PanelData) =>
-				panel.openTabs.some((tab) => tab.filePath === filePath)
+				panel.openTabs.some((tab) => tab.filePath === filePath),
 			);
 		},
 
 		findPanelWithFile(filePath: string): PanelData | undefined {
 			if (!this.currentWorkspace) return undefined;
 			return this.currentWorkspace.panels.find((panel: PanelData) =>
-				panel.openTabs.some((tab) => tab.filePath === filePath)
+				panel.openTabs.some((tab) => tab.filePath === filePath),
 			);
 		},
 

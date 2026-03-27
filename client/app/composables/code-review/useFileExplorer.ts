@@ -10,6 +10,7 @@ export interface FileExplorerEmits {
 	(event: "update:selectedPath", value: string | null): void;
 	(event: "project-comment-requested"): void;
 	(event: "file-comment-requested", filePath: string): void;
+	(event: "file-pin-requested", filePath: string): void;
 }
 
 export const useFileExplorer = () => {

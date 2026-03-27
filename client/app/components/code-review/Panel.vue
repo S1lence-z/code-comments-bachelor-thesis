@@ -11,6 +11,7 @@ const {
 	// State
 	currentActiveTab,
 	currentTabs,
+	previewFilePaths,
 	isDragOver,
 	showDropZone,
 
@@ -23,6 +24,7 @@ const {
 	handleTabDragStart,
 	handleTabDragEnd,
 	handleTabDropWithIndex,
+	handleTabPinned,
 } = usePanel(props, emit);
 </script>
 
@@ -39,11 +41,13 @@ const {
 			:open-tabs="currentTabs"
 			:panel-id="panelId"
 			:dragged-tab="draggedTab"
+			:preview-tabs="previewFilePaths"
 			@update:active-tab="handleTabUpdate"
 			@tab-closed="handleCloseFileTab"
 			@tab-drag-start="handleTabDragStart"
 			@tab-drag-end="handleTabDragEnd"
 			@tab-drop="handleTabDropWithIndex"
+			@tab-pinned="handleTabPinned"
 		>
 			<slot></slot>
 		</FileTabManager>

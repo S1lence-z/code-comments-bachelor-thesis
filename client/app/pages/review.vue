@@ -21,8 +21,6 @@ const {
 	isSidebarVisible,
 	getFileTree,
 	isLoadingRepository,
-	// Local state
-	selectedFilePath,
 	// Sidebar state
 	sidebarWidth,
 	minSidebarWidth,
@@ -34,10 +32,8 @@ const {
 	handleFileCommentRequest,
 	handleProjectCommentRequest,
 	// Methods
-	handleFileSelected,
 	handleSidebarResize,
 	handleFileQueryParam,
-	isAnyFileSelected,
 } = useCodeReviewPage();
 
 // Drag and Drop State
@@ -53,13 +49,11 @@ const handleTabDrop = (targetPanelId: number, insertIndex?: number): void => {
 		return;
 	}
 
-	// Adjust insert index if moving within the same panel and the tab is before the insert index
-	const newSelectedPath = workspaceStore.moveTabBetweenPanels(
+	workspaceStore.moveTabBetweenPanels(
 		targetPanelId,
 		dragDropState.draggedTab.value,
 		insertIndex
 	);
-	handleFileSelected(newSelectedPath);
 	dragDropState.endDrag();
 };
 
@@ -106,42 +100,22 @@ const handleDropZoneDrop = (event: DragEvent): void => {
 
 	if (insertPosition === null) return;
 
-	const newSelectedPath = workspaceStore.moveTabToNewPanel(dragDropState.draggedTab.value, insertPosition);
-	handleFileSelected(newSelectedPath);
+	workspaceStore.moveTabToNewPanel(dragDropState.draggedTab.value, insertPosition);
 	dragDropState.endDrag();
 };
 
-// Workspace methods using store
+// Tab event handlers
 const handleTabSelected = (filePath: string, panelId: number): void => {
-	const newSelectedPath = workspaceStore.selectTab(filePath, panelId);
-	handleFileSelected(newSelectedPath);
+	workspaceStore.selectTab(filePath, panelId);
 };
 
 const handleTabClosed = (filePath: string, panelId: number): void => {
-	const result = workspaceStore.closeTab(filePath, panelId);
-	if (result.shouldClearSelection) {
-		handleFileSelected(null);
-	} else if (result.newSelectedFilePath) {
-		handleFileSelected(result.newSelectedFilePath);
-	}
+	workspaceStore.closeTab(filePath, panelId);
 };
 
-// Watch for selectedFilePath changes to add files to panels
-watch(
-	() => selectedFilePath.value,
-	(newFilePath: string | null) => {
-		if (!newFilePath) return;
-
-		// Check if file is already open in any panel
-		if (workspaceStore.isFileOpenInAnyPanel(newFilePath)) {
-			// File is already open, just make it active
-			workspaceStore.setActiveTabByFilePath(newFilePath);
-		} else {
-			// File is not open, add it to a panel
-			workspaceStore.addTabToPanel(newFilePath);
-		}
-	}
-);
+const handleTabPinned = (filePath: string, panelId: number): void => {
+	workspaceStore.pinTab(filePath, panelId);
+};
 
 onMounted(async () => {
 	// Initialize workspace from store
@@ -153,8 +127,9 @@ onMounted(async () => {
 	// Query param file takes priority over workspace default
 	handleFileQueryParam();
 
-	if (!selectedFilePath.value && initialFilePath) {
-		handleFileSelected(initialFilePath);
+	// If no file was opened via query param, use the workspace default
+	if (!workspaceStore.activeFilePath && initialFilePath) {
+		workspaceStore.openFile(initialFilePath);
 	}
 });
 </script>
@@ -189,8 +164,9 @@ onMounted(async () => {
 						<!-- File Explorer -->
 						<FileExplorer
 							v-else-if="getFileTree.length > 0"
-							:selectedPath="selectedFilePath"
-							@update:selected-path="handleFileSelected"
+							:selectedPath="workspaceStore.activeFilePath"
+							@update:selected-path="workspaceStore.openPreviewFile"
+							@file-pin-requested="workspaceStore.openFile"
 							:treeData="getFileTree"
 							@project-comment-requested="handleProjectCommentRequest"
 							@file-comment-requested="handleFileCommentRequest"
@@ -222,7 +198,7 @@ onMounted(async () => {
 					<div class="flex flex-col grow min-w-0 backdrop-blur-sm bg-slate-900/50">
 						<!-- SplitPanelManager -->
 						<SplitPanelManager
-							v-if="isAnyFileSelected()"
+							v-if="workspaceStore.hasOpenFiles"
 							:panels="workspaceStore.panels"
 							:dragged-tab="dragDropState.draggedTab.value"
 							:left-drop-zone-active="dragDropState.leftDropZoneActive.value"
@@ -231,6 +207,7 @@ onMounted(async () => {
 							:side-bar-width="sidebarWidth"
 							@tab-selected="handleTabSelected"
 							@tab-closed="handleTabClosed"
+							@tab-pinned="handleTabPinned"
 							@tab-drop="handleTabDrop"
 							@tab-drag-start="dragDropState.startDrag"
 							@tab-drag-end="dragDropState.endDrag"

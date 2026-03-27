@@ -49,6 +49,10 @@
 		@apply bg-blue-500/20 text-purple-200 font-semibold border-blue-500/30;
 	}
 
+	.file-tab.active-preview {
+		@apply bg-white/10 text-slate-200 border border-dashed border-white/20;
+	}
+
 	/* Slideout Panel */
 	.panel {
 		@apply fixed top-0 right-0 bg-white/10 backdrop-blur-sm rounded-tl-xl rounded-bl-xl border border-black p-8 transition-all duration-300;
