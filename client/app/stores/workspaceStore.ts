@@ -122,17 +122,33 @@ export const useWorkspaceStore = defineStore("workspaceStore", {
 			const settingsStore = useSettingsStore();
 			if (!settingsStore.isSaveWorkspace) return;
 
+			// Filter out preview tabs before persisting
+			const workspaceToSave: Workspace = {
+				...this.currentWorkspace,
+				panels: this.currentWorkspace.panels
+					.map((panel) => {
+						const pinnedTabs = panel.openTabs.filter((tab) => !tab.isPreview);
+						return {
+							...panel,
+							openTabs: pinnedTabs,
+							activeTab: panel.activeTab?.isPreview
+								? (pinnedTabs[0] ?? null)
+								: panel.activeTab,
+						};
+					})
+					.filter((panel) => panel.openTabs.length > 0),
+			};
+
 			if (this.hasWorkspace(this.currentWorkspace)) {
 				// Update existing workspace
 				this.savedWorkspaces = this.savedWorkspaces.map((ws) =>
 					ws.repositoryUrl === this.currentWorkspace!.repositoryUrl &&
 					ws.repositoryBranch === this.currentWorkspace!.repositoryBranch
-						? { ...this.currentWorkspace! }
+						? workspaceToSave
 						: ws,
 				);
 			} else {
-				// Add new workspace
-				this.savedWorkspaces.push({ ...this.currentWorkspace });
+				this.savedWorkspaces.push(workspaceToSave);
 			}
 			localStorage.setItem(
 				appSavedWorkspaceKey.description!,
@@ -307,6 +323,59 @@ export const useWorkspaceStore = defineStore("workspaceStore", {
 				this.setActiveTabByFilePath(filePath);
 			} else {
 				this.addTabToPanel(filePath);
+			}
+		},
+
+		async openPreviewFile(filePath: string | null): Promise<void> {
+			if (!filePath) return;
+
+			const fileContentStore = useFileContentStore();
+			const projectStore = useProjectStore();
+
+			await fileContentStore.cacheFileAsync(
+				filePath,
+				projectStore.getRepositoryUrl,
+				projectStore.getRepositoryBranch,
+				projectStore.getRepoAuthToken(),
+			);
+
+			// If already open in any panel, just activate it (don't downgrade pinned to preview)
+			if (this.isFileOpenInAnyPanel(filePath)) {
+				this.setActiveTabByFilePath(filePath);
+				return;
+			}
+
+			if (!this.currentWorkspace) return;
+
+			const targetPanel =
+				this.currentWorkspace.panels[0] ?? this.createPanel();
+
+			// Find existing preview tab and replace it
+			const previewIndex = targetPanel.openTabs.findIndex((tab) => tab.isPreview);
+			const newTab: TabData = {
+				filePath,
+				panelId: targetPanel.id,
+				isPreview: true,
+			};
+
+			if (previewIndex !== -1) {
+				targetPanel.openTabs.splice(previewIndex, 1, newTab);
+			} else {
+				targetPanel.openTabs.push(newTab);
+			}
+
+			targetPanel.activeTab = newTab;
+			this.saveCurrentWorkspace();
+		},
+
+		pinTab(filePath: string, panelId: number): void {
+			const panel = this.findPanelById(panelId);
+			if (!panel) return;
+
+			const tab = this.findTabInPanel(panel, filePath);
+			if (tab) {
+				tab.isPreview = false;
+				this.saveCurrentWorkspace();
 			}
 		},
 

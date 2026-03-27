@@ -5,6 +5,7 @@ export interface FileTabManagerProps {
 	panelId?: number;
 	openTabs?: string[];
 	draggedTab?: DraggedTabData | null;
+	previewTabs?: Set<string>;
 }
 
 export interface FileTabManagerEmits {
@@ -13,6 +14,7 @@ export interface FileTabManagerEmits {
 	(event: "tab-drag-start", filePath: string, panelId: number): void;
 	(event: "tab-drag-end"): void;
 	(event: "tab-drop", panelId: number, insertIndex: number): void;
+	(event: "tab-pinned", filePath: string): void;
 }
 
 export const useFileTabManager = (props: FileTabManagerProps, emit: FileTabManagerEmits) => {
@@ -28,6 +30,14 @@ export const useFileTabManager = (props: FileTabManagerProps, emit: FileTabManag
 
 	const removeFileTab = (filePath: string) => {
 		emit("tab-closed", filePath);
+	};
+
+	const pinFileTab = (filePath: string) => {
+		emit("tab-pinned", filePath);
+	};
+
+	const isPreviewTab = (filePath: string): boolean => {
+		return props.previewTabs?.has(filePath) ?? false;
 	};
 
 	// Only manage internal tabs in classic mode
@@ -86,6 +96,8 @@ export const useFileTabManager = (props: FileTabManagerProps, emit: FileTabManag
 		currentTabs,
 		setActiveFileTab,
 		removeFileTab,
+		pinFileTab,
+		isPreviewTab,
 		handleDragStart,
 		handleDragEnd,
 		handleDragOver,

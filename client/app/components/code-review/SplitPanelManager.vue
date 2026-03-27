@@ -49,6 +49,7 @@ const {
 				@tab-drag-start="(filePath, panelId) => emit('tab-drag-start', filePath, panelId)"
 				@tab-drag-end="() => emit('tab-drag-end')"
 				@tab-drop-with-index="(panelId, insertIndex) => emit('tab-drop', panelId, insertIndex)"
+				@tab-pinned="(filePath, panelId) => emit('tab-pinned', filePath, panelId)"
 			>
 				<!-- Content for the active tab -->
 				<div v-if="panel.activeTab" :key="panel.activeTab.filePath" class="h-full w-full">

@@ -41,6 +41,7 @@ const { projectCommentButtonLabel, expandAllButtonLabel, handleToggleExpandInTre
 					@update:filePath="(filePath) => emit('update:selectedPath', filePath)"
 					@toggle-expand-item="handleToggleExpandInTree(item, props.treeData)"
 					@file-comment-requested="(filePath) => emit('file-comment-requested', filePath)"
+					@file-pin-requested="(filePath) => emit('file-pin-requested', filePath)"
 				/>
 			</ul>
 		</div>

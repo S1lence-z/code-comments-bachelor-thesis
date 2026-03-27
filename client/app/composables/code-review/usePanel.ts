@@ -14,6 +14,7 @@ export interface PanelEmits {
 	(event: "tab-drag-start", filePath: string, panelId: number): void;
 	(event: "tab-drag-end"): void;
 	(event: "tab-drop-with-index", panelId: number, insertIndex: number): void;
+	(event: "tab-pinned", filePath: string, panelId: number): void;
 }
 
 export const usePanel = (props: PanelProps, emit: PanelEmits) => {
@@ -55,6 +56,9 @@ export const usePanel = (props: PanelProps, emit: PanelEmits) => {
 	// Tab state and handlers
 	const currentTabs = computed(() => props.openTabs.map((tab) => tab.filePath));
 	const currentActiveTab = computed(() => props.activeTab?.filePath || null);
+	const previewFilePaths = computed(() =>
+		new Set(props.openTabs.filter((t) => t.isPreview).map((t) => t.filePath)),
+	);
 
 	const handleTabUpdate = (filePath: string | null) => {
 		if (filePath) {
@@ -78,9 +82,14 @@ export const usePanel = (props: PanelProps, emit: PanelEmits) => {
 		emit("tab-drop-with-index", panelId, insertIndex);
 	};
 
+	const handleTabPinned = (filePath: string) => {
+		emit("tab-pinned", filePath, props.panelId);
+	};
+
 	return {
 		currentActiveTab,
 		currentTabs,
+		previewFilePaths,
 		isDragOver,
 		showDropZone,
 		handleDragOver,
@@ -91,5 +100,6 @@ export const usePanel = (props: PanelProps, emit: PanelEmits) => {
 		handleTabDragStart,
 		handleTabDragEnd,
 		handleTabDropWithIndex,
+		handleTabPinned,
 	};
 };

@@ -29,6 +29,7 @@ export interface SplitPanelManagerEmits {
 	(event: "inline-form-submit", payload: RawCommentData): void;
 	(event: "inline-form-delete", commentId: string): void;
 	(event: "inline-form-reply", parentCommentId: string, reply: RawCommentData): void;
+	(event: "tab-pinned", filePath: string, panelId: number): void;
 }
 
 export function useSplitPanelManager(props: SplitPanelManagerProps, emit: SplitPanelManagerEmits) {

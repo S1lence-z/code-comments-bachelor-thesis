@@ -19,6 +19,7 @@ const emit = defineEmits<FileExplorerItemEmits>();
 // Initialize the composable
 const {
 	handleItemClick,
+	handleItemDoubleClick,
 	handleToggleExpand,
 	fileContainsAnyComments,
 	fileContainsFileComment,
@@ -41,6 +42,7 @@ const {
 			<!-- Item Info -->
 			<div
 				@click="handleItemClick(currentNode)"
+				@dblclick="handleItemDoubleClick(currentNode)"
 				class="flex grow items-center gap-2 cursor-pointer text-slate-300 min-w-0 py-2 px-3 rounded-lg"
 				:title="currentNode.path"
 				:style="{
@@ -141,6 +143,7 @@ const {
 				@update:filePath="emit('update:filePath', $event)"
 				@toggle-expand-item="handleToggleExpandInTree(child, currentNode.children)"
 				@file-comment-requested="emit('file-comment-requested', $event)"
+				@file-pin-requested="emit('file-pin-requested', $event)"
 			/>
 		</ul>
 	</li>

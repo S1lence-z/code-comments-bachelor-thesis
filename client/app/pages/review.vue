@@ -113,6 +113,10 @@ const handleTabClosed = (filePath: string, panelId: number): void => {
 	workspaceStore.closeTab(filePath, panelId);
 };
 
+const handleTabPinned = (filePath: string, panelId: number): void => {
+	workspaceStore.pinTab(filePath, panelId);
+};
+
 onMounted(async () => {
 	// Initialize workspace from store
 	const initialFilePath = await workspaceStore.initializeWorkspace(
@@ -161,7 +165,8 @@ onMounted(async () => {
 						<FileExplorer
 							v-else-if="getFileTree.length > 0"
 							:selectedPath="workspaceStore.activeFilePath"
-							@update:selected-path="workspaceStore.openFile"
+							@update:selected-path="workspaceStore.openPreviewFile"
+							@file-pin-requested="workspaceStore.openFile"
 							:treeData="getFileTree"
 							@project-comment-requested="handleProjectCommentRequest"
 							@file-comment-requested="handleFileCommentRequest"
@@ -202,6 +207,7 @@ onMounted(async () => {
 							:side-bar-width="sidebarWidth"
 							@tab-selected="handleTabSelected"
 							@tab-closed="handleTabClosed"
+							@tab-pinned="handleTabPinned"
 							@tab-drop="handleTabDrop"
 							@tab-drag-start="dragDropState.startDrag"
 							@tab-drag-end="dragDropState.endDrag"
