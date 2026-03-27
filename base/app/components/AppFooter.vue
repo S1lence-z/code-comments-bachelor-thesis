@@ -10,7 +10,7 @@ interface AppFooterProps {
 }
 
 const props = withDefaults(defineProps<AppFooterProps>(), {
-	repoUrl: "https://github.com/S1lence-z/code-comments-bachelor-thesis",
+	repoUrl: "https://github.com/S1lence-z/code-comments",
 	contactEmail: `${MAILTO_PREFIX}test@example.com`,
 });
 </script>
