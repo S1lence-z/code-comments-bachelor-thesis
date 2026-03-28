@@ -1,5 +1,8 @@
 import type { AuthResponseDto, LoginRequestDto } from "../../../base/app/types/authentication";
 
+/**
+ * Handles server authentication requests (login and token retrieval).
+ */
 const useAuthService = () => {
 	const serverLogin = async (
 		password: string,

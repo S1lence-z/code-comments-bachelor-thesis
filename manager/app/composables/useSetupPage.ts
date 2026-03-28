@@ -8,6 +8,9 @@ import repositoryTypeOptions from "../../../base/app/types/repository-type-optio
 import useAuthService from "../services/auth-service";
 import { useAuthStore } from "../../../base/app/stores/authStore";
 
+/**
+ * Orchestrates the project setup page logic: form state, validation, project creation, and server authentication.
+ */
 export const useSetupPage = () => {
 	// Runtime config
 	const config = useRuntimeConfig();

@@ -1,6 +1,9 @@
 import type ProjectSetupRequest from "../../../base/app/types/project-setup-request";
 import type ProjectDto from "../../../base/app/types/dtos/project-dto";
 
+/**
+ * Provides CRUD operations for projects against the backend API.
+ */
 const useProjectService = () => {
 	const getProjects = async (backendBaseUrl: string): Promise<ProjectDto[]> => {
 		const requestUrl = `${backendBaseUrl}/api/v1/project`;
