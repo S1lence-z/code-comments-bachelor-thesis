@@ -1,3 +1,6 @@
+/**
+ * Tracks whether a server URL is configured and whether the app is running in offline mode.
+ */
 export const useOfflineModeStore = defineStore("offlineStore", {
 	state: () => ({
 		isServerUrlConfigured: false,

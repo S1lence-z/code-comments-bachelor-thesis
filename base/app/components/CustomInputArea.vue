@@ -26,7 +26,6 @@ const handleKeydown = (event: KeyboardEvent) => {
 	}
 };
 
-// Expose focus method to parent
 const focus = () => {
 	textareaRef.value?.focus();
 };

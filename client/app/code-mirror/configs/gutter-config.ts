@@ -2,6 +2,9 @@ import { EditorView, ViewUpdate, WidgetType, BlockInfo, GutterMarker } from "@co
 import { RangeSet } from "@codemirror/state";
 import type CommentDto from "../../../../base/app/types/dtos/comment-dto";
 
+/**
+ * Configuration for CodeMirror gutters, which are the areas to the left of the editor where line numbers and other markers can be displayed.
+ */
 export interface GutterConfig {
 	class?: string;
 	renderEmptyElements?: boolean;
@@ -9,7 +12,7 @@ export interface GutterConfig {
 	lineMarker?: (
 		view: EditorView,
 		line: BlockInfo,
-		otherMarkers: readonly GutterMarker[]
+		otherMarkers: readonly GutterMarker[],
 	) => GutterMarker | null;
 	widgetMarker?: (view: EditorView, widget: WidgetType, block: BlockInfo) => GutterMarker | null;
 	lineMarkerChange?: (update: ViewUpdate) => boolean;
@@ -20,6 +23,6 @@ export interface GutterConfig {
 	};
 }
 
-export function createGutterConfig(_comments: CommentDto[]): GutterConfig {
+export const createGutterConfig = (_comments: CommentDto[]): GutterConfig => {
 	return {};
-}
+};

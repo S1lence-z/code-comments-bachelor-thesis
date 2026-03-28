@@ -4,6 +4,7 @@ import type { ServerConfig } from "./types/domain/server-config";
 import { useRepositoryAuthStore } from "./stores/repositoryAuthStore";
 import { Icon } from "@iconify/vue";
 import { navigationRoutes } from "./core/routes";
+import { navigateToManager } from "./utils/navigation";
 
 const { t } = useI18n();
 
@@ -78,12 +79,6 @@ const handleBeforeUnload = (event: BeforeUnloadEvent) => {
 		event.preventDefault();
 		return "";
 	}
-};
-
-const navigateToManager = () => {
-	const runtimeConfig = useRuntimeConfig();
-	const managerUrl = runtimeConfig.public.managerUrl || "";
-	window.location.href = managerUrl;
 };
 
 onMounted(async () => {

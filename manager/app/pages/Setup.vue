@@ -17,7 +17,6 @@ const {
 	formProjectName,
 	formServerBaseUrl,
 	formServerPassword,
-
 	// UI state
 	isAuthorizing,
 	isCreatingProject,
@@ -25,10 +24,8 @@ const {
 	projectCreationErrorMessage,
 	projectsLoadedSuccessfully,
 	isLoadingProjects,
-
 	// Data
 	existingProjects,
-
 	// Actions
 	handleNewProjectCreation,
 	navigateToNewProject,

@@ -1,3 +1,6 @@
+/**
+ * Persists saved server configurations per project so users can quickly reconnect to previously used servers.
+ */
 import { projectServerConfigsKey } from "../../../base/app/core/keys";
 import type { ProjectInfo, ServerConfig } from "../types/domain/server-config";
 

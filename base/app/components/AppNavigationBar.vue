@@ -26,7 +26,6 @@ const route = useRoute();
 					>
 						{{ props.title }}
 					</NuxtLink>
-
 					<!-- Navigation Links -->
 					<div class="nav-tabs">
 						<div

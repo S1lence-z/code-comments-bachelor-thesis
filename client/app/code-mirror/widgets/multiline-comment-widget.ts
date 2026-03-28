@@ -2,6 +2,9 @@ import type CategoryDto from "../../../../base/app/types/dtos/category-dto";
 import type CommentDto from "../../../../base/app/types/dtos/comment-dto";
 import BaseCommentWidget from "./base-comment-widget";
 
+/**
+ * Widget for displaying multiline comments inside CodeMirror. Extends the BaseCommentWidget.
+ */
 export default class MultilineCommentWidget extends BaseCommentWidget {
 	constructor(
 		content: string,
@@ -11,7 +14,7 @@ export default class MultilineCommentWidget extends BaseCommentWidget {
 		replies: CommentDto[],
 		deleteCommentAction: (commentId: string) => void,
 		editCommentAction: (commentId: string) => void,
-		replyCommentAction: (commentId: string) => void
+		replyCommentAction: (commentId: string) => void,
 	) {
 		super(
 			content,
@@ -21,7 +24,7 @@ export default class MultilineCommentWidget extends BaseCommentWidget {
 			replies,
 			deleteCommentAction,
 			editCommentAction,
-			replyCommentAction
+			replyCommentAction,
 		);
 	}
 

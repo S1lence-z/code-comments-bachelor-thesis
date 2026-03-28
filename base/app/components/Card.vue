@@ -45,10 +45,8 @@ const getIconName = (iconName: string) => {
 			</div>
 			<h2 v-if="title" class="card-title">{{ title }}</h2>
 		</div>
-
 		<!-- Subtitle -->
 		<p v-if="subtitle" class="card-subtitle">{{ subtitle }}</p>
-
 		<!-- Content slot -->
 		<div class="card-content">
 			<slot></slot>

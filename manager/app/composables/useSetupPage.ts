@@ -8,7 +8,10 @@ import repositoryTypeOptions from "../../../base/app/types/repository-type-optio
 import useAuthService from "../services/auth-service";
 import { useAuthStore } from "../../../base/app/stores/authStore";
 
-export function useSetupPage() {
+/**
+ * Orchestrates the project setup page logic: form state, validation, project creation, and server authentication.
+ */
+export const useSetupPage = () => {
 	// Runtime config
 	const config = useRuntimeConfig();
 
@@ -291,7 +294,6 @@ export function useSetupPage() {
 		formProjectName,
 		formServerBaseUrl,
 		formServerPassword,
-
 		// UI state
 		isAuthorizing,
 		isCreatingProject,
@@ -299,10 +301,8 @@ export function useSetupPage() {
 		projectCreationErrorMessage,
 		projectsLoadedSuccessfully,
 		isLoadingProjects,
-
 		// Data
 		existingProjects,
-
 		// Actions
 		handleNewProjectCreation,
 		navigateToNewProject,

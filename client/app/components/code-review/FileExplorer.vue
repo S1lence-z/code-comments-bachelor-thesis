@@ -20,7 +20,6 @@ const { projectCommentButtonLabel, expandAllButtonLabel, handleToggleExpandInTre
 				buttonSize="small"
 				@click="expandAllFiles"
 			/>
-
 			<!-- Project Comment Button -->
 			<Button
 				:label="projectCommentButtonLabel"
@@ -29,7 +28,6 @@ const { projectCommentButtonLabel, expandAllButtonLabel, handleToggleExpandInTre
 				@click="emit('project-comment-requested')"
 			/>
 		</div>
-
 		<!-- File Tree -->
 		<div class="flex-1 overflow-y-auto scrollbar-hidden bg-white/10">
 			<ul class="p-2 space-y-1">

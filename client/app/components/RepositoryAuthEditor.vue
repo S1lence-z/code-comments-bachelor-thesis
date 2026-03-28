@@ -41,7 +41,6 @@ const saveTokens = () => {
 			</p>
 
 			<!-- Dynamic Token Inputs -->
-			<!-- TODO: take a look at the modelValue -->
 			<div v-for="type in repositoryTypes" :key="type" class="space-y-2">
 				<InputField
 					:label="t(`settings.repositoryAuth.${type}Token`)"

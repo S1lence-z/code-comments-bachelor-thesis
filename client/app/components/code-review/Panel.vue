@@ -14,7 +14,6 @@ const {
 	previewFilePaths,
 	isDragOver,
 	showDropZone,
-
 	// Drag and Drop Handlers
 	handleDragOver,
 	handleDragLeave,
@@ -51,7 +50,6 @@ const {
 		>
 			<slot></slot>
 		</FileTabManager>
-
 		<!-- Drop Zone Overlay -->
 		<div
 			v-if="showDropZone"

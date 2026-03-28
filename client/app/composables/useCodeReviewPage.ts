@@ -1,4 +1,4 @@
-export function useCodeReviewPage() {
+export const useCodeReviewPage = () => {
 	// Query params composable
 	const { params } = useQueryParams();
 

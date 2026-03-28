@@ -13,12 +13,10 @@ const emit = defineEmits<CodeEditorEmits>();
 const {
 	// State
 	currentContent,
-
 	// Computed
 	editorPlaceholder,
 	extensions,
 	isKeyboardMode,
-
 	// Methods
 	handleCodemirrorReady,
 	handleEditorDoubleClick,

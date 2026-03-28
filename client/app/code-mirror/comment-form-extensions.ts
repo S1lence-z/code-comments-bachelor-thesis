@@ -17,22 +17,26 @@ export interface CommentFormState {
 	endLineNumber: number | null;
 }
 
-// State effect to show the form
+/**
+ * State effect to show the CommentFormWidget with the given state.
+ */
 export const showCommentFormEffect = StateEffect.define<CommentFormState>();
 
-// State effect to hide the form
+/**
+ * State effect to hide the CommentFormWidget.
+ */
 export const hideCommentFormEffect = StateEffect.define<void>();
 
 /**
  * Creates a CodeMirror extension for displaying the comment form inline
  */
-export function commentFormExtension(
+export const commentFormExtension = (
 	categories: CategoryDto[],
 	onSubmit: (content: string, categoryId: string, commentId: string | null) => void,
 	onCancel: () => void,
 	onDelete: (commentId: string) => void,
-	onError: (message: string) => void
-) {
+	onError: (message: string) => void,
+) => {
 	return StateField.define<DecorationSet>({
 		create() {
 			return Decoration.none;
@@ -67,11 +71,11 @@ export function commentFormExtension(
 								onSubmit,
 								onCancel,
 								onDelete,
-								onError
+								onError,
 							),
 							side: -1,
 							block: true,
-						})
+						}),
 					);
 
 					return builder.finish();
@@ -86,4 +90,4 @@ export function commentFormExtension(
 		},
 		provide: (f) => EditorView.decorations.from(f),
 	});
-}
+};

@@ -1,12 +1,8 @@
 <script setup lang="ts">
 interface ResizeHandleProps {
-	/** The element that should be resized */
 	resizableElement: HTMLElement | null;
-	/** Minimum width/size constraint */
 	minWidth?: number;
-	/** Maximum width/size constraint */
 	maxWidth?: number;
-	/** Direction of resize - horizontal only for now */
 	direction?: "horizontal";
 }
 
@@ -43,21 +39,16 @@ const startResize = (event: MouseEvent) => {
 
 const handleResize = (event: MouseEvent) => {
 	if (!isResizing.value || !props.resizableElement) return;
-
 	// Use the parent element to calculate the container bounds
 	const containerRect = props.resizableElement.parentElement?.getBoundingClientRect();
-
 	if (!containerRect) {
 		console.warn("Resizable element has no parent element. Cannot calculate bounds.");
 		return;
 	}
-
 	// Calculate position relative to the container's left edge
 	const offsetX = event.clientX - containerRect.left;
-
 	// Apply constraints
 	const constrainedWidth = Math.max(props.minWidth, Math.min(props.maxWidth, offsetX));
-
 	emit("resize-number", constrainedWidth);
 	emit("resize-event", event);
 };

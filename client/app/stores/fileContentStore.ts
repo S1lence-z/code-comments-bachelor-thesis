@@ -1,3 +1,6 @@
+/**
+ * Caches fetched file contents and tracks in-progress file fetches.
+ */
 import { useRepositoryProviderFactory } from "../services/repository-provider-factory";
 import { FileDisplayType, type ProcessedFile } from "../types/domain/file-content";
 import type CommentDto from "../../../base/app/types/dtos/comment-dto";

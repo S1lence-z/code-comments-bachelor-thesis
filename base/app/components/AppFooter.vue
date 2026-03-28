@@ -2,6 +2,7 @@
 import { Icon } from "@iconify/vue";
 
 const MAILTO_PREFIX = "mailto:";
+const currentYear = new Date().getFullYear();
 
 interface AppFooterProps {
 	repoUrl?: string;
@@ -9,7 +10,7 @@ interface AppFooterProps {
 }
 
 const props = withDefaults(defineProps<AppFooterProps>(), {
-	repoUrl: "https://github.com/S1lence-z/code-comments-bachelor-thesis",
+	repoUrl: "https://github.com/S1lence-z/code-comments",
 	contactEmail: `${MAILTO_PREFIX}test@example.com`,
 });
 </script>
@@ -19,9 +20,8 @@ const props = withDefaults(defineProps<AppFooterProps>(), {
 		<div class="mx-auto px-6 py-8 max-w-7xl md:flex md:items-center md:justify-between">
 			<!-- Name and copyright -->
 			<div class="text-center text-slate-400 mb-6 md:mb-0">
-				<p>&copy; 2025 Code Comments. All rights reserved.</p>
+				<p>&copy; {{ currentYear }} Code Comments. All rights reserved.</p>
 			</div>
-
 			<!-- Links -->
 			<div class="flex items-center justify-center gap-8">
 				<a

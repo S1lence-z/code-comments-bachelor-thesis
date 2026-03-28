@@ -13,7 +13,7 @@ export interface FileExplorerItemEmits {
 	(event: "file-pin-requested", filePath: string): void;
 }
 
-export function useFileExplorerItem(props: FileExplorerItemProps, emit: FileExplorerItemEmits) {
+export const useFileExplorerItem = (props: FileExplorerItemProps, emit: FileExplorerItemEmits) => {
 	// Store access
 	const projectDataStore = useProjectDataStore();
 

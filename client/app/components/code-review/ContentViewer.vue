@@ -10,12 +10,9 @@ defineProps<ContentViewerProps>();
 const {
 	// State
 	isDragging,
-	containerRef,
-
 	// Computed
 	contentStyle,
 	zoomPercentage,
-
 	// Methods
 	resetZoom,
 	handleWheel,

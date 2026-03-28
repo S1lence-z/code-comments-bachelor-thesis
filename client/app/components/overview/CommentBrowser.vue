@@ -12,15 +12,12 @@ const { t } = useI18n();
 const props = defineProps<CommentBrowserProps>();
 const emit = defineEmits<CommentBrowserEmits>();
 
-// Initialize the composable
 const {
 	// State
 	expandedFiles,
-
 	// Computed
 	projectComments,
 	fileBasedComments,
-
 	// Methods
 	toggleFileExpanded,
 	getCodePreview,
@@ -29,7 +26,6 @@ const {
 	loadOpenCardsState,
 } = useCommentBrowser(props, emit);
 
-// Load saved state when component mounts
 onMounted(() => {
 	loadOpenCardsState();
 });

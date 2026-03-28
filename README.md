@@ -15,8 +15,8 @@ To run the project locally, you will need [Docker](https://www.docker.com/produc
 First, clone the repository:
 
 ```bash
-git clone https://github.com/S1lence-z/code-comments-bachelor-thesis.git
-cd code-comments-bachelor-thesis
+git clone https://github.com/S1lence-z/code-comments.git
+cd code-comments
 ```
 
 Next, create a `.env` file in the root of the project with the following content (or just rename the file `.env.example` to `.env`):
@@ -98,4 +98,4 @@ The [thesis](https://www.overleaf.com/project/679d4155c4e6d540df8ca774) is writt
 
 > ⚠️ **Warning:** The wiki is not finished yet and may contain incomplete or outdated information.
 
-The project wiki contains additional documentation about the architecture, design decisions, and implementation details. You can find it [here](https://github.com/S1lence-z/code-comments-bachelor-thesis/wiki).
+The project wiki contains additional documentation about the architecture, design decisions, and implementation details. You can find it [here](https://github.com/S1lence-z/code-comments/wiki).

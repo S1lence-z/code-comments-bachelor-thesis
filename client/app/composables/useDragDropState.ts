@@ -4,7 +4,7 @@ import type { DraggedTabData } from "../types/domain/workspace-panels";
  * Pure state manager for drag and drop operations.
  * Only manages UI state - no business logic or side effects.
  */
-export function useDragDropState() {
+export const useDragDropState = () => {
 	// Constants
 	const DROPZONE_WIDTH = 200;
 
@@ -44,13 +44,11 @@ export function useDragDropState() {
 	return {
 		// Constants
 		DROPZONE_WIDTH,
-
 		// State (readonly to prevent external mutations)
 		draggedTab: readonly(draggedTab),
 		leftDropZoneActive: readonly(leftDropZoneActive),
 		rightDropZoneActive: readonly(rightDropZoneActive),
 		isDragging,
-
 		// Methods
 		startDrag,
 		endDrag,

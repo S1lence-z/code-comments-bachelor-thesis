@@ -7,7 +7,7 @@ export interface CommentStatisticsProps {
 	commentsGroupedByFile: Record<string, CommentDto[]>;
 }
 
-export function useCommentStatistics(props: CommentStatisticsProps) {
+export const useCommentStatistics = (props: CommentStatisticsProps) => {
 	// Statistics calculations
 	const totalCommentCount = computed(() => props.allComments.length);
 
@@ -100,7 +100,6 @@ export function useCommentStatistics(props: CommentStatisticsProps) {
 		totalCommentCount,
 		commentTypeStats,
 		totalCategoryCounts,
-
 		// Visibility
 		showTotalCommentsCard,
 		showFileCommentsCard,

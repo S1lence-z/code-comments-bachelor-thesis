@@ -1,3 +1,6 @@
+/**
+ * Holds the core project data fetched from the server: file tree, comments, and categories, along with their loading states.
+ */
 import type { TreeNode } from "../types/domain/tree-content";
 import type CommentDto from "../../../base/app/types/dtos/comment-dto";
 import type CategoryDto from "../../../base/app/types/dtos/category-dto";

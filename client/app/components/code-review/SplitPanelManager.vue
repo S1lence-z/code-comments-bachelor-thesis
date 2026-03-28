@@ -15,7 +15,6 @@ const {
 	// State
 	containerElement,
 	handlePanelResize,
-
 	// Helper functions
 	isTextFile,
 	getFileContent,

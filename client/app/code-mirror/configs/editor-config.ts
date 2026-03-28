@@ -16,7 +16,7 @@ import type { AppKeyboardShortcuts } from "../../types/domain/keyboard-shortcuts
 /**
  * Creates the standard set of CodeMirror extensions for the code editor
  */
-export function createEditorExtensions(
+export const createEditorExtensions = (
 	// Props
 	filePath: string | null,
 	comments: CommentDto[] = [],
@@ -31,8 +31,8 @@ export function createEditorExtensions(
 	onCancelUpsertingComment: () => void,
 	onUpsertComment: (content: string, categoryId: string, commentId: string | null) => void,
 	onSingleLineComment: (lineNumber: number, filePath: string) => void,
-	onFormValidationError: (message: string) => void
-) {
+	onFormValidationError: (message: string) => void,
+) => {
 	const langExt = getLanguageExtension(filePath);
 	const currentFileComments = comments || [];
 	const lineNumbersConfig: LineNumberConfig = getLineNumbersConfig(currentFileComments);
@@ -49,7 +49,7 @@ export function createEditorExtensions(
 			isCompactCommentModal,
 			onDeleteComment,
 			onEditComment,
-			onReplyComment
+			onReplyComment,
 		),
 		addCursorNavigationExtensions(isKeyboardMode),
 		addCustomKeyboardShortcuts(filePath, onSingleLineComment, appKeyboardShortcuts),
@@ -59,15 +59,17 @@ export function createEditorExtensions(
 			onUpsertComment,
 			onCancelUpsertingComment,
 			onDeleteComment,
-			onFormValidationError
+			onFormValidationError,
 		),
 	];
 
 	return extensions;
-}
+};
 
-// Make an extension to prevent the default drag and drop behavior
-export function preventDefaultDragAndDrop(): Extension {
+/**
+ * Prevents the default drag-and-drop behavior in the editor to avoid issues with file drops or text dragging.
+ */
+export const preventDefaultDragAndDrop = (): Extension => {
 	return EditorView.domEventHandlers({
 		dragover: (event) => {
 			event.preventDefault();
@@ -78,13 +80,20 @@ export function preventDefaultDragAndDrop(): Extension {
 			return false;
 		},
 	});
-}
+};
 
-function addCustomKeyboardShortcuts(
+/**
+ * Adds custom keyboard shortcuts for the editor, specifically for adding comments in keyboard mode.
+ * @param filePath
+ * @param onSingleLineComment
+ * @param appKeyboardShortcuts
+ * @returns
+ */
+const addCustomKeyboardShortcuts = (
 	filePath: string | null,
 	onSingleLineComment: (lineNumber: number, filePath: string) => void,
-	appKeyboardShortcuts: AppKeyboardShortcuts
-): Extension[] {
+	appKeyboardShortcuts: AppKeyboardShortcuts,
+): Extension[] => {
 	// Custom keyboard shortcuts for keyboard mode
 	return [
 		keymap.of([
@@ -104,9 +113,14 @@ function addCustomKeyboardShortcuts(
 			},
 		]),
 	];
-}
+};
 
-function addCursorNavigationExtensions(showCursor: boolean): Extension[] {
+/**
+ * Adds cursor navigation extensions to the editor based on the showCursor flag.
+ * @param showCursor
+ * @returns
+ */
+const addCursorNavigationExtensions = (showCursor: boolean): Extension[] => {
 	const extensions: Extension[] = [];
 	if (!showCursor) {
 		extensions.push(EditorView.editable.of(showCursor));
@@ -136,8 +150,8 @@ function addCursorNavigationExtensions(showCursor: boolean): Extension[] {
 		// Ensure the editor can receive focus
 		EditorView.contentAttributes.of({
 			tabindex: "0",
-		})
+		}),
 	);
 
 	return extensions;
-}
+};

@@ -35,7 +35,7 @@ const emit = defineEmits<ServerFormEmits>();
 			<p class="text-slate-400 text-lg">
 				{{ t("serverForm.setupGuideText") }}
 				<a
-					href="https://github.com/S1lence-z/code-comments-bachelor-thesis"
+					href="https://github.com/S1lence-z/code-comments"
 					class="text-blue-500 underline"
 					target="_blank"
 					rel="noopener noreferrer"

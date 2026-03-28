@@ -1,3 +1,6 @@
+/**
+ * Manages the editor workspace layout: panels, tabs, active files, drag state, and saved workspace configurations.
+ */
 import type {
 	Workspace,
 	PanelData,

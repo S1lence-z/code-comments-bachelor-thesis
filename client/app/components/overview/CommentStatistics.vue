@@ -12,7 +12,6 @@ const {
 	totalCommentCount,
 	commentTypeStats,
 	totalCategoryCounts,
-
 	// Visibility
 	showTotalCommentsCard,
 	showFileCommentsCard,

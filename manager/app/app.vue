@@ -20,20 +20,17 @@ onMounted(() => {
 			:navigation-routes="navigationLinks"
 			max-width="max-w-7xl"
 		/>
-
 		<!-- Main Content -->
 		<main
 			class="flex-1 overflow-y-auto bg-linear-to-br from-slate-900 via-slate-800 to-slate-900"
 		>
 			<NuxtPage />
 		</main>
-
 		<!-- Footer -->
 		<AppFooter
 			:repo-url="t('appFooter.githubRepoUrl')"
 			:contact-email="t('appFooter.contactEmail')"
 		/>
-
 		<ToastContainer />
 	</div>
 </template>
