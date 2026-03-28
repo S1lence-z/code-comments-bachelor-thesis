@@ -150,12 +150,10 @@ export const useCommentBrowser = (props: CommentBrowserProps, emit: CommentBrows
 		// State
 		expandedFiles,
 		showedLineOffset,
-
 		// Computed
 		filteredComments,
 		projectComments,
 		fileBasedComments,
-
 		// Methods
 		toggleFileExpanded,
 		getCodePreview,

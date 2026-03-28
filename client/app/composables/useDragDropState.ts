@@ -44,13 +44,11 @@ export const useDragDropState = () => {
 	return {
 		// Constants
 		DROPZONE_WIDTH,
-
 		// State (readonly to prevent external mutations)
 		draggedTab: readonly(draggedTab),
 		leftDropZoneActive: readonly(leftDropZoneActive),
 		rightDropZoneActive: readonly(rightDropZoneActive),
 		isDragging,
-
 		// Methods
 		startDrag,
 		endDrag,

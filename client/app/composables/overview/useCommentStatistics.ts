@@ -100,7 +100,6 @@ export const useCommentStatistics = (props: CommentStatisticsProps) => {
 		totalCommentCount,
 		commentTypeStats,
 		totalCategoryCounts,
-
 		// Visibility
 		showTotalCommentsCard,
 		showFileCommentsCard,

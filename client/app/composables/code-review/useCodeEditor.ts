@@ -338,12 +338,10 @@ export const useCodeEditor = (props: CodeEditorProps, emit: CodeEditorEmits) => 
 	return {
 		// State
 		currentContent,
-
 		// Computed
 		editorPlaceholder,
 		extensions,
 		isKeyboardMode,
-
 		// Methods
 		handleCodemirrorReady,
 		handleEditorDoubleClick,
