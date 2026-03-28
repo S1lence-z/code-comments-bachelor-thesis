@@ -1,11 +1,5 @@
 <script setup lang="ts">
-// TODO: this function is duplicated in app.vue -> make into a composable
-const navigateToManager = () => {
-	const runtimeConfig = useRuntimeConfig();
-	const managerUrl = runtimeConfig.public.managerUrl || "";
-	window.location.href = managerUrl;
-};
-
+import { navigateToManager } from "../utils/navigation";
 const { t } = useI18n();
 </script>
 
