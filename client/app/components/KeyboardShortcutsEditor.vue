@@ -15,6 +15,7 @@ const emits = defineEmits<KeyboardShortcutsEditorEmits>();
 const keyboardShortcutsStore = useKeyboardShortcutsStore();
 
 // State - Deep copy of store shortcuts to avoid direct mutation
+// TODO: this should not be necessary
 const allShortcuts = ref<AppKeyboardShortcuts>(objectDeepCopy(keyboardShortcutsStore.getShortcuts));
 
 // Editing state

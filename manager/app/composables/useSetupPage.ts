@@ -291,7 +291,6 @@ export const useSetupPage = () => {
 		formProjectName,
 		formServerBaseUrl,
 		formServerPassword,
-
 		// UI state
 		isAuthorizing,
 		isCreatingProject,
@@ -299,10 +298,8 @@ export const useSetupPage = () => {
 		projectCreationErrorMessage,
 		projectsLoadedSuccessfully,
 		isLoadingProjects,
-
 		// Data
 		existingProjects,
-
 		// Actions
 		handleNewProjectCreation,
 		navigateToNewProject,
