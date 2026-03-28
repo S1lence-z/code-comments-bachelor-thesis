@@ -1,3 +1,6 @@
+/**
+ * Validates GitHub branch existence via the GitHub API.
+ */
 const useGithubBranchService = () => {
 	// TODO: handle more response like rate limit exceeded
 	const branchExistsInRepo = async (
