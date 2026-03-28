@@ -1,3 +1,6 @@
+/**
+ * Manages user-customizable keyboard shortcut bindings and their persistence.
+ */
 import type { AppKeyboardShortcuts, KeyboardShortcut } from "../types/domain/keyboard-shortcuts";
 import { appKeyboardShortcutsKey } from "../../../base/app/core/keys";
 

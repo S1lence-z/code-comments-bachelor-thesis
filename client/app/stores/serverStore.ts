@@ -1,5 +1,8 @@
 import type { ServerStatus } from "../types/domain/server-status";
 
+/**
+ * Tracks the current server synchronization status (idle, syncing, synced, error) and any associated error message.
+ */
 export const useServerStatusStore = defineStore("serverStatusStore", {
 	state: () => ({
 		serverStatus: "idle" as ServerStatus,

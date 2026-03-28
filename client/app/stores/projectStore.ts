@@ -1,3 +1,6 @@
+/**
+ * Holds the active project's connection parameters (server URL, project ID, repository, auth) initialized from URL query params.
+ */
 import { type LocationQuery } from "vue-router";
 import { QUERY_PARAMS, type QueryParams } from "../../../base/app/types/query-params";
 import { useProjectServerConfigsStore } from "./projectServerConfigsStore";

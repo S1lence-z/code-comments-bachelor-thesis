@@ -1,3 +1,6 @@
+/**
+ * Manages saved authentication tokens for different repository types (e.g. GitHub), persisted to localStorage.
+ */
 import { repositoryAuthsKey } from "../../../base/app/core/keys";
 import { type RepositoryAuthItem } from "../types/domain/repository-auth";
 import { type RepositoryType } from "../../../base/app/types/repository-type";

@@ -1,3 +1,6 @@
+/**
+ * Manages UI toggle states like sidebar visibility, compact mode, offline mode, and keyboard mode.
+ */
 import type AppSettings from "../types/domain/app-settings";
 import { appSettingsKey } from "../../../base/app/core/keys";
 

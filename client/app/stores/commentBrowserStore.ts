@@ -1,5 +1,8 @@
 import { commentBrowserStateKey } from "../../../base/app/core/keys";
 
+/**
+ * Tracks which files are expanded or collapsed in the comment browser sidebar.
+ */
 export const useCommentBrowserStore = defineStore("commentBrowserStore", {
 	state: () => ({
 		openedFiles: new Set<string>(),
@@ -22,7 +25,7 @@ export const useCommentBrowserStore = defineStore("commentBrowserStore", {
 			};
 			sessionStorage.setItem(
 				commentBrowserStateKey.description!,
-				JSON.stringify(stateToSave)
+				JSON.stringify(stateToSave),
 			);
 		},
 		loadState() {
