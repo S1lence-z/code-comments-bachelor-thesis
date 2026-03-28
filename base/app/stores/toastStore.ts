@@ -15,16 +15,13 @@ export const useToastStore = defineStore("toastStore", {
 				type,
 				duration,
 			};
-
 			this.toasts.push(toast);
-
 			// Auto-remove after duration
 			if (duration > 0) {
 				setTimeout(() => {
 					this.removeToast(id);
 				}, duration);
 			}
-
 			return id;
 		},
 		removeToast(id: string) {

@@ -8,7 +8,7 @@ export const useQueryParams = () => {
 	const errorHandler = useErrorHandler();
 	const authStore = useAuthStore();
 
-	// Functions used in the manager app
+	// Manager app functions
 	const navigateWithServerUrl = async (serverBaseUrl: string) => {
 		if (serverBaseUrl) {
 			const currentServerBaseUrl = route.query[QUERY_PARAMS.SERVER_BASE_URL];
@@ -76,7 +76,7 @@ export const useQueryParams = () => {
 		}
 	};
 
-	// Functions used in the client app
+	// Client app properties and functions
 	const extractString = (value: any) => {
 		if (Array.isArray(value)) return value[0] || "";
 		return value || "";
@@ -91,7 +91,6 @@ export const useQueryParams = () => {
 	}));
 
 	const removeTokenFromQuery = async () => {
-		// Remove token from URL
 		const newQuery = { ...route.query };
 		delete newQuery[QUERY_PARAMS.TOKEN];
 		await navigateTo({ query: newQuery });
@@ -112,7 +111,6 @@ export const useQueryParams = () => {
 		navigateWithServerUrl,
 		navigateToProject,
 		navigateToOfflineProject,
-
 		// Client app properties and functions
 		params,
 		navigateToCodeEditorWithFile,

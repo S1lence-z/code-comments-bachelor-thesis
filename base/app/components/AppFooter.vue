@@ -22,7 +22,6 @@ const props = withDefaults(defineProps<AppFooterProps>(), {
 			<div class="text-center text-slate-400 mb-6 md:mb-0">
 				<p>&copy; {{ currentYear }} Code Comments. All rights reserved.</p>
 			</div>
-
 			<!-- Links -->
 			<div class="flex items-center justify-center gap-8">
 				<a

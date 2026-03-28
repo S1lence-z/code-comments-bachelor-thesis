@@ -43,12 +43,10 @@ const handleClose = () => {
 	>
 		<!-- Icon -->
 		<Icon :icon="icon" class="shrink-0 w-5 h-5 text-white" :class="`toast-bg-${props.type}`" />
-
 		<!-- Message -->
 		<div class="flex-1 text-sm text-slate-100">
 			{{ message }}
 		</div>
-
 		<!-- Close Button -->
 		<button
 			@click="handleClose"

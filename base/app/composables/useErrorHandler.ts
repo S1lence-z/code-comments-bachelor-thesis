@@ -10,36 +10,29 @@ export const useErrorHandler = () => {
 		if (error instanceof Error) {
 			return error.message;
 		}
-
 		// Handle API error responses
 		if (typeof error === "object" && error !== null) {
 			const apiError = error as ApiErrorResponse;
 			return apiError.message || apiError.error || "An unknown error occurred";
 		}
-
 		// Handle string errors
 		if (typeof error === "string") {
 			return error;
 		}
-
 		return "An unknown error occurred";
 	};
 
 	const handleError = (error: unknown, options: ErrorHandlerOptions = {}) => {
 		const { showToast = true, toastDuration = 5000, logToConsole = false, customMessage, onError } = options;
-
 		const errorMessage = customMessage || extractErrorMessage(error);
-
 		// Log to console if enabled
 		if (logToConsole) {
 			console.error("Error:", error);
 		}
-
 		// Show toast notification if enabled
 		if (showToast) {
 			toastStore.addToast(errorMessage, "error", toastDuration);
 		}
-
 		// Call custom error handler if provided
 		if (onError && error instanceof Error) {
 			onError(error);

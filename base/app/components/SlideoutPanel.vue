@@ -18,7 +18,6 @@ const emit = defineEmits(["update:isVisible"]);
 <template>
 	<!-- Backdrop -->
 	<div v-if="isVisible" class="fixed inset-0" @click="emit('update:isVisible', false)"></div>
-
 	<!-- Panel -->
 	<div v-if="isVisible" class="panel flex flex-col z-50 max-w-xl h-full" :class="props.class">
 		<!-- Tools Panel -->
