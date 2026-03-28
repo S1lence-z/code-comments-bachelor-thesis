@@ -17,10 +17,14 @@ export interface CommentFormState {
 	endLineNumber: number | null;
 }
 
-// State effect to show the form
+/**
+ * State effect to show the CommentFormWidget with the given state.
+ */
 export const showCommentFormEffect = StateEffect.define<CommentFormState>();
 
-// State effect to hide the form
+/**
+ * State effect to hide the CommentFormWidget.
+ */
 export const hideCommentFormEffect = StateEffect.define<void>();
 
 /**
@@ -31,7 +35,7 @@ export const commentFormExtension = (
 	onSubmit: (content: string, categoryId: string, commentId: string | null) => void,
 	onCancel: () => void,
 	onDelete: (commentId: string) => void,
-	onError: (message: string) => void
+	onError: (message: string) => void,
 ) => {
 	return StateField.define<DecorationSet>({
 		create() {
@@ -67,11 +71,11 @@ export const commentFormExtension = (
 								onSubmit,
 								onCancel,
 								onDelete,
-								onError
+								onError,
 							),
 							side: -1,
 							block: true,
-						})
+						}),
 					);
 
 					return builder.finish();
@@ -86,4 +90,4 @@ export const commentFormExtension = (
 		},
 		provide: (f) => EditorView.decorations.from(f),
 	});
-}
+};

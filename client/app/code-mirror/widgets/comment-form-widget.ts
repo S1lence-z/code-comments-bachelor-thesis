@@ -2,6 +2,9 @@ import { WidgetType } from "@codemirror/view";
 import type CategoryDto from "../../../../base/app/types/dtos/category-dto";
 import { CommentType } from "../../../../base/app/types/dtos/comment-type";
 
+/**
+ * Widget for creating and editing comments inside CodeMirror. Exposes a simple form.
+ */
 export default class CommentFormWidget extends WidgetType {
 	private commentId: string | null;
 	private commentType: CommentType;
@@ -29,7 +32,7 @@ export default class CommentFormWidget extends WidgetType {
 		onSubmit: (content: string, categoryId: string, commentId: string | null) => void,
 		onCancel: () => void,
 		onDelete: (commentId: string) => void,
-		onError: (message: string) => void
+		onError: (message: string) => void,
 	) {
 		super();
 		this.commentId = commentId;
@@ -157,14 +160,14 @@ export default class CommentFormWidget extends WidgetType {
 		group.appendChild(
 			this.createButton(this.commentId ? "Update" : "Save", "primary", () => {
 				this.handleSubmit(group.closest(".cm-comment-form-widget") as HTMLElement);
-			})
+			}),
 		);
 
 		group.appendChild(this.createButton("Cancel", "secondary", () => this.onCancel()));
 
 		if (this.commentId) {
 			group.appendChild(
-				this.createButton("Delete", "danger", () => this.onDelete(this.commentId!))
+				this.createButton("Delete", "danger", () => this.onDelete(this.commentId!)),
 			);
 		}
 
@@ -175,7 +178,7 @@ export default class CommentFormWidget extends WidgetType {
 		text: string,
 		variant: "primary" | "secondary" | "danger",
 		onClick: () => void,
-		size: "small" | "medium" | "large" = "medium"
+		size: "small" | "medium" | "large" = "medium",
 	): HTMLButtonElement {
 		const btn = document.createElement("button");
 		btn.textContent = text;
@@ -187,14 +190,14 @@ export default class CommentFormWidget extends WidgetType {
 
 	private handleSubmit(formElement: HTMLElement): void {
 		const textarea = formElement.querySelector(
-			".comment-form-content-textarea"
+			".comment-form-content-textarea",
 		) as HTMLTextAreaElement;
 		const content = textarea?.value.trim() || "";
 
 		let categoryId = this.initialCategoryId;
 		if (this.showCategorySelect) {
 			const select = formElement.querySelector(
-				".comment-form-category-select"
+				".comment-form-category-select",
 			) as HTMLSelectElement;
 			categoryId = select?.value || "";
 
@@ -208,7 +211,6 @@ export default class CommentFormWidget extends WidgetType {
 			this.onError("Comment cannot be empty.");
 			return;
 		}
-
 		this.onSubmit(content, categoryId, this.commentId);
 	}
 

@@ -8,7 +8,9 @@ import {
 import { Range } from "@codemirror/state";
 import type CommentDto from "../../../../base/app/types/dtos/comment-dto";
 
-// Create a line decoration for multiline comment lines
+/**
+ * Assign a multiline comment line number decoration to each line that is part of a multiline comment.
+ */
 const multilineCommentLineNumberDeco = Decoration.line({
 	class: "multiline-comment-line-number",
 });
@@ -58,7 +60,7 @@ export function multilineCommentHighlightExtension(comments: CommentDto[]) {
 						} catch (e) {
 							// Line might not exist, skip it
 							showWarning(
-								`Line ${lineNum} does not exist in document ${comment.location.filePath}. Skipping decoration.`
+								`Line ${lineNum} does not exist in document ${comment.location.filePath}. Skipping decoration.`,
 							);
 						}
 					}
@@ -71,6 +73,6 @@ export function multilineCommentHighlightExtension(comments: CommentDto[]) {
 		},
 		{
 			decorations: (v) => v.decorations,
-		}
+		},
 	);
 }

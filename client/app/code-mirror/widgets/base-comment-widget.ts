@@ -1,9 +1,10 @@
-// TODO: Implement depth-based indentation for replies visualization
-
 import { WidgetType } from "@codemirror/view";
 import type CategoryDto from "../../../../base/app/types/dtos/category-dto";
 import type CommentDto from "../../../../base/app/types/dtos/comment-dto";
 
+/**
+ * Base class for comments widgets inside CodeMirror.
+ */
 export default abstract class BaseCommentWidget extends WidgetType {
 	protected handleDeleteComment: (commentId: string) => void;
 	protected handleEditComment: (commentId: string) => void;
@@ -22,7 +23,7 @@ export default abstract class BaseCommentWidget extends WidgetType {
 		replies: CommentDto[],
 		handleDeleteComment: (commentId: string) => void,
 		handleEditComment: (commentId: string) => void,
-		handleReplyComment: (commentId: string) => void
+		handleReplyComment: (commentId: string) => void,
 	) {
 		super();
 		this.content = content;
@@ -214,14 +215,10 @@ export default abstract class BaseCommentWidget extends WidgetType {
 		// Update button handlers to use the reply's ID
 		replyButton.onclick = () => this.handleReplyComment(reply.id!);
 		deleteButton.onclick = () => this.handleDeleteComment(reply.id!);
-
 		replyActions.appendChild(replyButton);
 		replyActions.appendChild(deleteButton);
-
 		replyLine.appendChild(replyActions);
-
 		replyDiv.appendChild(replyLine);
-
 		return replyDiv;
 	}
 	protected abstract getWidgetTypeClass(): string;

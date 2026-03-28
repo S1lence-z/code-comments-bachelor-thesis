@@ -9,7 +9,7 @@ import SinglelineCommentWidget from "./widgets/singline-comment-widget";
 import MultilineCommentWidget from "./widgets/multiline-comment-widget";
 
 /**
- * Builds decorations for displaying comments in the editor
+ * Builds decorations for displaying comments in the editor.
  */
 const buildDecorations = (
 	state: EditorState,
@@ -130,7 +130,7 @@ const addSingleLineCommentDecoration = (
 };
 
 /**
- * Creates a CodeMirror extension for displaying comments
+ * Creates a CodeMirror extension for displaying comments.
  */
 export const commentsDisplayExtension = (
 	currentComments: Readonly<CommentDto[]>,
@@ -165,4 +165,4 @@ export const commentsDisplayExtension = (
 		},
 		provide: (f) => EditorView.decorations.from(f),
 	});
-}
+};

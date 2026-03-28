@@ -66,7 +66,9 @@ export const createEditorExtensions = (
 	return extensions;
 };
 
-// Make an extension to prevent the default drag and drop behavior
+/**
+ * Prevents the default drag-and-drop behavior in the editor to avoid issues with file drops or text dragging.
+ */
 export const preventDefaultDragAndDrop = (): Extension => {
 	return EditorView.domEventHandlers({
 		dragover: (event) => {
@@ -80,6 +82,13 @@ export const preventDefaultDragAndDrop = (): Extension => {
 	});
 };
 
+/**
+ * Adds custom keyboard shortcuts for the editor, specifically for adding comments in keyboard mode.
+ * @param filePath
+ * @param onSingleLineComment
+ * @param appKeyboardShortcuts
+ * @returns
+ */
 const addCustomKeyboardShortcuts = (
 	filePath: string | null,
 	onSingleLineComment: (lineNumber: number, filePath: string) => void,
@@ -106,6 +115,11 @@ const addCustomKeyboardShortcuts = (
 	];
 };
 
+/**
+ * Adds cursor navigation extensions to the editor based on the showCursor flag.
+ * @param showCursor
+ * @returns
+ */
 const addCursorNavigationExtensions = (showCursor: boolean): Extension[] => {
 	const extensions: Extension[] = [];
 	if (!showCursor) {
