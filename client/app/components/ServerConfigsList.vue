@@ -18,13 +18,11 @@ interface ServerConfigsListEmits {
 const props = defineProps<ServerConfigList>();
 const emit = defineEmits<ServerConfigsListEmits>();
 
-// Methods
 const handleSelectServerConfig = (serverConfig: ServerConfig) => {
 	emit("select", serverConfig);
 	emit("close");
 };
 
-// Get the repository name from the URL
 const getRepositoryName = (url: string) => {
 	return url.split("/").pop() || url;
 };

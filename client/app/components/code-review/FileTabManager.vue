@@ -17,7 +17,6 @@ const {
 	currentTabs,
 	isDragging,
 	draggedFilePath,
-
 	// Functions
 	handleDragEnd,
 	handleDragOver,
@@ -75,7 +74,6 @@ const {
 								>{{ getFileName(file) }}</span
 							>
 						</button>
-
 						<!-- Close/Preview indicator button -->
 						<button
 							@click="removeFileTab(file)"
@@ -94,7 +92,6 @@ const {
 				</div>
 			</div>
 		</div>
-
 		<!-- Slot for file content -->
 		<div class="flex-1 overflow-hidden">
 			<slot></slot>
