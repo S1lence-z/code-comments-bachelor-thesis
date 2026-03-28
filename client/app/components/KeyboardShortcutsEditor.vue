@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { AppKeyboardShortcuts } from "../types/domain/keyboard-shortcuts";
-import { objectDeepCopy } from "../utils/json";
 import { Icon } from "@iconify/vue";
 
 const { t } = useI18n();
@@ -8,15 +6,21 @@ const { t } = useI18n();
 interface KeyboardShortcutsEditorEmits {
 	(event: "close"): void;
 }
-
 const emits = defineEmits<KeyboardShortcutsEditorEmits>();
 
 // Store
 const keyboardShortcutsStore = useKeyboardShortcutsStore();
 
-// State - Deep copy of store shortcuts to avoid direct mutation
-// TODO: this should not be necessary
-const allShortcuts = ref<AppKeyboardShortcuts>(objectDeepCopy(keyboardShortcutsStore.getShortcuts));
+// Track pending changes before saving
+const pendingChanges = ref<Record<string, string>>({});
+
+// Merge store shortcuts with any pending edits for display
+const displayShortcuts = computed(() =>
+	Object.values(keyboardShortcutsStore.getShortcuts).map((shortcut) => ({
+		...shortcut,
+		binding: pendingChanges.value[shortcut.actionName] ?? shortcut.binding,
+	}))
+);
 
 // Editing state
 const editingShortcutAction = ref<string | null>(null);
@@ -48,29 +52,21 @@ const handleKeyCapture = (event: KeyboardEvent) => {
 	const binding = modifiers.length > 0 ? `${modifiers.join("-")}-${key}` : key;
 	tempBinding.value = binding;
 
-	// Update the local state
 	if (editingShortcutAction.value) {
-		const shortcut = Object.values(allShortcuts.value).find(
-			(shortcut) => shortcut.actionName === editingShortcutAction.value
-		);
-
-		if (shortcut) {
-			shortcut.binding = binding;
-		}
+		pendingChanges.value[editingShortcutAction.value] = binding;
 	}
 };
 
 const resetToDefault = () => {
-	const defaultShortcuts: AppKeyboardShortcuts = keyboardShortcutsStore.getDefaultShortcuts;
-	allShortcuts.value = defaultShortcuts;
+	pendingChanges.value = {};
+	keyboardShortcutsStore.applyShortcuts(keyboardShortcutsStore.getDefaultShortcuts);
 	editingShortcutAction.value = null;
 };
 
 const saveShortcuts = () => {
-	// Apply all shortcuts to the store
-	Object.values(allShortcuts.value).forEach((shortcut) => {
-		keyboardShortcutsStore.updateShortcut(shortcut);
-	});
+	for (const [actionName, binding] of Object.entries(pendingChanges.value)) {
+		keyboardShortcutsStore.updateShortcut({ actionName, binding });
+	}
 	emits("close");
 };
 </script>
@@ -88,7 +84,7 @@ const saveShortcuts = () => {
 			</div>
 
 			<div class="space-y-4">
-				<div v-for="shortcut in allShortcuts" :key="shortcut.actionName" class="space-y-2">
+				<div v-for="shortcut in displayShortcuts" :key="shortcut.actionName" class="space-y-2">
 					<label class="block font-bold text-gray-400">{{ shortcut.actionName }}</label>
 					<input
 						:value="
