@@ -8,7 +8,7 @@ export interface ContentViewerProps {
 	previewUrl: string;
 }
 
-export function useContentViewer() {
+export const useContentViewer = () => {
 	// Zoom and pan state
 	const zoom = ref<number>(1);
 	const panX = ref<number>(0);
@@ -141,4 +141,4 @@ export function useContentViewer() {
 		handleTouchMove,
 		handleTouchEnd,
 	};
-}
+};

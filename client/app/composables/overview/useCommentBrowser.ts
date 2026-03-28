@@ -11,7 +11,7 @@ export interface CommentBrowserEmits {
 	(event: "openFileInEditor", filePath: string): void;
 }
 
-export function useCommentBrowser(props: CommentBrowserProps, emit: CommentBrowserEmits) {
+export const useCommentBrowser = (props: CommentBrowserProps, emit: CommentBrowserEmits) => {
 	// Store
 	const fileContentStore = useFileContentStore();
 	const commentBrowserStore = useCommentBrowserStore();

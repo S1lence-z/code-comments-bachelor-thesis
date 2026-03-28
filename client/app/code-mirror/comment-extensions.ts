@@ -11,14 +11,14 @@ import MultilineCommentWidget from "./widgets/multiline-comment-widget";
 /**
  * Builds decorations for displaying comments in the editor
  */
-function buildDecorations(
+const buildDecorations = (
 	state: EditorState,
 	commentsToDisplay: Readonly<CommentDto[]>,
 	isCompactCommentModal: boolean,
 	deleteCommentAction: (commentId: string) => void,
 	editCommentAction: (commentId: string) => void,
-	replyCommentAction: (commentId: string) => void
-): DecorationSet {
+	replyCommentAction: (commentId: string) => void,
+): DecorationSet => {
 	const builder = new RangeSetBuilder<Decoration>();
 
 	if (!commentsToDisplay || commentsToDisplay.length === 0) {
@@ -38,7 +38,7 @@ function buildDecorations(
 					builder,
 					deleteCommentAction,
 					editCommentAction,
-					replyCommentAction
+					replyCommentAction,
 				);
 				break;
 			case CommentType.Multiline:
@@ -49,15 +49,15 @@ function buildDecorations(
 					builder,
 					deleteCommentAction,
 					editCommentAction,
-					replyCommentAction
+					replyCommentAction,
 				);
 				break;
 		}
 	}
 	return builder.finish();
-}
+};
 
-function sortCommentsByPosition(comments: Readonly<CommentDto[]>): CommentDto[] {
+const sortCommentsByPosition = (comments: Readonly<CommentDto[]>): CommentDto[] => {
 	return [...comments].sort((a, b) => {
 		const aPos =
 			a.type === CommentType.Singleline ? a.location.lineNumber : a.location.startLineNumber;
@@ -65,17 +65,17 @@ function sortCommentsByPosition(comments: Readonly<CommentDto[]>): CommentDto[] 
 			b.type === CommentType.Singleline ? b.location.lineNumber : b.location.startLineNumber;
 		return aPos! - bPos!;
 	});
-}
+};
 
-function addMultiLineCommentDecoration(
+const addMultiLineCommentDecoration = (
 	comment: CommentDto,
 	isCompactCommentModal: boolean,
 	state: EditorState,
 	builder: RangeSetBuilder<Decoration>,
 	deleteCommentAction: (commentId: string) => void,
 	editCommentAction: (commentId: string) => void,
-	replyCommentAction: (commentId: string) => void
-): void {
+	replyCommentAction: (commentId: string) => void,
+): void => {
 	const startLine = state.doc.line(comment.location.startLineNumber!);
 	builder.add(
 		startLine.from,
@@ -89,23 +89,23 @@ function addMultiLineCommentDecoration(
 				comment.replies ?? [],
 				deleteCommentAction,
 				editCommentAction,
-				replyCommentAction
+				replyCommentAction,
 			),
 			side: -1,
 			block: true,
-		})
+		}),
 	);
-}
+};
 
-function addSingleLineCommentDecoration(
+const addSingleLineCommentDecoration = (
 	comment: CommentDto,
 	isCompactCommentModal: boolean,
 	state: EditorState,
 	builder: RangeSetBuilder<Decoration>,
 	deleteCommentAction: (commentId: string) => void,
 	editCommentAction: (commentId: string) => void,
-	replyCommentAction: (commentId: string) => void
-): void {
+	replyCommentAction: (commentId: string) => void,
+): void => {
 	if (comment.location.lineNumber! > 0 && comment.location.lineNumber! <= state.doc.lines) {
 		const line = state.doc.line(comment.location.lineNumber!);
 		builder.add(
@@ -120,25 +120,25 @@ function addSingleLineCommentDecoration(
 					comment.replies ?? [],
 					deleteCommentAction,
 					editCommentAction,
-					replyCommentAction
+					replyCommentAction,
 				),
 				side: -1,
 				block: true,
-			})
+			}),
 		);
 	}
-}
+};
 
 /**
  * Creates a CodeMirror extension for displaying comments
  */
-export function commentsDisplayExtension(
+export const commentsDisplayExtension = (
 	currentComments: Readonly<CommentDto[]>,
 	isCompactCommentModal: boolean,
 	deleteCommentAction: (commentId: string) => void,
 	editCommentAction: (commentId: string) => void,
-	replyCommentAction: (commentId: string) => void
-) {
+	replyCommentAction: (commentId: string) => void,
+) => {
 	return StateField.define<DecorationSet>({
 		create(state: EditorState) {
 			return buildDecorations(
@@ -147,7 +147,7 @@ export function commentsDisplayExtension(
 				isCompactCommentModal,
 				deleteCommentAction,
 				editCommentAction,
-				replyCommentAction
+				replyCommentAction,
 			);
 		},
 		update(value: DecorationSet, tr) {
@@ -158,7 +158,7 @@ export function commentsDisplayExtension(
 					isCompactCommentModal,
 					deleteCommentAction,
 					editCommentAction,
-					replyCommentAction
+					replyCommentAction,
 				);
 			}
 			return value.map(tr.changes);

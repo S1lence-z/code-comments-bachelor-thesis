@@ -20,7 +20,7 @@ export interface CodeEditorEmits {
 	(event: "inline-form-reply", parentCommentId: string, reply: RawCommentData): void;
 }
 
-export function useCodeEditor(props: CodeEditorProps, emit: CodeEditorEmits) {
+export const useCodeEditor = (props: CodeEditorProps, emit: CodeEditorEmits) => {
 	// Store access
 	const settingsStore = useSettingsStore();
 	const keyboardShortcutsStore = useKeyboardShortcutsStore();

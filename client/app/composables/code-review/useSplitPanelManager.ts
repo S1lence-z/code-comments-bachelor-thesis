@@ -32,7 +32,7 @@ export interface SplitPanelManagerEmits {
 	(event: "tab-pinned", filePath: string, panelId: number): void;
 }
 
-export function useSplitPanelManager(props: SplitPanelManagerProps, emit: SplitPanelManagerEmits) {
+export const useSplitPanelManager = (props: SplitPanelManagerProps, emit: SplitPanelManagerEmits) => {
 	// Constants
 	const MIN_PANEL_WIDTH_PX = 100;
 	const FULL_WIDTH_PERCENTAGE = 100;

@@ -11,7 +11,9 @@ import { csharp } from "@replit/codemirror-lang-csharp";
 import { svelte } from "@replit/codemirror-lang-svelte";
 import type { LanguageSupport } from "@codemirror/language";
 
-export function getLanguageExtension(filePath: string | null): LanguageSupport | LanguageSupport[] {
+export const getLanguageExtension = (
+	filePath: string | null,
+): LanguageSupport | LanguageSupport[] => {
 	if (!filePath) return javascript();
 	const extension = filePath.split(".").pop()?.toLowerCase();
 	switch (extension) {
@@ -44,4 +46,4 @@ export function getLanguageExtension(filePath: string | null): LanguageSupport |
 		default:
 			return javascript();
 	}
-}
+};

@@ -9,10 +9,10 @@ export interface LineNumberConfig {
 	};
 }
 
-export function getLineNumbersConfig(_comments: CommentDto[]): LineNumberConfig {
+export const getLineNumbersConfig = (_comments: CommentDto[]): LineNumberConfig => {
 	return {
 		formatNumber: (lineNo: number, _state: EditorState) => {
 			return lineNo.toString();
 		},
 	};
-}
+};

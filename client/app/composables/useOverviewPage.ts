@@ -1,7 +1,7 @@
 import { CommentType } from "../../../base/app/types/dtos/comment-type";
 import { groupCommentsByFile, sortCommentsByLineNumber } from "../utils/comments";
 
-export function useOverviewPage() {
+export const useOverviewPage = () => {
 	// Query params composable
 	const { navigateToCodeEditorWithFile } = useQueryParams();
 

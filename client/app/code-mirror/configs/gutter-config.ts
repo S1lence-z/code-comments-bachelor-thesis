@@ -9,7 +9,7 @@ export interface GutterConfig {
 	lineMarker?: (
 		view: EditorView,
 		line: BlockInfo,
-		otherMarkers: readonly GutterMarker[]
+		otherMarkers: readonly GutterMarker[],
 	) => GutterMarker | null;
 	widgetMarker?: (view: EditorView, widget: WidgetType, block: BlockInfo) => GutterMarker | null;
 	lineMarkerChange?: (update: ViewUpdate) => boolean;
@@ -20,6 +20,6 @@ export interface GutterConfig {
 	};
 }
 
-export function createGutterConfig(_comments: CommentDto[]): GutterConfig {
+export const createGutterConfig = (_comments: CommentDto[]): GutterConfig => {
 	return {};
-}
+};

@@ -1,14 +1,14 @@
-export function getFileName(path: string | null): string {
+export const getFileName = (path: string | null): string => {
 	if (!path) return "";
 	return path.split("/").pop() || path;
-}
+};
 
-export function getFileDirectory(path: string | null): string {
+export const getFileDirectory = (path: string | null): string => {
 	if (!path) return "";
 	return path.split("/").slice(0, -1).join("/") || "/";
-}
+};
 
-export function getFileIcon(fileName: string | null): string {
+export const getFileIcon = (fileName: string | null): string => {
 	if (!fileName) return "📄"; // Default icon
 	const extension = fileName.split(".").pop()?.toLowerCase();
 	switch (extension) {
@@ -71,9 +71,9 @@ export function getFileIcon(fileName: string | null): string {
 		default:
 			return "📄";
 	}
-}
+};
 
-export function getFileIconColor(fileName: string): string {
+export const getFileIconColor = (fileName: string): string => {
 	const extension = fileName.split(".").pop()?.toLowerCase();
 	switch (extension) {
 		case "js":
@@ -116,4 +116,4 @@ export function getFileIconColor(fileName: string): string {
 		default:
 			return "#cccccc"; // Default gray
 	}
-}
+};

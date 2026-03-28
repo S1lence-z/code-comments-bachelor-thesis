@@ -8,7 +8,7 @@ import repositoryTypeOptions from "../../../base/app/types/repository-type-optio
 import useAuthService from "../services/auth-service";
 import { useAuthStore } from "../../../base/app/stores/authStore";
 
-export function useSetupPage() {
+export const useSetupPage = () => {
 	// Runtime config
 	const config = useRuntimeConfig();
 

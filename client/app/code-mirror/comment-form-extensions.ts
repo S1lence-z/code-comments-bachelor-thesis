@@ -26,13 +26,13 @@ export const hideCommentFormEffect = StateEffect.define<void>();
 /**
  * Creates a CodeMirror extension for displaying the comment form inline
  */
-export function commentFormExtension(
+export const commentFormExtension = (
 	categories: CategoryDto[],
 	onSubmit: (content: string, categoryId: string, commentId: string | null) => void,
 	onCancel: () => void,
 	onDelete: (commentId: string) => void,
 	onError: (message: string) => void
-) {
+) => {
 	return StateField.define<DecorationSet>({
 		create() {
 			return Decoration.none;
