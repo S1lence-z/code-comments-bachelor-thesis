@@ -2,8 +2,8 @@ import type { TreeNode } from "../domain/tree-content";
 import type { ProcessedFile } from "../domain/file-content";
 
 /**
- * Interface for repository providers (GitHub, Single File, etc.)
- * Implement this interface to create a custom repository provider
+ * Interface for repository providers that fetch file trees and file contents from a source.
+ * Implement this interface to add support for a new repository type (e.g. GitHub, Single File).
  */
 export interface RepositoryProvider {
 	/**
