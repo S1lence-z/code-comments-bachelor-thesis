@@ -7,8 +7,14 @@ namespace server.Controllers
 {
 	[Route("api/v1/project/{projectId}/comments")]
 	[ApiController]
+	/// <summary>
+	/// Exposes CRUD endpoints for comments within a project, including threading support.
+	/// </summary>
 	public class CommentsController(ICommentService commentService) : ControllerBase
 	{
+		/// <summary>
+		/// Returns all comments belonging to the specified project.
+		/// </summary>
 		[HttpGet]
 		[AllowAnonymous]
 		public async Task<IActionResult> GetAllCommentsForProject(Guid projectId)
@@ -17,6 +23,9 @@ namespace server.Controllers
 			return Ok(commentDtos);
 		}
 
+		/// <summary>
+		/// Returns a single comment by its ID.
+		/// </summary>
 		[HttpGet("{commentId}")]
 		[AllowAnonymous]
 		public async Task<IActionResult> GetCommentById(Guid projectId, Guid commentId)
@@ -27,6 +36,9 @@ namespace server.Controllers
 			return Ok(commentDto);
 		}
 
+		/// <summary>
+		/// Returns the full thread of replies starting from the specified comment.
+		/// </summary>
 		[HttpGet("{commentId}/thread")]
 		[AllowAnonymous]
 		public async Task<IActionResult> GetCommentThread(Guid projectId, Guid commentId)
@@ -35,6 +47,9 @@ namespace server.Controllers
 			return Ok(thread);
 		}
 
+		/// <summary>
+		/// Creates a new top-level comment in the specified project.
+		/// </summary>
 		[HttpPost]
 		[Authorize]
 		public async Task<IActionResult> CreateComment(Guid projectId, [FromBody] CommentDto newComment)
@@ -43,6 +58,9 @@ namespace server.Controllers
 			return CreatedAtAction(nameof(GetCommentById), new { projectId, commentId = commentDto.Id }, commentDto);
 		}
 
+		/// <summary>
+		/// Creates a reply to an existing comment, forming a thread.
+		/// </summary>
 		[HttpPost("{parentCommentId}/reply")]
 		[AllowAnonymous]
 		public async Task<IActionResult> CreateReply(Guid projectId, Guid parentCommentId, [FromBody] CommentDto newReply)
@@ -54,6 +72,9 @@ namespace server.Controllers
 			return CreatedAtAction(nameof(GetCommentById), new { projectId, commentId = replyDto.Id }, replyDto);
 		}
 
+		/// <summary>
+		/// Updates an existing comment's content.
+		/// </summary>
 		[HttpPut("{commentId}")]
 		[Authorize]
 		public async Task<IActionResult> UpdateComment(Guid projectId, Guid commentId, [FromBody] CommentDto updatedCommentData)
@@ -62,6 +83,9 @@ namespace server.Controllers
 			return Ok(updatedComment);
 		}
 
+		/// <summary>
+		/// Deletes a comment by its ID.
+		/// </summary>
 		[HttpDelete("{commentId}")]
 		[Authorize]
 		public async Task<IActionResult> DeleteComment(Guid projectId, Guid commentId)

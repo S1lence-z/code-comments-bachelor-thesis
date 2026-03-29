@@ -8,19 +8,24 @@ using server.Types.Repositories;
 
 namespace server.Services
 {
+	/// <summary>
+	/// Handles project creation (with server URL validation) and retrieval.
+	/// </summary>
 	public class ProjectService(
 		ILogger<ProjectService> logger,
-		IProjectRepository projectRepository, 
+		IProjectRepository projectRepository,
 		IOptions<UrlSettings> apiUrls) : IProjectService
 	{
 		private readonly string _BASE_BACKEND_URL = apiUrls.Value.BackendUrl;
 
+		/// <inheritdoc />
 		public async Task<IEnumerable<ProjectDto>> GetAllProjectsAsync()
 		{
 			IEnumerable<Project> projects = await projectRepository.GetAllAsync();
 			return projects.Select(ProjectMapper.ToDto);
 		}
 
+		/// <inheritdoc />
 		public async Task<ProjectDto> SetupProjectAsync(ProjectSetupRequest request)
 		{
 			// Validate if the server url in the request is the same as the base backend url

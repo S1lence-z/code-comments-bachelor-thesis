@@ -9,8 +9,12 @@ using System.IdentityModel.Tokens.Jwt;
 
 namespace server.Services
 {
+    /// <summary>
+    /// Validates user credentials against the configured project password and issues JWT tokens.
+    /// </summary>
     public class AuthService(IOptions<JwtSettings> jwtConfig) : IAuthService
     {
+        /// <inheritdoc />
         public AuthResponseDto Authenticate(LoginRequestDto loginRequest)
         {
             // Validate password
