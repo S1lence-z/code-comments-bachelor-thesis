@@ -2,8 +2,8 @@ import type { RepositoryProvider } from "../../types/interfaces/repository-provi
 import type { TreeNode } from "../../types/domain/tree-content";
 import { TreeNodeType } from "../../types/domain/tree-content";
 import { type ProcessedFile } from "../../types/domain/file-content";
-import { type GithubTreeItem, GithubTreeItemType } from "../../types/github/TreeContent";
-import type { GithubFileContentResponse } from "../../types/github/FileContent";
+import { type GithubTreeItem, GithubTreeItemType } from "../../types/github/tree-content";
+import type { GithubFileContentResponse } from "../../types/github/file-content";
 import { FileDisplayType } from "../../types/domain/file-content";
 import { repositoryProviderRegistry } from "../repository-provider-registry";
 import { RepositoryType } from "../../../../base/app/types/repository-type";

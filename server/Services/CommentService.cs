@@ -9,6 +9,10 @@ using server.Types.Repositories;
 
 namespace server.Services
 {
+	/// <summary>
+	/// Manages the full lifecycle of comments: creation (including replies with inherited locations),
+	/// retrieval, updates, deletion, and thread resolution.
+	/// </summary>
 	public class CommentService(
 		ILogger<CommentService> logger,
 		ICommentRepository commentRepository,
@@ -16,18 +20,21 @@ namespace server.Services
 		ILocationRepository locationRepository,
 		ICategoryRepository categoryRepository) : ICommentService
 	{
+		/// <inheritdoc />
 		public async Task<IEnumerable<CommentDto>> GetAllCommentsForProjectAsync(Guid projectId)
 		{
 			IEnumerable<Comment> comments = await commentRepository.GetAllByProjectIdAsync(projectId);
 			return comments.Select(c => CommentMapper.ToDto(c));
 		}
 
+		/// <inheritdoc />
 		public async Task<CommentDto?> GetCommentByIdAsync(Guid projectId, Guid commentId)
 		{
 			Comment? comment = await commentRepository.GetByIdAsync(commentId, projectId);
 			return comment is null ? null : CommentMapper.ToDto(comment);
 		}
 
+		/// <inheritdoc />
 		public async Task<IEnumerable<CommentDto>> GetThreadAsync(Guid projectId, Guid rootCommentId)
 		{
 			IEnumerable<Comment> thread = await commentRepository.GetThreadAsync(rootCommentId, projectId);
@@ -40,6 +47,9 @@ namespace server.Services
 			return thread.Select(c => CommentMapper.ToDto(c));
 		}
 
+		/// <summary>
+		/// Maps a comment DTO's location data to the appropriate Location entity based on comment type.
+		/// </summary>
 		private static Location CreateLocationFromComment(CommentDto commentDto)
 		{
 			return commentDto.Type switch
@@ -73,6 +83,7 @@ namespace server.Services
 			};
 		}
 
+		/// <inheritdoc />
 		public async Task<CommentDto> CreateCommentAsync(Guid projectId, CommentDto newCommentData)
 		{
 			// Check if the project exists
@@ -136,6 +147,7 @@ namespace server.Services
 			return CommentMapper.ToDto(createdComment);
 		}
 
+		/// <inheritdoc />
 		public async Task<CommentDto> UpdateCommentAsync(Guid projectId, Guid commentId, CommentDto updatedCommentData)
 		{
 			// Find the existing comment
@@ -167,6 +179,7 @@ namespace server.Services
 			return CommentMapper.ToDto(updatedComment);
 		}
 
+		/// <inheritdoc />
 		public async Task<bool> DeleteCommentAsync(Guid projectId, Guid commentId)
 		{
 			Comment? comment = await commentRepository.GetByIdAsync(commentId, projectId, track: true);
