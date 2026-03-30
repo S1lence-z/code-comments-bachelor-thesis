@@ -4,8 +4,8 @@
 import type { TreeNode } from "../types/domain/tree-content";
 import type CommentDto from "../../../base/app/types/dtos/comment-dto";
 import type CategoryDto from "../../../base/app/types/dtos/category-dto";
-import { useRepositoryProviderFactory } from "../services/repository-provider-factory";
-import { StandardBackendProvider } from "../services/backend/standard-backend-provider";
+import { useRepositoryProviderFactory } from "../providers/repository-provider-factory";
+import { StandardBackendProvider } from "../providers/backend/standard-backend-provider";
 import type { BackendProvider } from "../types/interfaces/backend-provider";
 import { useServerStatusStore } from "./serverStore";
 import { CommentType } from "../../../base/app/types/dtos/comment-type";
