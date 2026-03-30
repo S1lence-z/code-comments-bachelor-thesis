@@ -1,12 +1,12 @@
-import useProjectService from "../services/project-service";
 import useGithubBranchService from "../services/github-branch-service";
 import type ProjectSetupRequest from "../../../base/app/types/project-setup-request";
 import type ProjectDto from "../../../base/app/types/dtos/project-dto";
 import { RepositoryType } from "../../../base/app/types/repository-type";
 import { isValidGithubUrl } from "../utils/url";
 import repositoryTypeOptions from "../../../base/app/types/repository-type-options";
-import useAuthService from "../services/auth-service";
 import { useAuthStore } from "../../../base/app/stores/authStore";
+import type { BackendProvider } from "../types/interfaces/backend-provider";
+import { StandardBackendProvider } from "../providers/backend/standard-backend-provider";
 
 /**
  * Orchestrates the project setup page logic: form state, validation, project creation, and server authentication.
@@ -21,9 +21,10 @@ export const useSetupPage = () => {
 
 	// Services
 	const { branchExistsInRepo } = useGithubBranchService();
-	const projectService = useProjectService();
-	const authService = useAuthService();
 	const errorHandler = useErrorHandler();
+
+	// Backend provider
+	const backendProvider = ref<BackendProvider | null>(null);
 
 	// Query params composable
 	const { navigateToProject, navigateToOfflineProject, navigateWithServerUrl } = useQueryParams();
@@ -120,12 +121,8 @@ export const useSetupPage = () => {
 				name: projectName,
 			};
 
-			// Call the service to create the project
-			const response = await projectService.createProject(
-				setupData,
-				formServerBaseUrl.value.trim(),
-				authStore.getAuthToken(serverBaseUrl)
-			);
+			// Call the provider to create the project
+			const response = await backendProvider.value!.createProject(setupData);
 
 			if (response && response.id) {
 				projectId.value = response.id;
@@ -186,9 +183,7 @@ export const useSetupPage = () => {
 				console.warn("Server base URL is not set. Cannot load existing projects.");
 				return;
 			}
-			existingProjects.value = await projectService.getProjects(
-				formServerBaseUrl.value.trim()
-			);
+			existingProjects.value = await backendProvider.value!.getProjects();
 		} catch (error) {
 			errorHandler.handleError(error, {
 				customMessage: "Failed to load existing projects.",
@@ -213,8 +208,12 @@ export const useSetupPage = () => {
 
 		formServerBaseUrl.value = urlToSubmit;
 
+		// Initialize the backend provider
+		backendProvider.value = new StandardBackendProvider(urlToSubmit);
+
 		// If token is provided, use it directly
 		if (token) {
+			backendProvider.value.setAuthToken(token);
 			authStore.saveAuthToken(urlToSubmit, token);
 			navigateWithServerUrl(urlToSubmit);
 			offlineModeStore.setServerUrlConfigured(true);
@@ -225,10 +224,11 @@ export const useSetupPage = () => {
 		if (passwordToSubmit) {
 			isAuthorizing.value = true;
 			try {
-				const response = await authService.serverLogin(passwordToSubmit, urlToSubmit);
+				const response = await backendProvider.value.login(passwordToSubmit);
 				if (!response.success) {
 					throw new Error(response.message);
 				}
+				backendProvider.value.setAuthToken(response.token!);
 				authStore.saveAuthToken(urlToSubmit, response.token!);
 				errorHandler.showSuccess(response.message);
 			} catch (error) {
@@ -267,6 +267,7 @@ export const useSetupPage = () => {
 
 	// Disconnect from current server and go back to server form
 	const disconnectServer = async (): Promise<void> => {
+		backendProvider.value = null;
 		offlineModeStore.setServerUrlConfigured(false);
 		offlineModeStore.isOfflineMode = false;
 		formServerPassword.value = "";
