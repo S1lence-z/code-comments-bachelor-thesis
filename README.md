@@ -96,6 +96,4 @@ The [thesis](https://www.overleaf.com/project/679d4155c4e6d540df8ca774) is writt
 
 ### Wiki
 
-> ⚠️ **Warning:** The wiki is not finished yet and may contain incomplete or outdated information.
-
 The project wiki contains additional documentation about the architecture, design decisions, and implementation details. You can find it [here](https://github.com/S1lence-z/code-comments/wiki).
