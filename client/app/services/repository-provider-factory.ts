@@ -1,8 +1,8 @@
 import { repositoryProviderRegistry } from "./repository-provider-registry";
 
 // Import all providers to register them
-import "./providers/github-repository-provider";
-import "./providers/single-file-repository-provider";
+import "./repository/github-repository-provider";
+import "./repository/single-file-repository-provider";
 
 export const useRepositoryProviderFactory = () => {
 	return {
