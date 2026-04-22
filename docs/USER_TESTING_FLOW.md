@@ -4,10 +4,10 @@ The testing was conducted with potential users, mainly students with some techni
 
 ## Testing Environment
 
-Two distinct testing setups were offered to participants, allowing them to choose based on their technical comfort:
+In all scenarios, participants accessed the deployed production frontend at [https://codecomments.jirizelenka.me/setup](https://codecomments.jirizelenka.me/setup). The only difference between the two setups is which backend stores the review data:
 
-1. **Production deployment** — participants accessed the publicly hosted instance of the application. No installation or local setup was required; they used only the shareable project link in their browser.
-2. **Local deployment via Docker** — participants who preferred to test the self-hosted scenario ran the server application locally using Docker Compose, following the deployment documentation.
+1. **Production backend** — participants used the publicly hosted backend directly through the production frontend. No installation or local setup was required.
+2. **Local backend via Docker** — participants who preferred to test the self-hosted scenario ran the backend services locally using Docker Compose and pointed the production frontend at their local backend through the setup form.
 
 Note: The production deployment is intended for testing purposes and does not represent a fully production-grade service.
 
@@ -17,17 +17,25 @@ The main user scenarios were defined in accordance with the system requirements.
 
 ### Scenario: Reviewer
 
-1. Access the application — either open the production URL in a browser or run the server application locally using Docker Compose.
-2. Choose any public repository and create a new project.
-3. Add all types of comments — single-line, multi-line, file-level, and project-level.
-4. Revise the comments that were added (edit or delete).
-5. Share the generated review link with the reviewee.
+1. Open [https://codecomments.jirizelenka.me/setup](https://codecomments.jirizelenka.me/setup) in a browser.
+2. *(Local backend only)* Clone the repository, configure the `.env` file, and run `docker compose up pgsql adminer server nginx` to start the backend locally.
+3. *(Local backend only)* In the setup form, enter the local backend URL (`http://localhost/server`) into the backend URL field.
+4. Paste the URL of any public repository into the setup form.
+5. Create a new project.
+6. Open a file in the repository and add a single-line comment.
+7. Add a multi-line comment spanning several lines.
+8. Add a file-level comment.
+9. Add a project-level comment.
+10. Edit one of the previously added comments.
+11. Delete one of the previously added comments.
+12. Copy the generated review link and send it to the reviewee.
 
 ### Scenario: Reviewee
 
-1. Open the shared link to load the commented project.
-2. Navigate through the files where comments were added.
-3. Reply to all comments.
+1. Open the shared review link in a browser.
+2. Locate the files in which comments were added.
+3. Open each commented file.
+4. Reply to every comment.
 
 ## Post-Scenario Feedback
 
