@@ -66,8 +66,8 @@ Two setups are offered. Pick **one** and follow the matching subsection in secti
 
 Both scenarios are identical for Option A and Option B - only the URL differs. Wherever you see `<FRONTEND_URL>` below, substitute the frontend URL from your setup section:
 
-- Option A: [`https://codecomments.jirizelenka.me`](https://codecomments.jirizelenka.me)
-- Option B: [`http://localhost`](http://localhost)
+- Option A: [`https://codecomments.jirizelenka.me/setup`](https://codecomments.jirizelenka.me/setup)
+- Option B: [`http://localhost/setup`](http://localhost/setup)
 
 ### Scenario 1: Reviewer
 
