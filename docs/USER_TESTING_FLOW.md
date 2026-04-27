@@ -76,12 +76,12 @@ Both scenarios are identical for Option A and Option B - only the URL differs. W
 3. Paste the URL of any public repository into the form.
 4. Enter the **project password** and create a new project.
 5. Open a file in the repository and add a single-line comment.
-6. Add a multi-line comment spanning several lines.
+6. Add a multi-line comment spanning several lines to a different file.
 7. Add a file-level comment.
 8. Add a project-level comment.
 9. Edit one of the previously added comments.
 10. Delete one of the previously added comments.
-11. Copy the generated review link and send it to the reviewee.
+11. Copy the URL and send it to the reviewee (open it in a new tab to verify it works).
 
 ### Scenario 2: Reviewee
 
