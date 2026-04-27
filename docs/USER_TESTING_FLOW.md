@@ -1,10 +1,10 @@
 # User Testing Guide
 
-This guide walks you through everything needed to participate in user testing of the platform — from setup to completing the scenarios and submitting feedback. Follow it top to bottom.
+This guide walks you through everything needed to participate in user testing of the platform - from setup to completing the scenarios and submitting feedback. Follow it top to bottom.
 
 ## 1. Overview
 
-The testing was conducted with potential users — mainly students with some technical background for whom the platform could be usable.
+The testing was conducted with potential users - mainly students with some technical background for whom the platform could be usable.
 
 During the test you will:
 
@@ -19,22 +19,22 @@ The full session takes roughly 10–20 minutes.
 
 Two setups are offered. Pick **one** and follow the matching subsection in section 3.
 
-- **Option A — Staging Deployment.** Nothing to install. You use the publicly hosted frontend and backend.
-- **Option B — Local Setup with Docker.** You run the whole stack on your machine. Requires Git and Docker; useful if you want to test the self-hosted scenario.
+- **Option A - Staging Deployment.** Nothing to install. You use the publicly hosted frontend and backend.
+- **Option B - Local Setup with Docker.** You run the whole stack on your machine. Requires Git and Docker; useful if you want to test the self-hosted scenario.
 
 > ⚠️ **Note:** The staging deployment (Option A) is intended for testing purposes and does not represent a fully production-grade service.
 
 ## 3. Setup
 
-### Option A — Staging Deployment
+### Option A - Staging Deployment
 
 1. Open the manager app in your browser: <https://codecomments.jirizelenka.me/setup>
 2. Contact the author (Jiří Zelenka, [j3.zelenka@gmail.com](mailto:j3.zelenka@gmail.com)) to obtain:
-    - the **staging backend URL** — paste it into the _backend URL_ field of the setup form, and
-    - the **project password** — required when creating the project.
+    - the **staging backend URL** - paste it into the _backend URL_ field of the setup form, and
+    - the **project password** - required when creating the project.
 3. Note your **frontend URL** for the scenarios below: `https://codecomments.jirizelenka.me`
 
-### Option B — Local Setup with Docker
+### Option B - Local Setup with Docker
 
 **Prerequisites**
 
@@ -48,7 +48,7 @@ Two setups are offered. Pick **one** and follow the matching subsection in secti
     git clone https://github.com/S1lence-z/code-comments.git
     cd code-comments
     ```
-2. Create the env file by copying the example (defaults are sufficient for testing — no edits required):
+2. Create the env file by copying the example (defaults are sufficient for testing - no edits required):
     ```bash
     cp .env.example .env
     ```
@@ -64,7 +64,7 @@ Two setups are offered. Pick **one** and follow the matching subsection in secti
 
 ## 4. User Scenarios
 
-Both scenarios are identical for Option A and Option B — only the URL differs. Wherever you see `<FRONTEND_URL>` below, substitute the frontend URL from your setup section:
+Both scenarios are identical for Option A and Option B - only the URL differs. Wherever you see `<FRONTEND_URL>` below, substitute the frontend URL from your setup section:
 
 - Option A: [`https://codecomments.jirizelenka.me`](https://codecomments.jirizelenka.me)
 - Option B: [`http://localhost`](http://localhost)
