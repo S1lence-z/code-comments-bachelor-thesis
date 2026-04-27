@@ -18,8 +18,8 @@ The main user scenarios were defined in accordance with the system requirements.
 ### Scenario: Reviewer
 
 1. Open [https://codecomments.jirizelenka.me/setup](https://codecomments.jirizelenka.me/setup) in a browser.
-2. *(Local backend only)* Clone the repository, configure the `.env` file, and run `docker compose up pgsql adminer server nginx` to start the backend locally.
-3. *(Local backend only)* In the setup form, enter the local backend URL (`http://localhost/server`) into the backend URL field.
+2. _(Local backend only)_ Clone the repository, configure the `.env` file, and run `docker compose up pgsql adminer server nginx` to start the backend locally.
+3. _(Local backend only)_ In the setup form, enter the local backend URL (`http://localhost/server`) into the backend URL field.
 4. Paste the URL of any public repository into the setup form.
 5. Create a new project.
 6. Open a file in the repository and add a single-line comment.
@@ -36,6 +36,7 @@ The main user scenarios were defined in accordance with the system requirements.
 2. Locate the files in which comments were added.
 3. Open each commented file.
 4. Reply to every comment.
+5. Visit the overview page and verify that all comments are listed correctly.
 
 ## Post-Scenario Feedback
 
