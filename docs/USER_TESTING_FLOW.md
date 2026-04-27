@@ -72,7 +72,7 @@ Both scenarios are identical for Option A and Option B - only the URL differs. W
 ### Scenario 1: Reviewer
 
 1. Open the setup page: `<FRONTEND_URL>/setup`
-2. In the setup form, enter the **backend URL** noted in section 3.
+2. In the setup form, enter the **backend URL** noted in section 3. You may click on the `use its URL` button to automatically fill it in.
 3. Paste the URL of any public repository into the form.
 4. Enter the **project password** and create a new project.
 5. Open a file in the repository and add a single-line comment.
