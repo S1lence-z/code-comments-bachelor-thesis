@@ -32,7 +32,7 @@ const {
 	<li class="list-none" :title="currentNode.path">
 		<!-- Item Container -->
 		<div
-			class="flex items-center rounded-lg transition-all duration-200"
+			class="flex items-center rounded-lg transition-all duration-200 select-none"
 			:class="{
 				'bg-white/10 text-white border border-white/20': isFileSelected,
 				'bg-amber-500/10 border border-amber-500/20': hasCommentedChildren,
