@@ -7,6 +7,8 @@ interface ButtonProps {
 	buttonSize: "small" | "medium" | "large";
 	disabled?: boolean;
 	isLoading?: boolean;
+	title?: string;
+	ariaLabel?: string;
 }
 
 interface ButtonEmits {
@@ -15,6 +17,9 @@ interface ButtonEmits {
 
 const props = defineProps<ButtonProps>();
 const emit = defineEmits<ButtonEmits>();
+
+const resolvedTitle = computed(() => props.title ?? props.label);
+const resolvedAriaLabel = computed(() => props.ariaLabel ?? props.title ?? props.label);
 </script>
 
 <template>
@@ -22,6 +27,8 @@ const emit = defineEmits<ButtonEmits>();
 		class="btn"
 		:class="`btn-${props.buttonStyle} btn-${props.buttonSize}`"
 		:disabled="props.disabled || props.isLoading"
+		:title="resolvedTitle"
+		:aria-label="resolvedAriaLabel"
 		@click="emit('click')"
 	>
 		<Icon v-if="props.isLoading" icon="mdi:loading" class="animate-spin w-5 h-5" />

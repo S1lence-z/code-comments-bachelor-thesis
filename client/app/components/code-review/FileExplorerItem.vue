@@ -110,9 +110,11 @@ const {
 			<!-- Item Actions -->
 			<div class="mr-2 duration-200">
 				<button
+					type="button"
 					@click="emit('file-comment-requested', props.currentNode.path)"
 					class="w-6 h-6 bg-white/10 hover:bg-white/20 hover:text-white rounded-md flex items-center justify-center transition-all duration-200 text-black cursor-pointer"
 					:title="t('fileExplorer.addComment')"
+					:aria-label="t('fileExplorer.addComment')"
 				>
 					<Icon
 						v-if="fileContainsFileComment(currentNode.path)"
