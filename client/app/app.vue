@@ -156,6 +156,16 @@ watch(
 	{ immediate: false }
 );
 
+// Copy current URL to clipboard for sharing
+const copyShareUrl = async () => {
+	try {
+		await navigator.clipboard.writeText(window.location.href);
+		errorHandler.showSuccess(t("share.urlCopied"));
+	} catch {
+		errorHandler.showError(t("share.urlCopyFailed"));
+	}
+};
+
 // Comments export functionality
 const exportLocalComments = () => {
 	const localComments = projectDataStore.getAllComments;
@@ -219,6 +229,14 @@ const exportLocalComments = () => {
 				</div>
 
 				<div class="flex flex-row gap-4">
+					<!-- Share / Copy URL -->
+					<Button
+						:label="t('share.copyUrl')"
+						buttonStyle="secondary"
+						buttonSize="medium"
+						iconName="mdi:share-variant"
+						@click="copyShareUrl"
+					/>
 					<!-- Dropdown for Export Options -->
 					<Button
 						:label="t('status.exportComments')"

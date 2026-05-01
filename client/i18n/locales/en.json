@@ -144,5 +144,10 @@
 		"close": "Close",
 		"open": "Open",
 		"create": "Create"
+	},
+	"share": {
+		"copyUrl": "Copy Share URL",
+		"urlCopied": "URL copied to clipboard",
+		"urlCopyFailed": "Failed to copy URL to clipboard"
 	}
 }
