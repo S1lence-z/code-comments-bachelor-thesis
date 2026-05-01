@@ -224,6 +224,8 @@ const exportLocalComments = () => {
 						:label="t('status.exportComments')"
 						buttonStyle="secondary"
 						buttonSize="medium"
+						iconName="mdi:download"
+						display="both"
 						@click="exportLocalComments"
 					/>
 					<!-- Button for Settings slideout panel -->
@@ -231,6 +233,7 @@ const exportLocalComments = () => {
 						:label="t('settings.title')"
 						buttonStyle="secondary"
 						buttonSize="medium"
+						iconName="mdi:cog"
 						@click="settingsStore.toggleSettingsOpen"
 					/>
 				</div>
