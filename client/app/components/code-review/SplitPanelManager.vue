@@ -31,7 +31,7 @@ const {
 		ref="containerElement"
 		id="split-panel-container"
 		class="flex h-full w-full relative"
-		@dragover="(event) => emit('drop-zone-drag-over', event)"
+		@dragover.capture="(event) => emit('drop-zone-drag-over', event)"
 		@dragleave="(event) => emit('drop-zone-leave', event)"
 		@drop="(event) => emit('drop-zone-drop', event)"
 	>

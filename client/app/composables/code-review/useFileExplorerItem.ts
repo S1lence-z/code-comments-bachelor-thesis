@@ -16,6 +16,7 @@ export interface FileExplorerItemEmits {
 export const useFileExplorerItem = (props: FileExplorerItemProps, emit: FileExplorerItemEmits) => {
 	// Store access
 	const projectDataStore = useProjectDataStore();
+	const dragDropState = useDragDropState();
 
 	// Methods
 	const fileContainsAnyComments = (filePath: string): boolean => {
@@ -46,6 +47,20 @@ export const useFileExplorerItem = (props: FileExplorerItemProps, emit: FileExpl
 		}
 	};
 
+	const handleDragStart = (event: DragEvent, item: TreeNode): void => {
+		if (item.type !== TreeNodeType.file) return;
+		if (event.dataTransfer) {
+			// "all" so the Panel's dropEffect = "move" is compatible.
+			event.dataTransfer.effectAllowed = "all";
+			event.dataTransfer.setData("text/plain", item.path);
+		}
+		dragDropState.startDragFromExplorer(item.path);
+	};
+
+	const handleDragEnd = (): void => {
+		dragDropState.endDrag();
+	};
+
 	const containsCommentedChildren = (item: TreeNode): boolean => {
 		if (item.type === TreeNodeType.file) {
 			return projectDataStore.fileContainsComments(item.path);
@@ -66,6 +81,8 @@ export const useFileExplorerItem = (props: FileExplorerItemProps, emit: FileExpl
 		handleItemClick,
 		handleItemDoubleClick,
 		handleToggleExpand,
+		handleDragStart,
+		handleDragEnd,
 		fileContainsAnyComments,
 		fileContainsFileComment,
 		hasCommentedChildren,

@@ -21,6 +21,8 @@ const {
 	handleItemClick,
 	handleItemDoubleClick,
 	handleToggleExpand,
+	handleDragStart,
+	handleDragEnd,
 	fileContainsAnyComments,
 	fileContainsFileComment,
 	hasCommentedChildren,
@@ -37,7 +39,11 @@ const {
 				'bg-white/10 text-white border border-white/20': isFileSelected,
 				'bg-amber-500/10 border border-amber-500/20': hasCommentedChildren,
 				'hover:bg-white/5': !isFileSelected,
+				'cursor-grab active:cursor-grabbing': currentNode.type === TreeNodeType.file,
 			}"
+			:draggable="currentNode.type === TreeNodeType.file"
+			@dragstart="handleDragStart($event, currentNode)"
+			@dragend="handleDragEnd"
 		>
 			<!-- Item Info -->
 			<div

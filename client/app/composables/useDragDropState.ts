@@ -11,15 +11,15 @@ const leftDropZoneActive = ref(false);
 const rightDropZoneActive = ref(false);
 
 const isDragging = computed(() => draggedTab.value !== null);
-const isTreeDrag = computed(() => draggedTab.value?.source === "tree");
+const isExplorerDrag = computed(() => draggedTab.value?.source === "explorer");
 
 const startDrag = (filePath: string, panelId: number): void => {
 	draggedTab.value = { filePath, panelId, fromPanelId: panelId, source: "tab" };
 };
 
-const startDragFromTree = (filePath: string): void => {
-	// fromPanelId is unused for tree drags; set to 0 since the field is required.
-	draggedTab.value = { filePath, panelId: 0, fromPanelId: 0, source: "tree" };
+const startDragFromExplorer = (filePath: string): void => {
+	// fromPanelId is unused for file explorer drags; set to 0 since the field is required.
+	draggedTab.value = { filePath, panelId: 0, fromPanelId: 0, source: "explorer" };
 };
 
 const endDrag = (): void => {
@@ -44,9 +44,9 @@ export const useDragDropState = () => ({
 	leftDropZoneActive: readonly(leftDropZoneActive),
 	rightDropZoneActive: readonly(rightDropZoneActive),
 	isDragging,
-	isTreeDrag,
+	isExplorerDrag,
 	startDrag,
-	startDragFromTree,
+	startDragFromExplorer,
 	endDrag,
 	updateDropZones,
 	clearDropZones,
