@@ -1,58 +1,53 @@
 import type { DraggedTabData } from "../types/domain/workspace-panels";
 
 /**
- * Pure state manager for drag and drop operations.
- * Only manages UI state - no business logic or side effects.
+ * Singleton state for drag-and-drop. Refs live at module scope so every caller
+ * shares the same instance.
  */
-export const useDragDropState = () => {
-	// Constants
-	const DROPZONE_WIDTH = 200;
+const DROPZONE_WIDTH = 200;
 
-	// State
-	const draggedTab = ref<DraggedTabData | null>(null);
-	const leftDropZoneActive = ref(false);
-	const rightDropZoneActive = ref(false);
+const draggedTab = ref<DraggedTabData | null>(null);
+const leftDropZoneActive = ref(false);
+const rightDropZoneActive = ref(false);
 
-	// Computed
-	const isDragging = computed(() => draggedTab.value !== null);
+const isDragging = computed(() => draggedTab.value !== null);
+const isTreeDrag = computed(() => draggedTab.value?.source === "tree");
 
-	// State management methods
-	const startDrag = (filePath: string, panelId: number): void => {
-		draggedTab.value = {
-			filePath,
-			panelId,
-			fromPanelId: panelId,
-		};
-	};
+const startDrag = (filePath: string, panelId: number): void => {
+	draggedTab.value = { filePath, panelId, fromPanelId: panelId, source: "tab" };
+};
 
-	const endDrag = (): void => {
-		draggedTab.value = null;
-		leftDropZoneActive.value = false;
-		rightDropZoneActive.value = false;
-	};
+const startDragFromTree = (filePath: string): void => {
+	// fromPanelId is unused for tree drags; set to 0 since the field is required.
+	draggedTab.value = { filePath, panelId: 0, fromPanelId: 0, source: "tree" };
+};
 
-	const updateDropZones = (isLeftActive: boolean, isRightActive: boolean): void => {
-		leftDropZoneActive.value = isLeftActive;
-		rightDropZoneActive.value = isRightActive;
-	};
+const endDrag = (): void => {
+	draggedTab.value = null;
+	leftDropZoneActive.value = false;
+	rightDropZoneActive.value = false;
+};
 
-	const clearDropZones = (): void => {
-		leftDropZoneActive.value = false;
-		rightDropZoneActive.value = false;
-	};
+const updateDropZones = (left: boolean, right: boolean): void => {
+	leftDropZoneActive.value = left;
+	rightDropZoneActive.value = right;
+};
 
-	return {
-		// Constants
-		DROPZONE_WIDTH,
-		// State (readonly to prevent external mutations)
-		draggedTab: readonly(draggedTab),
-		leftDropZoneActive: readonly(leftDropZoneActive),
-		rightDropZoneActive: readonly(rightDropZoneActive),
-		isDragging,
-		// Methods
-		startDrag,
-		endDrag,
-		updateDropZones,
-		clearDropZones,
-	};
-}
+const clearDropZones = (): void => {
+	leftDropZoneActive.value = false;
+	rightDropZoneActive.value = false;
+};
+
+export const useDragDropState = () => ({
+	DROPZONE_WIDTH,
+	draggedTab: readonly(draggedTab),
+	leftDropZoneActive: readonly(leftDropZoneActive),
+	rightDropZoneActive: readonly(rightDropZoneActive),
+	isDragging,
+	isTreeDrag,
+	startDrag,
+	startDragFromTree,
+	endDrag,
+	updateDropZones,
+	clearDropZones,
+});
