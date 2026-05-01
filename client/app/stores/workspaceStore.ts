@@ -335,18 +335,26 @@ export const useWorkspaceStore = defineStore("workspaceStore", {
 			}
 		},
 
-		// Open the file as a tab in the given panel (used by file explorer drag onto a panel's tab strip)
+		// Open the file as a tab in the given panel
 		async openFileInPanel(filePath: string, targetPanelId: number): Promise<void> {
 			if (!filePath) return;
 			await this.cacheFileForOpen(filePath);
 			this.addTabToPanel(filePath, targetPanelId);
 		},
 
-		// Open the file in a freshly created panel at the given position (used by file explorer drag onto a side drop zone)
+		// Open the file in a freshly created panel at the given positio
 		async openFileInNewPanelAt(filePath: string, insertPosition: number): Promise<void> {
 			if (!filePath) return;
 			await this.cacheFileForOpen(filePath);
 			this.createPanel(filePath, insertPosition);
+		},
+
+		// Open the file and promote any preview tab for it to a pinned tab
+		async openAndPinFile(filePath: string | null): Promise<void> {
+			if (!filePath) return;
+			await this.openFile(filePath);
+			const panel = this.findPanelWithFile(filePath);
+			if (panel) this.pinTab(filePath, panel.id);
 		},
 
 		async openPreviewFile(filePath: string | null): Promise<void> {
@@ -362,7 +370,7 @@ export const useWorkspaceStore = defineStore("workspaceStore", {
 				projectStore.getRepoAuthToken(),
 			);
 
-			// If already open in any panel, just activate it (don't downgrade pinned to preview)
+			// If already open in any panel, just activate it
 			if (this.isFileOpenInAnyPanel(filePath)) {
 				this.setActiveTabByFilePath(filePath);
 				return;
