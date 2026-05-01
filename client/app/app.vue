@@ -305,7 +305,7 @@ const exportLocalComments = () => {
 	<!-- Empty Project Modal -->
 	<Modal v-if="isEmptyProjectModalVisible">
 		<Card
-			class="w-[600px] max-w-full mx-auto"
+			class="w-150 max-w-full mx-auto"
 			icon-name="archive"
 			icon-gradient="blue"
 			:title="t('app.noProjectConfigured')"
