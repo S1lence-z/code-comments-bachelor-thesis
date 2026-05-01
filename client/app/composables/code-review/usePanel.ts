@@ -5,6 +5,7 @@ export interface PanelProps {
 	openTabs: TabData[];
 	activeTab: TabData | null;
 	draggedTab: DraggedTabData | null;
+	sideZoneActive?: boolean;
 }
 
 export interface PanelEmits {
@@ -26,6 +27,13 @@ export const usePanel = (props: PanelProps, emit: PanelEmits) => {
 	const handleDragOver = (event: DragEvent) => {
 		event.preventDefault();
 		event.dataTransfer!.dropEffect = "move";
+
+		// Do not show main drop zone when side zone is active
+		if (props.sideZoneActive) {
+			isDragOver.value = false;
+			showDropZone.value = false;
+			return;
+		}
 
 		// Only show drop zone if dragging from another panel
 		if (props.draggedTab && props.draggedTab.fromPanelId !== props.panelId) {
@@ -56,8 +64,8 @@ export const usePanel = (props: PanelProps, emit: PanelEmits) => {
 	// Tab state and handlers
 	const currentTabs = computed(() => props.openTabs.map((tab) => tab.filePath));
 	const currentActiveTab = computed(() => props.activeTab?.filePath || null);
-	const previewFilePaths = computed(() =>
-		new Set(props.openTabs.filter((t) => t.isPreview).map((t) => t.filePath)),
+	const previewFilePaths = computed(
+		() => new Set(props.openTabs.filter((t) => t.isPreview).map((t) => t.filePath)),
 	);
 
 	const handleTabUpdate = (filePath: string | null) => {

@@ -42,6 +42,7 @@ const {
 				:open-tabs="panel.openTabs"
 				:active-tab="panel.activeTab"
 				:dragged-tab="draggedTab"
+				:side-zone-active="leftDropZoneActive || rightDropZoneActive"
 				@tab-selected="(filePath, panelId) => emit('tab-selected', filePath, panelId)"
 				@tab-closed="(filePath, panelId) => emit('tab-closed', filePath, panelId)"
 				@tab-drop="(panelId) => emit('tab-drop', panelId, undefined)"
