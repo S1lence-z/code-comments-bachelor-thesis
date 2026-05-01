@@ -4,35 +4,26 @@ This guide walks you through everything needed to participate in user testing of
 
 ## 1. Overview
 
-The testing was conducted with potential users - mainly students with some technical background for whom the platform could be usable.
+This is just an overview of the user testing process. During the test you will:
 
-During the test you will:
-
-1. Set up access to the application (one-time, see section 3).
-2. Play the role of a **reviewer**: configure a project and leave several kinds of comments on a public repository.
-3. Play the role of a **reviewee**: open the shared review link and reply to the comments.
+1. Set up access to the application.
+2. Play the role of a **reviewer**.
+3. Play the role of a **reviewee**.
 4. Fill in a short SUS (System Usability Scale) questionnaire.
 
-The full session takes roughly 10–20 minutes.
+The full session takes roughly 20 minutes.
 
-## 2. Choose a Testing Environment
+## 2. Setup
 
-Two setups are offered. Pick **one** and follow the matching subsection in section 3.
+Before the testing process itself, you have to choose how you want to access the application. There are two options:
 
-- **Option A - Staging Deployment.** Nothing to install. You use the publicly hosted frontend and backend.
-- **Option B - Local Setup with Docker.** You run the whole stack on your machine. Requires Git and Docker; useful if you want to test the self-hosted scenario.
+- **Option A - Deployed Version.** Nothing to install. You use the publicly hosted frontend and backend.
+- **Option B - Local Setup with Docker.** You run the whole stack on your machine. Requires Git and Docker.
 
-> ⚠️ **Note:** The staging deployment (Option A) is intended for testing purposes and does not represent a fully production-grade service.
-
-## 3. Setup
-
-### Option A - Staging Deployment
+### Option A - Deployed Version
 
 1. Open the manager app in your browser: <https://codecomments.jirizelenka.me/setup>
-2. Contact the author (Jiří Zelenka, [j3.zelenka@gmail.com](mailto:j3.zelenka@gmail.com)) to obtain:
-    - the **staging backend URL** - paste it into the _backend URL_ field of the setup form, and
-    - the **project password** - required when creating the project.
-3. Note your **frontend URL** for the scenarios below: `https://codecomments.jirizelenka.me`
+2. Contact the author (Jiří Zelenka, [j3.zelenka@gmail.com](mailto:j3.zelenka@gmail.com)) to obtain the credentials for the testing project. You will need these in the scenarios.
 
 ### Option B - Local Setup with Docker
 
@@ -57,22 +48,22 @@ Two setups are offered. Pick **one** and follow the matching subsection in secti
     docker compose up -d
     ```
 4. Wait until all containers are healthy, then open <http://localhost/> and confirm the manager app loads.
-5. Note the values you will use in the scenarios:
-    - **Frontend URL:** `http://localhost`
-    - **Backend URL** (paste into the setup form's _backend URL_ field): `http://localhost/server`
-    - **Project password** (default from `.env.example`): `testing123`
 
-## 4. User Scenarios
+## 3. User Scenarios
 
-Both scenarios are identical for Option A and Option B - only the URL differs. Wherever you see `<FRONTEND_URL>` below, substitute the frontend URL from your setup section:
+Both scenarios are identical for Option A and Option B — only the server URL and password differ.
 
-- Option A: [`https://codecomments.jirizelenka.me/setup`](https://codecomments.jirizelenka.me/setup)
-- Option B: [`http://localhost/setup`](http://localhost/setup)
+**Reference - use the row that matches your setup:**
+
+| Option           | Server URL                            | Project password                               |
+| ---------------- | ------------------------------------- | ---------------------------------------------- |
+| A (Deployed)     | `https://codecomments.jirizelenka.me` | provided by the author                         |
+| B (Local Docker) | `http://localhost`                    | see `JWT_PROJECT_PASSWORD` in your `.env` file |
 
 ### Scenario 1: Reviewer
 
-1. Open the setup page: `<FRONTEND_URL>/setup`
-2. In the setup form, enter the **backend URL** noted in section 3. You may click on the `use its URL` button to automatically fill it in.
+1. Open the setup page from section 2.
+2. In the setup form, enter the **server URL** for your option (see the reference table above). You may click the **Use this URL** button next to the field to auto-fill the server URL of the manager app you are currently on.
 3. Paste the URL of any public repository into the form.
 4. Enter the **project password** and create a new project.
 5. Open a file in the repository and add a single-line comment.
@@ -86,12 +77,12 @@ Both scenarios are identical for Option A and Option B - only the URL differs. W
 ### Scenario 2: Reviewee
 
 1. Open the shared review link in a browser.
-2. Locate the files in which comments were added.
-3. Open each commented file.
-4. Reply to every comment.
-5. Visit the overview page and verify that all comments are listed correctly.
+2. Open the **overview page** to see all comments and which files they belong to.
+3. Open each commented file from the overview.
+4. Reply to every singleline and multiline comment.
+5. Return to the overview page and verify all your replies are listed correctly.
 
-## 5. Post-Scenario Feedback
+## 4. Post-Scenario Feedback
 
 After completing both scenarios, please fill out the SUS (System Usability Scale) questionnaire via [Google Forms](https://forms.gle/WPa8LhqYCPfKGticA).
 
