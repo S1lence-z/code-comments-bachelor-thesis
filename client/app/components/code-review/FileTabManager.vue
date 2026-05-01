@@ -5,6 +5,7 @@ import {
 	type FileTabManagerProps,
 	type FileTabManagerEmits,
 } from "../../composables/code-review/useFileTabManager";
+import { getFileName } from "~/utils/file";
 
 
 const { t } = useI18n();
