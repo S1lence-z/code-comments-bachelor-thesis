@@ -30,6 +30,10 @@ export const useFileExplorer = () => {
 		return areFilesExpanded.value ? "Collapse All" : "Expand All";
 	});
 
+	const expandAllButtonIcon = computed(() => {
+		return areFilesExpanded.value ? "mdi:unfold-less-horizontal" : "mdi:unfold-more-horizontal";
+	});
+
 	// Computed
 	const projectCommentButtonLabel = computed(() => {
 		return projectDataStore.containsProjectComment
@@ -37,10 +41,16 @@ export const useFileExplorer = () => {
 			: "Add Project Comment";
 	});
 
+	const projectCommentButtonIcon = computed(() => {
+		return projectDataStore.containsProjectComment ? "mdi:comment-edit" : "mdi:comment-plus";
+	});
+
 	return {
 		expandAllFiles,
 		expandAllButtonLabel,
+		expandAllButtonIcon,
 		handleToggleExpandInTree,
 		projectCommentButtonLabel,
+		projectCommentButtonIcon,
 	};
 };
