@@ -6,6 +6,8 @@ import { appKeyboardShortcutsKey } from "../../../base/app/core/keys";
 
 const defaultKeyBoardShortcuts: AppKeyboardShortcuts = {
 	addComment: { binding: "Ctrl-c", actionName: "Add Comment" },
+	submitForm: { binding: "Ctrl-Enter", actionName: "Submit Form" },
+	cancelForm: { binding: "Escape", actionName: "Cancel Form" },
 };
 
 export const useKeyboardShortcutsStore = defineStore("keyboardShortcutsStore", {
