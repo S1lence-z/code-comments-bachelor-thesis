@@ -1,6 +1,8 @@
 import { WidgetType } from "@codemirror/view";
 import type CategoryDto from "../../../../base/app/types/dtos/category-dto";
 import { CommentType } from "../../../../base/app/types/dtos/comment-type";
+import type { AppKeyboardShortcuts } from "../../types/domain/keyboard-shortcuts";
+import { matchShortcut } from "../../utils/shortcut-matcher";
 
 /**
  * Widget for creating and editing comments inside CodeMirror. Exposes a simple form.
@@ -18,6 +20,7 @@ export default class CommentFormWidget extends WidgetType {
 	private onDelete: (commentId: string) => void;
 	private onCancel: () => void;
 	private onError: (message: string) => void;
+	private shortcuts: AppKeyboardShortcuts;
 	private showCategorySelect: boolean;
 
 	constructor(
@@ -33,6 +36,7 @@ export default class CommentFormWidget extends WidgetType {
 		onCancel: () => void,
 		onDelete: (commentId: string) => void,
 		onError: (message: string) => void,
+		shortcuts: AppKeyboardShortcuts,
 	) {
 		super();
 		this.commentId = commentId;
@@ -47,6 +51,7 @@ export default class CommentFormWidget extends WidgetType {
 		this.onSubmit = onSubmit;
 		this.onDelete = onDelete;
 		this.onError = onError;
+		this.shortcuts = shortcuts;
 		this.showCategorySelect =
 			commentType !== CommentType.Project && commentType !== CommentType.File;
 	}
@@ -152,9 +157,12 @@ export default class CommentFormWidget extends WidgetType {
 		textarea.placeholder = "Enter your comment...";
 
 		textarea.addEventListener("keydown", (e) => {
-			if (e.ctrlKey && e.key === "Enter") {
+			if (matchShortcut(e, this.shortcuts.submitForm.binding)) {
 				e.preventDefault();
 				this.handleSubmit(group.closest(".cm-comment-form-widget") as HTMLElement);
+			} else if (matchShortcut(e, this.shortcuts.cancelForm.binding)) {
+				e.preventDefault();
+				this.onCancel();
 			}
 		});
 

@@ -60,6 +60,7 @@ export const createEditorExtensions = (
 			onCancelUpsertingComment,
 			onDeleteComment,
 			onFormValidationError,
+			appKeyboardShortcuts,
 		),
 	];
 
