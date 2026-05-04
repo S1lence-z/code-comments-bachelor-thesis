@@ -68,6 +68,16 @@ export default class CommentFormWidget extends WidgetType {
 		infoAndButtonsContainer.appendChild(this.createButtonGroup());
 		wrap.appendChild(infoAndButtonsContainer);
 
+		// Focus textarea on open
+		requestAnimationFrame(() => {
+			const textarea = wrap.querySelector<HTMLTextAreaElement>(
+				".comment-form-content-textarea",
+			);
+			if (textarea) {
+				textarea.focus();
+				textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+			}
+		});
 		return wrap;
 	}
 
@@ -140,7 +150,6 @@ export default class CommentFormWidget extends WidgetType {
 		textarea.value = this.initialContent;
 		textarea.rows = 3;
 		textarea.placeholder = "Enter your comment...";
-		textarea.autofocus = true;
 
 		textarea.addEventListener("keydown", (e) => {
 			if (e.ctrlKey && e.key === "Enter") {
