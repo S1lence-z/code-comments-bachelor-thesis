@@ -17,6 +17,9 @@ export interface Workspace {
 	panels: PanelData[];
 }
 
+export type DragSource = "tab" | "explorer";
+
 export interface DraggedTabData extends TabData {
 	fromPanelId: number;
+	source: DragSource;
 }

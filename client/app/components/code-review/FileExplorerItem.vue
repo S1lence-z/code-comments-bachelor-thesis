@@ -21,6 +21,8 @@ const {
 	handleItemClick,
 	handleItemDoubleClick,
 	handleToggleExpand,
+	handleDragStart,
+	handleDragEnd,
 	fileContainsAnyComments,
 	fileContainsFileComment,
 	hasCommentedChildren,
@@ -32,12 +34,16 @@ const {
 	<li class="list-none" :title="currentNode.path">
 		<!-- Item Container -->
 		<div
-			class="flex items-center rounded-lg transition-all duration-200"
+			class="flex items-center rounded-lg transition-all duration-200 select-none"
 			:class="{
 				'bg-white/10 text-white border border-white/20': isFileSelected,
 				'bg-amber-500/10 border border-amber-500/20': hasCommentedChildren,
 				'hover:bg-white/5': !isFileSelected,
+				'cursor-grab active:cursor-grabbing': currentNode.type === TreeNodeType.file,
 			}"
+			:draggable="currentNode.type === TreeNodeType.file"
+			@dragstart="handleDragStart($event, currentNode)"
+			@dragend="handleDragEnd"
 		>
 			<!-- Item Info -->
 			<div
@@ -110,9 +116,11 @@ const {
 			<!-- Item Actions -->
 			<div class="mr-2 duration-200">
 				<button
+					type="button"
 					@click="emit('file-comment-requested', props.currentNode.path)"
 					class="w-6 h-6 bg-white/10 hover:bg-white/20 hover:text-white rounded-md flex items-center justify-center transition-all duration-200 text-black cursor-pointer"
 					:title="t('fileExplorer.addComment')"
+					:aria-label="t('fileExplorer.addComment')"
 				>
 					<Icon
 						v-if="fileContainsFileComment(currentNode.path)"

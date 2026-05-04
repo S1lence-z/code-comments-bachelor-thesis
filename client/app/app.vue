@@ -156,6 +156,16 @@ watch(
 	{ immediate: false }
 );
 
+// Copy current URL to clipboard for sharing
+const copyShareUrl = async () => {
+	try {
+		await navigator.clipboard.writeText(window.location.href);
+		errorHandler.showSuccess(t("share.urlCopied"));
+	} catch {
+		errorHandler.showError(t("share.urlCopyFailed"));
+	}
+};
+
 // Comments export functionality
 const exportLocalComments = () => {
 	const localComments = projectDataStore.getAllComments;
@@ -219,11 +229,21 @@ const exportLocalComments = () => {
 				</div>
 
 				<div class="flex flex-row gap-4">
+					<!-- Share / Copy URL -->
+					<Button
+						:label="t('share.copyUrl')"
+						buttonStyle="secondary"
+						buttonSize="medium"
+						iconName="mdi:share-variant"
+						@click="copyShareUrl"
+					/>
 					<!-- Dropdown for Export Options -->
 					<Button
 						:label="t('status.exportComments')"
 						buttonStyle="secondary"
 						buttonSize="medium"
+						iconName="mdi:download"
+						display="both"
 						@click="exportLocalComments"
 					/>
 					<!-- Button for Settings slideout panel -->
@@ -231,6 +251,7 @@ const exportLocalComments = () => {
 						:label="t('settings.title')"
 						buttonStyle="secondary"
 						buttonSize="medium"
+						iconName="mdi:cog"
 						@click="settingsStore.toggleSettingsOpen"
 					/>
 				</div>
@@ -305,7 +326,7 @@ const exportLocalComments = () => {
 	<!-- Empty Project Modal -->
 	<Modal v-if="isEmptyProjectModalVisible">
 		<Card
-			class="w-[600px] max-w-full mx-auto"
+			class="w-150 max-w-full mx-auto"
 			icon-name="archive"
 			icon-gradient="blue"
 			:title="t('app.noProjectConfigured')"

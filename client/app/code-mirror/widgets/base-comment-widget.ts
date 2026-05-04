@@ -136,7 +136,10 @@ export default abstract class BaseCommentWidget extends WidgetType {
 
 	protected createEditButton(): HTMLButtonElement {
 		const editButton = document.createElement("button");
+		editButton.type = "button";
 		editButton.classList.add("edit-button");
+		editButton.title = "Edit comment";
+		editButton.setAttribute("aria-label", "Edit comment");
 
 		const icon = this.createIconElement("mdi:pencil");
 		editButton.appendChild(icon);
@@ -147,7 +150,10 @@ export default abstract class BaseCommentWidget extends WidgetType {
 
 	protected createDeleteButton(): HTMLButtonElement {
 		const deleteButton = document.createElement("button");
+		deleteButton.type = "button";
 		deleteButton.classList.add("delete-button");
+		deleteButton.title = "Delete comment";
+		deleteButton.setAttribute("aria-label", "Delete comment");
 
 		const icon = this.createIconElement("mdi:delete");
 		deleteButton.appendChild(icon);
@@ -158,7 +164,10 @@ export default abstract class BaseCommentWidget extends WidgetType {
 
 	protected createReplyButton(): HTMLButtonElement {
 		const replyButton = document.createElement("button");
+		replyButton.type = "button";
 		replyButton.classList.add("reply-button");
+		replyButton.title = "Reply to comment";
+		replyButton.setAttribute("aria-label", "Reply to comment");
 		const icon = this.createIconElement("mdi:reply");
 		replyButton.appendChild(icon);
 		replyButton.onclick = () => this.handleReplyComment(this.commentId);

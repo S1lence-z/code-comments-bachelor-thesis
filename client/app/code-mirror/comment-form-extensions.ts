@@ -5,6 +5,7 @@ import { EditorView } from "@codemirror/view";
 import CommentFormWidget from "./widgets/comment-form-widget";
 import type CategoryDto from "../../../base/app/types/dtos/category-dto";
 import { CommentType } from "../../../base/app/types/dtos/comment-type";
+import type { AppKeyboardShortcuts } from "../types/domain/keyboard-shortcuts";
 
 export interface CommentFormState {
 	lineNumber: number;
@@ -36,6 +37,7 @@ export const commentFormExtension = (
 	onCancel: () => void,
 	onDelete: (commentId: string) => void,
 	onError: (message: string) => void,
+	shortcuts: AppKeyboardShortcuts,
 ) => {
 	return StateField.define<DecorationSet>({
 		create() {
@@ -72,6 +74,7 @@ export const commentFormExtension = (
 								onCancel,
 								onDelete,
 								onError,
+								shortcuts,
 							),
 							side: -1,
 							block: true,

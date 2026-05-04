@@ -182,28 +182,32 @@ export const useWorkspaceStore = defineStore("workspaceStore", {
 			return ++this.panelIdCounter;
 		},
 
-		createPanel(initialFilePath?: string): PanelData {
+		createPanel(initialFilePath?: string, insertPosition?: number): PanelData {
 			if (!this.currentWorkspace) {
 				throw new Error("Cannot create panel: no current workspace");
 			}
 
 			// Get new panel id and create panel data
 			const newPanelId = this.generatePanelId();
-			const newTabData: TabData = {
-				filePath: initialFilePath || "",
-				panelId: newPanelId,
-			};
+			const initialTab: TabData | null = initialFilePath
+				? { filePath: initialFilePath, panelId: newPanelId }
+				: null;
 
 			// Create new panel
 			const newPanel: PanelData = {
 				id: newPanelId,
-				openTabs: initialFilePath ? [newTabData] : [],
-				activeTab: initialFilePath ? newTabData : null,
+				openTabs: initialTab ? [initialTab] : [],
+				activeTab: initialTab,
 				size: 50,
 			};
 
-			// Add panel to current workspace and redistribute sizes
-			this.currentWorkspace.panels.push(newPanel);
+			// Add panel to current workspace at the given position (or at the end) and redistribute sizes
+			if (insertPosition !== undefined) {
+				this.currentWorkspace.panels.splice(insertPosition, 0, newPanel);
+			} else {
+				this.currentWorkspace.panels.push(newPanel);
+			}
+
 			this.redistributePanelSizes();
 			this.saveCurrentWorkspace();
 			return newPanel;
@@ -307,19 +311,21 @@ export const useWorkspaceStore = defineStore("workspaceStore", {
 			return filePath;
 		},
 
-		async openFile(filePath: string | null): Promise<void> {
-			if (!filePath) return;
-
+		// Cache the file content
+		async cacheFileForOpen(filePath: string): Promise<void> {
 			const fileContentStore = useFileContentStore();
 			const projectStore = useProjectStore();
-
-			// Cache the file content
 			await fileContentStore.cacheFileAsync(
 				filePath,
 				projectStore.getRepositoryUrl,
 				projectStore.getRepositoryBranch,
 				projectStore.getRepoAuthToken(),
 			);
+		},
+
+		async openFile(filePath: string | null): Promise<void> {
+			if (!filePath) return;
+			await this.cacheFileForOpen(filePath);
 
 			// If already open in any panel, just activate it; otherwise add a new tab
 			if (this.isFileOpenInAnyPanel(filePath)) {
@@ -327,6 +333,28 @@ export const useWorkspaceStore = defineStore("workspaceStore", {
 			} else {
 				this.addTabToPanel(filePath);
 			}
+		},
+
+		// Open the file as a tab in the given panel
+		async openFileInPanel(filePath: string, targetPanelId: number): Promise<void> {
+			if (!filePath) return;
+			await this.cacheFileForOpen(filePath);
+			this.addTabToPanel(filePath, targetPanelId);
+		},
+
+		// Open the file in a freshly created panel at the given positio
+		async openFileInNewPanelAt(filePath: string, insertPosition: number): Promise<void> {
+			if (!filePath) return;
+			await this.cacheFileForOpen(filePath);
+			this.createPanel(filePath, insertPosition);
+		},
+
+		// Open the file and promote any preview tab for it to a pinned tab
+		async openAndPinFile(filePath: string | null): Promise<void> {
+			if (!filePath) return;
+			await this.openFile(filePath);
+			const panel = this.findPanelWithFile(filePath);
+			if (panel) this.pinTab(filePath, panel.id);
 		},
 
 		async openPreviewFile(filePath: string | null): Promise<void> {
@@ -342,7 +370,7 @@ export const useWorkspaceStore = defineStore("workspaceStore", {
 				projectStore.getRepoAuthToken(),
 			);
 
-			// If already open in any panel, just activate it (don't downgrade pinned to preview)
+			// If already open in any panel, just activate it
 			if (this.isFileOpenInAnyPanel(filePath)) {
 				this.setActiveTabByFilePath(filePath);
 				return;

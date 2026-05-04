@@ -31,7 +31,7 @@ const {
 		ref="containerElement"
 		id="split-panel-container"
 		class="flex h-full w-full relative"
-		@dragover="(event) => emit('drop-zone-drag-over', event)"
+		@dragover.capture="(event) => emit('drop-zone-drag-over', event)"
 		@dragleave="(event) => emit('drop-zone-leave', event)"
 		@drop="(event) => emit('drop-zone-drop', event)"
 	>
@@ -42,6 +42,7 @@ const {
 				:open-tabs="panel.openTabs"
 				:active-tab="panel.activeTab"
 				:dragged-tab="draggedTab"
+				:side-zone-active="leftDropZoneActive || rightDropZoneActive"
 				@tab-selected="(filePath, panelId) => emit('tab-selected', filePath, panelId)"
 				@tab-closed="(filePath, panelId) => emit('tab-closed', filePath, panelId)"
 				@tab-drop="(panelId) => emit('tab-drop', panelId, undefined)"

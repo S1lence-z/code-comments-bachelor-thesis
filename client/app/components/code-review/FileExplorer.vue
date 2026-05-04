@@ -5,7 +5,14 @@ import { useFileExplorer } from "../../composables/code-review/useFileExplorer";
 const props = defineProps<FileExplorerProps>();
 const emit = defineEmits<FileExplorerEmits>();
 
-const { projectCommentButtonLabel, expandAllButtonLabel, handleToggleExpandInTree, expandAllFiles } = useFileExplorer();
+const {
+	projectCommentButtonLabel,
+	projectCommentButtonIcon,
+	expandAllButtonLabel,
+	expandAllButtonIcon,
+	handleToggleExpandInTree,
+	expandAllFiles,
+} = useFileExplorer();
 </script>
 
 <template>
@@ -16,6 +23,7 @@ const { projectCommentButtonLabel, expandAllButtonLabel, handleToggleExpandInTre
 			<!-- Toggle Expand All Button -->
 			<Button
 				:label="expandAllButtonLabel"
+				:iconName="expandAllButtonIcon"
 				buttonStyle="secondary"
 				buttonSize="small"
 				@click="expandAllFiles"
@@ -23,8 +31,10 @@ const { projectCommentButtonLabel, expandAllButtonLabel, handleToggleExpandInTre
 			<!-- Project Comment Button -->
 			<Button
 				:label="projectCommentButtonLabel"
+				:iconName="projectCommentButtonIcon"
 				buttonStyle="secondary"
 				buttonSize="small"
+				display="both"
 				@click="emit('project-comment-requested')"
 			/>
 		</div>

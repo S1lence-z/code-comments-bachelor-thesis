@@ -43,6 +43,15 @@ const dragDropState = useDragDropState();
 const handleTabDrop = (targetPanelId: number, insertIndex?: number): void => {
 	if (!dragDropState.draggedTab.value) return;
 
+	const draggedFilePath = dragDropState.draggedTab.value.filePath;
+
+	// Drop coming from the file explorer: open the file in the target panel
+	if (dragDropState.isExplorerDrag.value) {
+		workspaceStore.openFileInPanel(draggedFilePath, targetPanelId);
+		dragDropState.endDrag();
+		return;
+	}
+
 	// Do not allow dropping on the same panel
 	if (dragDropState.draggedTab.value.fromPanelId === targetPanelId) {
 		dragDropState.endDrag();
@@ -54,6 +63,34 @@ const handleTabDrop = (targetPanelId: number, insertIndex?: number): void => {
 		dragDropState.draggedTab.value,
 		insertIndex
 	);
+	dragDropState.endDrag();
+};
+
+const isEmptyDropOver = ref(false);
+
+const handleEmptyDragOver = (event: DragEvent): void => {
+	if (!dragDropState.isExplorerDrag.value) return;
+	event.preventDefault();
+	if (event.dataTransfer) event.dataTransfer.dropEffect = "copy";
+	isEmptyDropOver.value = true;
+};
+
+const handleEmptyDragLeave = (event: DragEvent): void => {
+	const currentTarget = event.currentTarget as HTMLElement;
+	const relatedTarget = event.relatedTarget as HTMLElement | null;
+	if (!currentTarget?.contains(relatedTarget)) {
+		isEmptyDropOver.value = false;
+	}
+};
+
+const handleEmptyDrop = (event: DragEvent): void => {
+	event.preventDefault();
+	isEmptyDropOver.value = false;
+	if (!dragDropState.draggedTab.value) return;
+	if (!dragDropState.isExplorerDrag.value) return;
+
+	const filePath = dragDropState.draggedTab.value.filePath;
+	workspaceStore.openFile(filePath);
 	dragDropState.endDrag();
 };
 
@@ -99,6 +136,14 @@ const handleDropZoneDrop = (event: DragEvent): void => {
 	);
 
 	if (insertPosition === null) return;
+
+	// Drop coming from the file explorer: create a fresh panel at the insert position
+	if (dragDropState.isExplorerDrag.value) {
+		const filePath = dragDropState.draggedTab.value.filePath;
+		workspaceStore.openFileInNewPanelAt(filePath, insertPosition);
+		dragDropState.endDrag();
+		return;
+	}
 
 	workspaceStore.moveTabToNewPanel(dragDropState.draggedTab.value, insertPosition);
 	dragDropState.endDrag();
@@ -166,7 +211,7 @@ onMounted(async () => {
 							v-else-if="getFileTree.length > 0"
 							:selectedPath="workspaceStore.activeFilePath"
 							@update:selected-path="workspaceStore.openPreviewFile"
-							@file-pin-requested="workspaceStore.openFile"
+							@file-pin-requested="workspaceStore.openAndPinFile"
 							:treeData="getFileTree"
 							@project-comment-requested="handleProjectCommentRequest"
 							@file-comment-requested="handleFileCommentRequest"
@@ -220,7 +265,13 @@ onMounted(async () => {
 							@inline-form-reply="replyToComment"
 						/>
 						<!-- Empty State -->
-						<div v-else class="text-center">
+						<div
+							v-else
+							class="relative text-center h-full flex items-center justify-center"
+							@dragover="handleEmptyDragOver"
+							@dragleave="handleEmptyDragLeave"
+							@drop="handleEmptyDrop"
+						>
 							<div class="empty-state">
 								<div class="empty-state-icon">
 									<Icon icon="mdi:inbox" class="w-8 h-8 text-slate-400" />
@@ -231,6 +282,15 @@ onMounted(async () => {
 								<p class="text-slate-400 mb-4">
 									{{ t("codeReviewPage.noFileSelectedSubtext") }}
 								</p>
+							</div>
+							<!-- Drop Zone Overlay (only visible while a file explorer drag is hovering) -->
+							<div
+								v-if="isEmptyDropOver"
+								class="absolute inset-0 bg-blue-500/20 border-2 border-blue-500 border-dashed flex items-center justify-center pointer-events-none"
+							>
+								<div class="text-blue-300 text-sm font-medium">
+									{{ t("panel.dropTabHere") }}
+								</div>
 							</div>
 						</div>
 					</div>

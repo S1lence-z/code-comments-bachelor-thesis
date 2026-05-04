@@ -5,4 +5,6 @@ export interface KeyboardShortcut {
 
 export interface AppKeyboardShortcuts {
 	addComment: KeyboardShortcut;
+	submitForm: KeyboardShortcut;
+	cancelForm: KeyboardShortcut;
 }

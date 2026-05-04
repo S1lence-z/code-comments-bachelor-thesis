@@ -3,6 +3,7 @@ import type RawCommentData from "../../types/domain/raw-comment-data";
 import { CommentType } from "../../../../base/app/types/dtos/comment-type";
 import CustomInputArea from "../../../../base/app/components/CustomInputArea.vue";
 import CustomSelect from "../../../../base/app/components/CustomSelect.vue";
+import { matchShortcut } from "../../utils/shortcut-matcher";
 
 const { t } = useI18n();
 
@@ -24,6 +25,7 @@ const emit = defineEmits<FormEmits>();
 
 // Stores
 const projectDataStore = useProjectDataStore();
+const keyboardShortcutsStore = useKeyboardShortcutsStore();
 
 // InputArea ref
 const inputAreaRef = ref<InstanceType<typeof CustomInputArea> | null>(null);
@@ -53,10 +55,10 @@ const getSubtitle = computed(() => {
 		: getCommentLocationInfoByType(CommentType.Project);
 });
 
+const shortcuts = computed(() => keyboardShortcutsStore.getShortcuts);
+
 const handleKeyboardEvent = (event: KeyboardEvent) => {
-	if (event.ctrlKey && event.key === "Enter") {
-		handleSubmit();
-	} else if (event.key === "Escape") {
+	if (matchShortcut(event, shortcuts.value.cancelForm.binding)) {
 		handleClose();
 	}
 };
@@ -160,6 +162,9 @@ watch(
 				v-model="commentData.content"
 				:placeholder="t('commentForm.commentPlaceholder')"
 				:rows="4"
+				:submit-binding="shortcuts.submitForm.binding"
+				:submit-matcher="matchShortcut"
+				@submit="handleSubmit"
 			/>
 
 			<div class="flex justify-end space-x-2">

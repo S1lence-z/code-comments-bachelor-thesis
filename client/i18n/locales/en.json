@@ -29,7 +29,7 @@
 		"title": "Settings",
 		"showSidebar": "Show Sidebar",
 		"keyboardMode": "Keyboard Mode",
-		"saveWorkspace": "Save Workspace",
+		"saveWorkspace": "Save Open Tabs",
 		"compactCommentWidget": "Compact Comment Widget",
 		"offlineMode": "Offline Mode",
 		"editKeyboardShortcuts": "Edit Keyboard Shortcuts",
@@ -144,5 +144,10 @@
 		"close": "Close",
 		"open": "Open",
 		"create": "Create"
+	},
+	"share": {
+		"copyUrl": "Copy Share URL",
+		"urlCopied": "URL copied to clipboard",
+		"urlCopyFailed": "Failed to copy URL to clipboard"
 	}
 }

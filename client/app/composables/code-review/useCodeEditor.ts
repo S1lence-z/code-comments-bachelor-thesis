@@ -165,6 +165,9 @@ export const useCodeEditor = (props: CodeEditorProps, emit: CodeEditorEmits) => 
 		editorView.value.dispatch({
 			effects: hideCommentFormEffect.of(),
 		});
+
+		// Return focus to the editor so keyboard navigation continues without a click.
+		editorView.value.focus();
 	};
 
 	const findCommentRecursively = (
@@ -279,8 +282,12 @@ export const useCodeEditor = (props: CodeEditorProps, emit: CodeEditorEmits) => 
 		// Add event listeners for selection change
 		if (editorView.value) {
 			editorView.value.dom.addEventListener("mouseup", handleSelectionChange);
-			editorView.value.dom.addEventListener("keyup", handleSelectionChange);
+			editorView.value.dom.addEventListener("keyup", handleShiftReleaseSelectionChange);
 		}
+	};
+
+	const handleShiftReleaseSelectionChange = (event: KeyboardEvent): void => {
+		if (event.key === "Shift") handleSelectionChange();
 	};
 
 	const handleSelectionChange = (): void => {

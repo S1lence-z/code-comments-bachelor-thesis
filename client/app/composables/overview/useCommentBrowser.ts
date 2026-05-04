@@ -31,11 +31,11 @@ export const useCommentBrowser = (props: CommentBrowserProps, emit: CommentBrows
 			Object.entries(props.allCommentsByFile).map(([filePath, comments]) => [
 				filePath,
 				comments.filter((comment) => comment.type === props.commentTypeFilter),
-			])
+			]),
 		);
 		// Remove files with no comments after filtering
 		return Object.fromEntries(
-			Object.entries(tempFilteredComments).filter(([, comments]) => comments.length > 0)
+			Object.entries(tempFilteredComments).filter(([, comments]) => comments.length > 0),
 		);
 	});
 
@@ -62,7 +62,7 @@ export const useCommentBrowser = (props: CommentBrowserProps, emit: CommentBrows
 					filePath,
 					comments.filter((comment) => comment.type !== CommentType.Project),
 				])
-				.filter(([, comments]) => (comments?.length ?? 0) > 0)
+				.filter(([, comments]) => (comments?.length ?? 0) > 0),
 		);
 	});
 
@@ -98,10 +98,10 @@ export const useCommentBrowser = (props: CommentBrowserProps, emit: CommentBrows
 		};
 
 		if (comment.type === CommentType.Singleline && comment.location.lineNumber) {
-			const startLine = Math.max(0, comment.location.lineNumber - showedLineOffset.value);
+			const startLine = Math.max(0, comment.location.lineNumber - 1 - showedLineOffset.value);
 			const endLine = Math.min(
 				lines.length,
-				comment.location.lineNumber + showedLineOffset.value
+				comment.location.lineNumber + showedLineOffset.value,
 			);
 			return formatWithLineNumbers(lines.slice(startLine, endLine), startLine);
 		}
@@ -113,11 +113,11 @@ export const useCommentBrowser = (props: CommentBrowserProps, emit: CommentBrows
 		) {
 			const startLine = Math.max(
 				0,
-				comment.location.startLineNumber - showedLineOffset.value
+				comment.location.startLineNumber - 1 - showedLineOffset.value,
 			);
 			const endLine = Math.min(
 				lines.length,
-				comment.location.endLineNumber + showedLineOffset.value
+				comment.location.endLineNumber + showedLineOffset.value,
 			);
 			return formatWithLineNumbers(lines.slice(startLine, endLine), startLine);
 		}
@@ -161,4 +161,4 @@ export const useCommentBrowser = (props: CommentBrowserProps, emit: CommentBrows
 		handleOpenFileInEditor,
 		loadOpenCardsState,
 	};
-}
+};

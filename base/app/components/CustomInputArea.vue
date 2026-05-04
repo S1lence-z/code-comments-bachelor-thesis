@@ -4,6 +4,8 @@ interface InputAreaProps {
 	placeholder?: string;
 	modelValue?: string;
 	rows?: number;
+	submitBinding?: string;
+	submitMatcher?: (event: KeyboardEvent, binding: string) => boolean;
 }
 const props = withDefaults(defineProps<InputAreaProps>(), {
 	modelValue: "",
@@ -20,7 +22,11 @@ const modelValue = computed({
 });
 
 const handleKeydown = (event: KeyboardEvent) => {
-	if (event.ctrlKey && event.key === "Enter") {
+	if (
+		props.submitBinding &&
+		props.submitMatcher &&
+		props.submitMatcher(event, props.submitBinding)
+	) {
 		event.preventDefault();
 		emit("submit");
 	}

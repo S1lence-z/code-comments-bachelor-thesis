@@ -9,7 +9,7 @@ export const useSettingsStore = defineStore("settingsStore", {
 		settingsOpenState: false,
 		keyboardModeOnState: false,
 		sidebarOpenState: true,
-		saveWorkspaceState: false,
+		saveWorkspaceState: true,
 		compactCommentWidgetState: true,
 		keyboardShortcutsEditorState: false,
 		repositoryAuthEditorState: false,

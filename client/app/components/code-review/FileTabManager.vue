@@ -5,6 +5,7 @@ import {
 	type FileTabManagerProps,
 	type FileTabManagerEmits,
 } from "../../composables/code-review/useFileTabManager";
+import { getFileName } from "~/utils/file";
 
 
 const { t } = useI18n();
@@ -76,9 +77,11 @@ const {
 						</button>
 						<!-- Close/Preview indicator button -->
 						<button
+							type="button"
 							@click="removeFileTab(file)"
 							class="group flex items-center justify-center w-6 h-6 text-slate-400 hover:text-white hover:bg-white/10 rounded-md duration-200 mr-1 cursor-pointer text-sm"
 							:title="t('panel.closeFile')"
+							:aria-label="t('panel.closeFile')"
 						>
 							<template v-if="isPreviewTab(file)">
 								<span
